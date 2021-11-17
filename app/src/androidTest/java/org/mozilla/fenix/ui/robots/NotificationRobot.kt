@@ -8,6 +8,7 @@ import androidx.test.uiautomator.Until
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.mozilla.fenix.helpers.TestAssetHelper.waitingTime
+import org.mozilla.fenix.helpers.TestHelper.appName
 import org.mozilla.fenix.helpers.ext.waitNotNull
 
 class NotificationRobot {
@@ -50,13 +51,22 @@ class NotificationRobot {
         assertPrivateTabsNotification()
     }
 
-    fun clickMediaSystemNotificationControlButton(action: String) {
+    fun clickSystemNotificationControlButton(action: String) {
         mediaSystemNotificationButton(action).waitForExists(waitingTime)
         mediaSystemNotificationButton(action).click()
     }
 
     fun verifyMediaSystemNotificationButtonState(action: String) {
         mediaSystemNotificationButton(action).waitForExists(waitingTime)
+    }
+
+    fun expandNotificationMessage() {
+        mDevice.findObject(
+            UiSelector()
+                //.resourceId("android:id/expand_button")
+                .text(appName)
+        ).click()
+        mDevice.waitForIdle()
     }
 
     class Transition {

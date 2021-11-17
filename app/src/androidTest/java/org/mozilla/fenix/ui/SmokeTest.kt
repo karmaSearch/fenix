@@ -1242,7 +1242,7 @@ class SmokeTest {
             assertPlaybackState(browserStore, MediaSession.PlaybackState.PLAYING)
         }.openNotificationShade {
             verifySystemNotificationExists(audioTestPage.title)
-            clickMediaSystemNotificationControlButton("Pause")
+            clickSystemNotificationControlButton("Pause")
             verifyMediaSystemNotificationButtonState("Play")
         }
 

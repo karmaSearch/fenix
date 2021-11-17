@@ -138,7 +138,9 @@ private fun assertDownloadNotificationPopup() {
 }
 
 private fun closePromptButton() =
-    onView(withId(R.id.close_button)).inRoot(isDialog()).check(matches(isDisplayed()))
+    onView(withContentDescription("Close"))
+        //.inRoot(isDialog()).check(matches(isDisplayed()))
+    //onView(withId(R.id.close_button)).inRoot(isDialog()).check(matches(isDisplayed()))
 
 private fun clickDownloadButton() =
     onView(withText("Download")).inRoot(isDialog()).check(matches(isDisplayed()))
