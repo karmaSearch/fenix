@@ -158,7 +158,7 @@ class DownloadTest {
     @Test
     fun downloadLargeFileTest() {
         val page  = "https://sv-ohorvath.github.io/testapp/downloads"
-        val title = "100MB.zip"
+        val title = "200MB.zip"
         val downloadBtn = mDevice.findObject(UiSelector().textContains(title))
 
         navigationToolbar {
