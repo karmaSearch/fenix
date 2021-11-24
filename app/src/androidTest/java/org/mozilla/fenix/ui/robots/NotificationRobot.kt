@@ -14,10 +14,6 @@ import org.mozilla.fenix.helpers.ext.waitNotNull
 class NotificationRobot {
 
     fun verifySystemNotificationExists(notificationMessage: String) {
-        fun notificationTray() = UiScrollable(
-            UiSelector().resourceId("com.android.systemui:id/notification_stack_scroller")
-        )
-
         var notificationFound = false
 
         do {
@@ -61,12 +57,10 @@ class NotificationRobot {
     }
 
     fun expandNotificationMessage() {
-        mDevice.findObject(
-            UiSelector()
-                //.resourceId("android:id/expand_button")
-                .text(appName)
-        ).click()
-        mDevice.waitForIdle()
+        while (!notificationHeader.waitForExists(waitingTime)) {
+            notificationTray().scrollForward()
+        }
+            notificationHeader.click()
     }
 
     class Transition {
@@ -99,4 +93,15 @@ private fun mediaSystemNotificationButton(action: String) =
         UiSelector()
             .resourceId("android:id/action0")
             .descriptionContains(action)
+    )
+
+private fun notificationTray() = UiScrollable(
+    UiSelector().resourceId("com.android.systemui:id/notification_stack_scroller")
+)
+
+private val notificationHeader =
+    mDevice.findObject(
+        UiSelector()
+            .resourceId("android:id/app_name_text")
+            .text(appName)
     )
