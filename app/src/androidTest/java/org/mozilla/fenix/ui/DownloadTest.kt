@@ -12,6 +12,7 @@ import androidx.test.uiautomator.UiSelector
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.mozilla.fenix.helpers.AndroidAssetDispatcher
@@ -63,6 +64,7 @@ class DownloadTest {
         deleteDownloadFromStorage(downloadFileName)
     }
 
+    @Ignore
     @Test
     fun testDownloadPrompt() {
         val defaultWebPage = TestAssetHelper.getDownloadAsset(mockWebServer)
@@ -77,6 +79,7 @@ class DownloadTest {
         }.closePrompt {}
     }
 
+    @Ignore
     @Test
     fun testDownloadNotification() {
         val defaultWebPage = TestAssetHelper.getDownloadAsset(mockWebServer)
@@ -101,13 +104,13 @@ class DownloadTest {
     }
 
     @Test
-    fun downloadJPGTypeTest() {
-        val page = mockWebServer.url("pages/downloadVariations.html").toString().toUri()
-        val title = "rabbit.jpg"
-        val downloadBtn = mDevice.findObject(UiSelector().text("Download rabbit.jpg"))
+    fun downloadPNGTypeTest() {
+        val page  = "https://sv-ohorvath.github.io/testapp/downloads"
+        val title = "web_icon.png"
+        val downloadBtn = mDevice.findObject(UiSelector().textContains(title))
 
         navigationToolbar {
-        }.enterURLAndEnterToBrowser(page) {
+        }.enterURLAndEnterToBrowser(page.toUri()) {
             downloadBtn.waitForExists(waitingTime)
             downloadBtn.click()
         }
@@ -128,12 +131,12 @@ class DownloadTest {
 
     @Test
     fun downloadMP3TypeTest() {
-        val page = mockWebServer.url("pages/downloadVariations.html").toString().toUri()
+        val page  = "https://sv-ohorvath.github.io/testapp/downloads"
         val title = "audioSample.mp3"
-        val downloadBtn = mDevice.findObject(UiSelector().text("Download audioSample.mp3"))
+        val downloadBtn = mDevice.findObject(UiSelector().textContains(title))
 
         navigationToolbar {
-        }.enterURLAndEnterToBrowser(page) {
+        }.enterURLAndEnterToBrowser(page.toUri()) {
             downloadBtn.waitForExists(waitingTime)
             downloadBtn.click()
         }
@@ -154,13 +157,12 @@ class DownloadTest {
 
     @Test
     fun downloadLargeFileTest() {
-        // val page = "https://testfiledownload.com/"
-        val page  = mockWebServer.url("pages/downloadVariations.html").toString().toUri()
-        val title = ""
-        val downloadBtn = mDevice.findObject(UiSelector().text(title))
+        val page  = "https://sv-ohorvath.github.io/testapp/downloads"
+        val title = "100MB.zip"
+        val downloadBtn = mDevice.findObject(UiSelector().textContains(title))
 
         navigationToolbar {
-        }.enterURLAndEnterToBrowser(page) {
+        }.enterURLAndEnterToBrowser(page.toUri()) {
             downloadBtn.waitForExists(waitingTime)
             downloadBtn.click()
         }
@@ -185,16 +187,14 @@ class DownloadTest {
 
     @Test
     fun downloadExeTypeTest() {
-        val page = "http://demo.borland.com/testsite/download_testpage.php"
-        val title = "SmallExecutable.exe"
+        val page = "https://sv-ohorvath.github.io/testapp/downloads"
+        val title = "executable.exe"
         val exe = mDevice.findObject(UiSelector().textContains(title))
-        val downloadBtn = mDevice.findObject(UiSelector().text("Download"))
 
         navigationToolbar {
         }.enterURLAndEnterToBrowser(page.toUri()) {
             exe.waitForExists(waitingTime)
             exe.click()
-            downloadBtn.click()
         }
         downloadRobot {
             verifyDownloadPrompt()
@@ -213,16 +213,14 @@ class DownloadTest {
 
     @Test
     fun downloadPDFTypeTest() {
-        val page = "http://demo.borland.com/testsite/download_testpage.php"
-        val title = "3rdPartyLicenseTexts.pdf"
+        val page = "https://sv-ohorvath.github.io/testapp/downloads"
+        val title = "washington.pdf"
         val pdf = mDevice.findObject(UiSelector().textContains(title))
-        val downloadBtn = mDevice.findObject(UiSelector().text("Download"))
 
         navigationToolbar {
         }.enterURLAndEnterToBrowser(page.toUri()) {
             pdf.waitForExists(waitingTime)
             pdf.click()
-            downloadBtn.click()
         }
         downloadRobot {
             verifyDownloadPrompt()
@@ -241,16 +239,14 @@ class DownloadTest {
 
     @Test
     fun downloadZIPTypeTest() {
-        val page = "http://demo.borland.com/testsite/download_testpage.php"
-        val title = "Small.zip"
+        val page = "https://sv-ohorvath.github.io/testapp/downloads"
+        val title = "smallZip.zip"
         val zip = mDevice.findObject(UiSelector().textContains(title))
-        val downloadBtn = mDevice.findObject(UiSelector().text("Download"))
 
         navigationToolbar {
         }.enterURLAndEnterToBrowser(page.toUri()) {
             zip.waitForExists(waitingTime)
             zip.click()
-            downloadBtn.click()
         }
         downloadRobot {
             verifyDownloadPrompt()
