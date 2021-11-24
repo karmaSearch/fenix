@@ -57,7 +57,7 @@ class NotificationRobot {
     }
 
     fun expandNotificationMessage() {
-        while (!notificationHeader.waitForExists(waitingTime)) {
+        while (!notificationHeader.exists()) {
             notificationTray().scrollForward()
         }
             notificationHeader.click()
