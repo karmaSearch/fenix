@@ -111,10 +111,12 @@ class SitePermissionsTest {
         }.enterURLAndEnterToBrowser(testPage.toUri()) {
         }.clickOpenNotificationButton {
             verifyNotificationsPermissionPrompt(testPageSubstring)
+//        }.clickPagePermissionButton(true) {
+//            // the test page needs some functionality here
+//        }.clickOpenNotificationButton {
         }.clickPagePermissionButton(false) {
         }.clickOpenNotificationButton {
-        }.clickPagePermissionButton(true) {
-            // the test page needs some functionality here
+            verifyNotificationsPermissionPrompt(testPageSubstring, true)
         }
     }
 }

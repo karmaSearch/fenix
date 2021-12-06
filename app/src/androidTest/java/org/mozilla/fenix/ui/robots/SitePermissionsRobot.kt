@@ -1,8 +1,8 @@
 package org.mozilla.fenix.ui.robots
 
 import androidx.test.uiautomator.UiSelector
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
-import org.mozilla.fenix.helpers.TestAssetHelper
 import org.mozilla.fenix.helpers.TestAssetHelper.waitingTime
 import org.mozilla.fenix.helpers.TestHelper.getPermissionAllowID
 import org.mozilla.fenix.helpers.TestHelper.packageName
@@ -11,10 +11,10 @@ class SitePermissionsRobot {
 
     fun clickAppPermissionButton(allowed: Boolean) {
         if (allowed) {
-            allowSystemPermissionButton.waitForExists(TestAssetHelper.waitingTime)
+            allowSystemPermissionButton.waitForExists(waitingTime)
             allowSystemPermissionButton.click()
         } else {
-            denySystemPermissionButton.waitForExists(TestAssetHelper.waitingTime)
+            denySystemPermissionButton.waitForExists(waitingTime)
             denySystemPermissionButton.click()
         }
     }
@@ -51,21 +51,31 @@ class SitePermissionsRobot {
         assertTrue(allowPagePermissionButton.text.equals("Allow"))
     }
 
-    fun verifyNotificationsPermissionPrompt(url: String) {
-        assertTrue(mDevice.findObject(UiSelector().text("Allow $url to send notifications?"))
-            .waitForExists(waitingTime)
-        )
-        assertTrue(denyPagePermissionButton.text.equals("Never"))
-        assertTrue(allowPagePermissionButton.text.equals("Always"))
+    fun verifyNotificationsPermissionPrompt(url: String, blocked: Boolean = false) {
+        if (!blocked) {
+            assertTrue(
+                mDevice.findObject(UiSelector().text("Allow $url to send notifications?"))
+                    .waitForExists(waitingTime)
+            )
+            assertTrue(denyPagePermissionButton.text.equals("Never"))
+            assertTrue(allowPagePermissionButton.text.equals("Always"))
+        } else {
+            // if "Never" was selected in a previous step,
+                // the Notifications permission prompt won't be displayed anymore
+            assertFalse(
+                mDevice.findObject(UiSelector().text("Allow $url to send notifications?"))
+                    .waitForExists(waitingTime)
+            )
+        }
     }
 
     class Transition {
         fun clickPagePermissionButton(allowed: Boolean, interact: BrowserRobot.() -> Unit): BrowserRobot.Transition {
             if (allowed) {
-                allowPagePermissionButton.waitForExists(TestAssetHelper.waitingTime)
+                allowPagePermissionButton.waitForExists(waitingTime)
                 allowPagePermissionButton.click()
             } else {
-                denyPagePermissionButton.waitForExists(TestAssetHelper.waitingTime)
+                denyPagePermissionButton.waitForExists(waitingTime)
                 denyPagePermissionButton.click()
             }
 
