@@ -550,6 +550,16 @@ class BrowserRobot {
         }
     }
 
+    fun clickTabCrashedRestoreButton() {
+        assertTrue(
+            mDevice.findObject(UiSelector().resourceId("$packageName:id/restoreTabButton"))
+                .waitForExists(waitingTime)
+        )
+
+        val tabCrashRestoreButton = mDevice.findObject(UiSelector().resourceIdMatches("$packageName:id/restoreTabButton"))
+        tabCrashRestoreButton.click()
+    }
+
     class Transition {
         private val mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         private fun threeDotButton() = onView(
@@ -631,7 +641,6 @@ class BrowserRobot {
         }
 
         fun clickTabCrashedCloseButton(interact: HomeScreenRobot.() -> Unit): HomeScreenRobot.Transition {
-
             assertTrue(
                 mDevice.findObject(UiSelector().resourceId("$packageName:id/closeTabButton"))
                     .waitForExists(waitingTime)
@@ -650,6 +659,44 @@ class BrowserRobot {
 
             ShareOverlayRobot().interact()
             return ShareOverlayRobot.Transition()
+        }
+
+        fun clickStartCameraButton(interact: SitePermissionsRobot.() -> Unit): SitePermissionsRobot.Transition {
+            cameraButton.waitForExists(waitingTime)
+            cameraButton.click()
+
+            SitePermissionsRobot().interact()
+            return SitePermissionsRobot.Transition()
+        }
+
+        fun clickStartMicrophoneButton(interact: SitePermissionsRobot.() -> Unit): SitePermissionsRobot.Transition {
+            microphoneButton.waitForExists(waitingTime)
+            microphoneButton.click()
+
+            SitePermissionsRobot().interact()
+            return SitePermissionsRobot.Transition()
+        }
+
+        fun clickStartCameraAndMicrophoneButton(interact: SitePermissionsRobot.() -> Unit): SitePermissionsRobot.Transition {
+            cameraAndMicrophoneButton.waitForExists(waitingTime)
+            cameraAndMicrophoneButton.click()
+
+            SitePermissionsRobot().interact()
+            return SitePermissionsRobot.Transition()
+        }
+
+        fun clickOpenNotificationButton(interact: SitePermissionsRobot.() -> Unit): SitePermissionsRobot.Transition {
+            val startNotificationButton = mDevice.findObject(UiSelector().text("Open notifications dialogue"))
+            // using the test page at https://mozilla-mobile.github.io/testapp/,
+            // we need to scroll down to the Open notifications button
+            while (!startNotificationButton.exists()) {
+                mDevice.findObject(UiSelector().text("Test App")).swipeUp(2)
+                startNotificationButton.waitForExists(2000)
+            }
+            startNotificationButton.click()
+
+            SitePermissionsRobot().interact()
+            return SitePermissionsRobot.Transition()
         }
     }
 }
