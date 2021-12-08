@@ -8,7 +8,6 @@ import androidx.core.net.toUri
 import androidx.test.rule.GrantPermissionRule
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.mozilla.fenix.helpers.AndroidAssetDispatcher
@@ -125,24 +124,6 @@ class SitePermissionsTest {
         }.clickPagePermissionButton(false) {
         }.clickOpenNotificationButton {
             verifyNotificationsPermissionPrompt(testPageSubstring, true)
-        }
-    }
-
-    @Ignore
-    @Test
-    fun locationPermissionPromptTest() {
-        val testPage = "https://mozilla-mobile.github.io/testapp/"
-        val testPageSubstring = "https://mozilla-mobile.github.io:443"
-
-        navigationToolbar {
-        }.enterURLAndEnterToBrowser(testPage.toUri()) {
-        }.clickGetLocationButton {
-            verifyLocationPermissionPrompt(testPageSubstring)
-        }.clickPagePermissionButton(false) {
-        }.clickGetLocationButton {
-            verifyLocationPermissionPrompt(testPageSubstring)
-        }.clickPagePermissionButton(true) {
-            verifyPageContent("longitude")
         }
     }
 }
