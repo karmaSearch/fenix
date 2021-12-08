@@ -698,6 +698,20 @@ class BrowserRobot {
             SitePermissionsRobot().interact()
             return SitePermissionsRobot.Transition()
         }
+
+        fun clickGetLocationButton(interact: SitePermissionsRobot.() -> Unit): SitePermissionsRobot.Transition {
+            val getLocationButton = mDevice.findObject(UiSelector().text("Get Location"))
+            // using the test page at https://mozilla-mobile.github.io/testapp/,
+            // we need to scroll down to the Get Location button
+            while (!getLocationButton.exists()) {
+                mDevice.findObject(UiSelector().text("Test App")).swipeUp(1)
+                mDevice.findObject(UiSelector().text("Location Menu")).waitForExists(2000)
+            }
+            getLocationButton.click()
+
+            SitePermissionsRobot().interact()
+            return SitePermissionsRobot.Transition()
+        }
     }
 }
 

@@ -5,13 +5,14 @@
 package org.mozilla.fenix.ui
 
 import androidx.core.net.toUri
+import androidx.test.rule.GrantPermissionRule
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.mozilla.fenix.helpers.AndroidAssetDispatcher
 import org.mozilla.fenix.helpers.HomeActivityIntentTestRule
-import org.mozilla.fenix.ui.robots.browserScreen
 import org.mozilla.fenix.ui.robots.navigationToolbar
 
 /**
@@ -23,6 +24,13 @@ class SitePermissionsTest {
 
     @get:Rule
     val activityTestRule = HomeActivityIntentTestRule()
+
+    @get:Rule
+    var mGrantPermissions = GrantPermissionRule.grant(
+        android.Manifest.permission.CAMERA,
+        android.Manifest.permission.RECORD_AUDIO,
+        android.Manifest.permission.ACCESS_COARSE_LOCATION
+    )
 
     @Before
     fun setUp() {
@@ -40,11 +48,11 @@ class SitePermissionsTest {
         navigationToolbar {
         }.enterURLAndEnterToBrowser(webRTCtestPage.toUri()) {
         }.clickStartMicrophoneButton {
-            clickAppPermissionButton(false)
-        }
-        browserScreen {
-        }.clickStartMicrophoneButton {
-            clickAppPermissionButton(true)
+            // clickAppPermissionButton(false)
+//        }
+//        browserScreen {
+//        }.clickStartMicrophoneButton {
+            //clickAppPermissionButton(true)
             verifyMicrophonePermissionPrompt(testPageSubstring)
         }.clickPagePermissionButton(false) {
             verifyPageContent("NotAllowedError")
@@ -62,11 +70,11 @@ class SitePermissionsTest {
         navigationToolbar {
         }.enterURLAndEnterToBrowser(testPage.toUri()) {
         }.clickStartCameraButton {
-            clickAppPermissionButton(false)
-        }
-        browserScreen {
-        }.clickStartCameraButton {
-            clickAppPermissionButton(true)
+//            clickAppPermissionButton(false)
+//        }
+//        browserScreen {
+//        }.clickStartCameraButton {
+//            clickAppPermissionButton(true)
             verifyCameraPermissionPrompt(testPageSubstring)
         }.clickPagePermissionButton(false) {
             verifyPageContent("NotAllowedError")
@@ -85,14 +93,14 @@ class SitePermissionsTest {
         }.enterURLAndEnterToBrowser(testPage.toUri()) {
         }.clickStartCameraAndMicrophoneButton {
             // click permission for video then for audio
-            clickAppPermissionButton(false)
-            clickAppPermissionButton(false)
-        }
-        browserScreen {
-        }.clickStartCameraAndMicrophoneButton {
+//            clickAppPermissionButton(false)
+//            clickAppPermissionButton(false)
+//        }
+//        browserScreen {
+//        }.clickStartCameraAndMicrophoneButton {
             // click permission for video then for audio
-            clickAppPermissionButton(true)
-            clickAppPermissionButton(true)
+//            clickAppPermissionButton(true)
+//            clickAppPermissionButton(true)
             verifyCameraAndMicPermissionPrompt(testPageSubstring)
         }.clickPagePermissionButton(false) {
             verifyPageContent("NotAllowedError")
@@ -103,7 +111,7 @@ class SitePermissionsTest {
     }
 
     @Test
-    fun notificationsPermissionPromptTest() {
+    fun blockNotificationsPermissionPromptTest() {
         val testPage = "https://mozilla-mobile.github.io/testapp/"
         val testPageSubstring = "https://mozilla-mobile.github.io:443"
 
@@ -117,6 +125,24 @@ class SitePermissionsTest {
         }.clickPagePermissionButton(false) {
         }.clickOpenNotificationButton {
             verifyNotificationsPermissionPrompt(testPageSubstring, true)
+        }
+    }
+
+    @Ignore
+    @Test
+    fun locationPermissionPromptTest() {
+        val testPage = "https://mozilla-mobile.github.io/testapp/"
+        val testPageSubstring = "https://mozilla-mobile.github.io:443"
+
+        navigationToolbar {
+        }.enterURLAndEnterToBrowser(testPage.toUri()) {
+        }.clickGetLocationButton {
+            verifyLocationPermissionPrompt(testPageSubstring)
+        }.clickPagePermissionButton(false) {
+        }.clickGetLocationButton {
+            verifyLocationPermissionPrompt(testPageSubstring)
+        }.clickPagePermissionButton(true) {
+            verifyPageContent("longitude")
         }
     }
 }
