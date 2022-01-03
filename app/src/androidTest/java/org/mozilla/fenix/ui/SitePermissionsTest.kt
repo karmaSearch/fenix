@@ -57,7 +57,7 @@ class SitePermissionsTest {
             verifyPageContent("NotAllowedError")
         }.clickStartMicrophoneButton {
         }.clickPagePermissionButton(true) {
-            verifyPageContent("Success!")
+            verifyMessageDisplayed("Success!")
         }
     }
 
@@ -79,7 +79,7 @@ class SitePermissionsTest {
             verifyPageContent("NotAllowedError")
         }.clickStartCameraButton {
         }.clickPagePermissionButton(true) {
-            verifyPageContent("Success!")
+            verifyMessageDisplayed("Success!")
         }
     }
 

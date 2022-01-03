@@ -19,19 +19,10 @@ import androidx.test.espresso.intent.matcher.BundleMatchers
 import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.matcher.RootMatchers.isDialog
 import androidx.test.espresso.matcher.ViewMatchers
-import androidx.test.espresso.matcher.ViewMatchers.Visibility
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withContentDescription
-import androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.uiautomator.By
+import androidx.test.uiautomator.*
 import androidx.test.uiautomator.By.text
-import androidx.test.uiautomator.UiDevice
-import androidx.test.uiautomator.UiObjectNotFoundException
-import androidx.test.uiautomator.UiSelector
-import androidx.test.uiautomator.Until
 import mozilla.components.browser.state.selector.selectedTab
 import mozilla.components.browser.state.store.BrowserStore
 import mozilla.components.concept.engine.mediasession.MediaSession
@@ -98,6 +89,25 @@ class BrowserRobot {
 
         runWithIdleRes(sessionLoadedIdlingResource) {
             assertTrue(mDevice.findObject(UiSelector().textContains(expectedText)).waitForExists(waitingTime))
+        }
+    }
+
+    fun verifyMessageDisplayed(expectedText: String) {
+        sessionLoadedIdlingResource = SessionLoadedIdlingResource()
+        val messageText = mDevice.findObject(UiSelector().resourceId("message"))
+
+        mDevice.waitNotNull(
+                Until.findObject(By.res("$packageName:id/engineView")),
+                waitingTime
+        )
+
+        runWithIdleRes(sessionLoadedIdlingResource) {
+            assertTrue(
+                    messageText.text,
+                    mDevice.findObject(UiSelector()
+                            .textContains(expectedText)
+                    ).waitForExists(waitingTime)
+            )
         }
     }
 
