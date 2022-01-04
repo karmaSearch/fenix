@@ -47,17 +47,12 @@ class SitePermissionsTest {
         navigationToolbar {
         }.enterURLAndEnterToBrowser(webRTCtestPage.toUri()) {
         }.clickStartMicrophoneButton {
-            // clickAppPermissionButton(false)
-//        }
-//        browserScreen {
-//        }.clickStartMicrophoneButton {
-            //clickAppPermissionButton(true)
             verifyMicrophonePermissionPrompt(testPageSubstring)
         }.clickPagePermissionButton(false) {
             verifyPageContent("NotAllowedError")
         }.clickStartMicrophoneButton {
         }.clickPagePermissionButton(true) {
-            verifyMessageDisplayed("Success!")
+            verifyPageContent("Stop")
         }
     }
 
@@ -69,17 +64,12 @@ class SitePermissionsTest {
         navigationToolbar {
         }.enterURLAndEnterToBrowser(testPage.toUri()) {
         }.clickStartCameraButton {
-//            clickAppPermissionButton(false)
-//        }
-//        browserScreen {
-//        }.clickStartCameraButton {
-//            clickAppPermissionButton(true)
             verifyCameraPermissionPrompt(testPageSubstring)
         }.clickPagePermissionButton(false) {
             verifyPageContent("NotAllowedError")
         }.clickStartCameraButton {
         }.clickPagePermissionButton(true) {
-            verifyMessageDisplayed("Success!")
+            verifyPageContent("Stop")
         }
     }
 
@@ -91,21 +81,12 @@ class SitePermissionsTest {
         navigationToolbar {
         }.enterURLAndEnterToBrowser(testPage.toUri()) {
         }.clickStartCameraAndMicrophoneButton {
-            // click permission for video then for audio
-//            clickAppPermissionButton(false)
-//            clickAppPermissionButton(false)
-//        }
-//        browserScreen {
-//        }.clickStartCameraAndMicrophoneButton {
-            // click permission for video then for audio
-//            clickAppPermissionButton(true)
-//            clickAppPermissionButton(true)
             verifyCameraAndMicPermissionPrompt(testPageSubstring)
         }.clickPagePermissionButton(false) {
             verifyPageContent("NotAllowedError")
         }.clickStartCameraAndMicrophoneButton {
         }.clickPagePermissionButton(true) {
-            verifyPageContent("Success!")
+            verifyPageContent("Stop")
         }
     }
 
@@ -118,9 +99,6 @@ class SitePermissionsTest {
         }.enterURLAndEnterToBrowser(testPage.toUri()) {
         }.clickOpenNotificationButton {
             verifyNotificationsPermissionPrompt(testPageSubstring)
-//        }.clickPagePermissionButton(true) {
-//            // the test page needs some functionality here
-//        }.clickOpenNotificationButton {
         }.clickPagePermissionButton(false) {
         }.clickOpenNotificationButton {
             verifyNotificationsPermissionPrompt(testPageSubstring, true)

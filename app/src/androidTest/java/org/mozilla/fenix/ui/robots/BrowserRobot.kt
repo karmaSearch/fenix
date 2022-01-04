@@ -92,25 +92,6 @@ class BrowserRobot {
         }
     }
 
-    fun verifyMessageDisplayed(expectedText: String) {
-        sessionLoadedIdlingResource = SessionLoadedIdlingResource()
-        val messageText = mDevice.findObject(UiSelector().resourceId("message"))
-
-        mDevice.waitNotNull(
-                Until.findObject(By.res("$packageName:id/engineView")),
-                waitingTime
-        )
-
-        runWithIdleRes(sessionLoadedIdlingResource) {
-            assertTrue(
-                    messageText.text,
-                    mDevice.findObject(UiSelector()
-                            .textContains(expectedText)
-                    ).waitForExists(waitingTime)
-            )
-        }
-    }
-
     fun verifyTabCounter(expectedText: String) {
         val counter =
             mDevice.findObject(
