@@ -653,6 +653,7 @@ class BrowserRobot {
         }
 
         fun clickStartCameraButton(interact: SitePermissionsRobot.() -> Unit): SitePermissionsRobot.Transition {
+            // Test page used for testing permissions located at https://mozilla-mobile.github.io/testapp/permissions
             cameraButton.waitForExists(waitingTime)
             cameraButton.click()
 
@@ -661,6 +662,7 @@ class BrowserRobot {
         }
 
         fun clickStartMicrophoneButton(interact: SitePermissionsRobot.() -> Unit): SitePermissionsRobot.Transition {
+            // Test page used for testing permissions located at https://mozilla-mobile.github.io/testapp/permissions
             microphoneButton.waitForExists(waitingTime)
             microphoneButton.click()
 
@@ -668,36 +670,18 @@ class BrowserRobot {
             return SitePermissionsRobot.Transition()
         }
 
-        fun clickStartCameraAndMicrophoneButton(interact: SitePermissionsRobot.() -> Unit): SitePermissionsRobot.Transition {
-            cameraAndMicrophoneButton.waitForExists(waitingTime)
-            cameraAndMicrophoneButton.click()
-
-            SitePermissionsRobot().interact()
-            return SitePermissionsRobot.Transition()
-        }
-
         fun clickOpenNotificationButton(interact: SitePermissionsRobot.() -> Unit): SitePermissionsRobot.Transition {
-            val startNotificationButton = mDevice.findObject(UiSelector().text("Open notifications dialogue"))
-            // using the test page at https://mozilla-mobile.github.io/testapp/,
-            // we need to scroll down to the Open notifications button
-            while (!startNotificationButton.exists()) {
-                mDevice.findObject(UiSelector().text("Test App")).swipeUp(2)
-                startNotificationButton.waitForExists(2000)
-            }
-            startNotificationButton.click()
+            // Test page used for testing permissions located at https://mozilla-mobile.github.io/testapp/permissions
+            notificationButton.waitForExists(waitingTime)
+            notificationButton.click()
 
             SitePermissionsRobot().interact()
             return SitePermissionsRobot.Transition()
         }
 
         fun clickGetLocationButton(interact: SitePermissionsRobot.() -> Unit): SitePermissionsRobot.Transition {
-            val getLocationButton = mDevice.findObject(UiSelector().text("Get Location"))
-            // using the test page at https://mozilla-mobile.github.io/testapp/,
-            // we need to scroll down to the Get Location button
-            while (!getLocationButton.exists()) {
-                mDevice.findObject(UiSelector().text("Test App")).swipeUp(1)
-                mDevice.findObject(UiSelector().text("Location Menu")).waitForExists(2000)
-            }
+            // Test page used for testing permissions located at https://mozilla-mobile.github.io/testapp/permissions
+            getLocationButton.waitForExists(waitingTime)
             getLocationButton.click()
 
             SitePermissionsRobot().interact()
@@ -752,11 +736,14 @@ private fun mediaPlayerPlayButton() =
             .text("Play")
     )
 
-// WebRtc test page elements & permission prompts
-private val cameraButton = mDevice.findObject(UiSelector().text("Camera"))
+// Permissions test page elements & prompts
+// Test page used located at https://mozilla-mobile.github.io/testapp/permissions
+private val cameraButton = mDevice.findObject(UiSelector().text("Open camera"))
 
-private val microphoneButton = mDevice.findObject(UiSelector().text("Microphone"))
+private val microphoneButton = mDevice.findObject(UiSelector().text("Open microphone"))
 
-private val cameraAndMicrophoneButton = mDevice.findObject(UiSelector().text("Camera & microphone"))
+private val notificationButton = mDevice.findObject(UiSelector().text("Open notifications dialogue"))
+
+private val getLocationButton = mDevice.findObject(UiSelector().text("Get Location"))
 
 

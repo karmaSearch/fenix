@@ -41,67 +41,98 @@ class SitePermissionsTest {
 
     @Test
     fun microphonePermissionPromptTest() {
-        val webRTCtestPage = "https://mozilla.github.io/webrtc-landing/gum_test.html"
-        val testPageSubstring = "https://mozilla.github.io:443"
+        val webRTCtestPage = "https://sv-ohorvath.github.io/testapp/permissions"
+            //"https://mozilla.github.io/webrtc-landing/gum_test.html"
+        val testPageSubstring = "https://sv-ohorvath.github.io:443"
 
         navigationToolbar {
         }.enterURLAndEnterToBrowser(webRTCtestPage.toUri()) {
         }.clickStartMicrophoneButton {
             verifyMicrophonePermissionPrompt(testPageSubstring)
         }.clickPagePermissionButton(false) {
-            verifyPageContent("NotAllowedError")
+            verifyPageContent("Microphone not allowed")
         }.clickStartMicrophoneButton {
         }.clickPagePermissionButton(true) {
-            verifyPageContent("Stop")
+            verifyPageContent("Microphone allowed")
         }
     }
 
     @Test
     fun cameraPermissionPromptTest() {
-        val testPage = "https://mozilla.github.io/webrtc-landing/gum_test.html"
-        val testPageSubstring = "https://mozilla.github.io:443"
+        val testPage = "https://sv-ohorvath.github.io/testapp/permissions"
+            // "https://mozilla.github.io/webrtc-landing/gum_test.html"
+        val testPageSubstring = "https://sv-ohorvath.github.io:443"
 
         navigationToolbar {
         }.enterURLAndEnterToBrowser(testPage.toUri()) {
         }.clickStartCameraButton {
             verifyCameraPermissionPrompt(testPageSubstring)
         }.clickPagePermissionButton(false) {
-            verifyPageContent("NotAllowedError")
+            verifyPageContent("Camera not allowed")
         }.clickStartCameraButton {
         }.clickPagePermissionButton(true) {
-            verifyPageContent("Stop")
-        }
-    }
-
-    @Test
-    fun cameraAndMicPermissionPromptTest() {
-        val testPage = "https://mozilla.github.io/webrtc-landing/gum_test.html"
-        val testPageSubstring = "https://mozilla.github.io:443"
-
-        navigationToolbar {
-        }.enterURLAndEnterToBrowser(testPage.toUri()) {
-        }.clickStartCameraAndMicrophoneButton {
-            verifyCameraAndMicPermissionPrompt(testPageSubstring)
-        }.clickPagePermissionButton(false) {
-            verifyPageContent("NotAllowedError")
-        }.clickStartCameraAndMicrophoneButton {
-        }.clickPagePermissionButton(true) {
-            verifyPageContent("Stop")
+            verifyPageContent("Camera allowed")
         }
     }
 
     @Test
     fun blockNotificationsPermissionPromptTest() {
-        val testPage = "https://mozilla-mobile.github.io/testapp/"
-        val testPageSubstring = "https://mozilla-mobile.github.io:443"
+        val testPage = "https://sv-ohorvath.github.io/testapp/permissions"
+            // "https://mozilla-mobile.github.io/testapp/permissions"
+        val testPageSubstring = "https://sv-ohorvath.github.io:443"
 
         navigationToolbar {
         }.enterURLAndEnterToBrowser(testPage.toUri()) {
         }.clickOpenNotificationButton {
             verifyNotificationsPermissionPrompt(testPageSubstring)
         }.clickPagePermissionButton(false) {
+            verifyPageContent("Notifications not allowed")
         }.clickOpenNotificationButton {
             verifyNotificationsPermissionPrompt(testPageSubstring, true)
+        }
+    }
+
+    @Test
+    fun allowNotificationsPermissionPromptTest() {
+        val testPage = "https://sv-ohorvath.github.io/testapp/permissions"
+        // "https://mozilla-mobile.github.io/testapp/"
+        val testPageSubstring = "https://sv-ohorvath.github.io:443"
+
+        navigationToolbar {
+        }.enterURLAndEnterToBrowser(testPage.toUri()) {
+        }.clickOpenNotificationButton {
+            verifyNotificationsPermissionPrompt(testPageSubstring)
+        }.clickPagePermissionButton(true) {
+            verifyPageContent("Notifications allowed")
+        }
+    }
+
+    @Test
+    fun allowLocationPermissionsTest() {
+        val testPage = "https://sv-ohorvath.github.io/testapp/permissions"
+        val testPageSubstring = "https://sv-ohorvath.github.io:443"
+
+        navigationToolbar {
+        }.enterURLAndEnterToBrowser(testPage.toUri()) {
+        }.clickGetLocationButton {
+            verifyLocationPermissionPrompt(testPageSubstring)
+        }.clickPagePermissionButton(true) {
+            verifyPageContent("longitude")
+            verifyPageContent("latitude")
+        }
+    }
+
+    @Test
+    fun blockLocationPermissionsTest() {
+        val testPage = "https://sv-ohorvath.github.io/testapp/permissions"
+        val testPageSubstring = "https://sv-ohorvath.github.io:443"
+
+        navigationToolbar {
+        }.enterURLAndEnterToBrowser(testPage.toUri()) {
+        }.clickGetLocationButton {
+            verifyLocationPermissionPrompt(testPageSubstring)
+        }.clickPagePermissionButton(false) {
+            verifyPageContent("User denied geolocation prompt")
         }
     }
 }

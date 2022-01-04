@@ -4,20 +4,9 @@ import androidx.test.uiautomator.UiSelector
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.mozilla.fenix.helpers.TestAssetHelper.waitingTime
-import org.mozilla.fenix.helpers.TestHelper.getPermissionAllowID
 import org.mozilla.fenix.helpers.TestHelper.packageName
 
 class SitePermissionsRobot {
-
-    fun clickAppPermissionButton(allowed: Boolean) {
-        if (allowed) {
-            allowSystemPermissionButton.waitForExists(waitingTime)
-            allowSystemPermissionButton.click()
-        } else {
-            denySystemPermissionButton.waitForExists(waitingTime)
-            denySystemPermissionButton.click()
-        }
-    }
 
     fun verifyMicrophonePermissionPrompt(url: String) {
         assertTrue(mDevice.findObject(UiSelector().text("Allow $url to use your microphone?"))
@@ -29,14 +18,6 @@ class SitePermissionsRobot {
 
     fun verifyCameraPermissionPrompt(url: String) {
         assertTrue(mDevice.findObject(UiSelector().text("Allow $url to use your camera?"))
-            .waitForExists(waitingTime)
-        )
-        assertTrue(denyPagePermissionButton.text.equals("Don’t allow"))
-        assertTrue(allowPagePermissionButton.text.equals("Allow"))
-    }
-
-    fun verifyCameraAndMicPermissionPrompt(url: String) {
-        assertTrue(mDevice.findObject(UiSelector().text("Allow $url to use your camera and microphone?"))
             .waitForExists(waitingTime)
         )
         assertTrue(denyPagePermissionButton.text.equals("Don’t allow"))
@@ -84,13 +65,6 @@ class SitePermissionsRobot {
         }
     }
 }
-
-// App permission prompts buttons
-private val allowSystemPermissionButton =
-    mDevice.findObject(UiSelector().resourceId(getPermissionAllowID() + ":id/permission_allow_button"))
-
-private val denySystemPermissionButton =
-    mDevice.findObject(UiSelector().resourceId(getPermissionAllowID() + ":id/permission_deny_button"))
 
 // Page permission prompts buttons
 private val allowPagePermissionButton =
