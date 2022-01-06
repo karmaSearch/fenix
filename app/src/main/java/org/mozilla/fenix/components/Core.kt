@@ -331,59 +331,63 @@ class Core(
 
         strictMode.resetAfter(StrictMode.allowThreadDiskReads()) {
             if (!context.settings().defaultTopSitesAdded) {
-                if (Config.channel.isMozillaOnline) {
+                if (LocaleManager.getSelectedLocale(context).language =="fr") {
                     defaultTopSites.add(
                         Pair(
-                            context.getString(R.string.default_top_site_baidu),
-                            SupportUtils.BAIDU_URL
+                            "Aspas Nature",
+                            SupportUtils.ASPAS_NATURE
+                        )
+                    )
+                    defaultTopSites.add(
+                        Pair(
+                            "Notre Affaire à tous",
+                            SupportUtils.NOTREAFFAIRE
+                        )
+                    )
+                    defaultTopSites.add(
+                        Pair(
+                            "Fresque de la biodiversité",
+                            SupportUtils.FRESQUEDELABIODIVERSITE
+                        )
+                    )
+                }
+                else if (LocaleManager.getSelectedLocale(context).language == "en") {
+                    defaultTopSites.add(
+                        Pair(
+                            "Rewild",
+                            SupportUtils.REWILD
                         )
                     )
 
-                    defaultTopSites.add(
-                        Pair(
-                            context.getString(R.string.default_top_site_jd),
-                            SupportUtils.JD_URL
-                        )
-                    )
-
-                    defaultTopSites.add(
-                        Pair(
-                            context.getString(R.string.default_top_site_pdd),
-                            SupportUtils.PDD_URL
-                        )
-                    )
-
-                    defaultTopSites.add(
-                        Pair(
-                            context.getString(R.string.default_top_site_tc),
-                            SupportUtils.TC_URL
-                        )
-                    )
-                } else {
-                    defaultTopSites.add(
-                        Pair(
-                            context.getString(R.string.default_top_site_google),
-                            SupportUtils.GOOGLE_URL
-                        )
-                    )
-
-                    if (LocaleManager.getSelectedLocale(context).language == "en") {
+                    if (LocaleManager.getSelectedLocale(context).country == "GB") {
                         defaultTopSites.add(
                             Pair(
-                                context.getString(R.string.pocket_pinned_top_articles),
-                                SupportUtils.POCKET_TRENDING_URL
+                                "CIWF",
+                                SupportUtils.CIWFUK
+                            )
+                        )
+                        defaultTopSites.add(
+                            Pair(
+                                "Peta",
+                                SupportUtils.PETA
+                            )
+                        )
+                    } else {
+                        defaultTopSites.add(
+                            Pair(
+                                "CIWF",
+                                SupportUtils.CIWF
+                            )
+                        )
+                        defaultTopSites.add(
+                            Pair(
+                                "WCS",
+                                SupportUtils.WCS
                             )
                         )
                     }
 
-                    defaultTopSites.add(
-                        Pair(
-                            context.getString(R.string.default_top_site_wikipedia),
-                            SupportUtils.WIKIPEDIA_URL
-                        )
-                    )
                 }
-
                 context.settings().defaultTopSitesAdded = true
             }
         }

@@ -73,20 +73,23 @@ class TopSiteItemViewHolder(
         }
 
         when (topSite.url) {
-            SupportUtils.POCKET_TRENDING_URL -> {
-                binding.faviconImage.setImageDrawable(getDrawable(itemView.context, R.drawable.ic_pocket))
+            SupportUtils.NOTREAFFAIRE -> {
+                binding.faviconImage.setImageDrawable(getDrawable(itemView.context, R.drawable.notreaffaireatous))
             }
-            SupportUtils.BAIDU_URL -> {
-                binding.faviconImage.setImageDrawable(getDrawable(itemView.context, R.drawable.ic_baidu))
+            SupportUtils.ASPAS_NATURE -> {
+                binding.faviconImage.setImageDrawable(getDrawable(itemView.context, R.drawable.aspas))
             }
-            SupportUtils.JD_URL -> {
-                binding.faviconImage.setImageDrawable(getDrawable(itemView.context, R.drawable.ic_jd))
+            SupportUtils.FRESQUEDELABIODIVERSITE -> {
+                binding.faviconImage.setImageDrawable(getDrawable(itemView.context, R.drawable.fresquedelabiodiversite))
             }
-            SupportUtils.PDD_URL -> {
-                binding.faviconImage.setImageDrawable(getDrawable(itemView.context, R.drawable.ic_pdd))
+            SupportUtils.REWILD -> {
+                binding.faviconImage.setImageDrawable(getDrawable(itemView.context, R.drawable.rewild))
             }
-            SupportUtils.TC_URL -> {
-                binding.faviconImage.setImageDrawable(getDrawable(itemView.context, R.drawable.ic_tc))
+            SupportUtils.CIWF, SupportUtils.CIWFUK -> {
+                binding.faviconImage.setImageDrawable(getDrawable(itemView.context, R.drawable.ciwf))
+            }
+            SupportUtils.WCS -> {
+                binding.faviconImage.setImageDrawable(getDrawable(itemView.context, R.drawable.wcs))
             }
             else -> {
                 itemView.context.components.core.icons.loadIntoView(binding.faviconImage, topSite.url)
