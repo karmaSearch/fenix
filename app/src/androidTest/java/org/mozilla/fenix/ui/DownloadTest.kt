@@ -8,18 +8,17 @@ import androidx.core.net.toUri
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import androidx.test.uiautomator.UiDevice
-import androidx.test.uiautomator.UiSelector
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
+import org.mozilla.fenix.customannotations.SmokeTest
 import org.mozilla.fenix.helpers.AndroidAssetDispatcher
 import org.mozilla.fenix.helpers.HomeActivityTestRule
 import org.mozilla.fenix.helpers.TestAssetHelper
 import org.mozilla.fenix.helpers.TestAssetHelper.downloadFileName
-import org.mozilla.fenix.helpers.TestAssetHelper.waitingTime
 import org.mozilla.fenix.helpers.TestHelper.deleteDownloadFromStorage
 import org.mozilla.fenix.ui.robots.browserScreen
 import org.mozilla.fenix.ui.robots.downloadRobot
@@ -32,234 +31,514 @@ import org.mozilla.fenix.ui.robots.notificationShade
  *  - Initiates a download
  *  - Verifies download prompt
  *  - Verifies download notification
+ *  - Verifies various file types downloads and their appearance inside the Downloads list.
  **/
 
 class DownloadTest {
-
     private val mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
     private lateinit var mockWebServer: MockWebServer
 
-    /* ktlint-disable no-blank-line-before-rbrace */ // This imposes unreadable grouping.
-    @get:Rule
-    val activityTestRule = HomeActivityTestRule()
+    /* Remote test page managed by Mozilla Mobile QA team, used for testing various file types and sizes.*/
+    private val testPage  = "https://sv-ohorvath.github.io/testapp/downloads"
 
-    @get:Rule
-    var mGrantPermissions = GrantPermissionRule.grant(
-        android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-        android.Manifest.permission.READ_EXTERNAL_STORAGE
-    )
+/* ktlint-disable no-blank-line-before-rbrace */ // This imposes unreadable grouping.
+@get:Rule
+val activityTestRule = HomeActivityTestRule()
 
-    @Before
-    fun setUp() {
-        mockWebServer = MockWebServer().apply {
-            dispatcher = AndroidAssetDispatcher()
-            start()
-        }
+@get:Rule
+var mGrantPermissions = GrantPermissionRule.grant(
+    android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+    android.Manifest.permission.READ_EXTERNAL_STORAGE
+)
+
+@Before
+fun setUp() {
+    mockWebServer = MockWebServer().apply {
+        dispatcher = AndroidAssetDispatcher()
+        start()
+    }
+}
+
+@After
+fun tearDown() {
+    mockWebServer.shutdown()
+
+    deleteDownloadFromStorage(downloadFileName)
+}
+
+@Ignore
+@Test
+fun testDownloadPrompt() {
+    /* test page that downloads automatically a SVG file
+     - we need this to control the presence of the download prompt
+     - prevents opening the image in the browser
+     */
+    val defaultWebPage = TestAssetHelper.getDownloadAsset(mockWebServer)
+
+    navigationToolbar {
+    }.enterURLAndEnterToBrowser(defaultWebPage.url) {
+        mDevice.waitForIdle()
     }
 
-    @After
-    fun tearDown() {
-        mockWebServer.shutdown()
+    downloadRobot {
+        verifyDownloadPrompt()
+    }.closePrompt {}
+}
 
-        deleteDownloadFromStorage(downloadFileName)
+@Ignore
+@Test
+fun testDownloadNotification() {
+    /* test page that downloads automatically a SVG file
+     - we need this to control the presence of the download prompt
+     - prevents opening the image in the browser
+     */
+    val defaultWebPage = TestAssetHelper.getDownloadAsset(mockWebServer)
+
+    navigationToolbar {
+    }.enterURLAndEnterToBrowser(defaultWebPage.url) {
+        mDevice.waitForIdle()
     }
 
-    @Ignore
-    @Test
-    fun testDownloadPrompt() {
-        val defaultWebPage = TestAssetHelper.getDownloadAsset(mockWebServer)
-
-        navigationToolbar {
-        }.enterURLAndEnterToBrowser(defaultWebPage.url) {
-            mDevice.waitForIdle()
-        }
-
-        downloadRobot {
-            verifyDownloadPrompt()
-        }.closePrompt {}
+    downloadRobot {
+        verifyDownloadPrompt()
+    }.clickDownload {
+        verifyDownloadNotificationPopup()
     }
 
-    @Ignore
-    @Test
-    fun testDownloadNotification() {
-        val defaultWebPage = TestAssetHelper.getDownloadAsset(mockWebServer)
+    mDevice.openNotification()
+    notificationShade {
+        verifySystemNotificationExists("Download completed")
+    }
+    // close notification shade before the next test
+    mDevice.pressBack()
+}
 
-        navigationToolbar {
-        }.enterURLAndEnterToBrowser(defaultWebPage.url) {
-            mDevice.waitForIdle()
-        }
+@SmokeTest
+@Test
+fun downloadLargeFileTest() {
+    val fileName = "200MB.zip"
 
-        downloadRobot {
-            verifyDownloadPrompt()
-        }.clickDownload {
-            verifyDownloadNotificationPopup()
-        }
-
-        mDevice.openNotification()
-        notificationShade {
-            verifySystemNotificationExists("Download completed")
-        }
-        // close notification shade before the next test
+    navigationToolbar {
+    }.enterURLAndEnterToBrowser(testPage.toUri()) {
+    }.clickDownloadLink(fileName) {
+        verifyDownloadPrompt()
+    }.clickDownload {}
+    mDevice.openNotification()
+    notificationShade {
+        expandNotificationMessage()
+        clickSystemNotificationControlButton("Pause")
+        clickSystemNotificationControlButton("Resume")
+        clickSystemNotificationControlButton("Cancel")
         mDevice.pressBack()
     }
-
-    @Test
-    fun downloadPNGTypeTest() {
-        val page  = "https://sv-ohorvath.github.io/testapp/downloads"
-        val title = "web_icon.png"
-        val downloadBtn = mDevice.findObject(UiSelector().textContains(title))
-
-        navigationToolbar {
-        }.enterURLAndEnterToBrowser(page.toUri()) {
-            downloadBtn.waitForExists(waitingTime)
-            downloadBtn.click()
-        }
-        downloadRobot {
-            verifyDownloadPrompt()
-        }.clickDownload {
-            verifyDownloadNotificationPopup()
-        }.closePrompt {
-        }.openThreeDotMenu {
-        }.openDownloadsManager {
-            waitForDownloadsListToExist()
-            verifyDownloadedFileName(title)
-            verifyDownloadedFileIcon()
-        }
-
-        deleteDownloadFromStorage(title)
+    browserScreen {
+    }.openThreeDotMenu {
+    }.openDownloadsManager {
+        verifyEmptyDownloadsList()
     }
+    deleteDownloadFromStorage(fileName)
+}
 
-    @Test
-    fun downloadMP3TypeTest() {
-        val page  = "https://sv-ohorvath.github.io/testapp/downloads"
-        val title = "audioSample.mp3"
-        val downloadBtn = mDevice.findObject(UiSelector().textContains(title))
+@SmokeTest
+@Test
+fun downloadPDFTypeTest() {
+    val fileName = "washington.pdf"
 
-        navigationToolbar {
-        }.enterURLAndEnterToBrowser(page.toUri()) {
-            downloadBtn.waitForExists(waitingTime)
-            downloadBtn.click()
+    navigationToolbar {
+    }.enterURLAndEnterToBrowser(testPage.toUri()) {
+    }.clickDownloadLink(fileName) {
+        // checking if a download was triggered or
+        // the browser opened the file based on the same origin policy rule
+        if (isDownloadTriggered) {
+            downloadRobot {
+                verifyDownloadPrompt()
+            }.clickDownload {
+                verifyDownloadNotificationPopup()
+            }.closePrompt {
+            }.openThreeDotMenu {
+            }.openDownloadsManager {
+                waitForDownloadsListToExist()
+                verifyDownloadedFileName(fileName)
+                verifyDownloadedFileIcon()
+            }
+        } else {
+            browserScreen {
+                verifyUrl(fileName)
+            }
         }
-        downloadRobot {
-            verifyDownloadPrompt()
-        }.clickDownload {
-            verifyDownloadNotificationPopup()
-        }.closePrompt {
-        }.openThreeDotMenu {
-        }.openDownloadsManager {
-            waitForDownloadsListToExist()
-            verifyDownloadedFileName(title)
-            verifyDownloadedFileIcon()
-        }
-
-        deleteDownloadFromStorage(title)
     }
+    deleteDownloadFromStorage(fileName)
+}
 
-    @Test
-    fun downloadLargeFileTest() {
-        val page  = "https://sv-ohorvath.github.io/testapp/downloads"
-        val title = "200MB.zip"
-        val downloadBtn = mDevice.findObject(UiSelector().textContains(title))
+@SmokeTest
+@Test
+fun downloadMP3TypeTest() {
+    val fileName = "audioSample.mp3"
 
-        navigationToolbar {
-        }.enterURLAndEnterToBrowser(page.toUri()) {
-            downloadBtn.waitForExists(waitingTime)
-            downloadBtn.click()
+    navigationToolbar {
+    }.enterURLAndEnterToBrowser(testPage.toUri()) {
+    }.clickDownloadLink(fileName) {
+        // checking if a download was triggered or
+        // the browser opened the file based on the same origin policy rule
+        if (isDownloadTriggered) {
+            downloadRobot {
+                verifyDownloadPrompt()
+            }.clickDownload {
+                verifyDownloadNotificationPopup()
+            }.closePrompt {
+            }.openThreeDotMenu {
+            }.openDownloadsManager {
+                waitForDownloadsListToExist()
+                verifyDownloadedFileName(fileName)
+                verifyDownloadedFileIcon()
+            }
+        } else {
+            browserScreen {
+                verifyUrl(fileName)
+            }
         }
-        downloadRobot {
-            verifyDownloadPrompt()
-        }.clickDownload {}
-        mDevice.openNotification()
-        notificationShade {
-            expandNotificationMessage()
-            clickSystemNotificationControlButton("Pause")
-            clickSystemNotificationControlButton("Resume")
-            clickSystemNotificationControlButton("Cancel")
-            mDevice.pressBack()
-        }
-        browserScreen {
-        }.openThreeDotMenu {
-        }.openDownloadsManager {
-            verifyEmptyDownloadsList()
-        }
-        deleteDownloadFromStorage(title)
     }
+    deleteDownloadFromStorage(fileName)
+}
 
-    @Test
-    fun downloadExeTypeTest() {
-        val page = "https://sv-ohorvath.github.io/testapp/downloads"
-        val title = "executable.exe"
-        val exe = mDevice.findObject(UiSelector().textContains(title))
+@SmokeTest
+@Test
+fun downloadExeTypeTest() {
+    val fileName = "executable.exe"
 
-        navigationToolbar {
-        }.enterURLAndEnterToBrowser(page.toUri()) {
-            exe.waitForExists(waitingTime)
-            exe.click()
+    navigationToolbar {
+    }.enterURLAndEnterToBrowser(testPage.toUri()) {
+    }.clickDownloadLink(fileName) {
+        // checking if a download was triggered or
+        // the browser opened the file based on the same origin policy rule
+        if (isDownloadTriggered) {
+            downloadRobot {
+                verifyDownloadPrompt()
+            }.clickDownload {
+                verifyDownloadNotificationPopup()
+            }.closePrompt {
+            }.openThreeDotMenu {
+            }.openDownloadsManager {
+                waitForDownloadsListToExist()
+                verifyDownloadedFileName(fileName)
+                verifyDownloadedFileIcon()
+            }
+        } else {
+            browserScreen {
+                verifyUrl(fileName)
+            }
         }
-        downloadRobot {
-            verifyDownloadPrompt()
-        }.clickDownload {
-            verifyDownloadNotificationPopup()
-        }.closePrompt {
-        }.openThreeDotMenu {
-        }.openDownloadsManager {
-            waitForDownloadsListToExist()
-            verifyDownloadedFileName(title)
-            verifyDownloadedFileIcon()
-        }
-
-        deleteDownloadFromStorage(title)
     }
+    deleteDownloadFromStorage(fileName)
+}
 
-    @Test
-    fun downloadPDFTypeTest() {
-        val page = "https://sv-ohorvath.github.io/testapp/downloads"
-        val title = "washington.pdf"
-        val pdf = mDevice.findObject(UiSelector().textContains(title))
+@SmokeTest
+@Test
+fun downloadDatTypeTest() {
+    val fileName = "Data1kb.dat"
 
-        navigationToolbar {
-        }.enterURLAndEnterToBrowser(page.toUri()) {
-            pdf.waitForExists(waitingTime)
-            pdf.click()
+    navigationToolbar {
+    }.enterURLAndEnterToBrowser(testPage.toUri()) {
+    }.clickDownloadLink(fileName) {
+        // checking if a download was triggered or
+        // the browser opened the file based on the same origin policy rule
+        if (isDownloadTriggered) {
+            downloadRobot {
+                verifyDownloadPrompt()
+            }.clickDownload {
+                verifyDownloadNotificationPopup()
+            }.closePrompt {
+            }.openThreeDotMenu {
+            }.openDownloadsManager {
+                waitForDownloadsListToExist()
+                verifyDownloadedFileName(fileName)
+                verifyDownloadedFileIcon()
+            }
+        } else {
+            browserScreen {
+                verifyUrl(fileName)
+            }
         }
-        downloadRobot {
-            verifyDownloadPrompt()
-        }.clickDownload {
-            verifyDownloadNotificationPopup()
-        }.closePrompt {
-        }.openThreeDotMenu {
-        }.openDownloadsManager {
-            waitForDownloadsListToExist()
-            verifyDownloadedFileName(title)
-            verifyDownloadedFileIcon()
-        }
-
-        deleteDownloadFromStorage(title)
     }
+    deleteDownloadFromStorage(fileName)
+}
 
-    @Test
-    fun downloadZIPTypeTest() {
-        val page = "https://sv-ohorvath.github.io/testapp/downloads"
-        val title = "smallZip.zip"
-        val zip = mDevice.findObject(UiSelector().textContains(title))
+@SmokeTest
+@Test
+fun downloadDocXTypeTest() {
+    val fileName = "MyDocument.docx"
 
-        navigationToolbar {
-        }.enterURLAndEnterToBrowser(page.toUri()) {
-            zip.waitForExists(waitingTime)
-            zip.click()
+    navigationToolbar {
+    }.enterURLAndEnterToBrowser(testPage.toUri()) {
+    }.clickDownloadLink(fileName) {
+        // checking if a download was triggered or
+        // the browser opened the file based on the same origin policy rule
+        if (isDownloadTriggered) {
+            downloadRobot {
+                verifyDownloadPrompt()
+            }.clickDownload {
+                verifyDownloadNotificationPopup()
+            }.closePrompt {
+            }.openThreeDotMenu {
+            }.openDownloadsManager {
+                waitForDownloadsListToExist()
+                verifyDownloadedFileName(fileName)
+                verifyDownloadedFileIcon()
+            }
+        } else {
+            browserScreen {
+                verifyUrl(fileName)
+            }
         }
-        downloadRobot {
-            verifyDownloadPrompt()
-        }.clickDownload {
-            verifyDownloadNotificationPopup()
-        }.closePrompt {
-        }.openThreeDotMenu {
-        }.openDownloadsManager {
-            waitForDownloadsListToExist()
-            verifyDownloadedFileName(title)
-            verifyDownloadedFileIcon()
-        }
-
-        deleteDownloadFromStorage(title)
     }
+    deleteDownloadFromStorage(fileName)
+}
+
+@SmokeTest
+@Test
+fun downloadDocTypeTest() {
+    val fileName = "MyOldWordDocument.doc"
+
+    navigationToolbar {
+    }.enterURLAndEnterToBrowser(testPage.toUri()) {
+    }.clickDownloadLink(fileName) {
+        // checking if a download was triggered or
+        // the browser opened the file based on the same origin policy rule
+        if (isDownloadTriggered) {
+            downloadRobot {
+                verifyDownloadPrompt()
+            }.clickDownload {
+                verifyDownloadNotificationPopup()
+            }.closePrompt {
+            }.openThreeDotMenu {
+            }.openDownloadsManager {
+                waitForDownloadsListToExist()
+                verifyDownloadedFileName(fileName)
+                verifyDownloadedFileIcon()
+            }
+        } else {
+            browserScreen {
+                verifyUrl(fileName)
+            }
+        }
+    }
+    deleteDownloadFromStorage(fileName)
+}
+
+@SmokeTest
+@Test
+fun downloadTxtTypeTest() {
+    val fileName = "textfile.txt"
+
+    navigationToolbar {
+    }.enterURLAndEnterToBrowser(testPage.toUri()) {
+    }.clickDownloadLink(fileName) {
+        // checking if a download was triggered or
+        // the browser opened the file based on the same origin policy rule
+        if (isDownloadTriggered) {
+            downloadRobot {
+                verifyDownloadPrompt()
+            }.clickDownload {
+                verifyDownloadNotificationPopup()
+            }.closePrompt {
+            }.openThreeDotMenu {
+            }.openDownloadsManager {
+                waitForDownloadsListToExist()
+                verifyDownloadedFileName(fileName)
+                verifyDownloadedFileIcon()
+            }
+        } else {
+            browserScreen {
+                verifyUrl(fileName)
+            }
+        }
+    }
+    deleteDownloadFromStorage(fileName)
+}
+
+@SmokeTest
+@Test
+fun downloadPNGTypeTest() {
+    val fileName = "web_icon.png"
+
+    navigationToolbar {
+    }.enterURLAndEnterToBrowser(testPage.toUri()) {
+    }.clickDownloadLink(fileName) {
+        // checking if a download was triggered or
+        // the browser opened the file based on the same origin policy rule
+        if (isDownloadTriggered) {
+            verifyDownloadPrompt()
+            downloadRobot {
+            }.clickDownload {
+                verifyDownloadNotificationPopup()
+            }.closePrompt {
+            }.openThreeDotMenu {
+            }.openDownloadsManager {
+                waitForDownloadsListToExist()
+                verifyDownloadedFileName(fileName)
+                verifyDownloadedFileIcon()
+            }
+        } else {
+            browserScreen {
+                verifyUrl(fileName)
+            }
+        }
+    }
+    deleteDownloadFromStorage(fileName)
+}
+
+@SmokeTest
+@Test
+fun downloadWebmTypeTest() {
+    val fileName = "videoSample.webm"
+
+    navigationToolbar {
+    }.enterURLAndEnterToBrowser(testPage.toUri()) {
+    }.clickDownloadLink(fileName) {
+        // checking if a download was triggered or
+        // the browser opened the file based on the same origin policy rule
+        if (isDownloadTriggered) {
+            downloadRobot {
+                verifyDownloadPrompt()
+            }.clickDownload {
+                verifyDownloadNotificationPopup()
+            }.closePrompt {
+            }.openThreeDotMenu {
+            }.openDownloadsManager {
+                waitForDownloadsListToExist()
+                verifyDownloadedFileName(fileName)
+                verifyDownloadedFileIcon()
+            }
+        } else {
+            browserScreen {
+                verifyUrl(fileName)
+            }
+        }
+    }
+    deleteDownloadFromStorage(fileName)
+}
+
+@SmokeTest
+@Test
+fun downloadZIPTypeTest() {
+    val fileName = "smallZip.zip"
+
+    navigationToolbar {
+    }.enterURLAndEnterToBrowser(testPage.toUri()) {
+    }.clickDownloadLink(fileName) {
+        // checking if a download was triggered or
+        // the browser opened the file based on the same origin policy rule
+        if (isDownloadTriggered) {
+            downloadRobot {
+                verifyDownloadPrompt()
+            }.clickDownload {
+                verifyDownloadNotificationPopup()
+            }.closePrompt {
+            }.openThreeDotMenu {
+            }.openDownloadsManager {
+                waitForDownloadsListToExist()
+                verifyDownloadedFileName(fileName)
+                verifyDownloadedFileIcon()
+            }
+        } else {
+            browserScreen {
+                verifyUrl(fileName)
+            }
+        }
+    }
+    deleteDownloadFromStorage(fileName)
+}
+
+@SmokeTest
+@Test
+fun downloadCSVTypeTest() {
+    val fileName = "CSVfile.csv"
+
+    navigationToolbar {
+    }.enterURLAndEnterToBrowser(testPage.toUri()) {
+    }.clickDownloadLink(fileName) {
+        // checking if a download was triggered or
+        // the browser opened the file based on the same origin policy rule
+        if (isDownloadTriggered) {
+            downloadRobot {
+                verifyDownloadPrompt()
+            }.clickDownload {
+                verifyDownloadNotificationPopup()
+            }.closePrompt {
+            }.openThreeDotMenu {
+            }.openDownloadsManager {
+                waitForDownloadsListToExist()
+                verifyDownloadedFileName(fileName)
+                verifyDownloadedFileIcon()
+            }
+        } else {
+            browserScreen {
+                verifyUrl(fileName)
+            }
+        }
+    }
+    deleteDownloadFromStorage(fileName)
+}
+
+@SmokeTest
+@Test
+fun downloadHMTLTypeTest() {
+    val fileName = "htmlFile.html"
+
+    navigationToolbar {
+    }.enterURLAndEnterToBrowser(testPage.toUri()) {
+    }.clickDownloadLink(fileName) {
+        // checking if a download was triggered or
+        // the browser opened the file based on the same origin policy rule
+        if (isDownloadTriggered) {
+            downloadRobot {
+                verifyDownloadPrompt()
+            }.clickDownload {
+                verifyDownloadNotificationPopup()
+            }.closePrompt {
+            }.openThreeDotMenu {
+            }.openDownloadsManager {
+                waitForDownloadsListToExist()
+                verifyDownloadedFileName(fileName)
+                verifyDownloadedFileIcon()
+            }
+        } else {
+            browserScreen {
+                verifyUrl(fileName)
+            }
+        }
+    }
+    deleteDownloadFromStorage(fileName)
+}
+
+@SmokeTest
+@Test
+fun downloadXMLTypeTest() {
+    val fileName = "XMLfile.xml"
+
+    navigationToolbar {
+    }.enterURLAndEnterToBrowser(testPage.toUri()) {
+    }.clickDownloadLink(fileName) {
+        // checking if a download was triggered or
+        // the browser opened the file based on the same origin policy rule
+        if (isDownloadTriggered) {
+            downloadRobot {
+                verifyDownloadPrompt()
+            }.clickDownload {
+                verifyDownloadNotificationPopup()
+            }.closePrompt {
+            }.openThreeDotMenu {
+            }.openDownloadsManager {
+                waitForDownloadsListToExist()
+                verifyDownloadedFileName(fileName)
+                verifyDownloadedFileIcon()
+            }
+        } else {
+            browserScreen {
+                verifyUrl(fileName)
+            }
+        }
+    }
+    deleteDownloadFromStorage(fileName)
+}
 }

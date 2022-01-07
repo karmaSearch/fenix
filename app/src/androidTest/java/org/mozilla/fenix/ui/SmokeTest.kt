@@ -739,6 +739,9 @@ class SmokeTest {
       - deleting a download from device storage, removes it from the Downloads Menu too
     */
     fun manageDownloadsInDownloadsMenuTest() {
+        /* test page that downloads automatically a SVG file
+        - we need this to prevent opening the image in the browser
+         */
         val downloadWebPage = TestAssetHelper.getDownloadAsset(mockWebServer)
 
         navigationToolbar {
@@ -759,6 +762,9 @@ class SmokeTest {
             waitForDownloadsListToExist()
             verifyDownloadedFileName(downloadFileName)
             verifyDownloadedFileIcon()
+            openDownloadedFile(downloadFileName)
+            verifyPhotosAppOpens()
+            mDevice.pressBack()
             deleteDownloadFromStorage(downloadFileName)
         }.exitDownloadsManagerToBrowser {
         }.openThreeDotMenu {

@@ -44,6 +44,8 @@ class DownloadRobot {
 
     fun verifyDownloadNotificationPopup() = assertDownloadNotificationPopup()
 
+    val isDownloadTriggered = downloadPrompt.waitForExists(waitingTime)
+
     fun verifyPhotosAppOpens() = assertExternalAppOpens(GOOGLE_APPS_PHOTOS)
 
     fun verifyDownloadedFileName(fileName: String) {
@@ -64,6 +66,12 @@ class DownloadRobot {
             mDevice.findObject(UiSelector().resourceId("$packageName:id/download_list"))
                 .waitForExists(waitingTime)
         )
+
+    fun openDownloadedFile(fileName: String) {
+        downloadedFile(fileName)
+            .check(matches(isDisplayed()))
+            .click()
+    }
 
     class Transition {
         fun clickDownload(interact: DownloadRobot.() -> Unit): Transition {
@@ -123,6 +131,8 @@ fun downloadRobot(interact: DownloadRobot.() -> Unit): DownloadRobot.Transition 
     DownloadRobot().interact()
     return DownloadRobot.Transition()
 }
+
+private val downloadPrompt = mDevice.findObject(UiSelector().resourceId("$packageName:id/download_button"))
 
 private fun assertDownloadPrompt() {
     mDevice.waitNotNull(Until.findObjects(By.res("$packageName:id/download_button")))
