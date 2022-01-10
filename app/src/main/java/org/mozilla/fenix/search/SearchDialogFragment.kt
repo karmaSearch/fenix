@@ -66,11 +66,13 @@ import org.mozilla.fenix.databinding.SearchSuggestionsHintBinding
 import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.ext.requireComponents
 import org.mozilla.fenix.ext.settings
+import org.mozilla.fenix.home.HomeFragment
 import org.mozilla.fenix.search.awesomebar.AwesomeBarView
 import org.mozilla.fenix.search.awesomebar.toSearchProviderState
 import org.mozilla.fenix.search.toolbar.ToolbarView
 import org.mozilla.fenix.settings.SupportUtils
 import org.mozilla.fenix.widget.VoiceSearchActivity
+import androidx.navigation.fragment.NavHostFragment
 
 typealias SearchDialogFragmentStore = SearchFragmentStore
 
@@ -169,6 +171,7 @@ class SearchDialogFragment : AppCompatDialogFragment(), UserInteractionHandler {
                 dismissDialog = {
                     dialogHandledAction = true
                     dismissAllowingStateLoss()
+                    restartHome(activity)
                 },
                 clearToolbarFocus = {
                     dialogHandledAction = true
@@ -227,6 +230,15 @@ class SearchDialogFragment : AppCompatDialogFragment(), UserInteractionHandler {
         }
 
         return binding.root
+    }
+
+    private fun restartHome(activity: Activity) {
+        val homeActivity: HomeActivity = activity as HomeActivity
+        val navHostFragment: NavHostFragment =
+            homeActivity.supportFragmentManager.findFragmentById(R.id.container) as NavHostFragment
+
+        val homeFragment = navHostFragment.childFragmentManager.fragments[0] as HomeFragment
+        homeFragment.scrollToTop()
     }
 
     @SuppressWarnings("LongMethod")
@@ -497,6 +509,7 @@ class SearchDialogFragment : AppCompatDialogFragment(), UserInteractionHandler {
                     }
                 }
                 view?.hideKeyboard()
+                activity?.let { restartHome(it) }
                 dismissAllowingStateLoss()
                 true
             }

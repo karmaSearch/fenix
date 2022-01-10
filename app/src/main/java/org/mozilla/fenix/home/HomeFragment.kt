@@ -30,6 +30,7 @@ import androidx.constraintlayout.widget.ConstraintSet.PARENT_ID
 import androidx.constraintlayout.widget.ConstraintSet.TOP
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
@@ -452,10 +453,10 @@ class HomeFragment : Fragment() {
                 ConstraintSet().apply {
                     clone(binding.toolbarLayout)
                     clear(binding.bottomBar.id, BOTTOM)
-                    clear(binding.bottomBarShadow.id, BOTTOM)
+                    //clear(binding.bottomBarShadow.id, BOTTOM)
                     connect(binding.bottomBar.id, TOP, PARENT_ID, TOP)
-                    connect(binding.bottomBarShadow.id, TOP, binding.bottomBar.id, BOTTOM)
-                    connect(binding.bottomBarShadow.id, BOTTOM, PARENT_ID, BOTTOM)
+                    //connect(binding.bottomBarShadow.id, TOP, binding.bottomBar.id, BOTTOM)
+                    //connect(binding.bottomBarShadow.id, BOTTOM, PARENT_ID, BOTTOM)
                     applyTo(binding.toolbarLayout)
                 }
 
@@ -482,7 +483,6 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         context?.metrics?.track(Event.HomeScreenDisplayed)
 
-        observeSearchEngineChanges()
         createHomeMenu(requireContext(), WeakReference(binding.menuButton))
         createTabCounterMenu()
 
@@ -517,13 +517,6 @@ class HomeFragment : Fragment() {
             openTabsTray()
         }
 
-        PrivateBrowsingButtonView(binding.privateBrowsingButton, browsingModeManager) { newMode ->
-            sessionControlInteractor.onPrivateModeButtonClicked(
-                newMode,
-                onboarding.userHasBeenOnboarded()
-            )
-        }
-
         consumeFrom(requireComponents.core.store) {
             updateTabCounter(it)
         }
@@ -556,23 +549,8 @@ class HomeFragment : Fragment() {
         )
     }
 
-    private fun observeSearchEngineChanges() {
-        consumeFlow(store) { flow ->
-            flow.map { state -> state.search.selectedOrDefaultSearchEngine }
-                .ifChanged()
-                .collect { searchEngine ->
-                    if (searchEngine != null) {
-                        val iconSize =
-                            requireContext().resources.getDimensionPixelSize(R.dimen.preference_icon_drawable_size)
-                        val searchIcon =
-                            BitmapDrawable(requireContext().resources, searchEngine.icon)
-                        searchIcon.setBounds(0, 0, iconSize, iconSize)
-                        binding.searchEngineIcon.setImageDrawable(searchIcon)
-                    } else {
-                        binding.searchEngineIcon.setImageDrawable(null)
-                    }
-                }
-        }
+    fun scrollToTop() {
+        binding.homeAppBar.setExpanded(true)
     }
 
     private fun createTabCounterMenu() {
@@ -832,17 +810,7 @@ class HomeFragment : Fragment() {
                     privateBrowsingRecommend.dismiss()
                 }
             }
-            // We want to show the popup only after privateBrowsingButton is available.
-            // Otherwise, we will encounter an activity token error.
-            binding.privateBrowsingButton.post {
-                runIfFragmentIsAttached {
-                    context.settings().showedPrivateModeContextualFeatureRecommender = true
-                    context.settings().lastCfrShownTimeInMillis = System.currentTimeMillis()
-                    privateBrowsingRecommend.showAsDropDown(
-                        binding.privateBrowsingButton, 0, CFR_Y_OFFSET, Gravity.TOP or Gravity.END
-                    )
-                }
-            }
+
         }
     }
 
@@ -872,9 +840,11 @@ class HomeFragment : Fragment() {
                 if (newState == RecyclerView.SCROLL_STATE_DRAGGING || newState == RecyclerView.SCROLL_STATE_SETTLING) {
                     findNavController().navigateUp()
                     recyclerView.removeOnScrollListener(this)
+                    binding.homeAppBar.setExpanded(true)
                 }
             }
         }
+        binding.homeAppBar.setExpanded(false)
 
         recyclerView.addOnScrollListener(listener)
 
