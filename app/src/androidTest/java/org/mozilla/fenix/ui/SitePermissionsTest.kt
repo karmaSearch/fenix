@@ -10,7 +10,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.mozilla.fenix.customannotations.SmokeTest
 import org.mozilla.fenix.helpers.HomeActivityIntentTestRule
-import org.mozilla.fenix.helpers.RetryTestRule
 import org.mozilla.fenix.ui.robots.browserScreen
 import org.mozilla.fenix.ui.robots.navigationToolbar
 
@@ -26,9 +25,9 @@ class SitePermissionsTest {
     @get:Rule
     val activityTestRule = HomeActivityIntentTestRule()
 
-    @Rule
-    @JvmField
-    val retryTestRule = RetryTestRule(3)
+    // @Rule
+    // @JvmField
+    // val retryTestRule = RetryTestRule(3)
 
     @SmokeTest
     @Test
