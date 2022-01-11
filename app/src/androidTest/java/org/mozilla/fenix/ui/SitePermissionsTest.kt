@@ -5,14 +5,12 @@
 package org.mozilla.fenix.ui
 
 import androidx.core.net.toUri
-import okhttp3.mockwebserver.MockWebServer
-import org.junit.Before
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.mozilla.fenix.customannotations.SmokeTest
-import org.mozilla.fenix.helpers.AndroidAssetDispatcher
 import org.mozilla.fenix.helpers.HomeActivityIntentTestRule
+import org.mozilla.fenix.helpers.RetryTestRule
 import org.mozilla.fenix.ui.robots.browserScreen
 import org.mozilla.fenix.ui.robots.navigationToolbar
 
@@ -21,25 +19,20 @@ import org.mozilla.fenix.ui.robots.navigationToolbar
  *
  */
 class SitePermissionsTest {
-    private lateinit var mockWebServer: MockWebServer
+    /* Test page created and handled by the Mozilla mobile QA team */
+    private val testPage = "https://mozilla-mobile.github.io/testapp/permissions"
+    private val testPageSubstring = "https://mozilla-mobile.github.io:443"
 
     @get:Rule
     val activityTestRule = HomeActivityIntentTestRule()
 
-    @Before
-    fun setUp() {
-        mockWebServer = MockWebServer().apply {
-            dispatcher = AndroidAssetDispatcher()
-            start()
-        }
-    }
+    @Rule
+    @JvmField
+    val retryTestRule = RetryTestRule(3)
 
     @SmokeTest
     @Test
-    fun microphonePermissionPromptTest() {
-        val testPage = "https://sv-ohorvath.github.io/testapp/permissions"
-        val testPageSubstring = "https://sv-ohorvath.github.io:443"
-
+    fun microphonePermissionChoiceOnEachRequestTest() {
         navigationToolbar {
         }.enterURLAndEnterToBrowser(testPage.toUri()) {
         }.clickStartMicrophoneButton {
@@ -55,18 +48,17 @@ class SitePermissionsTest {
 
     @SmokeTest
     @Test
-    fun saveMicrophonePermissionChoiceTest() {
-        val testPage = "https://sv-ohorvath.github.io/testapp/permissions"
-        val testPageSubstring = "https://sv-ohorvath.github.io:443"
-
+    fun rememberBlockMicrophonePermissionChoiceTest() {
         navigationToolbar {
         }.enterURLAndEnterToBrowser(testPage.toUri()) {
         }.clickStartMicrophoneButton {
             clickAppPermissionButton(true)
             verifyMicrophonePermissionPrompt(testPageSubstring)
-            selectRememberDecision()
+            selectRememberPermissionDecision()
         }.clickPagePermissionButton(false) {
             verifyPageContent("Microphone not allowed")
+        }.openThreeDotMenu {
+        }.refreshPage {
         }.clickStartMicrophoneButton { }
         browserScreen {
             verifyPageContent("Microphone not allowed")
@@ -75,9 +67,26 @@ class SitePermissionsTest {
 
     @SmokeTest
     @Test
-    fun blockAppUsingMicrophoneTest() {
-        val testPage = "https://sv-ohorvath.github.io/testapp/permissions"
+    fun rememberAllowMicrophonePermissionChoiceTest() {
+        navigationToolbar {
+        }.enterURLAndEnterToBrowser(testPage.toUri()) {
+        }.clickStartMicrophoneButton {
+            clickAppPermissionButton(true)
+            verifyMicrophonePermissionPrompt(testPageSubstring)
+            selectRememberPermissionDecision()
+        }.clickPagePermissionButton(true) {
+            verifyPageContent("Microphone allowed")
+        }.openThreeDotMenu {
+        }.refreshPage {
+        }.clickStartMicrophoneButton { }
+        browserScreen {
+            verifyPageContent("Microphone allowed")
+        }
+    }
 
+    @SmokeTest
+    @Test
+    fun blockAppUsingMicrophoneTest() {
         navigationToolbar {
         }.enterURLAndEnterToBrowser(testPage.toUri()) {
         }.clickStartMicrophoneButton {
@@ -90,10 +99,7 @@ class SitePermissionsTest {
 
     @SmokeTest
     @Test
-    fun cameraPermissionPromptTest() {
-        val testPage = "https://sv-ohorvath.github.io/testapp/permissions"
-        val testPageSubstring = "https://sv-ohorvath.github.io:443"
-
+    fun cameraPermissionChoiceOnEachRequestTest() {
         navigationToolbar {
         }.enterURLAndEnterToBrowser(testPage.toUri()) {
         }.clickStartCameraButton {
@@ -109,18 +115,17 @@ class SitePermissionsTest {
 
     @SmokeTest
     @Test
-    fun saveCameraPermissionChoiceTest() {
-        val testPage = "https://sv-ohorvath.github.io/testapp/permissions"
-        val testPageSubstring = "https://sv-ohorvath.github.io:443"
-
+    fun rememberBlockCameraPermissionChoiceTest() {
         navigationToolbar {
         }.enterURLAndEnterToBrowser(testPage.toUri()) {
         }.clickStartCameraButton {
             clickAppPermissionButton(true)
             verifyCameraPermissionPrompt(testPageSubstring)
-            selectRememberDecision()
+            selectRememberPermissionDecision()
         }.clickPagePermissionButton(false) {
             verifyPageContent("Camera not allowed")
+        }.openThreeDotMenu {
+        }.refreshPage {
         }.clickStartCameraButton { }
         browserScreen {
             verifyPageContent("Camera not allowed")
@@ -129,9 +134,26 @@ class SitePermissionsTest {
 
     @SmokeTest
     @Test
-    fun blockAppUsingCameraTest() {
-        val testPage = "https://sv-ohorvath.github.io/testapp/permissions"
+    fun rememberAllowCameraPermissionChoiceTest() {
+        navigationToolbar {
+        }.enterURLAndEnterToBrowser(testPage.toUri()) {
+        }.clickStartCameraButton {
+            clickAppPermissionButton(true)
+            verifyCameraPermissionPrompt(testPageSubstring)
+            selectRememberPermissionDecision()
+        }.clickPagePermissionButton(true) {
+            verifyPageContent("Camera allowed")
+        }.openThreeDotMenu {
+        }.refreshPage {
+        }.clickStartCameraButton { }
+        browserScreen {
+            verifyPageContent("Camera allowed")
+        }
+    }
 
+    @SmokeTest
+    @Test
+    fun blockAppUsingCameraTest() {
         navigationToolbar {
         }.enterURLAndEnterToBrowser(testPage.toUri()) {
         }.clickStartCameraButton {
@@ -144,9 +166,6 @@ class SitePermissionsTest {
 
     @Test
     fun blockNotificationsPermissionPromptTest() {
-        val testPage = "https://sv-ohorvath.github.io/testapp/permissions"
-        val testPageSubstring = "https://sv-ohorvath.github.io:443"
-
         navigationToolbar {
         }.enterURLAndEnterToBrowser(testPage.toUri()) {
         }.clickOpenNotificationButton {
@@ -162,9 +181,6 @@ class SitePermissionsTest {
 
     @Test
     fun allowNotificationsPermissionPromptTest() {
-        val testPage = "https://sv-ohorvath.github.io/testapp/permissions"
-        val testPageSubstring = "https://sv-ohorvath.github.io:443"
-
         navigationToolbar {
         }.enterURLAndEnterToBrowser(testPage.toUri()) {
         }.clickOpenNotificationButton {
@@ -174,12 +190,9 @@ class SitePermissionsTest {
         }
     }
 
-    @Ignore("Needs mocking location for Firebase - to do: ")
+    @Ignore("Needs mocking location for Firebase - to do: https://github.com/mozilla-mobile/mobile-test-eng/issues/585")
     @Test
     fun allowLocationPermissionsTest() {
-        val testPage = "https://sv-ohorvath.github.io/testapp/permissions"
-        val testPageSubstring = "https://sv-ohorvath.github.io:443"
-
         navigationToolbar {
         }.enterURLAndEnterToBrowser(testPage.toUri()) {
         }.clickGetLocationButton {
@@ -191,12 +204,9 @@ class SitePermissionsTest {
         }
     }
 
-    @Ignore("Needs mocking location for Firebase - to do: ")
+    @Ignore("Needs mocking location for Firebase - to do: https://github.com/mozilla-mobile/mobile-test-eng/issues/585")
     @Test
     fun blockLocationPermissionsTest() {
-        val testPage = "https://sv-ohorvath.github.io/testapp/permissions"
-        val testPageSubstring = "https://sv-ohorvath.github.io:443"
-
         navigationToolbar {
         }.enterURLAndEnterToBrowser(testPage.toUri()) {
         }.clickGetLocationButton {

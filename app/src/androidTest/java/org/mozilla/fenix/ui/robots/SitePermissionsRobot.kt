@@ -25,24 +25,27 @@ class SitePermissionsRobot {
     }
 
     fun verifyMicrophonePermissionPrompt(url: String) {
-        assertTrue(mDevice.findObject(UiSelector().text("Allow $url to use your microphone?"))
-            .waitForExists(waitingTime)
+        assertTrue(
+            mDevice.findObject(UiSelector().text("Allow $url to use your microphone?"))
+                .waitForExists(waitingTime)
         )
         assertTrue(denyPagePermissionButton.text.equals("Don’t allow"))
         assertTrue(allowPagePermissionButton.text.equals("Allow"))
     }
 
     fun verifyCameraPermissionPrompt(url: String) {
-        assertTrue(mDevice.findObject(UiSelector().text("Allow $url to use your camera?"))
-            .waitForExists(waitingTime)
+        assertTrue(
+            mDevice.findObject(UiSelector().text("Allow $url to use your camera?"))
+                .waitForExists(waitingTime)
         )
         assertTrue(denyPagePermissionButton.text.equals("Don’t allow"))
         assertTrue(allowPagePermissionButton.text.equals("Allow"))
     }
 
     fun verifyLocationPermissionPrompt(url: String) {
-        assertTrue(mDevice.findObject(UiSelector().text("Allow $url to use your location?"))
-            .waitForExists(waitingTime)
+        assertTrue(
+            mDevice.findObject(UiSelector().text("Allow $url to use your location?"))
+                .waitForExists(waitingTime)
         )
         assertTrue(denyPagePermissionButton.text.equals("Don’t allow"))
         assertTrue(allowPagePermissionButton.text.equals("Allow"))
@@ -66,7 +69,7 @@ class SitePermissionsRobot {
         }
     }
 
-    fun selectRememberDecision() {
+    fun selectRememberPermissionDecision() {
         onView(withId(R.id.do_not_ask_again))
             .check(matches(isDisplayed()))
             .click()

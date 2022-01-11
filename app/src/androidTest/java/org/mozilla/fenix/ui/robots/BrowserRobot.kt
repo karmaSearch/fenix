@@ -19,10 +19,18 @@ import androidx.test.espresso.intent.matcher.BundleMatchers
 import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.matcher.RootMatchers.isDialog
 import androidx.test.espresso.matcher.ViewMatchers
-import androidx.test.espresso.matcher.ViewMatchers.*
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withContentDescription
+import androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility
+import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.uiautomator.*
+import androidx.test.uiautomator.By
 import androidx.test.uiautomator.By.text
+import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.UiObjectNotFoundException
+import androidx.test.uiautomator.UiSelector
+import androidx.test.uiautomator.Until
 import mozilla.components.browser.state.selector.selectedTab
 import mozilla.components.browser.state.store.BrowserStore
 import mozilla.components.concept.engine.mediasession.MediaSession
@@ -702,29 +710,24 @@ fun searchBar() = onView(withId(R.id.mozac_browser_toolbar_url_view))
 fun homeScreenButton() = onView(withContentDescription(R.string.browser_toolbar_home))
 
 private fun assertHomeScreenButton() =
-    homeScreenButton().check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
+    homeScreenButton().check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
 
-private fun assertSearchBar() = searchBar().check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
+private fun assertSearchBar() = searchBar().check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
 
 private fun assertNavURLBar() = assertTrue(navURLBar().waitForExists(waitingTime))
 
 private fun assertNavURLBarHidden() = assertTrue(navURLBar().waitUntilGone(waitingTime))
 
-private fun assertEnhancedTrackingProtectionSwitch() {
-    withText(R.id.trackingProtectionSwitch)
-        .matches(withEffectiveVisibility(Visibility.VISIBLE))
-}
-
 private fun assertSecureConnectionLockIcon() {
     onView(withId(R.id.mozac_browser_toolbar_security_indicator))
-        .check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
+        .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
 }
 
 private fun menuButton() = onView(withId(R.id.icon))
 
 private fun assertMenuButton() {
     menuButton()
-        .check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
+        .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
 }
 
 private fun tabsCounter() = mDevice.findObject(By.res("$packageName:id/counter_root"))
@@ -745,5 +748,3 @@ private val microphoneButton = mDevice.findObject(UiSelector().text("Open microp
 private val notificationButton = mDevice.findObject(UiSelector().text("Open notifications dialogue"))
 
 private val getLocationButton = mDevice.findObject(UiSelector().text("Get Location"))
-
-
