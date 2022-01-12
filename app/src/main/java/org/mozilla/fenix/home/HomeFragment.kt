@@ -12,6 +12,7 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.StrictMode
+import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -43,6 +44,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE
 import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.appbar.AppBarLayout.OnOffsetChangedListener
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers.IO
@@ -129,6 +131,7 @@ import org.mozilla.fenix.utils.ToolbarPopupWindow
 import org.mozilla.fenix.utils.allowUndo
 import org.mozilla.fenix.whatsnew.WhatsNew
 import java.lang.ref.WeakReference
+import kotlin.math.abs
 import kotlin.math.min
 
 @Suppress("TooManyFunctions", "LargeClass")
@@ -385,7 +388,12 @@ class HomeFragment : Fragment() {
         updateSessionControlView()
 
         appBarLayout = binding.homeAppBar
+        val appBarOffsetChangedListener =
+            OnOffsetChangedListener { appbarlayout, offset ->
+                _binding?.toolbarWrapper2?.visibility = if(abs(offset) >= appbarlayout.height) View.VISIBLE else View.INVISIBLE
+            }
 
+        binding.homeAppBar.addOnOffsetChangedListener(appBarOffsetChangedListener);
         activity.themeManager.applyStatusBarTheme(activity)
 
         requireContext().components.analytics.experiments.recordExposureEvent(FeatureId.HOME_PAGE)
@@ -495,12 +503,12 @@ class HomeFragment : Fragment() {
 
         binding.toolbar.compoundDrawablePadding =
             view.resources.getDimensionPixelSize(R.dimen.search_bar_search_engine_icon_padding)
-        binding.toolbarWrapper.setOnClickListener {
+
+        val toolbarWrapperOnClickListener = View.OnClickListener {
             navigateToSearch()
             requireComponents.analytics.metrics.track(Event.SearchBarTapped(Event.SearchBarTapped.Source.HOME))
         }
-
-        binding.toolbarWrapper.setOnLongClickListener {
+        val toolbarWrapperOnLongClickListener = View.OnLongClickListener {
             ToolbarPopupWindow.show(
                 WeakReference(it),
                 handlePasteAndGo = sessionControlInteractor::onPasteAndGo,
@@ -509,6 +517,11 @@ class HomeFragment : Fragment() {
             )
             true
         }
+        binding.toolbarWrapper.setOnClickListener(toolbarWrapperOnClickListener)
+        binding.toolbarWrapper2.setOnClickListener(toolbarWrapperOnClickListener)
+
+        binding.toolbarWrapper.setOnLongClickListener(toolbarWrapperOnLongClickListener)
+        binding.toolbarWrapper2.setOnLongClickListener(toolbarWrapperOnLongClickListener)
 
         binding.tabButton.setOnClickListener {
             if (FeatureFlags.showStartOnHomeSettings) {
@@ -549,8 +562,13 @@ class HomeFragment : Fragment() {
         )
     }
 
-    fun scrollToTop() {
-        binding.homeAppBar.setExpanded(true)
+    fun updatePosition(expanded: Boolean) {
+        val recyclerView = sessionControlView!!.view
+
+        if (!recyclerView.hasNestedScrollingParent(ViewCompat.TYPE_NON_TOUCH)) {
+            recyclerView.startNestedScroll(View.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_NON_TOUCH);
+        }
+        binding.homeAppBar.setExpanded(expanded)
     }
 
     private fun createTabCounterMenu() {
@@ -840,9 +858,15 @@ class HomeFragment : Fragment() {
                 if (newState == RecyclerView.SCROLL_STATE_DRAGGING || newState == RecyclerView.SCROLL_STATE_SETTLING) {
                     findNavController().navigateUp()
                     recyclerView.removeOnScrollListener(this)
+                    if (!recyclerView.hasNestedScrollingParent(ViewCompat.TYPE_NON_TOUCH)) {
+                        recyclerView.startNestedScroll(View.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_NON_TOUCH);
+                    }
                     binding.homeAppBar.setExpanded(true)
                 }
             }
+        }
+        if (!recyclerView.hasNestedScrollingParent(ViewCompat.TYPE_NON_TOUCH)) {
+            recyclerView.startNestedScroll(View.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_NON_TOUCH);
         }
         binding.homeAppBar.setExpanded(false)
 

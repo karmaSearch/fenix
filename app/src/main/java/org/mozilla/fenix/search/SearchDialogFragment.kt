@@ -171,7 +171,7 @@ class SearchDialogFragment : AppCompatDialogFragment(), UserInteractionHandler {
                 dismissDialog = {
                     dialogHandledAction = true
                     dismissAllowingStateLoss()
-                    restartHome(activity)
+                    restartHome(activity, true)
                 },
                 clearToolbarFocus = {
                     dialogHandledAction = true
@@ -232,13 +232,13 @@ class SearchDialogFragment : AppCompatDialogFragment(), UserInteractionHandler {
         return binding.root
     }
 
-    private fun restartHome(activity: Activity) {
+    private fun restartHome(activity: Activity, expanded: Boolean) {
         val homeActivity: HomeActivity = activity as HomeActivity
         val navHostFragment: NavHostFragment =
             homeActivity.supportFragmentManager.findFragmentById(R.id.container) as NavHostFragment
 
         val homeFragment = navHostFragment.childFragmentManager.fragments[0] as HomeFragment
-        homeFragment.scrollToTop()
+        homeFragment.updatePosition(expanded)
     }
 
     @SuppressWarnings("LongMethod")
@@ -371,6 +371,9 @@ class SearchDialogFragment : AppCompatDialogFragment(), UserInteractionHandler {
             awesomeBarView.update(it)
             addVoiceSearchButton(it)
         }
+
+        val activity = requireActivity() as HomeActivity
+        restartHome(activity, false)
     }
 
     private fun hideClipboardSection() {
@@ -509,7 +512,7 @@ class SearchDialogFragment : AppCompatDialogFragment(), UserInteractionHandler {
                     }
                 }
                 view?.hideKeyboard()
-                activity?.let { restartHome(it) }
+                activity?.let { restartHome(it, true) }
                 dismissAllowingStateLoss()
                 true
             }

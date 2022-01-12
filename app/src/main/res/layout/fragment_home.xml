@@ -119,6 +119,37 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
+        <FrameLayout
+            android:id="@+id/toolbar_wrapper_2"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="0dp"
+            android:background="@drawable/home_search_background"
+            android:clickable="true"
+            android:contentDescription="@string/search_hint"
+            android:focusable="true"
+            app:layout_constraintBottom_toBottomOf="@id/bottom_bar"
+            app:layout_constraintEnd_toStartOf="@+id/accessory_button_barrier"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/bottom_bar">
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start|center_vertical"
+                android:layout_marginStart="44dp"
+                android:clickable="false"
+                android:ellipsize="end"
+                android:focusable="false"
+                android:importantForAccessibility="no"
+                android:lines="1"
+                android:text="@string/search_hint"
+                android:textColor="?primaryText"
+                android:textSize="15sp" />
+        </FrameLayout>
+
 
         <androidx.constraintlayout.widget.Barrier
             android:id="@+id/accessory_button_barrier"
@@ -134,7 +165,7 @@
             app:layout_constraintTop_toTopOf="@id/bottom_bar"
             app:layout_constraintBottom_toBottomOf="@id/bottom_bar"
             app:layout_constraintEnd_toStartOf="@+id/menuButton"
-            app:layout_constraintStart_toEndOf="@id/toolbar_wrapper"/>
+            app:layout_constraintStart_toEndOf="@id/toolbar_wrapper_2"/>
 
         <mozilla.components.browser.menu.view.MenuButton
             android:id="@+id/menuButton"
