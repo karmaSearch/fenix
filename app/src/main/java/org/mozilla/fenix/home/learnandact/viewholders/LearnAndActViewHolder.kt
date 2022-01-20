@@ -32,6 +32,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -98,12 +99,13 @@ fun LearnAndAct(
     print(horizontalPadding)
     print(onBlockClicked)
     Column {
+        Spacer(Modifier.height(5.dp))
         androidx.compose.foundation.Image(
             imageVector = ImageVector.vectorResource(id = R.drawable.ic_learnandact_header) ,
             contentDescription = null,
             modifier = Modifier
                 .height(35.dp)
-                .padding(start = 20.dp),
+                .padding(start = 10.dp),
             contentScale = ContentScale.FillHeight
         )
 
@@ -123,7 +125,7 @@ fun LearnAndActBlocs(
 
     learnAndActBlocs.forEach { item ->
         Card(shape = RoundedCornerShape(8.dp),
-            elevation = 6.dp,
+            elevation = 12.dp,
             backgroundColor = FirefoxTheme.colors.surface,
             modifier = Modifier
                 .clickable { onStoryClicked(item, Pair(0, 0)) }
@@ -174,13 +176,13 @@ fun LearnAndActBlocs(
                         .offset(y = -12.dp)
                         .clip(RoundedCornerShape(0.dp, 12.dp, 12.dp, 0.dp))
                         .background(FirefoxTheme.colors.brandColor)
-                        .padding(start = 10.dp, end = 10.dp, bottom = 0.dp)
+                        .padding(start = 17.dp, end = 17.dp, bottom = 0.dp)
                         .height(24.dp) ,
                     color = Color.Black,
                     fontFamily = FontFamily(Font(R.font.proximanova_semibold)),
                 )
                 Column(
-                    verticalArrangement = Arrangement.spacedBy(3.dp),
+                    verticalArrangement = Arrangement.spacedBy(0.dp),
                     modifier = Modifier
                         .offset(y = -10.dp)
                         .padding(start = 10.dp, end = 10.dp, top = 0.dp, bottom = 5.dp)
@@ -211,6 +213,7 @@ fun LearnAndActBlocs(
                         color = FirefoxTheme.colors.textPrimary,
                         maxLines = 4,
                         fontFamily = FontFamily(Font(R.font.proximanova_medium)),
+                        overflow = TextOverflow.Ellipsis
                     )
                     Text(
                         text = item.action,

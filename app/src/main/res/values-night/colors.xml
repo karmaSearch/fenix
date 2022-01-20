@@ -10,7 +10,7 @@
     <color name="caption_text_normal_theme">@color/photonLightGrey70</color>
     <color name="foundation_normal_theme">@color/foundation_dark_theme</color>
     <color name="above_normal_theme">@color/above_dark_theme</color>
-    <color name="inset_normal_theme">@color/photonDarkGrey50</color>
+    <color name="inset_normal_theme">@color/photonLightGrey50</color>
     <color name="accent_normal_theme">@color/accent_dark_theme</color>
     <color name="accent_bright_normal_theme">@color/accent_bright_dark_theme</color>
     <color name="accent_high_contrast_normal_theme">@color/accent_high_contrast_dark_theme</color>
@@ -76,10 +76,10 @@
     <color name="tab_history_item_selected_background_normal_theme">@color/tab_tray_item_selected_background_dark_theme</color>
 
     <!--Top site colors -->
-    <color name="top_site_title_text">@color/photonLightGrey05</color>
+    <color name="top_site_title_text">@color/photonWhite</color>
     <color name="top_site_pager_dot">@color/photonDarkGrey40</color>
     <color name="top_site_pager_dot_selected">@color/photonDarkGrey05</color>
-    <color name="top_site_pin_icon_color">@color/foundation_light_theme</color>
+    <color name="top_site_pin_icon_color">@color/photonWhite</color>
     <color name="top_sites_border_color">@color/photonDarkGrey90</color>
 
     <!-- Synced tabs colors-->

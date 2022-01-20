@@ -6,8 +6,8 @@
     <!-- Light theme color palette -->
     <color name="primary_text_light_theme">@color/photonInk80</color>
     <color name="contrast_text_light_theme">@color/primary_text_dark_theme</color>
-    <color name="foundation_light_theme">@color/photonLightGrey20</color>
-    <color name="inset_light_theme">@color/photonLightGrey30</color>
+    <color name="foundation_light_theme">@color/white_color</color>
+    <color name="inset_light_theme">@color/photonLightGrey20</color>
     <color name="accent_light_theme">@color/photonInk20</color>
     <color name="accent_bright_light_theme">@color/photonViolet70</color>
     <color name="about_link_normal_theme">@color/photonViolet70</color>
@@ -21,7 +21,7 @@
     <color name="preference_section_header_normal_theme">@color/accent_bright_light_theme</color>
     <color name="menu_item_button_light_theme">@color/accent_bright_light_theme</color>
 
-    <color name="mozac_widget_favicon_background_light_theme">@color/photonWhite</color>
+    <color name="mozac_widget_favicon_background_light_theme">@color/photonLightGrey20</color>
     <color name="mozac_widget_favicon_border_light_theme">@color/photonLightGrey30</color>
 
     <!-- Tab Tray -->
@@ -32,8 +32,8 @@
 
     <!-- Dark theme color palette -->
     <color name="primary_text_dark_theme">@color/photonLightGrey05</color>
-    <color name="foundation_dark_theme">@color/photonDarkGrey80</color>
-    <color name="above_dark_theme">@color/photonDarkGrey50</color>
+    <color name="foundation_dark_theme">@color/photonBlack</color>
+    <color name="above_dark_theme">@color/photonDarkGrey60</color>
     <color name="accent_dark_theme">@color/photonViolet50</color>
     <color name="accent_bright_dark_theme">@color/photonViolet70</color>
     <color name="accent_high_contrast_dark_theme">@color/photonViolet40</color>
@@ -63,21 +63,21 @@
     <color name="preference_section_header_dark_theme">@color/accent_high_contrast_dark_theme</color>
     <color name="recently_used_share_menu_dark_theme">@color/photonDarkGrey10</color>
 
-    <color name="mozac_widget_favicon_background_dark_theme">@color/photonDarkGrey50</color>
+    <color name="mozac_widget_favicon_background_dark_theme">@color/photonDarkGrey60</color>
     <color name="mozac_widget_favicon_border_dark_theme">@color/photonDarkGrey10</color>
 
     <!-- Tab Tray -->
     <color name="tab_tray_item_text_dark_theme">@color/photonLightGrey05</color>
     <color name="tab_tray_item_url_dark_theme">@color/photonLightGrey60</color>
-    <color name="tab_tray_item_background_dark_theme">@color/photonDarkGrey80</color>
+    <color name="tab_tray_item_background_dark_theme">@color/photonBlack</color>
     <color name="tab_tray_item_selected_background_dark_theme">#412E69</color>
-    <color name="tab_tray_toolbar_background_dark_theme">@color/photonDarkGrey50</color>
+    <color name="tab_tray_toolbar_background_dark_theme">@color/photonDarkGrey60</color>
     <color name="tab_tray_item_divider_dark_theme">@color/photonDarkGrey10</color>
     <color name="tab_tray_item_media_background_dark_theme">@color/photonViolet50</color>
     <color name="tab_tray_heading_icon_dark_theme">@color/photonViolet50</color>
     <color name="tab_tray_heading_icon_inactive_dark_theme">@color/photonLightGrey05</color>
     <color name="tab_tray_heading_icon_menu_dark_theme">@color/photonLightGrey05</color>
-    <color name="tab_tray_item_thumbnail_background_dark_theme">@color/photonDarkGrey50</color>
+    <color name="tab_tray_item_thumbnail_background_dark_theme">@color/photonDarkGrey60</color>
     <color name="tab_tray_item_thumbnail_icon_dark_theme">@color/photonDarkGrey05</color>
     <color name="tab_tray_selected_mask_dark_theme">@color/photonViolet50A32</color>
 

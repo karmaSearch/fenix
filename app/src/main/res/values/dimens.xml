@@ -205,8 +205,8 @@
 
     <dimen name="top_sites_card_size">60dp</dimen>
     <dimen name="top_sites_card_padding">12dp</dimen>
-    <dimen name="top_sites_card_elevation">6dp</dimen>
-    <dimen name="top_sites_card_radius">8dp</dimen>
+    <dimen name="top_sites_card_elevation">5dp</dimen>
+    <dimen name="top_sites_card_radius">5dp</dimen>
     <dimen name="top_sites_card_stroke_width">1dp</dimen>
 
     <!-- Credit Cards Fragment -->

@@ -28,6 +28,7 @@ import org.mozilla.fenix.home.recenttabs.RecentTab
 import org.mozilla.fenix.onboarding.JumpBackInCFRDialog
 import org.mozilla.fenix.utils.Settings
 
+
 // This method got a little complex with the addition of the tab tray feature flag
 // When we remove the tabs from the home screen this will get much simpler again.
 @Suppress("ComplexMethod", "LongParameterList")
@@ -56,6 +57,10 @@ internal fun normalModeAdapterItems(
 
     if (topSites.isNotEmpty()) {
         items.add(AdapterItem.TopSitePager(topSites))
+    }
+
+    if(learnAndAct.isNotEmpty()) {
+        items.add(AdapterItem.LearnAndActItem)
     }
 
     if (recentTabs.isNotEmpty()) {
@@ -92,9 +97,6 @@ internal fun normalModeAdapterItems(
         items.add(AdapterItem.CustomizeHomeButton)
     }
 
-    if(learnAndAct.isNotEmpty()) {
-        items.add(AdapterItem.LearnAndActItem)
-    }
     return items
 }
 
