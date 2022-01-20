@@ -87,7 +87,7 @@ fun CustomizeHomeButton(
         Text(
             text = stringResource(R.string.browser_menu_customize_home_1),
             fontSize = 14.sp,
-            fontFamily = FontFamily(Font(R.font.metropolis_semibold)),
+            fontFamily = FontFamily(Font(R.font.proximanova_semibold)),
             letterSpacing = 0.5.sp,
             lineHeight = 16.sp,
             maxLines = 1

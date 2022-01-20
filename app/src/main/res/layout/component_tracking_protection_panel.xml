@@ -38,7 +38,7 @@
             android:paddingStart="0dp"
             android:paddingEnd="0dp"
             android:textColor="?attr/primaryText"
-            app:fontFamily="@font/metropolis_semibold"
+            app:fontFamily="@font/proximanova_semibold"
             app:layout_constraintStart_toEndOf="@+id/navigate_back"
             app:layout_constraintTop_toTopOf="parent"
             android:text="@string/enhanced_tracking_protection_details" />
@@ -226,7 +226,7 @@
             android:layout_marginEnd="19dp"
             android:textColor="?attr/primaryText"
             android:textSize="16sp"
-            app:fontFamily="@font/metropolis_semibold"
+            app:fontFamily="@font/proximanova_semibold"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="@tools:sample/lorem" />
 

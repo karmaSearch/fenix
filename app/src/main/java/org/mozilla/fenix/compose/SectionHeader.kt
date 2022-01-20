@@ -31,7 +31,7 @@ fun SectionHeader(
         modifier = modifier,
         color = FirefoxTheme.colors.textPrimary,
         fontSize = 16.sp,
-        fontFamily = FontFamily(Font(R.font.metropolis_semibold)),
+        fontFamily = FontFamily(Font(R.font.proximanova_semibold)),
         lineHeight = 20.sp,
         overflow = TextOverflow.Ellipsis,
         maxLines = 2

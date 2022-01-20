@@ -27,7 +27,7 @@
             android:textColor="?primaryText"
             android:textSize="12sp"
             android:labelFor="@id/card_number_input"
-            app:fontFamily="@font/metropolis_semibold" />
+            app:fontFamily="@font/proximanova_semibold" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/card_number_layout"
@@ -69,7 +69,7 @@
             android:textColor="?primaryText"
             android:textSize="12sp"
             android:labelFor="@id/name_on_card_input"
-            app:fontFamily="@font/metropolis_semibold" />
+            app:fontFamily="@font/proximanova_semibold" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/name_on_card_layout"
@@ -108,7 +108,7 @@
             android:text="@string/credit_cards_expiration_date"
             android:textColor="?primaryText"
             android:textSize="12sp"
-            app:fontFamily="@font/metropolis_semibold" />
+            app:fontFamily="@font/proximanova_semibold" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -184,7 +184,7 @@
                 android:textAllCaps="false"
                 android:textColor="@color/destructive_button_text_color"
                 android:visibility="gone"
-                app:fontFamily="@font/metropolis_semibold"
+                app:fontFamily="@font/proximanova_semibold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
 
@@ -199,7 +199,7 @@
                 android:textAllCaps="false"
                 android:textColor="?primaryText"
                 android:textStyle="bold"
-                app:fontFamily="@font/metropolis_semibold"
+                app:fontFamily="@font/proximanova_semibold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/save_button" />
 
