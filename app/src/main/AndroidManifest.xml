@@ -44,11 +44,6 @@
         <activity-alias
             android:name="${applicationId}.App"
             android:targetActivity=".HomeActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
 
             <meta-data
                 android:name="android.app.shortcuts"
@@ -120,6 +115,15 @@
                     android:host="urls_bookmarks"/>
                 <data android:scheme="${deepLinkScheme}"
                     android:host="urls_history"/>
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".SplashScreenActivity"
+            android:theme="@style/SplashTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 

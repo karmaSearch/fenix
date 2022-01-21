@@ -4,6 +4,13 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 <resources xmlns:tools="http://schemas.android.com/tools">
 
+    <style name="SplashTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="android:windowBackground">@drawable/splash_background</item>
+        <item name="android:colorAccent">@color/foundation_normal_theme</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+
+    </style>
+    
     <style name="NormalThemeBase" parent="Theme.MaterialComponents.DayNight.NoActionBar.Bridge">
         <!-- Android system styling -->
         <item name="searchViewStyle">@style/SearchViewStyle</item>
