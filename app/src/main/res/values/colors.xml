@@ -266,7 +266,7 @@
     <color name="default_launcher_background">#FDFDFD</color>
     <color name="nightly_launcher_background">#220033</color>
     <color name="debug_launcher_background">#09642E</color>
-    <color name="ic_launcher_background">#2BCD6D</color>
+    <color name="ic_launcher_background">@color/photonGreen50</color>
 
     <!-- Button Colors -->
     <color name="grey_button_color">@color/photonLightGrey30</color>
