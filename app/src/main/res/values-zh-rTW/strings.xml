@@ -89,7 +89,7 @@
 
     <!-- Open in App "contextual feature recommendation" (CFR) -->
     <!-- Text for the info message. 'Firefox' intentionally hardcoded here.-->
-    <string name="open_in_app_cfr_info_message">您可以設定使用 Firefox 自動開啟各應用程式當中的鏈結。</string>
+    <string name="open_in_app_cfr_info_message">您可以設定使用 KARMA 自動開啟各應用程式當中的鏈結。</string>
     <!-- Text for the positive action button -->
     <string name="open_in_app_cfr_positive_button_text">開啟設定</string>
     <!-- Text for the negative action button -->
@@ -117,7 +117,7 @@
     <!-- Text for title for the auto-close dialog of the inactive tabs. -->
     <string name="tab_tray_inactive_auto_close_title">等一個月後再自動關閉？</string>
     <!-- Text for the body for the auto-close dialog of the inactive tabs. -->
-    <string name="tab_tray_inactive_auto_close_body">Firefox 可自動關閉您超過一個月未檢視的分頁。</string>
+    <string name="tab_tray_inactive_auto_close_body">KARMA 可自動關閉您超過一個月未檢視的分頁。</string>
     <!-- Content description for close button in the auto-close dialog of the inactive tabs. -->
     <string name="tab_tray_inactive_auto_close_button_content_description">關閉</string>
 

@@ -86,7 +86,7 @@
 
     <!-- Open in App "contextual feature recommendation" (CFR) -->
     <!-- Text for the info message. 'Firefox' intentionally hardcoded here.-->
-    <string name="open_in_app_cfr_info_message">Вы можаце наладзіць Firefox аўтаматычна адкрываць спасылкі ў праграмах.</string>
+    <string name="open_in_app_cfr_info_message">Вы можаце наладзіць KARMA аўтаматычна адкрываць спасылкі ў праграмах.</string>
     <!-- Text for the positive action button -->
     <string name="open_in_app_cfr_positive_button_text">Перайсці ў налады</string>
     <!-- Text for the negative action button -->
@@ -113,7 +113,7 @@
     <!-- Text for title for the auto-close dialog of the inactive tabs. -->
     <string name="tab_tray_inactive_auto_close_title">Аўтаматычна закрываць праз месяц?</string>
     <!-- Text for the body for the auto-close dialog of the inactive tabs. -->
-    <string name="tab_tray_inactive_auto_close_body">Firefox можа закрываць карткі, якія вы не праглядалі за апошні месяц.</string>
+    <string name="tab_tray_inactive_auto_close_body">KARMA можа закрываць карткі, якія вы не праглядалі за апошні месяц.</string>
     <!-- Content description for close button in the auto-close dialog of the inactive tabs. -->
     <string name="tab_tray_inactive_auto_close_button_content_description">Закрыць</string>
     <!-- Text for turn on auto close tabs button in the auto-close dialog of the inactive tabs. -->
@@ -290,7 +290,7 @@
 
     <!-- Home onboarding -->
     <!-- Onboarding home screen dialog title text. Firefox is intentionally hardcoded. -->
-    <string name="onboarding_home_screen_title_2">Што новага ў Firefox</string>
+    <string name="onboarding_home_screen_title_2">Што новага ў KARMA</string>
     <!-- Onboarding home screen dialog description text. -->
     <string name="onboarding_home_screen_description_2">Цяпер стала прасцей працягнуць працу там, дзе вы спыніліся.</string>
     <!-- Onboarding home screen dialog title text for the home section. Firefox is intentionally hardcoded. -->

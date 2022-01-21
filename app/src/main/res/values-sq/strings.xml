@@ -87,7 +87,7 @@
 
     <!-- Open in App "contextual feature recommendation" (CFR) -->
     <!-- Text for the info message. 'Firefox' intentionally hardcoded here.-->
-    <string name="open_in_app_cfr_info_message">Mund ta ujdisni Firefox-in të hapë automatikisht lidhje në aplikacione.</string>
+    <string name="open_in_app_cfr_info_message">Mund ta ujdisni KARMA-in të hapë automatikisht lidhje në aplikacione.</string>
     <!-- Text for the positive action button -->
     <string name="open_in_app_cfr_positive_button_text">Shko te rregullimet</string>
     <!-- Text for the negative action button -->
@@ -114,7 +114,7 @@
     <!-- Text for title for the auto-close dialog of the inactive tabs. -->
     <string name="tab_tray_inactive_auto_close_title">Të vetëmbyllen pas një muaji?</string>
     <!-- Text for the body for the auto-close dialog of the inactive tabs. -->
-    <string name="tab_tray_inactive_auto_close_body">Firefox-i mund të mbyllë skedat që s’i keni parë gjatë muajit të kaluar.</string>
+    <string name="tab_tray_inactive_auto_close_body">KARMA-i mund të mbyllë skedat që s’i keni parë gjatë muajit të kaluar.</string>
     <!-- Content description for close button in the auto-close dialog of the inactive tabs. -->
     <string name="tab_tray_inactive_auto_close_button_content_description">Mbylli</string>
     <!-- Text for turn on auto close tabs button in the auto-close dialog of the inactive tabs. -->
@@ -291,11 +291,11 @@
 
     <!-- Home onboarding -->
     <!-- Onboarding home screen dialog title text. Firefox is intentionally hardcoded. -->
-    <string name="onboarding_home_screen_title_2">Ç’ka të re te Firefox-i</string>
+    <string name="onboarding_home_screen_title_2">Ç’ka të re te KARMA-i</string>
     <!-- Onboarding home screen dialog description text. -->
     <string name="onboarding_home_screen_description_2">Tani është më e lehtë t’ia rifilloni atje ku e latë.</string>
     <!-- Onboarding home screen dialog title text for the home section. Firefox is intentionally hardcoded. -->
-    <string name="onboarding_home_screen_section_home_title_2">Faqe hyrëse e Firefox-it e personalizuar</string>
+    <string name="onboarding_home_screen_section_home_title_2">Faqe hyrëse e KARMA-it e personalizuar</string>
     <!-- Onboarding home screen dialog description text for the home section. -->
     <string name="onboarding_home_screen_section_home_description_2">Kaloni te skeda tuajat të hapura, faqerojtës dhe historik shfletimesh.</string>
     <!-- Onboarding home screen dialog description text for the tab tray section. -->

@@ -309,7 +309,7 @@
     <!-- Preference description for banner about signing in -->
     <string name="preferences_sign_in_description">نیشانەکراوەکان، مێژووی کار، وزیاتر لەگەڵ هەژماری فایەرفۆکس</string>
     <!-- Preference shown instead of account display name while account profile information isn't available yet. -->
-    <string name="preferences_account_default_name">هەژماری Firefox</string>
+    <string name="preferences_account_default_name">هەژماری KARMA</string>
     <!-- Preference text for account title when there was an error syncing FxA -->
     <string name="preferences_account_sync_error">دووبارە پەیوەندی بکەرەوە بۆ هێنانەوەی هاوکاتگەری</string>
     <!-- Preference for language -->

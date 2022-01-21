@@ -72,7 +72,7 @@
 
     <!-- Open in App "contextual feature recommendation" (CFR) -->
     <!-- Text for the info message. 'Firefox' intentionally hardcoded here.-->
-    <string name="open_in_app_cfr_info_message">లంకెలను Firefox స్వయంచాలకంగా అనువర్తనాలలో తెరిచేలా మీరు అమర్చుకోవచ్చు.</string>
+    <string name="open_in_app_cfr_info_message">లంకెలను KARMA స్వయంచాలకంగా అనువర్తనాలలో తెరిచేలా మీరు అమర్చుకోవచ్చు.</string>
     <!-- Text for the positive action button -->
     <string name="open_in_app_cfr_positive_button_text">అమరికలకు వెళ్లు</string>
     <!-- Text for the negative action button -->
@@ -214,7 +214,7 @@
 
     <!-- Search Widget -->
     <!-- Content description for searching with a widget. Firefox is intentionally hardcoded.-->
-    <string name="search_widget_content_description">ఒక కొత్త Firefox ట్యాబును తెరువండి</string>
+    <string name="search_widget_content_description">ఒక కొత్త KARMA ట్యాబును తెరువండి</string>
     <!-- Text preview for smaller sized widgets -->
     <string name="search_widget_text_short">వెతకండి</string>
     <!-- Text preview for larger sized widgets -->
