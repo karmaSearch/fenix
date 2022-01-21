@@ -9,6 +9,7 @@ import android.content.res.Configuration
 import android.os.Build
 import android.os.StrictMode
 import androidx.core.content.ContextCompat
+import karma.service.learnandact.LearnAndActService
 import mozilla.components.browser.engine.gecko.GeckoEngine
 import mozilla.components.browser.engine.gecko.fetch.GeckoViewFetchClient
 import mozilla.components.browser.engine.gecko.permission.GeckoSitePermissionsStorage
@@ -325,6 +326,7 @@ class Core(
         PocketStoriesConfig(client, Frequency(4, TimeUnit.HOURS))
     }
     val pocketStoriesService by lazyMonitored { PocketStoriesService(context, pocketStoriesConfig) }
+    val learnAndActService by lazyMonitored { LearnAndActService(client, context) }
 
     val topSitesStorage by lazyMonitored {
         val defaultTopSites = mutableListOf<Pair<String, String>>()

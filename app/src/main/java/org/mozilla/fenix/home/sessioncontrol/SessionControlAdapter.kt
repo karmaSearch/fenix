@@ -24,6 +24,7 @@ import org.mozilla.fenix.historymetadata.view.HistoryMetadataGroupViewHolder
 import org.mozilla.fenix.historymetadata.view.HistoryMetadataHeaderViewHolder
 import org.mozilla.fenix.home.HomeFragmentStore
 import org.mozilla.fenix.home.OnboardingState
+import org.mozilla.fenix.home.learnandact.viewholders.LearnAndActViewHolder
 import org.mozilla.fenix.home.recentbookmarks.view.RecentBookmarksViewHolder
 import org.mozilla.fenix.home.recenttabs.view.RecentTabViewHolder
 import org.mozilla.fenix.home.recenttabs.view.RecentTabsHeaderViewHolder
@@ -164,6 +165,7 @@ sealed class AdapterItem(@LayoutRes val viewType: Int) {
 
     object HistoryMetadataHeader : AdapterItem(HistoryMetadataHeaderViewHolder.LAYOUT_ID)
     object HistoryMetadataGroup : AdapterItem(HistoryMetadataGroupViewHolder.LAYOUT_ID)
+    object LearnAndActItem : AdapterItem(LearnAndActViewHolder.LAYOUT_ID)
 
     data class RecentBookmarks(val recentBookmarks: List<BookmarkNode>) :
         AdapterItem(RecentBookmarksViewHolder.LAYOUT_ID) {
@@ -250,6 +252,11 @@ class SessionControlAdapter(
                 store = store,
                 interactor = interactor,
                 metrics = components.analytics.metrics
+            )
+            LearnAndActViewHolder.LAYOUT_ID -> return LearnAndActViewHolder(
+                composeView = ComposeView(parent.context),
+                store = store,
+                interactor = interactor
             )
         }
 

@@ -35,34 +35,4 @@ class AppViewHolderTest {
         viewHolder = AppViewHolder(binding.root, interactor)
     }
 
-    @Test
-    fun `bind app share option`() {
-        val app = AppShareOption(
-            name = "Pocket",
-            icon = getDrawable(testContext, R.drawable.ic_pocket)!!,
-            packageName = "com.mozilla.pocket",
-            activityName = "MainActivity"
-        )
-        viewHolder.bind(app)
-
-        assertEquals("Pocket", binding.appName.text)
-        assertEquals(app.icon, binding.appIcon.drawable)
-    }
-
-    @Test
-    fun `trigger interactor if application is bound`() {
-        val app = AppShareOption(
-            name = "Pocket",
-            icon = getDrawable(testContext, R.drawable.ic_pocket)!!,
-            packageName = "com.mozilla.pocket",
-            activityName = "MainActivity"
-        )
-
-        viewHolder.itemView.performClick()
-        verify { interactor wasNot Called }
-
-        viewHolder.bind(app)
-        viewHolder.itemView.performClick()
-        verify { interactor.onShareToApp(app) }
-    }
 }

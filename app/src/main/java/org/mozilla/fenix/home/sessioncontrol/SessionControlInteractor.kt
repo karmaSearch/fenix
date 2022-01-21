@@ -4,6 +4,7 @@
 
 package org.mozilla.fenix.home.sessioncontrol
 
+import karma.service.learnandact.LearnAndAct
 import mozilla.components.concept.storage.BookmarkNode
 import mozilla.components.feature.tab.collections.Tab
 import mozilla.components.feature.tab.collections.TabCollection
@@ -15,6 +16,8 @@ import org.mozilla.fenix.historymetadata.HistoryMetadataGroup
 import org.mozilla.fenix.historymetadata.controller.HistoryMetadataController
 import org.mozilla.fenix.historymetadata.interactor.HistoryMetadataInteractor
 import org.mozilla.fenix.home.HomeFragmentState
+import org.mozilla.fenix.home.learnandact.LearnAndActController
+import org.mozilla.fenix.home.learnandact.LearnAndActInteractor
 import org.mozilla.fenix.home.recentbookmarks.controller.RecentBookmarksController
 import org.mozilla.fenix.home.recentbookmarks.interactor.RecentBookmarksInteractor
 import org.mozilla.fenix.home.recenttabs.controller.RecentTabController
@@ -243,7 +246,8 @@ class SessionControlInteractor(
     private val recentTabController: RecentTabController,
     private val recentBookmarksController: RecentBookmarksController,
     private val historyMetadataController: HistoryMetadataController,
-    private val pocketStoriesController: PocketStoriesController
+    private val pocketStoriesController: PocketStoriesController,
+    private val learnAndActController: LearnAndActController
 ) : CollectionInteractor,
     OnboardingInteractor,
     TopSiteInteractor,
@@ -255,7 +259,8 @@ class SessionControlInteractor(
     RecentBookmarksInteractor,
     HistoryMetadataInteractor,
     CustomizeHomeIteractor,
-    PocketStoriesInteractor {
+    PocketStoriesInteractor,
+    LearnAndActInteractor {
 
     override fun onCollectionAddTabTapped(collection: TabCollection) {
         controller.handleCollectionAddTabTapped(collection)
@@ -421,5 +426,13 @@ class SessionControlInteractor(
 
     override fun reportSessionMetrics(state: HomeFragmentState) {
         controller.handleReportSessionMetrics(state)
+    }
+
+    override fun onBlockShown(storiesShown: List<LearnAndAct>) {
+        learnAndActController.handleLearnAndActShown(storiesShown)
+    }
+
+    override fun onBlockClicked(bloc: LearnAndAct, position: Pair<Int, Int>) {
+        learnAndActController.handleLearnAndActClicked(learnAndAct = bloc, position = position)
     }
 }

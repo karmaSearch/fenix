@@ -44,14 +44,16 @@ private val darkColorPalette = FirefoxColors(
     surface = PhotonColors.DarkGrey50,
     textPrimary = PhotonColors.LightGrey05,
     textSecondary = PhotonColors.LightGrey05,
-    dividerLine = PhotonColors.DarkGrey05
+    dividerLine = PhotonColors.DarkGrey05,
+    brandColor = PhotonColors.Green50
 )
 
 private val lightColorPalette = FirefoxColors(
     surface = PhotonColors.White,
     textPrimary = PhotonColors.DarkGrey90,
     textSecondary = PhotonColors.DarkGrey05,
-    dividerLine = PhotonColors.LightGrey30
+    dividerLine = PhotonColors.LightGrey30,
+    brandColor = PhotonColors.Green50
 )
 
 /**
@@ -62,7 +64,8 @@ class FirefoxColors(
     surface: Color,
     textPrimary: Color,
     textSecondary: Color,
-    dividerLine: Color
+    dividerLine: Color,
+    brandColor: Color
 ) {
     var surface by mutableStateOf(surface)
         private set
@@ -72,19 +75,23 @@ class FirefoxColors(
         private set
     var dividerLine by mutableStateOf(dividerLine)
         private set
+    var brandColor by mutableStateOf(brandColor)
+        private set
 
     fun update(other: FirefoxColors) {
         surface = other.surface
         textPrimary = other.textPrimary
         textSecondary = other.textSecondary
         dividerLine = other.dividerLine
+        brandColor = other.brandColor
     }
 
     fun copy(): FirefoxColors = FirefoxColors(
         surface = surface,
         textPrimary = textPrimary,
         textSecondary = textSecondary,
-        dividerLine = dividerLine
+        dividerLine = dividerLine,
+        brandColor = brandColor
     )
 }
 

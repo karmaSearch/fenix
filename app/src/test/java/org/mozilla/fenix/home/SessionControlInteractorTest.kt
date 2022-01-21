@@ -16,6 +16,7 @@ import org.junit.Before
 import org.junit.Test
 import org.mozilla.fenix.browser.browsingmode.BrowsingMode
 import org.mozilla.fenix.historymetadata.controller.HistoryMetadataController
+import org.mozilla.fenix.home.learnandact.LearnAndActController
 import org.mozilla.fenix.home.recentbookmarks.controller.RecentBookmarksController
 import org.mozilla.fenix.home.recenttabs.controller.RecentTabController
 import org.mozilla.fenix.home.sessioncontrol.DefaultSessionControlController
@@ -29,6 +30,7 @@ class SessionControlInteractorTest {
     private val recentTabController: RecentTabController = mockk(relaxed = true)
     private val recentBookmarksController: RecentBookmarksController = mockk(relaxed = true)
     private val pocketStoriesController: PocketStoriesController = mockk(relaxed = true)
+    private val learnAndActController: LearnAndActController = mockk(relaxed = true)
 
     // Note: the historyMetadata tests are handled in [HistoryMetadataInteractorTest] and [HistoryMetadataControllerTest]
     private val historyMetadataController: HistoryMetadataController = mockk(relaxed = true)
@@ -42,7 +44,8 @@ class SessionControlInteractorTest {
             recentTabController,
             recentBookmarksController,
             historyMetadataController,
-            pocketStoriesController
+            pocketStoriesController,
+            learnAndActController
         )
     }
 

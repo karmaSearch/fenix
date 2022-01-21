@@ -5,6 +5,7 @@
 package org.mozilla.fenix.home
 
 import android.graphics.Bitmap
+import karma.service.learnandact.LearnAndAct
 import mozilla.components.concept.storage.BookmarkNode
 import mozilla.components.feature.tab.collections.TabCollection
 import mozilla.components.feature.top.sites.TopSite
@@ -71,7 +72,8 @@ data class HomeFragmentState(
     val historyMetadata: List<HistoryMetadataGroup> = emptyList(),
     val pocketStories: List<PocketRecommendedStory> = emptyList(),
     val pocketStoriesCategories: List<PocketRecommendedStoriesCategory> = emptyList(),
-    val pocketStoriesCategoriesSelections: List<PocketRecommendedStoriesSelectedCategory> = emptyList()
+    val pocketStoriesCategoriesSelections: List<PocketRecommendedStoriesSelectedCategory> = emptyList(),
+    val learnAndAct: List<LearnAndAct> = emptyList()
 ) : State
 
 sealed class HomeFragmentAction : Action {
@@ -103,6 +105,8 @@ sealed class HomeFragmentAction : Action {
     data class PocketStoriesShown(val storiesShown: List<PocketRecommendedStory>) : HomeFragmentAction()
     data class PocketStoriesChange(val pocketStories: List<PocketRecommendedStory>) : HomeFragmentAction()
     data class PocketStoriesCategoriesChange(val storiesCategories: List<PocketRecommendedStoriesCategory>) :
+        HomeFragmentAction()
+    data class LearnAndActShown(val blocs: List<LearnAndAct>) :
         HomeFragmentAction()
     data class PocketStoriesCategoriesSelectionsChange(
         val storiesCategories: List<PocketRecommendedStoriesCategory>,
@@ -219,5 +223,7 @@ private fun homeFragmentStateReducer(
 
             state.copy(pocketStoriesCategories = updatedCategories)
         }
+        is HomeFragmentAction.LearnAndActShown -> state.copy(learnAndAct = action.blocs)
+
     }
 }

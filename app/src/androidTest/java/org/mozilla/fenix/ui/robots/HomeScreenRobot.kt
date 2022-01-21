@@ -68,7 +68,6 @@ class HomeScreenRobot {
     fun verifyNavigationToolbar() = assertNavigationToolbar()
     fun verifyFocusedNavigationToolbar() = assertFocusedNavigationToolbar()
     fun verifyHomeScreen() = assertHomeScreen()
-    fun verifyHomePrivateBrowsingButton() = assertHomePrivateBrowsingButton()
     fun verifyHomeMenu() = assertHomeMenu()
     fun verifyTabButton() = assertTabButton()
     fun verifyCollectionsHeader() = assertCollectionsHeader()
@@ -76,7 +75,6 @@ class HomeScreenRobot {
     fun verifyHomeWordmark() = assertHomeWordmark()
     fun verifyHomeToolbar() = assertHomeToolbar()
     fun verifyHomeComponent() = assertHomeComponent()
-    fun verifyDefaultSearchEngine(searchEngine: String) = verifySearchEngineIcon(searchEngine)
     fun verifyNoTabsOpened() = assertNoTabsOpened()
     fun verifyKeyboardVisible() = assertKeyboardVisibility(isExpectedToBeVisible = true)
 
@@ -203,31 +201,6 @@ class HomeScreenRobot {
 
             SearchRobot().interact()
             return SearchRobot.Transition()
-        }
-
-        fun togglePrivateBrowsingMode() {
-            mDevice.findObject(UiSelector().resourceId("$packageName:id/privateBrowsingButton"))
-                .waitForExists(
-                    waitingTime
-                )
-            privateBrowsingButton()
-                .perform(click())
-        }
-
-        fun triggerPrivateBrowsingShortcutPrompt(interact: AddToHomeScreenRobot.() -> Unit): AddToHomeScreenRobot.Transition {
-            // Loop to press the PB icon for 5 times to display the Add the Private Browsing Shortcut CFR
-            for (i in 1..5) {
-                mDevice.findObject(UiSelector().resourceId("$packageName:id/privateBrowsingButton"))
-                    .waitForExists(
-                        waitingTime
-                    )
-
-                privateBrowsingButton()
-                    .perform(click())
-            }
-
-            AddToHomeScreenRobot().interact()
-            return AddToHomeScreenRobot.Transition()
         }
 
         fun pressBack() {
@@ -357,7 +330,7 @@ private fun navigationToolbar() = mDevice.findObject(UiSelector().resourceId("$p
 private fun assertNavigationToolbar() = assertTrue(navigationToolbar().waitForExists(waitingTime))
 
 private fun assertFocusedNavigationToolbar() =
-    onView(allOf(withHint("Search or enter address")))
+    onView(allOf(withHint("Search to make a difference")))
         .check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
 
 private fun assertHomeScreen() {
@@ -368,10 +341,6 @@ private fun assertHomeScreen() {
 
 private fun assertHomeMenu() = onView(ViewMatchers.withResourceName("menuButton"))
     .check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
-
-private fun assertHomePrivateBrowsingButton() =
-    privateBrowsingButton()
-        .check(matches(isDisplayed()))
 
 private fun assertHomeWordmark() = onView(ViewMatchers.withResourceName("wordmark"))
     .check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
@@ -405,19 +374,8 @@ private fun assertNoTabsOpened() = onView(withId(R.id.counter_text)).check(match
 
 private fun threeDotButton() = onView(allOf(withId(R.id.menuButton)))
 
-private fun verifySearchEngineIcon(searchEngineIcon: Bitmap, searchEngineName: String) {
-    onView(withId(R.id.search_engine_icon))
-        .check(matches(withBitmapDrawable(searchEngineIcon, searchEngineName)))
-}
-
 private fun getSearchEngine(searchEngineName: String) =
     appContext.components.core.store.state.search.searchEngines.find { it.name == searchEngineName }
-
-private fun verifySearchEngineIcon(searchEngineName: String) {
-    val ddgSearchEngine = getSearchEngine(searchEngineName)
-        ?: throw AssertionError("No search engine with name $searchEngineName")
-    verifySearchEngineIcon(ddgSearchEngine.icon, ddgSearchEngine.name)
-}
 
 // First Run elements
 private fun assertWelcomeHeader() =
@@ -583,8 +541,6 @@ private fun assertShareTabsOverlay() {
     onView(withId(R.id.share_tab_favicon)).check(matches(isDisplayed()))
     onView(withId(R.id.share_tab_url)).check(matches(isDisplayed()))
 }
-
-private fun privateBrowsingButton() = onView(withId(R.id.privateBrowsingButton))
 
 private fun saveTabsToCollectionButton() = onView(withId(R.id.add_tabs_to_collections_button))
 

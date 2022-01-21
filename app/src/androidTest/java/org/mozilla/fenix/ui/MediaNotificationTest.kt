@@ -92,8 +92,6 @@ class MediaNotificationTest {
     fun mediaSystemNotificationInPrivateModeTest() {
         val audioTestPage = TestAssetHelper.getAudioPageAsset(mockWebServer)
 
-        homeScreen { }.togglePrivateBrowsingMode()
-
         navigationToolbar {
         }.enterURLAndEnterToBrowser(audioTestPage.url) {
             mDevice.waitForIdle()
@@ -122,6 +120,5 @@ class MediaNotificationTest {
 
         // close notification shade before and go back to regular mode before the next test
         mDevice.pressBack()
-        homeScreen { }.togglePrivateBrowsingMode()
     }
 }

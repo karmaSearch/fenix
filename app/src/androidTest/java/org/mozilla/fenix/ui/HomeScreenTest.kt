@@ -38,7 +38,6 @@ class HomeScreenTest {
         homeScreen {
             verifyHomeScreen()
             verifyNavigationToolbar()
-            verifyHomePrivateBrowsingButton()
             verifyHomeMenu()
             verifyHomeWordmark()
             verifyTabButton()
@@ -57,12 +56,10 @@ class HomeScreenTest {
     @Test
     fun privateModeScreenItemsTest() {
         homeScreen { }.dismissOnboarding()
-        homeScreen { }.togglePrivateBrowsingMode()
 
         homeScreen {
             verifyHomeScreen()
             verifyNavigationToolbar()
-            verifyHomePrivateBrowsingButton()
             verifyHomeMenu()
             verifyHomeWordmark()
             verifyTabButton()
@@ -80,7 +77,6 @@ class HomeScreenTest {
             mDevice.waitNotNull(Until.gone(By.text(privateSessionMessage)), waitingTime)
             verifyHomeScreen()
             verifyNavigationToolbar()
-            verifyHomePrivateBrowsingButton()
             verifyHomeMenu()
             verifyHomeWordmark()
             verifyTabButton()

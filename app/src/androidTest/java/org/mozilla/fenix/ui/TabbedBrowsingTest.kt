@@ -92,8 +92,6 @@ class TabbedBrowsingTest {
     fun openNewPrivateTabTest() {
         val defaultWebPage = TestAssetHelper.getGenericAsset(mockWebServer, 1)
 
-        homeScreen {}.togglePrivateBrowsingMode()
-
         navigationToolbar {
         }.enterURLAndEnterToBrowser(defaultWebPage.url) {
             mDevice.waitForIdle()
@@ -123,10 +121,6 @@ class TabbedBrowsingTest {
         }.closeAllTabs {
             verifyNoTabsOpened()
         }
-
-        // Repeat for Private Tabs
-        homeScreen {
-        }.togglePrivateBrowsingMode()
 
         navigationToolbar {
         }.enterURLAndEnterToBrowser(defaultWebPage.url) {
@@ -199,7 +193,6 @@ class TabbedBrowsingTest {
     fun closePrivateTabTest() {
         val genericURL = TestAssetHelper.getGenericAsset(mockWebServer, 1)
 
-        homeScreen { }.togglePrivateBrowsingMode()
         navigationToolbar {
         }.enterURLAndEnterToBrowser(genericURL.url) {
         }.openTabDrawer {
@@ -232,7 +225,6 @@ class TabbedBrowsingTest {
     fun verifyPrivateTabUndoSnackBarTest() {
         val genericURL = TestAssetHelper.getGenericAsset(mockWebServer, 1)
 
-        homeScreen { }.togglePrivateBrowsingMode()
         navigationToolbar {
         }.enterURLAndEnterToBrowser(genericURL.url) {
         }.openTabDrawer {
@@ -254,9 +246,6 @@ class TabbedBrowsingTest {
     @Test
     fun closePrivateTabsNotificationTest() {
         val defaultWebPage = TestAssetHelper.getGenericAsset(mockWebServer, 1)
-
-        homeScreen {
-        }.togglePrivateBrowsingMode()
 
         navigationToolbar {
         }.enterURLAndEnterToBrowser(defaultWebPage.url) {

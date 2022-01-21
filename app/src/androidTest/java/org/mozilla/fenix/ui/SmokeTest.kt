@@ -160,7 +160,6 @@ class SmokeTest {
         homeScreen {
             verifyHomeScreen()
             verifyNavigationToolbar()
-            verifyHomePrivateBrowsingButton()
             verifyHomeMenu()
             verifyHomeWordmark()
 
@@ -1042,9 +1041,6 @@ class SmokeTest {
         val website = TestAssetHelper.getGenericAsset(mockWebServer, 1)
 
         homeScreen {
-        }.togglePrivateBrowsingMode()
-
-        homeScreen {
         }.openNavigationToolbar {
         }.enterURLAndEnterToBrowser(website.url) {
             mDevice.waitForIdle()
@@ -1067,34 +1063,12 @@ class SmokeTest {
         val website = TestAssetHelper.getGenericAsset(mockWebServer, 1)
 
         homeScreen {
-        }.togglePrivateBrowsingMode()
-
-        homeScreen {
         }.openNavigationToolbar {
         }.enterURLAndEnterToBrowser(website.url) {
             mDevice.waitForIdle()
         }.openThreeDotMenu {
         }.openHistory {
             verifyEmptyHistoryView()
-        }
-    }
-
-    @Test
-    fun addPrivateBrowsingShortcutTest() {
-        homeScreen {
-        }.dismissOnboarding()
-
-        homeScreen {
-        }.triggerPrivateBrowsingShortcutPrompt {
-            verifyNoThanksPrivateBrowsingShortcutButton()
-            verifyAddPrivateBrowsingShortcutButton()
-            clickAddPrivateBrowsingShortcutButton()
-            clickAddAutomaticallyButton()
-        }.openHomeScreenShortcut("Private $appName") {}
-        searchScreen {
-            verifySearchView()
-        }.dismissSearchBar {
-            verifyPrivateSessionMessage()
         }
     }
 

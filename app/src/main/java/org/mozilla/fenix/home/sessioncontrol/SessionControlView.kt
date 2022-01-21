@@ -10,6 +10,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import karma.service.learnandact.LearnAndAct
 import mozilla.components.concept.storage.BookmarkNode
 import mozilla.components.feature.tab.collections.TabCollection
 import mozilla.components.feature.top.sites.TopSite
@@ -41,7 +42,8 @@ internal fun normalModeAdapterItems(
     showSetAsDefaultBrowserCard: Boolean,
     recentTabs: List<RecentTab>,
     historyMetadata: List<HistoryMetadataGroup>,
-    pocketStories: List<PocketRecommendedStory>
+    pocketStories: List<PocketRecommendedStory>,
+    learnAndAct: List<LearnAndAct>
 ): List<AdapterItem> {
     val items = mutableListOf<AdapterItem>()
     var shouldShowCustomizeHome = false
@@ -90,6 +92,9 @@ internal fun normalModeAdapterItems(
         items.add(AdapterItem.CustomizeHomeButton)
     }
 
+    if(learnAndAct.isNotEmpty()) {
+        items.add(AdapterItem.LearnAndActItem)
+    }
     return items
 }
 
@@ -160,7 +165,8 @@ private fun HomeFragmentState.toAdapterList(): List<AdapterItem> = when (mode) {
         showSetAsDefaultBrowserCard,
         recentTabs,
         historyMetadata,
-        pocketStories
+        pocketStories,
+        learnAndAct
     )
     is Mode.Private -> privateModeAdapterItems()
     is Mode.Onboarding -> onboardingAdapterItems(mode.state)

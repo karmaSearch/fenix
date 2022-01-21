@@ -108,6 +108,7 @@ import org.mozilla.fenix.ext.runIfFragmentIsAttached
 import org.mozilla.fenix.ext.settings
 import org.mozilla.fenix.historymetadata.HistoryMetadataFeature
 import org.mozilla.fenix.historymetadata.controller.DefaultHistoryMetadataController
+import org.mozilla.fenix.home.learnandact.DefaultLearnAndActController
 import org.mozilla.fenix.home.mozonline.showPrivacyPopWindow
 import org.mozilla.fenix.home.pocket.DefaultPocketStoriesController
 import org.mozilla.fenix.home.pocket.PocketRecommendedStoriesCategory
@@ -283,6 +284,13 @@ class HomeFragment : Fragment() {
             }
         }
 
+        lifecycleScope.launch(IO) {
+            val blocs = components.core.learnAndActService.getLearnAndAct()
+
+            homeFragmentStore.dispatch(HomeFragmentAction.LearnAndActShown(blocs))
+
+        }
+
         topSitesFeature.set(
             feature = TopSitesFeature(
                 view = DefaultTopSitesView(homeFragmentStore),
@@ -373,6 +381,11 @@ class HomeFragment : Fragment() {
                 homeStore = homeFragmentStore,
                 navController = findNavController(),
                 metrics = requireComponents.analytics.metrics
+            ),
+            learnAndActController = DefaultLearnAndActController(
+                homeActivity = activity,
+                homeStore = homeFragmentStore,
+                navController = findNavController()
             )
         )
 

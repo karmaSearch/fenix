@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import karma.service.learnandact.LearnAndAct
 import mozilla.components.concept.storage.BookmarkNode
 import mozilla.components.concept.storage.BookmarkNodeType
 import mozilla.components.feature.tab.collections.TabCollection
@@ -141,7 +142,7 @@ class SessionControlViewTest {
         val recentTabs = emptyList<RecentTab.Tab>()
         val historyMetadata = emptyList<HistoryMetadataGroup>()
         val pocketArticles = emptyList<PocketRecommendedStory>()
-
+        val learnAndAct = emptyList<LearnAndAct>()
         val results = normalModeAdapterItems(
             topSites,
             collections,
@@ -152,7 +153,8 @@ class SessionControlViewTest {
             false,
             recentTabs,
             historyMetadata,
-            pocketArticles
+            pocketArticles,
+            learnAndAct
         )
 
         assertTrue(results[0] is AdapterItem.RecentBookmarks)
@@ -168,6 +170,7 @@ class SessionControlViewTest {
         val recentTabs = listOf<RecentTab.Tab>(mockk())
         val historyMetadata = emptyList<HistoryMetadataGroup>()
         val pocketArticles = emptyList<PocketRecommendedStory>()
+        val learnAndAct = emptyList<LearnAndAct>()
 
         val results = normalModeAdapterItems(
             topSites,
@@ -179,7 +182,8 @@ class SessionControlViewTest {
             false,
             recentTabs,
             historyMetadata,
-            pocketArticles
+            pocketArticles,
+            learnAndAct
         )
 
         assertTrue(results[0] is AdapterItem.RecentTabsHeader)
@@ -196,6 +200,7 @@ class SessionControlViewTest {
         val recentTabs = emptyList<RecentTab.Tab>()
         val historyMetadata = listOf(HistoryMetadataGroup("title", emptyList()))
         val pocketArticles = emptyList<PocketRecommendedStory>()
+        val learnAndAct = emptyList<LearnAndAct>()
 
         val results = normalModeAdapterItems(
             topSites,
@@ -207,7 +212,8 @@ class SessionControlViewTest {
             false,
             recentTabs,
             historyMetadata,
-            pocketArticles
+            pocketArticles,
+            learnAndAct
         )
 
         assertTrue(results[0] is AdapterItem.HistoryMetadataHeader)
@@ -224,6 +230,7 @@ class SessionControlViewTest {
         val recentTabs = emptyList<RecentTab.Tab>()
         val historyMetadata = emptyList<HistoryMetadataGroup>()
         val pocketArticles = listOf(PocketRecommendedStory("", "", "", "", "", 1, 1))
+        val learnAndAct = emptyList<LearnAndAct>()
 
         val results = normalModeAdapterItems(
             topSites,
@@ -235,7 +242,8 @@ class SessionControlViewTest {
             false,
             recentTabs,
             historyMetadata,
-            pocketArticles
+            pocketArticles,
+            learnAndAct
         )
 
         assertTrue(results[0] is AdapterItem.PocketStoriesItem)
@@ -251,6 +259,7 @@ class SessionControlViewTest {
         val recentTabs = emptyList<RecentTab.Tab>()
         val historyMetadata = emptyList<HistoryMetadataGroup>()
         val pocketArticles = emptyList<PocketRecommendedStory>()
+        val learnAndAct = emptyList<LearnAndAct>()
 
         val results = normalModeAdapterItems(
             topSites,
@@ -262,7 +271,8 @@ class SessionControlViewTest {
             false,
             recentTabs,
             historyMetadata,
-            pocketArticles
+            pocketArticles,
+            learnAndAct
         )
         assertTrue(results.isEmpty())
     }

@@ -102,8 +102,6 @@ class SettingsBasicsTest {
         }.openSearchSubMenu {
             changeDefaultSearchEngine("DuckDuckGo")
         }.goBack {
-        }.goBack {
-            verifyDefaultSearchEngine("DuckDuckGo")
         }
     }
 
