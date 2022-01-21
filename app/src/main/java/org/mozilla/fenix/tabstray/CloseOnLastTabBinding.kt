@@ -39,12 +39,8 @@ class CloseOnLastTabBinding(
                     Page.PrivateTabs -> {
                         state.privateTabs
                     }
-                    else -> {
-                        // Do nothing if we're on any other non-browser page.
-                        null
-                    }
                 }
-                if (tabs?.isEmpty() == true) {
+                if (tabs.isEmpty()) {
                     navigationInteractor.onCloseAllTabsClicked(selectedPage == Page.PrivateTabs)
                 }
             }

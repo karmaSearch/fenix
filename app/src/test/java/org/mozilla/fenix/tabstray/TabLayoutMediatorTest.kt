@@ -14,7 +14,6 @@ import org.mozilla.fenix.browser.browsingmode.BrowsingModeManager
 import org.mozilla.fenix.components.metrics.MetricController
 import org.mozilla.fenix.tabstray.TrayPagerAdapter.Companion.POSITION_NORMAL_TABS
 import org.mozilla.fenix.tabstray.TrayPagerAdapter.Companion.POSITION_PRIVATE_TABS
-import org.mozilla.fenix.tabstray.TrayPagerAdapter.Companion.POSITION_SYNCED_TABS
 
 class TabLayoutMediatorTest {
     private val modeManager: BrowsingModeManager = mockk(relaxed = true)
@@ -56,7 +55,6 @@ class TabLayoutMediatorTest {
 
         every { tabLayout.getTabAt(POSITION_NORMAL_TABS) }.answers { tab }
         every { tabLayout.getTabAt(POSITION_PRIVATE_TABS) }.answers { tab }
-        every { tabLayout.getTabAt(POSITION_SYNCED_TABS) }.answers { tab }
 
         mediator.selectTabAtPosition(POSITION_NORMAL_TABS)
         verify { tab.select() }
@@ -66,10 +64,7 @@ class TabLayoutMediatorTest {
         verify { tab.select() }
         verify { tabsTrayStore.dispatch(TabsTrayAction.PageSelected(Page.positionToPage(POSITION_PRIVATE_TABS))) }
 
-        mediator.selectTabAtPosition(POSITION_SYNCED_TABS)
-        verify { tab.select() }
-        verify { tabsTrayStore.dispatch(TabsTrayAction.PageSelected(Page.positionToPage(POSITION_SYNCED_TABS))) }
-    }
+     }
 
     @Test
     fun `lifecycle methods adds and removes observer`() {

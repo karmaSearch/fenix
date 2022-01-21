@@ -8,8 +8,8 @@
     <color name="contrast_text_light_theme">@color/primary_text_dark_theme</color>
     <color name="foundation_light_theme">@color/white_color</color>
     <color name="inset_light_theme">@color/photonLightGrey20</color>
-    <color name="accent_light_theme">@color/photonInk20</color>
-    <color name="accent_bright_light_theme">@color/photonViolet70</color>
+    <color name="accent_light_theme">@color/photonGreen50</color>
+    <color name="accent_bright_light_theme">@color/photonGreen50</color>
     <color name="about_link_normal_theme">@color/photonViolet70</color>
     <color name="dark_grey_90_gradient_start">@color/photonDarkGrey90</color>
     <color name="dark_grey_90_gradient_end">#0015141A</color>
@@ -36,7 +36,7 @@
     <color name="above_dark_theme">@color/photonDarkGrey60</color>
     <color name="accent_dark_theme">@color/photonViolet50</color>
     <color name="accent_bright_dark_theme">@color/photonViolet70</color>
-    <color name="accent_high_contrast_dark_theme">@color/photonViolet40</color>
+    <color name="accent_high_contrast_dark_theme">@color/photonGreen50</color>
     <color name="tab_ring_dark_theme">@color/accent_dark_theme</color>
     <color name="neutral_dark_theme">@color/photonGrey20</color>
     <color name="neutral_faded_dark_theme">#1FFBFBFE</color>

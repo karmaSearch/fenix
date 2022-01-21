@@ -83,7 +83,6 @@ internal class TabLayoutObserver(
         Do exhaustive when (Page.positionToPage(tab.position)) {
             Page.NormalTabs -> metrics.track(Event.TabsTrayNormalModeTapped)
             Page.PrivateTabs -> metrics.track(Event.TabsTrayPrivateModeTapped)
-            Page.SyncedTabs -> metrics.track(Event.TabsTraySyncedModeTapped)
         }
     }
 

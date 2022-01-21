@@ -33,11 +33,11 @@ class FloatingActionButtonBinding(
                 )
             }
             .collect { state ->
-                setFab(state.selectedPage, state.syncing)
+                setFab(state.selectedPage)
             }
     }
 
-    private fun setFab(selectedPage: Page, syncing: Boolean) {
+    private fun setFab(selectedPage: Page) {
         when (selectedPage) {
             Page.NormalTabs -> {
                 actionButton.apply {
@@ -59,26 +59,6 @@ class FloatingActionButtonBinding(
                     setIconResource(R.drawable.ic_new)
                     setOnClickListener {
                         browserTrayInteractor.onFabClicked(true)
-                    }
-                }
-            }
-            Page.SyncedTabs -> {
-                actionButton.apply {
-                    setText(
-                        when (syncing) {
-                            true -> R.string.sync_syncing_in_progress
-                            false -> R.string.tab_drawer_fab_sync
-                        }
-                    )
-                    extend()
-                    show()
-                    setIconResource(R.drawable.ic_fab_sync)
-                    setOnClickListener {
-                        // Notify the store observers (one of which is the SyncedTabsFeature), that
-                        // a sync was requested.
-                        if (!syncing) {
-                            store.dispatch(TabsTrayAction.SyncNow)
-                        }
                     }
                 }
             }

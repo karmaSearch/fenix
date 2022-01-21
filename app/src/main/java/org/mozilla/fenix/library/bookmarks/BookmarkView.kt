@@ -118,9 +118,6 @@ class BookmarkView(
         binding.bookmarkList.apply {
             adapter = bookmarkAdapter
         }
-        binding.bookmarkFoldersSignIn.setOnClickListener {
-            navController.navigate(NavGraphDirections.actionGlobalTurnOnSync())
-        }
         binding.swipeRefresh.setOnRefreshListener {
             interactor.onRequestSync()
         }

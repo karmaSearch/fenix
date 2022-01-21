@@ -29,10 +29,6 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import mozilla.components.concept.sync.AccountObserver
-import mozilla.components.concept.sync.AuthType
-import mozilla.components.concept.sync.OAuthAccount
-import mozilla.components.concept.sync.Profile
 import mozilla.components.support.ktx.android.view.showKeyboard
 import org.mozilla.fenix.BrowserDirection
 import org.mozilla.fenix.Config
@@ -54,7 +50,6 @@ import org.mozilla.fenix.ext.getVariables
 import org.mozilla.fenix.ext.openSetDefaultBrowserOption
 import org.mozilla.fenix.ext.showToolbar
 import org.mozilla.fenix.ext.withExperiment
-import org.mozilla.fenix.settings.account.AccountUiView
 import org.mozilla.fenix.utils.BrowsersCache
 import org.mozilla.fenix.utils.Settings
 import kotlin.system.exitProcess
@@ -63,25 +58,6 @@ import kotlin.system.exitProcess
 class SettingsFragment : PreferenceFragmentCompat() {
 
     private val args by navArgs<SettingsFragmentArgs>()
-    private lateinit var accountUiView: AccountUiView
-
-    private val accountObserver = object : AccountObserver {
-        private fun updateAccountUi(profile: Profile? = null) {
-            val context = context ?: return
-            lifecycleScope.launch {
-                accountUiView.updateAccountUIState(
-                    context = context,
-                    profile = profile
-                        ?: context.components.backgroundServices.accountManager.accountProfile()
-                )
-            }
-        }
-
-        override fun onAuthenticated(account: OAuthAccount, authType: AuthType) = updateAccountUi()
-        override fun onLoggedOut() = updateAccountUi()
-        override fun onProfileUpdated(profile: Profile) = updateAccountUi(profile)
-        override fun onAuthenticationProblems() = updateAccountUi()
-    }
 
     // A flag used to track if we're going through the onCreate->onStart->onResume lifecycle chain.
     // If it's set to `true`, code in `onResume` can assume that `onCreate` executed a moment prior.
@@ -91,32 +67,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        accountUiView = AccountUiView(
-            fragment = this,
-            scope = lifecycleScope,
-            accountManager = requireComponents.backgroundServices.accountManager,
-            httpClient = requireComponents.core.client,
-            updateFxASyncOverrideMenu = ::updateFxASyncOverrideMenu,
-            updateFxAAllowDomesticChinaServerMenu = :: updateFxAAllowDomesticChinaServerMenu
-        )
-
-        // Observe account changes to keep the UI up-to-date.
-        requireComponents.backgroundServices.accountManager.register(
-            accountObserver,
-            owner = this,
-            autoPause = true
-        )
-
-        // It's important to update the account UI state in onCreate since that ensures we'll never
-        // display an incorrect state in the UI. We take care to not also call it as part of onResume
-        // if it was just called here (via the 'creatingFragment' flag).
-        // For example, if user is signed-in, and we don't perform this call in onCreate, we'll briefly
-        // display a "Sign In" preference, which will then get replaced by the correct account information
-        // once this call is ran in onResume shortly after.
-        accountUiView.updateAccountUIState(
-            requireContext(),
-            requireComponents.backgroundServices.accountManager.accountProfile()
-        )
 
         preferenceManager.sharedPreferences
             .registerOnSharedPreferenceChangeListener(this) { sharedPreferences, key ->
@@ -170,7 +120,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         // Account UI state is updated as part of `onCreate`. To not do it twice in a row, we only
         // update it here if we're not going through the `onCreate->onStart->onResume` lifecycle chain.
-        update(shouldUpdateAccountUIState = !creatingFragment)
+        update()
 
         requireView().findViewById<RecyclerView>(R.id.recycler_view)
             ?.hideInitialScrollBar(viewLifecycleOwner.lifecycleScope)
@@ -183,12 +133,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         creatingFragment = false
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        accountUiView.cancel()
-    }
-
-    private fun update(shouldUpdateAccountUIState: Boolean) {
+    private fun update() {
         val trackingProtectionPreference =
             requirePreference<Preference>(R.string.pref_key_tracking_protection_settings)
         trackingProtectionPreference.summary = context?.let {
@@ -218,13 +163,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
         tabSettingsPreference.summary = context?.settings()?.getTabTimeoutString()
 
         setupPreferences()
-
-        if (shouldUpdateAccountUIState) {
-            accountUiView.updateAccountUIState(
-                requireContext(),
-                requireComponents.backgroundServices.accountManager.accountProfile()
-            )
-        }
 
         updateMakeDefaultBrowserPreference()
     }

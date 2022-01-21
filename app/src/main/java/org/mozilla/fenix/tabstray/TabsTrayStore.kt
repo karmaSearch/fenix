@@ -61,19 +61,15 @@ enum class Page {
     /**
      * The pager position that displays private tabs.
      */
-    PrivateTabs,
+    PrivateTabs;
 
-    /**
-     * The pager position that displays Synced Tabs.
-     */
-    SyncedTabs;
 
     companion object {
         fun positionToPage(position: Int): Page {
             return when (position) {
                 0 -> NormalTabs
                 1 -> PrivateTabs
-                else -> SyncedTabs
+                else -> NormalTabs
             }
         }
     }

@@ -6,16 +6,10 @@
 <androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <androidx.preference.Preference
-        android:key="@string/pref_key_sign_in"
-        android:layout="@layout/sign_in_preference"
-        android:summary="@string/preferences_sign_in_description"
-        android:title="@string/preferences_sync"
-        app:allowDividerBelow="false" />
-
     <androidx.preference.SwitchPreference
         android:key="@string/pref_key_allow_domestic_china_fxa_server"
         android:title="@string/preferences_allow_domestic_china_fxa_server"
+        app:isPreferenceVisible="false"
         android:defaultValue="true"/>
 
     <androidx.preference.PreferenceCategory
