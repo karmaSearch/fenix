@@ -74,7 +74,7 @@
     <color name="tab_tray_toolbar_background_dark_theme">@color/photonDarkGrey60</color>
     <color name="tab_tray_item_divider_dark_theme">@color/photonDarkGrey10</color>
     <color name="tab_tray_item_media_background_dark_theme">@color/photonViolet50</color>
-    <color name="tab_tray_heading_icon_dark_theme">@color/photonViolet50</color>
+    <color name="tab_tray_heading_icon_dark_theme">@color/photonGreen50</color>
     <color name="tab_tray_heading_icon_inactive_dark_theme">@color/photonLightGrey05</color>
     <color name="tab_tray_heading_icon_menu_dark_theme">@color/photonLightGrey05</color>
     <color name="tab_tray_item_thumbnail_background_dark_theme">@color/photonDarkGrey60</color>
@@ -186,7 +186,7 @@
     <color name="tab_tray_toolbar_background_normal_theme">@color/photonLightGrey10</color>
     <color name="tab_tray_item_divider_normal_theme">@color/photonLightGrey30</color>
     <color name="tab_tray_item_media_background_normal_theme">@color/photonInk20</color>
-    <color name="tab_tray_heading_icon_normal_theme">@color/photonInk20</color>
+    <color name="tab_tray_heading_icon_normal_theme">@color/photonGreen50</color>
     <color name="tab_tray_heading_icon_inactive_normal_theme">@color/photonInk20A48</color>
     <color name="tab_tray_heading_icon_menu_normal_theme">@color/accent_normal_theme</color>
     <color name="tab_tray_item_thumbnail_background_normal_theme">@color/photonLightGrey10</color>

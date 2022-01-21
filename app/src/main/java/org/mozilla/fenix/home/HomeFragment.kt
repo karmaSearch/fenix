@@ -389,7 +389,7 @@ class HomeFragment : Fragment() {
             )
         )
 
-        updateLayout(binding.root)
+        updateLayout()
         sessionControlView = SessionControlView(
             homeFragmentStore,
             binding.sessionControlRecyclerView,
@@ -403,7 +403,9 @@ class HomeFragment : Fragment() {
         appBarLayout = binding.homeAppBar
         val appBarOffsetChangedListener =
             OnOffsetChangedListener { appbarlayout, offset ->
-                _binding?.toolbarWrapper2?.visibility = if(abs(offset) >= appbarlayout.height) View.VISIBLE else View.INVISIBLE
+                val toolBarHeight = _binding?.toolbarWrapper?.height!!/2
+                _binding?.toolbarWrapper2?.visibility = if(abs(offset-toolBarHeight) >= appbarlayout.height) View.VISIBLE else View.INVISIBLE
+                _binding?.toolbarWrapper?.visibility = if(abs(offset-toolBarHeight) >= appbarlayout.height) View.INVISIBLE else View.VISIBLE
             }
 
         binding.homeAppBar.addOnOffsetChangedListener(appBarOffsetChangedListener);
@@ -461,7 +463,7 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun updateLayout(view: View) {
+    private fun updateLayout() {
         when (requireContext().settings().toolbarPosition) {
             ToolbarPosition.TOP -> {
                 binding.toolbarLayout.layoutParams = CoordinatorLayout.LayoutParams(
@@ -480,11 +482,6 @@ class HomeFragment : Fragment() {
                     //connect(binding.bottomBarShadow.id, BOTTOM, PARENT_ID, BOTTOM)
                     applyTo(binding.toolbarLayout)
                 }
-
-                binding.bottomBar.background = AppCompatResources.getDrawable(
-                    view.context,
-                    view.context.theme.resolveAttribute(R.attr.bottomBarBackgroundTop)
-                )
 
                 binding.homeAppBar.updateLayoutParams<ViewGroup.MarginLayoutParams> {
                     topMargin =
