@@ -68,7 +68,7 @@ class DefaultBrowserNotificationWorker(
                     applicationContext.getString(R.string.notification_default_browser_text, appName)
                 )
                 .setBadgeIconType(NotificationCompat.BADGE_ICON_SMALL)
-                .setColor(ContextCompat.getColor(this, R.color.primary_text_light_theme))
+                .setColor(ContextCompat.getColor(this, R.color.photonGreen50))
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setShowWhen(false)
                 .setContentIntent(pendingIntent)

@@ -1228,10 +1228,10 @@
     <string name="notification_marketing_channel_name">Marketing</string>
     <!-- Title shown in the notification that pops up to remind the user to set fenix as default browser.
     %1$s is a placeholder that will be replaced by the app name (Fenix). -->
-    <string name="notification_default_browser_title">%1$s est rapide et privé</string>
+    <string name="notification_default_browser_title">Définir %1$s comme navigateur par défaut</string>
     <!-- Text shown in the notification that pops up to remind the user to set fenix as default browser.
     %1$s is a placeholder that will be replaced by the app name (Fenix). -->
-    <string name="notification_default_browser_text">Faites de %1$s votre navigateur par défaut</string>
+    <string name="notification_default_browser_text">CLiquez ici pour installer %1$s comme navigateur par défaut 🐼</string>
 
     <!-- Snackbar -->
     <!-- Text shown in snackbar when user deletes a collection -->
