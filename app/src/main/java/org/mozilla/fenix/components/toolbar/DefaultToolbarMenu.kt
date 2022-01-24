@@ -33,13 +33,16 @@ import mozilla.components.feature.webcompat.reporter.WebCompatReporterFeature
 import mozilla.components.lib.state.ext.flowScoped
 import mozilla.components.support.ktx.android.content.getColorFromAttr
 import mozilla.components.support.ktx.kotlinx.coroutines.flow.ifAnyChanged
+import org.mozilla.fenix.HomeActivity
 import org.mozilla.fenix.R
+import org.mozilla.fenix.browser.browsingmode.BrowsingMode
 import org.mozilla.fenix.components.accounts.FenixAccountManager
 import org.mozilla.fenix.experiments.ExperimentBranch
 import org.mozilla.fenix.experiments.FeatureId
 import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.ext.settings
 import org.mozilla.fenix.ext.withExperiment
+import org.mozilla.fenix.home.HomeMenu
 import org.mozilla.fenix.theme.ThemeManager
 import org.mozilla.fenix.utils.BrowsersCache
 
@@ -192,7 +195,7 @@ open class DefaultToolbarMenu(
 
     val newTabItem = BrowserMenuImageText(
         context.getString(R.string.library_new_tab),
-        R.drawable.ic_new,
+        R.drawable.ic_newtab,
         primaryTextColor()
     ) {
         onItemTapped.invoke(ToolbarMenu.Item.NewTab)
@@ -257,11 +260,6 @@ open class DefaultToolbarMenu(
         onItemTapped.invoke(ToolbarMenu.Item.OpenInApp)
     }
 
-    val reportSiteIssuePlaceholder = WebExtensionPlaceholderMenuItem(
-        id = WebCompatReporterFeature.WEBCOMPAT_REPORTER_EXTENSION_ID,
-        iconTintColorResource = primaryTextColor()
-    )
-
     val addToHomeScreenItem = BrowserMenuImageText(
         label = context.getString(R.string.browser_menu_add_to_homescreen),
         imageResource = R.drawable.mozac_ic_add_to_home_screen,
@@ -307,7 +305,7 @@ open class DefaultToolbarMenu(
     }
 
     val bookmarksItem = BrowserMenuImageTextCheckboxButton(
-        imageResource = R.drawable.ic_bookmarks_menu,
+        imageResource = R.drawable.ic_bookmark,
         iconTintColorResource = primaryTextColor(),
         label = context.getString(R.string.library_bookmarks),
         labelListener = {
@@ -331,39 +329,22 @@ open class DefaultToolbarMenu(
         onItemTapped.invoke(ToolbarMenu.Item.Quit)
     }
 
-    private fun getSyncItemTitle() =
-        accountManager.accountProfileEmail ?: context.getString(R.string.sync_menu_sign_in)
-
-    val syncMenuItem = BrowserMenuImageText(
-        getSyncItemTitle(),
-        R.drawable.ic_signed_out,
-        primaryTextColor()
-    ) {
-        onItemTapped.invoke(
-            ToolbarMenu.Item.SyncAccount(accountManager.accountState)
-        )
-    }
-
     @VisibleForTesting(otherwise = PRIVATE)
     val coreMenuItems by lazy {
         val menuItems =
             listOfNotNull(
                 if (shouldUseBottomToolbar) null else menuToolbar,
                 newTabItem,
+                getSetDefaultBrowserItem(),
                 BrowserMenuDivider(),
                 bookmarksItem,
                 historyItem,
                 downloadsItem,
                 extensionsItem,
-                syncMenuItem,
-                BrowserMenuDivider(),
-                getSetDefaultBrowserItem(),
-                getSetDefaultBrowserItem()?.let { BrowserMenuDivider() },
                 findInPageItem,
                 desktopSiteItem,
                 customizeReaderView.apply { visible = ::shouldShowReaderViewCustomization },
                 openInApp.apply { visible = ::shouldShowOpenInApp },
-                reportSiteIssuePlaceholder,
                 BrowserMenuDivider(),
                 addToHomeScreenItem.apply { visible = ::canAddToHomescreen },
                 installToHomescreen.apply { visible = ::canInstall },
@@ -420,22 +401,17 @@ open class DefaultToolbarMenu(
     }
 
     private fun getSetDefaultBrowserItem(): BrowserMenuImageText? {
-        val experiments = context.components.analytics.experiments
         val browsers = BrowsersCache.all(context)
 
-        return experiments.withExperiment(FeatureId.DEFAULT_BROWSER) { experimentBranch ->
-            if (experimentBranch == ExperimentBranch.DEFAULT_BROWSER_TOOLBAR_MENU &&
-                !browsers.isFirefoxDefaultBrowser
-            ) {
-                return@withExperiment BrowserMenuImageText(
+        return if (!browsers.isFirefoxDefaultBrowser) {
+                return BrowserMenuImageText(
                     label = context.getString(R.string.preferences_set_as_default_browser),
-                    imageResource = R.mipmap.ic_launcher
+                    imageResource = R.drawable.ic_globe
                 ) {
                     onItemTapped.invoke(ToolbarMenu.Item.SetDefaultBrowser)
                 }
             } else {
                 null
             }
-        }
     }
 }
