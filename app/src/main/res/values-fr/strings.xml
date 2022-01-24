@@ -253,6 +253,7 @@
     <!-- Browser Toolbar -->
     <!-- Content description for the Home screen button on the browser toolbar -->
     <string name="browser_toolbar_home">Écran d’accueil</string>
+    <string name="browser_menu_feedback">Vos Commentaires</string>
 
     <!-- Error message to show when the user tries to access a scheme not
         handled by the app (Ex: blob, tel etc) -->
@@ -361,7 +362,7 @@
     <!-- Preference for settings related to saved credit cards and addresses -->
     <string name="preferences_credit_cards_addresses">Cartes bancaires et adresses</string>
     <!-- Preference for settings related to changing the default browser -->
-    <string name="preferences_set_as_default_browser">Définir comme navigateur par défaut</string>
+    <string name="preferences_set_as_default_browser">Définir KARMA comme navigateur par défaut</string>
     <!-- Preference category for advanced settings -->
     <string name="preferences_category_advanced">Avancés</string>
     <!-- Preference category for privacy settings -->
@@ -1682,6 +1683,9 @@ Cependant, il peut être moins stable. Téléchargez la version bêta de notre n
     <string name="preferences_passwords_save_logins_never_save">Ne jamais enregistrer</string>
     <!-- Preference for autofilling saved logins in Fenix -->
     <string moz:removedIn="93" name="preferences_passwords_autofill" tools:ignore="UnusedResources">Remplissage automatique</string>
+
+    <string name="preferences_feedback_forms">Donnez votre avis</string>
+    <string name="preferences_feedback_contact">Contactez-nous</string>
 
     <!-- Preference for autofilling saved logins in Firefox (in web content), %1$s will be replaced with the app name -->
     <string name="preferences_passwords_autofill2">Remplissage automatique dans %1$s</string>

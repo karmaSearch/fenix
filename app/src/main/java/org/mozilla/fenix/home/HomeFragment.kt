@@ -8,11 +8,9 @@ import android.animation.Animator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Configuration
-import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.StrictMode
-import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -23,7 +21,6 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.PopupWindow
 import androidx.annotation.VisibleForTesting
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.constraintlayout.widget.ConstraintSet.BOTTOM
@@ -50,8 +47,6 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import mozilla.appservices.places.BookmarkRoot
 import mozilla.components.browser.menu.view.MenuButton
@@ -59,7 +54,6 @@ import mozilla.components.browser.state.selector.findTab
 import mozilla.components.browser.state.selector.normalTabs
 import mozilla.components.browser.state.selector.privateTabs
 import mozilla.components.browser.state.state.BrowserState
-import mozilla.components.browser.state.state.selectedOrDefaultSearchEngine
 import mozilla.components.browser.state.store.BrowserStore
 import mozilla.components.concept.storage.FrecencyThresholdOption
 import mozilla.components.concept.sync.AccountObserver
@@ -68,11 +62,8 @@ import mozilla.components.concept.sync.OAuthAccount
 import mozilla.components.feature.tab.collections.TabCollection
 import mozilla.components.feature.top.sites.TopSitesConfig
 import mozilla.components.feature.top.sites.TopSitesFeature
-import mozilla.components.lib.state.ext.consumeFlow
 import mozilla.components.lib.state.ext.consumeFrom
 import mozilla.components.support.base.feature.ViewBoundFeatureWrapper
-import mozilla.components.support.ktx.android.content.res.resolveAttribute
-import mozilla.components.support.ktx.kotlinx.coroutines.flow.ifChanged
 import mozilla.components.ui.tabcounter.TabCounterMenu
 import org.mozilla.fenix.BrowserDirection
 import org.mozilla.fenix.Config
@@ -97,15 +88,7 @@ import org.mozilla.fenix.components.toolbar.ToolbarPosition
 import org.mozilla.fenix.databinding.FragmentHomeBinding
 import org.mozilla.fenix.datastore.pocketStoriesSelectedCategoriesDataStore
 import org.mozilla.fenix.experiments.FeatureId
-import org.mozilla.fenix.ext.asRecentTabs
-import org.mozilla.fenix.ext.components
-import org.mozilla.fenix.ext.hideToolbar
-import org.mozilla.fenix.ext.metrics
-import org.mozilla.fenix.ext.nav
-import org.mozilla.fenix.ext.recordExposureEvent
-import org.mozilla.fenix.ext.requireComponents
-import org.mozilla.fenix.ext.runIfFragmentIsAttached
-import org.mozilla.fenix.ext.settings
+import org.mozilla.fenix.ext.*
 import org.mozilla.fenix.historymetadata.HistoryMetadataFeature
 import org.mozilla.fenix.historymetadata.controller.DefaultHistoryMetadataController
 import org.mozilla.fenix.home.learnandact.DefaultLearnAndActController
@@ -893,10 +876,28 @@ class HomeFragment : Fragment() {
     @SuppressWarnings("ComplexMethod", "LongMethod")
     private fun createHomeMenu(context: Context, menuButtonView: WeakReference<MenuButton>) =
         HomeMenu(
-            this.viewLifecycleOwner,
             context,
             onItemTapped = {
                 when (it) {
+                    HomeMenu.Item.NewTab -> {
+                        hideOnboardingIfNeeded()
+                        browsingModeManager.mode = BrowsingMode.fromBoolean(false)
+                        nav(
+                            R.id.homeFragment,
+                            HomeFragmentDirections.actionGlobalHome(focusOnAddressBar = true)
+                        )
+                    }
+                    HomeMenu.Item.NewPrivateTab -> {
+                        hideOnboardingIfNeeded()
+                        browsingModeManager.mode = BrowsingMode.fromBoolean(true)
+                        nav(
+                            R.id.homeFragment,
+                            HomeFragmentDirections.actionGlobalHome(focusOnAddressBar = true)
+                        )
+                    }
+                    HomeMenu.Item.SetDefaultBrowser -> {
+                        activity?.openSetDefaultBrowserOption()
+                    }
                     HomeMenu.Item.Settings -> {
                         hideOnboardingIfNeeded()
                         nav(
@@ -995,6 +996,12 @@ class HomeFragment : Fragment() {
                         nav(
                             R.id.homeFragment,
                             HomeFragmentDirections.actionGlobalAddonsManagementFragment()
+                        )
+                    }
+                    HomeMenu.Item.Feedback -> {
+                        nav(
+                            R.id.homeFragment,
+                            HomeFragmentDirections.actionGlobalFeedbackFragment()
                         )
                     }
                     is HomeMenu.Item.DesktopMode -> {

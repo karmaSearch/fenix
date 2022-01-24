@@ -5,44 +5,35 @@
 package org.mozilla.fenix.home
 
 import android.content.Context
-import androidx.core.content.ContextCompat.getColor
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import mozilla.components.browser.menu.BrowserMenuBuilder
 import mozilla.components.browser.menu.BrowserMenuHighlight
 import mozilla.components.browser.menu.BrowserMenuItem
 import mozilla.components.browser.menu.ext.getHighlight
 import mozilla.components.browser.menu.item.BrowserMenuDivider
-import mozilla.components.browser.menu.item.BrowserMenuHighlightableItem
 import mozilla.components.browser.menu.item.BrowserMenuImageSwitch
 import mozilla.components.browser.menu.item.BrowserMenuImageText
-import mozilla.components.concept.sync.AccountObserver
-import mozilla.components.concept.sync.AuthType
-import mozilla.components.concept.sync.OAuthAccount
-import mozilla.components.support.ktx.android.content.getColorFromAttr
 import org.mozilla.fenix.FeatureFlags
 import org.mozilla.fenix.R
 import org.mozilla.fenix.components.accounts.AccountState
-import org.mozilla.fenix.components.accounts.FenixAccountManager
+import org.mozilla.fenix.components.toolbar.ToolbarMenu
 import org.mozilla.fenix.experiments.FeatureId
 import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.ext.getVariables
 import org.mozilla.fenix.ext.settings
 import org.mozilla.fenix.theme.ThemeManager
-import org.mozilla.fenix.whatsnew.WhatsNew
+import org.mozilla.fenix.utils.BrowsersCache
 
 @Suppress("LargeClass", "LongMethod")
 class HomeMenu(
-    private val lifecycleOwner: LifecycleOwner,
     private val context: Context,
     private val onItemTapped: (Item) -> Unit = {},
     private val onMenuBuilderChanged: (BrowserMenuBuilder) -> Unit = {},
     private val onHighlightPresent: (BrowserMenuHighlight) -> Unit = {}
 ) {
     sealed class Item {
+        object NewTab : Item()
+        object NewPrivateTab : Item()
+        object SetDefaultBrowser: Item()
         object Bookmarks : Item()
         object History : Item()
         object Downloads : Item()
@@ -54,33 +45,12 @@ class HomeMenu(
         object Settings : Item()
         object Quit : Item()
         object ReconnectSync : Item()
+        object Feedback : Item()
+
         data class DesktopMode(val checked: Boolean) : Item()
     }
 
     private val primaryTextColor = ThemeManager.resolveAttribute(R.attr.primaryText, context)
-    private val syncDisconnectedColor =
-        ThemeManager.resolveAttribute(R.attr.syncDisconnected, context)
-    private val syncDisconnectedBackgroundColor =
-        context.getColorFromAttr(R.attr.syncDisconnectedBackground)
-
-    private val accountManager = FenixAccountManager(context)
-
-    // 'Reconnect' and 'Quit' items aren't needed most of the time, so we'll only create the if necessary.
-    private val reconnectToSyncItem by lazy {
-        BrowserMenuHighlightableItem(
-            context.getString(R.string.sync_reconnect),
-            R.drawable.ic_sync_disconnected,
-            iconTintColorResource = syncDisconnectedColor,
-            textColorResource = primaryTextColor,
-            highlight = BrowserMenuHighlight.HighPriority(
-                backgroundTint = syncDisconnectedBackgroundColor,
-                canPropagate = false
-            ),
-            isHighlighted = { true }
-        ) {
-            onItemTapped.invoke(Item.ReconnectSync)
-        }
-    }
 
     private val quitItem by lazy {
         BrowserMenuImageText(
@@ -105,9 +75,25 @@ class HomeMenu(
         val experiments = context.components.analytics.experiments
         val settings = context.components.settings
 
+        var newTab = BrowserMenuImageText(
+            context.getString(R.string.home_screen_shortcut_open_new_tab_2),
+            R.drawable.ic_newtab,
+            primaryTextColor
+        ) {
+            onItemTapped.invoke(Item.NewTab)
+        }
+
+        var newPrivateTab = BrowserMenuImageText(
+            context.getString(R.string.home_screen_shortcut_open_new_private_tab_2),
+            R.drawable.ic_new_private_tab,
+            primaryTextColor
+        ) {
+            onItemTapped.invoke(Item.NewPrivateTab)
+        }
+
         val bookmarksItem = BrowserMenuImageText(
             context.getString(R.string.library_bookmarks),
-            R.drawable.ic_bookmark_list,
+            R.drawable.ic_bookmark,
             primaryTextColor
         ) {
             onItemTapped.invoke(Item.Bookmarks)
@@ -137,26 +123,6 @@ class HomeMenu(
             onItemTapped.invoke(Item.Extensions)
         }
 
-        val whatsNewItem = BrowserMenuHighlightableItem(
-            context.getString(R.string.browser_menu_whats_new),
-            R.drawable.ic_whats_new,
-            iconTintColorResource = primaryTextColor,
-            highlight = BrowserMenuHighlight.LowPriority(
-                notificationTint = getColor(context, R.color.whats_new_notification_color)
-            ),
-            isHighlighted = { WhatsNew.shouldHighlightWhatsNew(context) }
-        ) {
-            onItemTapped.invoke(Item.WhatsNew)
-        }
-
-        val helpItem = BrowserMenuImageText(
-            context.getString(R.string.browser_menu_help),
-            R.drawable.mozac_ic_help,
-            primaryTextColor
-        ) {
-            onItemTapped.invoke(Item.Help)
-        }
-
         val customizeHomeItem = BrowserMenuImageText(
             context.getString(R.string.browser_menu_customize_home),
             R.drawable.ic_customize,
@@ -169,37 +135,35 @@ class HomeMenu(
         val variables = experiments.getVariables(FeatureId.NIMBUS_VALIDATION)
         val settingsItem = BrowserMenuImageText(
             variables.getText("settings-title") ?: context.getString(R.string.browser_menu_settings),
-            variables.getDrawableResource("settings-icon") ?: R.drawable.mozac_ic_settings,
+            variables.getDrawableResource("settings-icon") ?: R.drawable.ic_settings,
             primaryTextColor
         ) {
             onItemTapped.invoke(Item.Settings)
         }
 
-        // Only query account manager if it has been initialized.
-        // We don't want to cause its initialization just for this check.
-        val accountAuthItem =
-            if (context.components.backgroundServices.accountManagerAvailableQueue.isReady() &&
-                context.components.backgroundServices.accountManager.accountNeedsReauth()
-            ) {
-                reconnectToSyncItem
-            } else {
-                null
-            }
+        val feedbackHomeItem = BrowserMenuImageText(
+            context.getString(R.string.browser_menu_feedback),
+            R.drawable.ic_feedback,
+            primaryTextColor
+        ) {
+            onItemTapped.invoke(Item.Feedback)
+        }
 
         val menuItems = listOfNotNull(
+            newTab,
+            newPrivateTab,
+            getSetDefaultBrowserItem(),
+            BrowserMenuDivider(),
             bookmarksItem,
             historyItem,
             downloadsItem,
             extensionsItem,
-            accountAuthItem,
-            BrowserMenuDivider(),
             desktopItem,
             BrowserMenuDivider(),
-            whatsNewItem,
-            helpItem,
             if (FeatureFlags.customizeHome) customizeHomeItem else null,
+            feedbackHomeItem,
             settingsItem,
-            if (settings.shouldDeleteBrowsingDataOnQuit) quitItem else null
+            if (settings.shouldDeleteBrowsingDataOnQuit) quitItem else null,
         ).also { items ->
             items.getHighlight()?.let { onHighlightPresent(it) }
         }
@@ -213,46 +177,20 @@ class HomeMenu(
         // Report initial state.
         onMenuBuilderChanged(BrowserMenuBuilder(menuItems))
 
-        // Observe account state changes, and update menu item builder with a new set of items.
-        context.components.backgroundServices.accountManagerAvailableQueue.runIfReadyOrQueue {
-            // This task isn't relevant if our parent fragment isn't around anymore.
-            if (lifecycleOwner.lifecycle.currentState == Lifecycle.State.DESTROYED) {
-                return@runIfReadyOrQueue
+    }
+
+    private fun getSetDefaultBrowserItem(): BrowserMenuImageText? {
+        val browsers = BrowsersCache.all(context)
+
+        return if (!browsers.isFirefoxDefaultBrowser) {
+            return BrowserMenuImageText(
+                label = context.getString(R.string.preferences_set_as_default_browser),
+                imageResource = R.drawable.ic_globe
+            ) {
+                onItemTapped.invoke(Item.SetDefaultBrowser)
             }
-            context.components.backgroundServices.accountManager.register(
-                object : AccountObserver {
-                    override fun onAuthenticationProblems() {
-                        lifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
-                            onMenuBuilderChanged(
-                                BrowserMenuBuilder(
-                                    menuItems
-                                )
-                            )
-                        }
-                    }
-
-                    override fun onAuthenticated(account: OAuthAccount, authType: AuthType) {
-                        lifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
-                            onMenuBuilderChanged(
-                                BrowserMenuBuilder(
-                                    menuItems
-                                )
-                            )
-                        }
-                    }
-
-                    override fun onLoggedOut() {
-                        lifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
-                            onMenuBuilderChanged(
-                                BrowserMenuBuilder(
-                                    menuItems
-                                )
-                            )
-                        }
-                    }
-                },
-                lifecycleOwner
-            )
+        } else {
+            null
         }
     }
 }

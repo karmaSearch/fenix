@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <androidx.preference.Preference
+        android:key="@string/pref_key_feedback"
+        app:iconSpaceReserved="false"
+        android:title="@string/preferences_feedback_forms" />
+
+    <androidx.preference.Preference
+        android:key="@string/pref_key_rate"
+        app:iconSpaceReserved="false"
+        android:title="@string/preferences_rate" />
+    <androidx.preference.Preference
+        android:key="@string/pref_key_contact"
+        app:iconSpaceReserved="false"
+        android:title="@string/preferences_feedback_contact" />
+
+</androidx.preference.PreferenceScreen>

@@ -67,6 +67,9 @@
         android:id="@+id/action_global_settingsFragment"
         app:destination="@id/settingsFragment" />
     <action
+        android:id="@+id/action_global_feedbackFragment"
+        app:destination="@id/feedbackSettingsFragment" />
+    <action
         android:id="@+id/action_global_homeSettingsFragment"
         app:destination="@id/homeSettingsFragment" />
     <action
@@ -605,6 +608,28 @@
         android:id="@+id/homeSettingsFragment"
         android:name="org.mozilla.fenix.settings.HomeSettingsFragment"
         android:label="@string/preferences_home_2" />
+    <fragment
+        android:id="@+id/feedbackSettingsFragment"
+        android:name="org.mozilla.fenix.settings.FeedbackSettingsFragment"
+        android:label="@string/browser_menu_feedback" >
+        <argument
+            android:name="preference_to_scroll_to"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+        <action
+            android:id="@+id/action_feedbackFragment_to_forms"
+            app:destination="@id/homeFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_global_browser"
+            app:destination="@id/browserFragment"
+            app:popUpTo="@id/homeFragment"
+            app:popUpToInclusive="false" />
+    </fragment>
     <fragment
         android:id="@+id/dataChoicesFragment"
         android:name="org.mozilla.fenix.settings.DataChoicesFragment"

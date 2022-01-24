@@ -107,6 +107,8 @@ import org.mozilla.fenix.perf.StartupTimeline
 import org.mozilla.fenix.perf.StartupTypeTelemetry
 import org.mozilla.fenix.search.SearchDialogFragmentDirections
 import org.mozilla.fenix.session.PrivateNotificationService
+import org.mozilla.fenix.settings.FeedbackSettingsFragment
+import org.mozilla.fenix.settings.FeedbackSettingsFragmentDirections
 import org.mozilla.fenix.settings.SettingsFragmentDirections
 import org.mozilla.fenix.settings.TrackingProtectionFragmentDirections
 import org.mozilla.fenix.settings.about.AboutFragmentDirections
@@ -795,6 +797,7 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
         BrowserDirection.FromStudiesFragment -> StudiesFragmentDirections.actionGlobalBrowser(
             customTabSessionId
         )
+        BrowserDirection.FromFeedBackSettings -> FeedbackSettingsFragmentDirections.actionGlobalBrowser(customTabSessionId)
     }
 
     /**

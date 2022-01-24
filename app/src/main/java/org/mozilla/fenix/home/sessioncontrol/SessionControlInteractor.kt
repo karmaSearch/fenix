@@ -5,6 +5,7 @@
 package org.mozilla.fenix.home.sessioncontrol
 
 import karma.service.learnandact.LearnAndAct
+import mozilla.components.browser.state.state.TabSessionState
 import mozilla.components.concept.storage.BookmarkNode
 import mozilla.components.feature.tab.collections.Tab
 import mozilla.components.feature.tab.collections.TabCollection
@@ -25,6 +26,8 @@ import org.mozilla.fenix.home.recenttabs.interactor.RecentTabInteractor
 import org.mozilla.fenix.home.pocket.PocketRecommendedStoriesCategory
 import org.mozilla.fenix.home.pocket.PocketStoriesController
 import org.mozilla.fenix.home.pocket.PocketStoriesInteractor
+import org.mozilla.fenix.tabstray.TabsTrayController
+import org.mozilla.fenix.tabstray.TabsTrayInteractor
 
 /**
  * Interface for tab related actions in the [SessionControlInteractor].
@@ -435,4 +438,5 @@ class SessionControlInteractor(
     override fun onBlockClicked(bloc: LearnAndAct, position: Pair<Int, Int>) {
         learnAndActController.handleLearnAndActClicked(learnAndAct = bloc, position = position)
     }
+
 }

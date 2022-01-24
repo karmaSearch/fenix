@@ -240,7 +240,7 @@
     <!-- Browser Toolbar -->
     <!-- Content description for the Home screen button on the browser toolbar -->
     <string name="browser_toolbar_home">Home screen</string>
-
+    <string name="browser_menu_feedback">Your feedback</string>
     <!-- Error message to show when the user tries to access a scheme not
         handled by the app (Ex: blob, tel etc) -->
     <string name="unknown_scheme_error_message">Unable to connect. Unrecognizable URL scheme.</string>
@@ -343,7 +343,7 @@
     <!-- Preference for settings related to saved credit cards and addresses -->
     <string name="preferences_credit_cards_addresses">Credit cards and addresses</string>
     <!-- Preference for settings related to changing the default browser -->
-    <string name="preferences_set_as_default_browser">Set as default browser</string>
+    <string name="preferences_set_as_default_browser">Set KARMA as my default browser</string>
     <!-- Preference category for advanced settings -->
     <string name="preferences_category_advanced">Advanced</string>
     <!-- Preference category for privacy settings -->
@@ -1609,6 +1609,9 @@
     <string name="preferences_android_autofill_description">Fill usernames and passwords in other apps on your device.</string>
     <!-- Preference option for adding a login -->
     <string name="preferences_logins_add_login">Add login</string>
+    <!-- Preference for email contact in Fenix -->
+    <string name="preferences_feedback_forms">Give us your feedback</string>
+    <string name="preferences_feedback_contact">Contact us</string>
 
     <!-- Preference for syncing saved logins in Fenix -->
     <string name="preferences_passwords_sync_logins">Sync logins</string>

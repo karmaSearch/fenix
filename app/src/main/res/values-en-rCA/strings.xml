@@ -355,7 +355,7 @@
     <!-- Preference for settings related to saved credit cards and addresses -->
     <string name="preferences_credit_cards_addresses">Credit cards and addresses</string>
     <!-- Preference for settings related to changing the default browser -->
-    <string name="preferences_set_as_default_browser">Set as default browser</string>
+    <string name="preferences_set_as_default_browser">Set KARMA as my default browser</string>
     <!-- Preference category for advanced settings -->
     <string name="preferences_category_advanced">Advanced</string>
     <!-- Preference category for privacy settings -->
