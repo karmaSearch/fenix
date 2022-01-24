@@ -15,6 +15,7 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_gravity="center"
+        android:padding="10dp"
         android:contentDescription="@string/search_widget_content_description"
         android:scaleType="centerInside"
         tools:src="@drawable/ic_launcher_foreground" />
