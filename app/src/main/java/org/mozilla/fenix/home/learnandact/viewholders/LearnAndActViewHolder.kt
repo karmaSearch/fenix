@@ -101,7 +101,7 @@ fun LearnAndAct(
     Column {
         Spacer(Modifier.height(5.dp))
         androidx.compose.foundation.Image(
-            imageVector = ImageVector.vectorResource(id = R.drawable.ic_learnandact_header) ,
+            painter = painterResource(R.drawable.ic_learnandact_header),
             contentDescription = null,
             modifier = Modifier
                 .height(35.dp)
