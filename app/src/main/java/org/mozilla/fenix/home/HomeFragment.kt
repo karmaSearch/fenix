@@ -386,9 +386,13 @@ class HomeFragment : Fragment() {
         appBarLayout = binding.homeAppBar
         val appBarOffsetChangedListener =
             OnOffsetChangedListener { appbarlayout, offset ->
-                val toolBarHeight = _binding?.toolbarWrapper?.height!!/2
-                _binding?.toolbarWrapper2?.visibility = if(abs(offset-toolBarHeight) >= appbarlayout.height) View.VISIBLE else View.INVISIBLE
-                _binding?.toolbarWrapper?.visibility = if(abs(offset-toolBarHeight) >= appbarlayout.height) View.INVISIBLE else View.VISIBLE
+                if (_binding != null) {
+                val toolBarHeight = binding.toolbarWrapper.height / 2
+                    binding.toolbarWrapper2.visibility =
+                    if (abs(offset - toolBarHeight) >= appbarlayout.height) View.VISIBLE else View.INVISIBLE
+                    binding.toolbarWrapper.visibility =
+                    if (abs(offset - toolBarHeight) >= appbarlayout.height) View.INVISIBLE else View.VISIBLE
+                }
             }
 
         binding.homeAppBar.addOnOffsetChangedListener(appBarOffsetChangedListener);
