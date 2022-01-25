@@ -67,11 +67,4 @@ class FeedbackSettingsFragment: PreferenceFragmentCompat() {
         return super.onPreferenceTreeClick(preference)
     }
 
-    private fun navigateFromSettings(directions: NavDirections) {
-        view?.findNavController()?.let { navController ->
-            if (navController.currentDestination?.id == R.id.settingsFragment) {
-                navController.navigate(directions)
-            }
-        }
-    }
 }

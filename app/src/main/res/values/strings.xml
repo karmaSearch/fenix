@@ -62,7 +62,7 @@
     <string name="recently_saved_show_all_content_description">Show all saved bookmarks button</string>
 
     <!-- About content. The first parameter is the name of the application. (For example: Fenix) -->
-    <string name="about_content">%1$s is produced by Mozilla.</string>
+    <string name="about_content">%1$s is produced by KARMA Search.</string>
 
     <!-- Private Browsing -->
     <!-- Title for private session option -->
@@ -1546,6 +1546,8 @@
 
     <!-- About page link text to open support link -->
     <string name="about_support">Support</string>
+    <!-- About page link text to open github link -->
+    <string name="about_github">Github</string>
     <!-- About page link text to list of past crashes (like about:crashes on desktop) -->
     <string name="about_crashes">Crashes</string>
     <!-- About page link text to open privacy notice link -->
@@ -2022,4 +2024,12 @@
     <string name="pocket_stories_feature_caption">Part of the KARMA family. %s</string>
     <!-- Clickable text for opening an external link for more information about Pocket. -->
     <string name="pocket_stories_feature_learn_more">Learn more</string>
+    <string name="preferences_category_about_karma">About KARMA</string>
+    <string name="preferences_karma_mission">Our Mission</string>
+    <string name="preferences_karma_howitwork">How it Works</string>
+    <string name="preferences_karma_partners">Partners</string>
+    <string name="preferences_karma_privacy">Privacy</string>
+    <string name="preferences_karma_termsofservices">Terms of Service</string>
+    <string name="preferences_karma_feedback">Your Feedback</string>
+
 </resources>

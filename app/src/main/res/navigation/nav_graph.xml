@@ -502,8 +502,8 @@
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
         <action
-            android:id="@+id/action_settingsFragment_to_aboutFragment"
-            app:destination="@id/aboutFragment"
+            android:id="@+id/action_settingsFragment_to_karmasettingFragment"
+            app:destination="@id/karmasettingFragment"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
@@ -713,6 +713,16 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+    <fragment
+        android:id="@+id/karmasettingFragment"
+        android:name="org.mozilla.fenix.settings.about.KarmaSettingsFragment">
+        <action
+            android:id="@+id/action_global_feedbackFragment"
+            app:destination="@id/feedbackSettingsFragment" />
+        <action
+            android:id="@+id/action_global_aboutFragment"
+            app:destination="@id/aboutFragment" />
     </fragment>
     <fragment
         android:id="@+id/secretSettingsPreference"

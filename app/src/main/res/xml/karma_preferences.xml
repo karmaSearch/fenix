@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <androidx.preference.PreferenceCategory
+        android:title="@string/preferences_category_about_karma"
+        android:layout="@layout/preference_category_no_icon_style">
+    <androidx.preference.Preference
+        android:key="@string/pref_key_mission"
+        app:iconSpaceReserved="false"
+        android:title="@string/preferences_karma_mission" />
+        <androidx.preference.Preference
+            android:key="@string/pref_key_howitwork"
+            app:iconSpaceReserved="false"
+            android:title="@string/preferences_karma_howitwork" />
+        <androidx.preference.Preference
+            android:key="@string/pref_key_partners"
+            app:iconSpaceReserved="false"
+            android:title="@string/preferences_karma_partners" />
+        <androidx.preference.Preference
+            android:key="@string/pref_key_privacy"
+            app:iconSpaceReserved="false"
+            android:title="@string/preferences_karma_privacy" />
+        <androidx.preference.Preference
+            android:key="@string/pref_key_termsofservices"
+            app:iconSpaceReserved="false"
+            android:title="@string/preferences_karma_termsofservices" />
+        <androidx.preference.Preference
+            android:key="@string/pref_key_feedback"
+            app:iconSpaceReserved="false"
+            android:title="@string/preferences_karma_feedback" />
+        <androidx.preference.Preference
+            android:key="@string/pref_key_licence"
+            app:iconSpaceReserved="false"
+            android:title="@string/about_licensing_information" />
+    </androidx.preference.PreferenceCategory>
+</PreferenceScreen>

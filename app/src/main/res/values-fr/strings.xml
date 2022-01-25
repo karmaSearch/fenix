@@ -66,7 +66,7 @@
     <string name="recently_saved_show_all_content_description">Bouton Afficher tous les marque-pages enregistrés</string>
 
     <!-- About content. The first parameter is the name of the application. (For example: Fenix) -->
-    <string name="about_content">%1$s est réalisé par Mozilla.</string>
+    <string name="about_content">%1$s est réalisé par KARMA Search.</string>
 
     <!-- Private Browsing -->
     <!-- Title for private session option -->
@@ -2122,4 +2122,11 @@ Cependant, il peut être moins stable. Téléchargez la version bêta de notre n
     <string name="pocket_stories_feature_caption">Membre de la famille Firefox. %s</string>
     <!-- Clickable text for opening an external link for more information about Pocket. -->
     <string name="pocket_stories_feature_learn_more">En savoir plus</string>
+    <string name="preferences_category_about_karma">A propos</string>
+    <string name="preferences_karma_mission">Notre Mission</string>
+    <string name="preferences_karma_howitwork">Comment ça Marche</string>
+    <string name="preferences_karma_partners">Nos Partenaires</string>
+    <string name="preferences_karma_privacy">Vie Privée</string>
+    <string name="preferences_karma_termsofservices">Conditions d\'Utilisation</string>
+    <string name="preferences_karma_feedback">Vos Commentaires</string>
 </resources>

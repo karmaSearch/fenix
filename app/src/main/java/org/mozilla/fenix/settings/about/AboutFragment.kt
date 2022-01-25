@@ -26,11 +26,7 @@ import org.mozilla.fenix.ext.requireComponents
 import org.mozilla.fenix.ext.settings
 import org.mozilla.fenix.ext.showToolbar
 import org.mozilla.fenix.settings.SupportUtils
-import org.mozilla.fenix.settings.about.AboutItemType.LICENSING_INFO
-import org.mozilla.fenix.settings.about.AboutItemType.PRIVACY_NOTICE
-import org.mozilla.fenix.settings.about.AboutItemType.RIGHTS
-import org.mozilla.fenix.settings.about.AboutItemType.SUPPORT
-import org.mozilla.fenix.settings.about.AboutItemType.WHATS_NEW
+import org.mozilla.fenix.settings.about.AboutItemType.*
 import org.mozilla.fenix.utils.Do
 import org.mozilla.fenix.whatsnew.WhatsNew
 import org.mozilla.geckoview.BuildConfig as GeckoViewBuildConfig
@@ -131,40 +127,14 @@ class AboutFragment : Fragment(), AboutPageListener {
     }
 
     private fun populateAboutList(): List<AboutPageItem> {
-        val context = requireContext()
-
         return listOf(
             AboutPageItem(
-                AboutItem.ExternalLink(
-                    WHATS_NEW,
-                    SupportUtils.getWhatsNewUrl(context)
-                ),
-                getString(R.string.about_whats_new, getString(R.string.app_name))
-            ),
-            AboutPageItem(
-                AboutItem.ExternalLink(
-                    SUPPORT,
-                    SupportUtils.getSumoURLForTopic(context, SupportUtils.SumoTopic.HELP)
-                ),
-                getString(R.string.about_support)
+                AboutItem.ExternalLink(GITHUB, GITHUB_URL),
+                getString(R.string.about_github)
             ),
             AboutPageItem(
                 AboutItem.Crashes,
                 getString(R.string.about_crashes)
-            ),
-            AboutPageItem(
-                AboutItem.ExternalLink(
-                    PRIVACY_NOTICE,
-                    SupportUtils.getMozillaPageUrl(SupportUtils.MozillaPage.PRIVATE_NOTICE)
-                ),
-                getString(R.string.about_privacy_notice)
-            ),
-            AboutPageItem(
-                AboutItem.ExternalLink(
-                    RIGHTS,
-                    SupportUtils.getSumoURLForTopic(context, SupportUtils.SumoTopic.YOUR_RIGHTS)
-                ),
-                getString(R.string.about_know_your_rights)
             ),
             AboutPageItem(
                 AboutItem.ExternalLink(LICENSING_INFO, ABOUT_LICENSE_URL),
@@ -198,7 +168,7 @@ class AboutFragment : Fragment(), AboutPageListener {
                         WhatsNew.userViewedWhatsNew(requireContext())
                         requireComponents.analytics.metrics.track(Event.WhatsNewTapped)
                     }
-                    SUPPORT, PRIVACY_NOTICE, LICENSING_INFO, RIGHTS -> {} // no telemetry needed
+                    SUPPORT, PRIVACY_NOTICE, LICENSING_INFO, RIGHTS, GITHUB -> {} // no telemetry needed
                 }
 
                 openLinkInNormalTab(item.url)
@@ -214,5 +184,6 @@ class AboutFragment : Fragment(), AboutPageListener {
 
     companion object {
         private const val ABOUT_LICENSE_URL = "about:license"
+        private const val GITHUB_URL = "https://github.com/karmaSearch/fenix"
     }
 }

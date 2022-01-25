@@ -99,12 +99,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
      * @return The preference layout to be used depending on flags and existing experiment branches.
      * Note: Changing Settings screen before experiment is over requires changing all layouts.
      */
-    private fun getPreferenceLayoutId() =
-        if (isDefaultBrowserExperimentBranch() && !isFirefoxDefaultBrowser()) {
-            R.xml.preferences_default_browser_experiment
-        } else {
-            R.xml.preferences
-        }
+    private fun getPreferenceLayoutId() = R.xml.preferences
 
     @SuppressLint("RestrictedApi")
     override fun onResume() {
@@ -241,7 +236,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 SettingsFragmentDirections.actionSettingsFragmentToCreditCardsSettingFragment()
             }
             resources.getString(R.string.pref_key_about) -> {
-                SettingsFragmentDirections.actionSettingsFragmentToAboutFragment()
+                SettingsFragmentDirections.actionSettingsFragmentToKarmasettingFragment()
             }
             resources.getString(R.string.pref_key_account) -> {
                 SettingsFragmentDirections.actionSettingsFragmentToAccountSettingsFragment()
@@ -363,44 +358,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
             getClickListenerForMakeDefaultBrowser()
 
         preferenceOpenLinksInExternalApp?.onPreferenceChangeListener = SharedPreferenceUpdater()
-
-        val preferenceFxAOverride =
-            findPreference<Preference>(getPreferenceKey(R.string.pref_key_override_fxa_server))
-        val preferenceSyncOverride =
-            findPreference<Preference>(getPreferenceKey(R.string.pref_key_override_sync_tokenserver))
-
-        val syncFxAOverrideUpdater = object : StringSharedPreferenceUpdater() {
-            override fun onPreferenceChange(preference: Preference, newValue: Any?): Boolean {
-                return super.onPreferenceChange(preference, newValue).also {
-                    updateFxASyncOverrideMenu()
-                    Toast.makeText(
-                        context,
-                        getString(R.string.toast_override_fxa_sync_server_done),
-                        Toast.LENGTH_LONG
-                    ).show()
-                    Handler(Looper.getMainLooper()).postDelayed(
-                        {
-                            exitProcess(0)
-                        },
-                        FXA_SYNC_OVERRIDE_EXIT_DELAY
-                    )
-                }
-            }
-        }
-        preferenceFxAOverride?.onPreferenceChangeListener = syncFxAOverrideUpdater
-        preferenceSyncOverride?.onPreferenceChangeListener = syncFxAOverrideUpdater
-
-        with(requireContext().settings()) {
-            findPreference<Preference>(
-                getPreferenceKey(R.string.pref_key_nimbus_experiments)
-            )?.isVisible = showSecretDebugMenuThisSession
-            findPreference<Preference>(
-                getPreferenceKey(R.string.pref_key_debug_settings)
-            )?.isVisible = showSecretDebugMenuThisSession
-            findPreference<Preference>(
-                getPreferenceKey(R.string.pref_key_secret_debug_info)
-            )?.isVisible = showSecretDebugMenuThisSession
-        }
 
         setupAmoCollectionOverridePreference(requireContext().settings())
         setupAllowDomesticChinaFxaServerPreference()
