@@ -101,7 +101,7 @@ class BrowserToolbarView(
 
                 val primaryTextColor = ContextCompat.getColor(
                     container.context,
-                    ThemeManager.resolveAttribute(R.attr.primaryText, container.context)
+                    ThemeManager.resolveAttribute(R.attr.insetTextColor, container.context)
                 )
                 val secondaryTextColor = ContextCompat.getColor(
                     container.context,
@@ -117,7 +117,7 @@ class BrowserToolbarView(
                 display.colors = display.colors.copy(
                     text = primaryTextColor,
                     securityIconSecure = primaryTextColor,
-                    securityIconInsecure = Color.TRANSPARENT,
+                    securityIconInsecure = primaryTextColor,
                     menu = primaryTextColor,
                     hint = secondaryTextColor,
                     separator = separatorColor,

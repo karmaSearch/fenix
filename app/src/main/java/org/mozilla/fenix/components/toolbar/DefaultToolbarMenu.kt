@@ -404,14 +404,14 @@ open class DefaultToolbarMenu(
         val browsers = BrowsersCache.all(context)
 
         return if (!browsers.isFirefoxDefaultBrowser) {
-                return BrowserMenuImageText(
-                    label = context.getString(R.string.preferences_set_as_default_browser),
-                    imageResource = R.drawable.ic_globe
-                ) {
-                    onItemTapped.invoke(ToolbarMenu.Item.SetDefaultBrowser)
-                }
-            } else {
-                null
+            return BrowserMenuImageText(
+                label = context.getString(R.string.preferences_set_as_default_browser),
+                imageResource = R.drawable.ic_globe
+            ) {
+                onItemTapped.invoke(ToolbarMenu.Item.SetDefaultBrowser)
             }
+        } else {
+            null
+        }
     }
 }
