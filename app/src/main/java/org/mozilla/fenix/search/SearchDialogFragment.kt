@@ -237,8 +237,8 @@ class SearchDialogFragment : AppCompatDialogFragment(), UserInteractionHandler {
         val navHostFragment: NavHostFragment =
             homeActivity.supportFragmentManager.findFragmentById(R.id.container) as NavHostFragment
 
-        val homeFragment = navHostFragment.childFragmentManager.fragments[0] as HomeFragment
-        homeFragment.updatePosition(expanded)
+        val homeFragment = navHostFragment.childFragmentManager.fragments[0] as? HomeFragment
+        homeFragment?.updatePosition(expanded)
     }
 
     @SuppressWarnings("LongMethod")
