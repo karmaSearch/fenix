@@ -15,7 +15,6 @@ import mozilla.components.browser.menu.item.BrowserMenuImageText
 import org.mozilla.fenix.FeatureFlags
 import org.mozilla.fenix.R
 import org.mozilla.fenix.components.accounts.AccountState
-import org.mozilla.fenix.components.toolbar.ToolbarMenu
 import org.mozilla.fenix.experiments.FeatureId
 import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.ext.getVariables
