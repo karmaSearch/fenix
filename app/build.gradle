@@ -32,7 +32,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.mykarma"
+        applicationId "com.karmasearch"
         minSdkVersion Config.minSdkVersion
         targetSdkVersion Config.targetSdkVersion
         versionCode 1
@@ -95,12 +95,12 @@ android {
         debug {
             shrinkResources false
             minifyEnabled false
-            applicationIdSuffix ".karmasearch.debug"
+            applicationIdSuffix ".app.debug"
             resValue "bool", "IS_DEBUG", "true"
             pseudoLocalesEnabled true
         }
         nightly releaseTemplate >> {
-            applicationIdSuffix ".karmasearch"
+            applicationIdSuffix ".app"
             buildConfigField "boolean", "USE_RELEASE_VERSIONING", "true"
             def deepLinkSchemeValue = "karma-nightly"
             buildConfigField "String", "DEEP_LINK_SCHEME", "\"$deepLinkSchemeValue\""
@@ -108,7 +108,7 @@ android {
         }
         beta releaseTemplate >> {
             buildConfigField "boolean", "USE_RELEASE_VERSIONING", "true"
-            applicationIdSuffix ".karmasearch_beta"
+            applicationIdSuffix ".app_beta"
             def deepLinkSchemeValue = "karma-beta"
             buildConfigField "String", "DEEP_LINK_SCHEME", "\"$deepLinkSchemeValue\""
             manifestPlaceholders = [
@@ -125,7 +125,7 @@ android {
         }
         release releaseTemplate >> {
             buildConfigField "boolean", "USE_RELEASE_VERSIONING", "true"
-            applicationIdSuffix ".karmasearch"
+            applicationIdSuffix ".app"
             def deepLinkSchemeValue = "karma"
             buildConfigField "String", "DEEP_LINK_SCHEME", "\"$deepLinkSchemeValue\""
             manifestPlaceholders = [
