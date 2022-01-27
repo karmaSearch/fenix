@@ -44,6 +44,11 @@
         <activity-alias
             android:name="${applicationId}.App"
             android:targetActivity=".HomeActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
 
             <meta-data
                 android:name="android.app.shortcuts"
@@ -76,8 +81,6 @@
             android:supportsPictureInPicture="true"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <category android:name="android.intent.category.DEFAULT" />

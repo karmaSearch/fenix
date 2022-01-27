@@ -128,17 +128,6 @@ android {
             applicationIdSuffix ".app"
             def deepLinkSchemeValue = "karma"
             buildConfigField "String", "DEEP_LINK_SCHEME", "\"$deepLinkSchemeValue\""
-            manifestPlaceholders = [
-                    // This release type is meant to replace Firefox (Release channel) and therefore needs to inherit
-                    // its sharedUserId for all eternity. See:
-                    // https://searchfox.org/mozilla-central/search?q=moz_android_shared_id&case=false&regexp=false&path=
-                    // Shipping an app update without sharedUserId can have
-                    // fatal consequences. For example see:
-                    //  - https://issuetracker.google.com/issues/36924841
-                    //  - https://issuetracker.google.com/issues/36905922
-                    "sharedUserId": "org.mozilla.firefox.sharedID",
-                    "deepLinkScheme": deepLinkSchemeValue
-            ]
         }
     }
 
@@ -171,10 +160,6 @@ android {
             resources.srcDirs += ['src/androidTest/resources']
         }
         beta {
-            java.srcDirs = ['src/migration/java']
-            manifest.srcFile "src/migration/AndroidManifest.xml"
-        }
-        release {
             java.srcDirs = ['src/migration/java']
             manifest.srcFile "src/migration/AndroidManifest.xml"
         }
@@ -411,6 +396,7 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
 dependencies {
     jnaForTest Deps.jna
     testImplementation files(configurations.jnaForTest.copyRecursive().files)
+    implementation 'com.android.support:multidex:1.0.0'
 
     implementation  Deps.mozilla_browser_engine_gecko
 

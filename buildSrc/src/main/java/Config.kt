@@ -52,10 +52,10 @@ object Config {
 
     private val fennecBaseVersionCode by lazy {
         val format = SimpleDateFormat("yyyyMMddHHmmss", Locale.US)
-        val cutoff = format.parse("20141228000000")
+        val cutoff = format.parse("2014122800000")
         val build = Date()
 
-        Math.floor((build.time - cutoff.time) / (1000.0 * 60.0 * 60.0)).toInt()
+        Math.floor((build.time - cutoff.time) / (1000.0 * 60.0 * 60.0)).toInt() + 9
     }
 
     /**
