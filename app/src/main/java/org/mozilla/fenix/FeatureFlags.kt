@@ -31,7 +31,7 @@ object FeatureFlags {
     /**
      * Enables the Home button in the browser toolbar to navigate back to the home screen.
      */
-    const val showHomeButtonFeature = false
+    const val showHomeButtonFeature = true
 
     /**
      * Enables the Start On Home feature in the settings page.
@@ -56,7 +56,7 @@ object FeatureFlags {
     /**
      * Identifies and separates the tabs list with a secondary section containing least used tabs.
      */
-    const val inactiveTabs = false
+    const val inactiveTabs = true
 
     /**
      * Enables showing the home screen behind the search dialog
