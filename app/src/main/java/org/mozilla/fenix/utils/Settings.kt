@@ -680,11 +680,11 @@ class Settings(private val appContext: Context) : PreferencesHolder {
     var shouldUseBottomToolbar by booleanPreference(
         appContext.getPreferenceKey(R.string.pref_key_toolbar_bottom),
         // Default accessibility users to top toolbar
-        default = !touchExplorationIsEnabled && !switchServiceIsEnabled
+        default = false//!touchExplorationIsEnabled && !switchServiceIsEnabled
     )
 
     val toolbarPosition: ToolbarPosition
-        get() = ToolbarPosition.TOP //if (shouldUseBottomToolbar) ToolbarPosition.BOTTOM else ToolbarPosition.TOP
+        get() = if (shouldUseBottomToolbar) ToolbarPosition.BOTTOM else ToolbarPosition.TOP
 
     /**
      * Check each active accessibility service to see if it can perform gestures, if any can,
