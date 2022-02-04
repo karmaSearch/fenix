@@ -67,11 +67,6 @@
             android:title="@string/preferences_private_browsing_options" />
 
         <androidx.preference.Preference
-            android:key="@string/pref_key_tracking_protection_settings"
-            app:iconSpaceReserved="false"
-            android:title="@string/preference_enhanced_tracking_protection" />
-
-        <androidx.preference.Preference
             android:key="@string/pref_key_site_permissions"
             app:iconSpaceReserved="false"
             android:title="@string/preferences_site_permissions" />
