@@ -348,6 +348,12 @@ class Core(
                     )
                     defaultTopSites.add(
                         Pair(
+                            "L214",
+                            SupportUtils.L214
+                        )
+                    )
+                    defaultTopSites.add(
+                        Pair(
                             "Fresque de la biodiversité",
                             SupportUtils.FRESQUEDELABIODIVERSITE
                         )

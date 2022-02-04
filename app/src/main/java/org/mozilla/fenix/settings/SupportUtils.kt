@@ -43,6 +43,7 @@ object SupportUtils {
     const val ASPAS_NATURE = "https://www.aspas-nature.org/"
     const val NOTREAFFAIRE = "https://notreaffaireatous.org/"
     const val FRESQUEDELABIODIVERSITE = "https://www.fresquedelabiodiversite.org/"
+    const val L214 = "https://www.l214.com/"
     const val REWILD =  "https://www.rewild.org/"
     const val CIWFUK = "https://www.ciwf.org.uk/"
     const val CIWF = "https://www.ciwf.com"

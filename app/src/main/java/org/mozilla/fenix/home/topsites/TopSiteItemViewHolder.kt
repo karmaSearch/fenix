@@ -85,6 +85,9 @@ class TopSiteItemViewHolder(
             SupportUtils.REWILD -> {
                 binding.faviconImage.setImageDrawable(getDrawable(itemView.context, R.drawable.rewild))
             }
+            SupportUtils.L214 -> {
+                binding.faviconImage.setImageDrawable(getDrawable(itemView.context, R.drawable.l214))
+            }
             SupportUtils.CIWF, SupportUtils.CIWFUK -> {
                 binding.faviconImage.setImageDrawable(getDrawable(itemView.context, R.drawable.ciwf))
             }
