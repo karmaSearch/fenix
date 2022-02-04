@@ -57,7 +57,7 @@
                 app:layout_constraintLeft_toRightOf="@id/migration_firefox_logo"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:text="Welcome to the all-new Firefox Preview" />
+                tools:text="Welcome to the all-new KARMA Preview" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/migration_description"
@@ -125,7 +125,7 @@
             android:text="@string/migration_updating_app_button_text"
             android:textSize="@dimen/migration_button_text_size"
             android:textAppearance="@style/NeutralButton"
-            tools:text="Updating Firefox…" />
+            tools:text="Updating KARMA…" />
 
     </LinearLayout>
 

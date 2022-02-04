@@ -213,12 +213,12 @@
     <string name="preferences_add_private_browsing_shortcut">Bæta við flýtileið fyrir huliðsglugga</string>
     <!-- Preference for accessibility -->
     <string name="preferences_accessibility">Aðgengileiki</string>
-    <!-- Preference to override the Firefox Account server -->
-    <string name="preferences_override_fxa_server">Sérsniðinn netþjónn fyrir Firefox miðlarareikning</string>
+    <!-- Preference to override the KARMA Account server -->
+    <string name="preferences_override_fxa_server">Sérsniðinn netþjónn fyrir KARMA miðlarareikning</string>
     <!-- Preference to override the Sync token server -->
     <string name="preferences_override_sync_tokenserver">Sérsniðinn samstillingarþjónn</string>
     <!-- Toast shown after updating the FxA/Sync server override preferences -->
-    <string name="toast_override_fxa_sync_server_done">Firefox reikningi / samstillingarþjóni hefur verið breytt. Slekk á forritinu til að innleiða breytingar…</string>
+    <string name="toast_override_fxa_sync_server_done">KARMA reikningi / samstillingarþjóni hefur verið breytt. Slekk á forritinu til að innleiða breytingar…</string>
     <!-- Preference category for account information -->
     <string name="preferences_category_account">Reikningur</string>
     <!-- Preference shown on banner to sign into account -->
@@ -230,9 +230,9 @@
     <!-- Preference for settings related to visual options -->
     <string name="preferences_customize">Sérsníða</string>
     <!-- Preference description for banner about signing in -->
-    <string name="preferences_sign_in_description">Samstilla bókamerki, feril og fleira með Firefox reikningnum þínum</string>
+    <string name="preferences_sign_in_description">Samstilla bókamerki, feril og fleira með KARMA reikningnum þínum</string>
     <!-- Preference shown instead of account display name while account profile information isn't available yet. -->
-    <string name="preferences_account_default_name">Firefox reikningur</string>
+    <string name="preferences_account_default_name">KARMA reikningur</string>
     <!-- Preference text for account title when there was an error syncing FxA -->
     <string name="preferences_account_sync_error">Tengjast aftur til að halda áfram með samstillingu</string>
     <!-- Preference for language -->
@@ -305,7 +305,7 @@
     <!-- Name of the "receive tabs" notification channel. Displayed in the "App notifications" system settings for the app -->
     <string name="fxa_received_tab_channel_name">Mótteknir flipar</string>
     <!-- Description of the "receive tabs" notification channel. Displayed in the "App notifications" system settings for the app -->
-    <string name="fxa_received_tab_channel_description">Tilkynningar um flipa sem berast frá öðrum Firefox tækjum.</string>
+    <string name="fxa_received_tab_channel_description">Tilkynningar um flipa sem berast frá öðrum KARMA tækjum.</string>
     <!--  The body for these is the URL of the tab received  -->
     <string name="fxa_tab_received_notification_name">Tók á móti flipa</string>
     <!-- When multiple tabs have been received -->
@@ -341,7 +341,7 @@
     <string name="preferences_usage_data_description">Deilir afköstum, notkun, vélbúnaðarupplýsingum og sérsniðum gögnum um vafrann þinn með Mozilla svo hægt sé að betrumbæta %1$s</string>
     <!-- Preference switch for marketing data collection -->
     <string name="preferences_marketing_data">Markaðsgögn</string>
-    <!-- Preference description for marketing data collection, parameter is the app name (e.g. Firefox) -->
+    <!-- Preference description for marketing data collection, parameter is the app name (e.g. KARMA) -->
     <string name="preferences_marketing_data_description">Deilir gögnum um hvaða eiginleika þú notar í %1$s með Leanplum, farsímamarkaðsbirgja Mozilla.</string>
     <!-- Title for experiments preferences -->
     <string name="preference_experiments">Prófanir</string>
@@ -358,7 +358,7 @@
     <!-- Header of the Turn on Sync preference view -->
     <string name="preferences_sync">Kveikja á samstillingu</string>
     <!-- Preference for pairing -->
-    <string moz:removedIn="95" name="preferences_sync_pair" tools:ignore="UnusedResources">Skannaðu pörunarkóða úr Firefox á tölvunni</string>
+    <string moz:removedIn="95" name="preferences_sync_pair" tools:ignore="UnusedResources">Skannaðu pörunarkóða úr KARMA á tölvunni</string>
     <!-- Preference for account login -->
     <string name="preferences_sync_sign_in">Innskráning</string>
     <!-- Preference for reconnecting to FxA sync -->
@@ -738,7 +738,7 @@
     <!-- An option to connect additional devices -->
     <string name="sync_connect_device">Tengja annað tæki</string>
     <!-- The dialog text shown when additional devices are not available -->
-    <string name="sync_connect_device_dialog">Skráðu þig inn á Firefox í að minnsta kosti einu öðru tæki til að senda flipa.</string>
+    <string name="sync_connect_device_dialog">Skráðu þig inn á KARMA í að minnsta kosti einu öðru tæki til að senda flipa.</string>
     <!-- Confirmation dialog button -->
     <string name="sync_confirmation_button">Ég skil!</string>
     <!-- Share error message -->
@@ -876,44 +876,44 @@
     <string name="deleting_browsing_data_in_progress">Eyði vafragögnum…</string>
 
     <!-- Tips -->
-    <!-- text for firefox preview moving tip header "Firefox Preview" and "Firefox Nightly" are intentionally hardcoded -->
-    <string name="tip_firefox_preview_moved_header">Firefox Preview heitir nú Firefox Nightly</string>
+    <!-- text for firefox preview moving tip header "KARMA Preview" and "KARMA Nightly" are intentionally hardcoded -->
+    <string name="tip_firefox_preview_moved_header">KARMA Preview heitir nú KARMA Nightly</string>
     <!-- text for firefox preview moving tip description -->
     <string name="tip_firefox_preview_moved_description">
- · Firefox Nightly er uppfærður á hverju kvöldi og er með virkni sem verið er að prófa sig áfram með.
+ · KARMA Nightly er uppfærður á hverju kvöldi og er með virkni sem verið er að prófa sig áfram með.
  · Hins vegar gæti hann verið óstöðugari fyrir vikið. Sæktu betu útgáfu af vafranum ef þú vilt stöðugri vafra.</string>
 
-    <!-- text for firefox preview moving tip button. "Firefox for Android Beta" is intentionally hardcoded -->
-    <string name="tip_firefox_preview_moved_button_2">Sækja Firefox fyrir Android, beta útgáfu</string>
+    <!-- text for firefox preview moving tip button. "KARMA for Android Beta" is intentionally hardcoded -->
+    <string name="tip_firefox_preview_moved_button_2">Sækja KARMA fyrir Android, beta útgáfu</string>
 
-    <!-- text for firefox preview moving tip header. "Firefox Nightly" is intentionally hardcoded -->
-    <string name="tip_firefox_preview_moved_header_preview_installed">Firefox Nightly er kominn á nýjan stað</string>
+    <!-- text for firefox preview moving tip header. "KARMA Nightly" is intentionally hardcoded -->
+    <string name="tip_firefox_preview_moved_header_preview_installed">KARMA Nightly er kominn á nýjan stað</string>
     <!-- text for firefox preview moving tip description -->
     <string name="tip_firefox_preview_moved_description_preview_installed">
  · Þetta forrit mun ekki lengur fá öryggisuppfærslur. Hættu að nota þetta forrit og skiptu yfir í nýja Nightly.
- · \n\nÞú ættir að búa til Firefox reikning til að búa til bókamerki, innskráningu og sögu í annað forrit.</string>
+ · \n\nÞú ættir að búa til KARMA reikning til að búa til bókamerki, innskráningu og sögu í annað forrit.</string>
     <!-- text for firefox preview moving tip button  -->
     <string name="tip_firefox_preview_moved_button_preview_installed">Skiptu yfir í nýja Nightly</string>
 
-    <!-- text for firefox preview moving tip header. "Firefox Nightly" is intentionally hardcoded -->
-    <string name="tip_firefox_preview_moved_header_preview_not_installed">Firefox Nightly er kominn á nýjan stað</string>
+    <!-- text for firefox preview moving tip header. "KARMA Nightly" is intentionally hardcoded -->
+    <string name="tip_firefox_preview_moved_header_preview_not_installed">KARMA Nightly er kominn á nýjan stað</string>
     <!-- text for firefox preview moving tip description -->
     <string name="tip_firefox_preview_moved_description_preview_not_installed">
  · Þetta forrit mun ekki lengur fá öryggisuppfærslur. Sæktu nýja Nightly og hættu að nota þetta forrit.
- · \n\nÞú ættir að búa til Firefox reikning til að búa til bókamerki, innskráningu og sögu í annað forrit.</string>
+ · \n\nÞú ættir að búa til KARMA reikning til að búa til bókamerki, innskráningu og sögu í annað forrit.</string>
     <!-- text for firefox preview moving tip button  -->
     <string name="tip_firefox_preview_moved_button_preview_not_installed">Sæktu nýja Nightly</string>
 
     <!-- Onboarding -->
     <!-- Text for onboarding welcome message
-    The first parameter is the name of the app (e.g. Firefox Preview) -->
+    The first parameter is the name of the app (e.g. KARMA Preview) -->
     <string name="onboarding_header">Velkomin í %s!</string>
-    <!-- text for the Firefox Accounts section header -->
+    <!-- text for the KARMA Accounts section header -->
     <string name="onboarding_fxa_section_header">Ertu þegar með reikning?</string>
     <!-- text for the "What's New" onboarding card header -->
     <string moz:removedIn="94" name="onboarding_whats_new_header1" tools:ignore="UnusedResources">Hvað er nýtt!</string>
     <!-- text for the "what's new" onboarding card description
-    The first parameter is the short name of the app (e.g. Firefox) -->
+    The first parameter is the short name of the app (e.g. KARMA) -->
     <string moz:removedIn="94" name="onboarding_whats_new_description" tools:ignore="UnusedResources">Ertu með spurningar um hið endurhannaða %s? Viltu vita hvað hefur breyst?</string>
     <!-- text for underlined clickable link that is part of "what's new" onboarding card description that links to an FAQ -->
     <string moz:removedIn="94" name="onboarding_whats_new_description_linktext" tools:ignore="UnusedResources">Fáðu svör hér</string>
@@ -979,7 +979,7 @@
     <string name="sync_scan_code">Skanna QR kóða</string>
 
     <!-- Instructions on how to access pairing -->
-    <string name="sign_in_instructions"><![CDATA[Opnaðu Firefox á tölvunni þinni og farðu inná <b>https://firefox.com/pair</b>]]></string>
+    <string name="sign_in_instructions"><![CDATA[Opnaðu KARMA á tölvunni þinni og farðu inná <b>https://firefox.com/pair</b>]]></string>
     <!-- Text shown for sign in pairing when ready -->
     <string name="sign_in_ready_for_scan">Tilbúið til skönnunar</string>
     <!-- Text shown for settings option for sign with pairing -->
@@ -987,8 +987,8 @@
     <!-- Text shown for settings option for sign with email -->
     <string name="sign_in_with_email">Nota tölvupóst í staðinn</string>
     <!-- Text shown in confirmation dialog to sign out of account -->
-    <string name="sign_out_confirmation_message">Firefox mun hætta að samstilla reikninginn þinn en mun ekki eyða neinum vafragögnum á þessu tæki.</string>
-    <!-- Text shown in confirmation dialog to sign out of account. The first parameter is the name of the app (e.g. Firefox Preview) -->
+    <string name="sign_out_confirmation_message">KARMA mun hætta að samstilla reikninginn þinn en mun ekki eyða neinum vafragögnum á þessu tæki.</string>
+    <!-- Text shown in confirmation dialog to sign out of account. The first parameter is the name of the app (e.g. KARMA Preview) -->
     <string name="sign_out_confirmation_message_2">%s mun hætta að samstilla reikninginn þinn en mun ekki eyða neinum vafragögnum á þessu tæki.</string>
     <!-- Option to continue signing out of account shown in confirmation dialog to sign out of account -->
     <string name="sign_out_disconnect">Aftengja</string>
@@ -1359,13 +1359,13 @@
     <string name="synced_tabs_connect_another_device">Tengja annað tæki.</string>
     <!-- Text displayed asking user to re-authenticate -->
     <string name="synced_tabs_reauth">Vinsamlegast endurauðkenndu þig.</string>
-    <!-- Text displayed when user has disabled tab syncing in Firefox Sync Account -->
+    <!-- Text displayed when user has disabled tab syncing in KARMA Sync Account -->
     <string name="synced_tabs_enable_tab_syncing">Vinsamlegast virkjaðu samstillingu flipa.</string>
     <!-- Text displayed when user has no tabs that have been synced -->
-    <string name="synced_tabs_no_tabs">Þú ert ekki með neina Firefox flipa opna á hinum tækjunum þínum.</string>
-    <!-- Text displayed in the synced tabs screen when a user is not signed in to Firefox Sync describing Synced Tabs -->
+    <string name="synced_tabs_no_tabs">Þú ert ekki með neina KARMA flipa opna á hinum tækjunum þínum.</string>
+    <!-- Text displayed in the synced tabs screen when a user is not signed in to KARMA Sync describing Synced Tabs -->
     <string name="synced_tabs_sign_in_message">Skoða lista yfir flipa frá öðrum tækjum.</string>
-    <!-- Text displayed on a button in the synced tabs screen to link users to sign in when a user is not signed in to Firefox Sync -->
+    <!-- Text displayed on a button in the synced tabs screen to link users to sign in when a user is not signed in to KARMA Sync -->
     <string name="synced_tabs_sign_in_button">Skráðu þig inn til að samstilla</string>
 
     <!-- Top Sites -->

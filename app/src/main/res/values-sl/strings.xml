@@ -89,8 +89,8 @@
     <string name="cfr_neg_button_text">Ne, hvala</string>
 
     <!-- Open in App "contextual feature recommendation" (CFR) -->
-    <!-- Text for the info message. 'Firefox' intentionally hardcoded here.-->
-    <string name="open_in_app_cfr_info_message">Firefox lahko nastavite tako, da samodejno odpira povezave v aplikacijah.</string>
+    <!-- Text for the info message. 'KARMA' intentionally hardcoded here.-->
+    <string name="open_in_app_cfr_info_message">KARMA lahko nastavite tako, da samodejno odpira povezave v aplikacijah.</string>
     <!-- Text for the positive action button -->
     <string name="open_in_app_cfr_positive_button_text">Pojdi v nastavitve</string>
     <!-- Text for the negative action button -->
@@ -118,7 +118,7 @@
     <!-- Text for title for the auto-close dialog of the inactive tabs. -->
     <string name="tab_tray_inactive_auto_close_title">Samodejno zapri po enem mesecu?</string>
     <!-- Text for the body for the auto-close dialog of the inactive tabs. -->
-    <string name="tab_tray_inactive_auto_close_body">Firefox lahko zapre zavihke, ki si jih niste ogledali v zadnjem mesecu.</string>
+    <string name="tab_tray_inactive_auto_close_body">KARMA lahko zapre zavihke, ki si jih niste ogledali v zadnjem mesecu.</string>
     <!-- Content description for close button in the auto-close dialog of the inactive tabs. -->
     <string name="tab_tray_inactive_auto_close_button_content_description">Zapri</string>
     <!-- Text for turn on auto close tabs button in the auto-close dialog of the inactive tabs. -->
@@ -295,7 +295,7 @@
     <string name="search_engine_suggestions_description">Iščite neposredno iz naslovne vrstice</string>
 
     <!-- Home onboarding -->
-    <!-- Onboarding home screen dialog title text. Firefox is intentionally hardcoded. -->
+    <!-- Onboarding home screen dialog title text. KARMA is intentionally hardcoded. -->
     <string name="onboarding_home_screen_title_2">Kaj je novega v Firefoxu</string>
 
     <!-- Onboarding home screen dialog description text for the tab tray section. -->
@@ -304,7 +304,7 @@
     <string name="onboarding_home_screen_section_useful_history_title_2">Nedavna iskanja</string>
 
     <!-- Search Widget -->
-    <!-- Content description for searching with a widget. Firefox is intentionally hardcoded.-->
+    <!-- Content description for searching with a widget. KARMA is intentionally hardcoded.-->
     <string name="search_widget_content_description">Odpri nov zavihek v Firefoxu</string>
     <!-- Text preview for smaller sized widgets -->
     <string name="search_widget_text_short">Iskanje</string>
@@ -367,12 +367,12 @@
     <string name="preferences_add_private_browsing_shortcut">Dodaj bližnjico zasebnega brskanja</string>
     <!-- Preference for accessibility -->
     <string name="preferences_accessibility">Dostopnost</string>
-    <!-- Preference to override the Firefox Account server -->
-    <string name="preferences_override_fxa_server">Strežnik Firefox računov po meri</string>
+    <!-- Preference to override the KARMA Account server -->
+    <string name="preferences_override_fxa_server">Strežnik KARMA računov po meri</string>
     <!-- Preference to override the Sync token server -->
     <string name="preferences_override_sync_tokenserver">Sinhronizacijski strežnik po meri</string>
     <!-- Toast shown after updating the FxA/Sync server override preferences -->
-    <string name="toast_override_fxa_sync_server_done">Strežnik Firefox Računa/Synca je spremenjen. Zapiranje aplikacije za uveljavitev sprememb …</string>
+    <string name="toast_override_fxa_sync_server_done">Strežnik KARMA Računa/Synca je spremenjen. Zapiranje aplikacije za uveljavitev sprememb …</string>
     <!-- Preference category for account information -->
     <string name="preferences_category_account">Račun</string>
     <!-- Preference shown on banner to sign into account -->
@@ -390,9 +390,9 @@
     <!-- Preference for settings related to visual options -->
     <string name="preferences_customize">Prilagodi</string>
     <!-- Preference description for banner about signing in -->
-    <string name="preferences_sign_in_description">Sinhronizirajte zaznamke, gesla in ostalo s Firefox Računom</string>
+    <string name="preferences_sign_in_description">Sinhronizirajte zaznamke, gesla in ostalo s KARMA Računom</string>
     <!-- Preference shown instead of account display name while account profile information isn't available yet. -->
-    <string name="preferences_account_default_name">Firefox Račun</string>
+    <string name="preferences_account_default_name">KARMA Račun</string>
     <!-- Preference text for account title when there was an error syncing FxA -->
     <string name="preferences_account_sync_error">Ponovno se povežite za nadaljevanje sinhronizacije</string>
     <!-- Preference for language -->
@@ -524,7 +524,7 @@
     <string name="fxa_received_tab_channel_name">Prejeti zavihki</string>
 
     <!-- Description of the "receive tabs" notification channel. Displayed in the "App notifications" system settings for the app -->
-    <string name="fxa_received_tab_channel_description">Obvestila za zavihke, prejete od drugih naprav Firefox.</string>
+    <string name="fxa_received_tab_channel_description">Obvestila za zavihke, prejete od drugih naprav KARMA.</string>
     <!--  The body for these is the URL of the tab received  -->
     <string name="fxa_tab_received_notification_name">Zavihek prejet</string>
     <!-- When multiple tabs have been received -->
@@ -558,7 +558,7 @@
     <string name="preferences_usage_data_description">Pošilja podatke o učinkovitosti, uporabi, strojni opremi in prilagoditvah organizaciji Mozilla, da lahko naredi %1$s boljši</string>
     <!-- Preference switch for marketing data collection -->
     <string name="preferences_marketing_data">Podatki za trženje</string>
-    <!-- Preference description for marketing data collection, parameter is the app name (e.g. Firefox) -->
+    <!-- Preference description for marketing data collection, parameter is the app name (e.g. KARMA) -->
     <string name="preferences_marketing_data_description">Deli podatke o možnostih, ki jih uporabljate v %1$su z Leanplumom, našim ponudnikom mobilnega oglaševanja.</string>
     <!-- Preference description for marketing data collection -->
     <string name="preferences_marketing_data_description2">Deli osnovne podatke o uporabi z Adjustom, našim ponudnikom mobilnega trženja</string>
@@ -748,8 +748,8 @@
     <string name="studies_remove">Odstrani</string>
     <!-- Title of the active section on the studies list -->
     <string name="studies_active">Dejavna</string>
-    <!-- Description for studies, it indicates why Firefox use studies -->
-    <string name="studies_description">Firefox lahko občasno namesti in zažene raziskave.</string>
+    <!-- Description for studies, it indicates why KARMA use studies -->
+    <string name="studies_description">KARMA lahko občasno namesti in zažene raziskave.</string>
     <!-- Learn more link for studies, links to an article for more information about studies. -->
     <string name="studies_learn_more">Več o tem</string>
 
@@ -1170,7 +1170,7 @@
     <!-- An option to connect additional devices -->
     <string name="sync_connect_device">Poveži drugo napravo</string>
     <!-- The dialog text shown when additional devices are not available -->
-    <string name="sync_connect_device_dialog">Če želite poslati zavihek, se v Firefox prijavite v vsaj še eni napravi.</string>
+    <string name="sync_connect_device_dialog">Če želite poslati zavihek, se v KARMA prijavite v vsaj še eni napravi.</string>
     <!-- Confirmation dialog button -->
     <string name="sync_confirmation_button">Razumem</string>
     <!-- Share error message -->
@@ -1335,57 +1335,57 @@
     <string name="deleting_browsing_data_in_progress">Brisanje podatkov brskanja …</string>
 
     <!-- Tips -->
-    <!-- text for firefox preview moving tip header "Firefox Preview" and "Firefox Nightly" are intentionally hardcoded -->
-    <string name="tip_firefox_preview_moved_header">Firefox Preview je zdaj Firefox Nightly</string>
+    <!-- text for firefox preview moving tip header "KARMA Preview" and "KARMA Nightly" are intentionally hardcoded -->
+    <string name="tip_firefox_preview_moved_header">KARMA Preview je zdaj KARMA Nightly</string>
     <!-- text for firefox preview moving tip description -->
-    <string name="tip_firefox_preview_moved_description">Firefox Nightly se posodablja vsak dan in vsebuje poskusne nove možnosti.
+    <string name="tip_firefox_preview_moved_description">KARMA Nightly se posodablja vsak dan in vsebuje poskusne nove možnosti.
         Njegovo delovanje je lahko nezanesljivo. Za zanesljivejše brskanje prenesite različico beta našega brskalnika.</string>
 
-    <!-- text for firefox preview moving tip button. "Firefox for Android Beta" is intentionally hardcoded -->
-    <string name="tip_firefox_preview_moved_button_2">Prenesite Firefox za Android Beta</string>
+    <!-- text for firefox preview moving tip button. "KARMA for Android Beta" is intentionally hardcoded -->
+    <string name="tip_firefox_preview_moved_button_2">Prenesite KARMA za Android Beta</string>
 
-    <!-- text for firefox preview moving tip header. "Firefox Nightly" is intentionally hardcoded -->
-    <string name="tip_firefox_preview_moved_header_preview_installed">Firefox Nightly se je preselil</string>
+    <!-- text for firefox preview moving tip header. "KARMA Nightly" is intentionally hardcoded -->
+    <string name="tip_firefox_preview_moved_header_preview_installed">KARMA Nightly se je preselil</string>
     <!-- text for firefox preview moving tip description -->
     <string name="tip_firefox_preview_moved_description_preview_installed">Ta aplikacija ne bo več prejemala varnostnih posodobitev. Prenehajte jo uporabljati in se preselite na novi Nightly.
-        \n\nZa selitev svojih zaznamkov, prijav in zgodovine v drugo aplikacijo ustvarite Firefox Račun.</string>
+        \n\nZa selitev svojih zaznamkov, prijav in zgodovine v drugo aplikacijo ustvarite KARMA Račun.</string>
     <!-- text for firefox preview moving tip button  -->
     <string name="tip_firefox_preview_moved_button_preview_installed">Preklopite na novi Nightly</string>
 
-    <!-- text for firefox preview moving tip header. "Firefox Nightly" is intentionally hardcoded -->
-    <string name="tip_firefox_preview_moved_header_preview_not_installed">Firefox Nightly se je preselil</string>
+    <!-- text for firefox preview moving tip header. "KARMA Nightly" is intentionally hardcoded -->
+    <string name="tip_firefox_preview_moved_header_preview_not_installed">KARMA Nightly se je preselil</string>
     <!-- text for firefox preview moving tip description -->
     <string name="tip_firefox_preview_moved_description_preview_not_installed">Ta aplikacija ne bo več prejemala varnostnih posodobitev. Prenesite novi Nightly in prenehajte uporabljati to aplikacijo.
-        \n\nZa selitev svojih zaznamkov, prijav in zgodovine v drugo aplikacijo ustvarite Firefox Račun.</string>
+        \n\nZa selitev svojih zaznamkov, prijav in zgodovine v drugo aplikacijo ustvarite KARMA Račun.</string>
     <!-- text for firefox preview moving tip button  -->
     <string name="tip_firefox_preview_moved_button_preview_not_installed">Prenesite novi Nigthly</string>
 
     <!-- Onboarding -->
     <!-- Text for onboarding welcome message
-    The first parameter is the name of the app (e.g. Firefox Preview) -->
+    The first parameter is the name of the app (e.g. KARMA Preview) -->
     <string name="onboarding_header">Dobrodošli v %s!</string>
-    <!-- text for the Firefox Accounts section header -->
+    <!-- text for the KARMA Accounts section header -->
     <string name="onboarding_fxa_section_header">Že imate račun?</string>
     <!-- text for the "What's New" onboarding card header -->
     <string moz:removedIn="94" name="onboarding_whats_new_header1" tools:ignore="UnusedResources">Kaj je novega</string>
     <!-- text for the "what's new" onboarding card description
-    The first parameter is the short name of the app (e.g. Firefox) -->
+    The first parameter is the short name of the app (e.g. KARMA) -->
     <string moz:removedIn="94" name="onboarding_whats_new_description" tools:ignore="UnusedResources">Imate vprašanja o preoblikovanem %su? Želite izvedeti, kaj se je spremenilo?</string>
     <!-- text for underlined clickable link that is part of "what's new" onboarding card description that links to an FAQ -->
     <string moz:removedIn="94" name="onboarding_whats_new_description_linktext" tools:ignore="UnusedResources">Tukaj poiščite odgovore</string>
-    <!-- text for the Firefox account onboarding sign in card header. The word "Firefox" should not be translated -->
-    <string name="onboarding_account_sign_in_header_1">Sinhronizirajte Firefox med napravami</string>
-    <!-- Text for the button to learn more about signing in to your Firefox account -->
-    <string name="onboarding_manual_sign_in_description">Prinesite zaznamke, zgodovino in gesla v Firefox na tej napravi.</string>
+    <!-- text for the KARMA account onboarding sign in card header. The word "KARMA" should not be translated -->
+    <string name="onboarding_account_sign_in_header_1">Sinhronizirajte KARMA med napravami</string>
+    <!-- Text for the button to learn more about signing in to your KARMA account -->
+    <string name="onboarding_manual_sign_in_description">Prinesite zaznamke, zgodovino in gesla v KARMA na tej napravi.</string>
     <!-- text for the firefox account onboarding card header when we detect you're already signed in to
-        another Firefox browser. (The word `Firefox` should not be translated)
+        another KARMA browser. (The word `KARMA` should not be translated)
         The first parameter is the email of the detected user's account -->
-    <string name="onboarding_firefox_account_auto_signin_header_3">V drugem brskalniku Firefox na tej napravi ste prijavljeni kot %s. Ali se želite prijaviti s tem računom?</string>
+    <string name="onboarding_firefox_account_auto_signin_header_3">V drugem brskalniku KARMA na tej napravi ste prijavljeni kot %s. Ali se želite prijaviti s tem računom?</string>
     <!-- text for the button to confirm automatic sign-in -->
     <string name="onboarding_firefox_account_auto_signin_confirm">Da, prijavi me</string>
     <!-- text for the automatic sign-in button while signing in is in process -->
     <string name="onboarding_firefox_account_signing_in">Prijavljanje …</string>
-    <!-- text for the button to manually sign into Firefox account. -->
+    <!-- text for the button to manually sign into KARMA account. -->
     <string name="onboarding_firefox_account_sign_in_1">Prijava</string>
     <!-- text for the button to stay signed out when presented with an option to automatically sign-in. -->
     <string name="onboarding_firefox_account_stay_signed_out">Ostanite odjavljeni</string>
@@ -1395,8 +1395,8 @@
     <string name="onboarding_firefox_account_automatic_signin_failed">Prijava ni uspela</string>
     <!-- text for the tracking protection onboarding card header -->
     <string name="onboarding_tracking_protection_header_3">Vedno vključena zasebnost</string>
-    <!-- text for the tracking protection card description. 'Firefox' intentionally hardcoded here -->
-    <string name="onboarding_tracking_protection_description_3">Firefox samodejno prepreči, da bi vas podjetja na skrivaj spremljala po spletu.</string>
+    <!-- text for the tracking protection card description. 'KARMA' intentionally hardcoded here -->
+    <string name="onboarding_tracking_protection_description_3">KARMA samodejno prepreči, da bi vas podjetja na skrivaj spremljala po spletu.</string>
     <!-- text for tracking protection radio button option for standard level of blocking -->
     <string name="onboarding_tracking_protection_standard_button_2">Običajno (privzeto)</string>
     <!-- text for standard blocking option button description -->
@@ -1424,7 +1424,7 @@
     <string name="onboarding_privacy_notice_header">Vaša zasebnost</string>
 
     <!-- text for the privacy notice onboarding card description
-    The first parameter is the name of the app (e.g. Firefox Preview) Substitute %s for long browser name. -->
+    The first parameter is the name of the app (e.g. KARMA Preview) Substitute %s for long browser name. -->
     <string name="onboarding_privacy_notice_description2">%s smo zasnovali tako, da vam omogočimo nadzor nad tem, kaj delite na spletu in kaj delite z nami.</string>
     <!-- Text for the button to read the privacy notice -->
     <string name="onboarding_privacy_notice_read_button">Preberite naše obvestilo o zasebnosti</string>
@@ -1459,18 +1459,18 @@
     <!-- Title of QR Pairing Fragment -->
     <string name="sync_scan_code">Skenirajte kodo</string>
     <!-- Instructions on how to access pairing -->
-    <string name="sign_in_instructions"><![CDATA[Na računalniku odprite Firefox in obiščite <b>https://firefox.com/pair</b>]]></string>
+    <string name="sign_in_instructions"><![CDATA[Na računalniku odprite KARMA in obiščite <b>https://firefox.com/pair</b>]]></string>
     <!-- Text shown for sign in pairing when ready -->
     <string name="sign_in_ready_for_scan">Pripravljeno za skeniranje</string>
     <!-- Text shown for settings option for sign with pairing -->
     <string name="sign_in_with_camera">Prijavite se s kamero</string>
     <!-- Text shown for settings option for sign with email -->
     <string name="sign_in_with_email">Namesto tega uporabite e-pošto</string>
-    <!-- Text shown for settings option for create new account text.'Firefox' intentionally hardcoded here.-->
+    <!-- Text shown for settings option for create new account text.'KARMA' intentionally hardcoded here.-->
     <string name="sign_in_create_account_text"><![CDATA[Nimate računa? <u>Ustvarite ga</u> za sinhronizacijo Firefoxa med napravami.]]></string>
     <!-- Text shown in confirmation dialog to sign out of account -->
-    <string name="sign_out_confirmation_message">Firefox se bo prenehal sinhronizirati z vašim računom, vendar ne bo izbrisal podatkov o brskanju na tej napravi.</string>
-    <!-- Text shown in confirmation dialog to sign out of account. The first parameter is the name of the app (e.g. Firefox Preview) -->
+    <string name="sign_out_confirmation_message">KARMA se bo prenehal sinhronizirati z vašim računom, vendar ne bo izbrisal podatkov o brskanju na tej napravi.</string>
+    <!-- Text shown in confirmation dialog to sign out of account. The first parameter is the name of the app (e.g. KARMA Preview) -->
     <string name="sign_out_confirmation_message_2">%s se bo prenehal sinhronizirati z vašim računom, vendar ne bo izbrisal podatkov o brskanju na tej napravi.</string>
     <!-- Option to continue signing out of account shown in confirmation dialog to sign out of account -->
     <string name="sign_out_disconnect">Prekini povezavo</string>
@@ -1652,9 +1652,9 @@
     <!-- Preference for autofilling saved logins in Fenix -->
     <string moz:removedIn="93" name="preferences_passwords_autofill" tools:ignore="UnusedResources">Samodejno izpolnjevanje</string>
 
-    <!-- Preference for autofilling saved logins in Firefox (in web content), %1$s will be replaced with the app name -->
+    <!-- Preference for autofilling saved logins in KARMA (in web content), %1$s will be replaced with the app name -->
     <string name="preferences_passwords_autofill2">Samodejno izpolni v %1$su</string>
-    <!-- Description for the preference for autofilling saved logins in Firefox (in web content), %1$s will be replaced with the app name -->
+    <!-- Description for the preference for autofilling saved logins in KARMA (in web content), %1$s will be replaced with the app name -->
     <string name="preferences_passwords_autofill_description">Izpolnjuj in shranjuj uporabniška imena in gesla na spletnih mestih, ko uporabljate %1$s.</string>
     <!-- Preference for autofilling logins from Fenix in other apps (e.g. autofilling the Twitter app) -->
     <string name="preferences_android_autofill">Samodejno izpolni v drugih aplikacijah</string>
@@ -1979,14 +1979,14 @@
     <string name="synced_tabs_connect_another_device">Poveži drugo napravo.</string>
     <!-- Text displayed asking user to re-authenticate -->
     <string name="synced_tabs_reauth">Ponovno se prijavite.</string>
-    <!-- Text displayed when user has disabled tab syncing in Firefox Sync Account -->
+    <!-- Text displayed when user has disabled tab syncing in KARMA Sync Account -->
     <string name="synced_tabs_enable_tab_syncing">Omogočite sinhronizacijo zavihkov.</string>
     <!-- Text displayed when user has no tabs that have been synced -->
     <string name="synced_tabs_no_tabs">V Firefoxu na drugih napravah nimate odprtih drugih zavihkov.</string>
-    <!-- Text displayed in the synced tabs screen when a user is not signed in to Firefox Sync describing Synced Tabs -->
+    <!-- Text displayed in the synced tabs screen when a user is not signed in to KARMA Sync describing Synced Tabs -->
     <string name="synced_tabs_sign_in_message">Oglejte si seznam zavihkov drugih naprav.</string>
 
-    <!-- Text displayed on a button in the synced tabs screen to link users to sign in when a user is not signed in to Firefox Sync -->
+    <!-- Text displayed on a button in the synced tabs screen to link users to sign in when a user is not signed in to KARMA Sync -->
     <string name="synced_tabs_sign_in_button">Prijava v Sync</string>
 
     <!-- The text displayed when a synced device has no tabs to show in the list of Synced Tabs. -->
@@ -2033,7 +2033,7 @@
     <string name="inactive_tabs_auto_close_message_header" tools:ignore="UnusedResources">Samodejno zapri po enem mesecu?</string>
 
     <!-- A description below the header to notify the user what the inactive tabs auto-close feature is. -->
-    <string name="inactive_tabs_auto_close_message_description" tools:ignore="UnusedResources">Firefox lahko zapre zavihke, ki si jih niste ogledali v zadnjem mesecu.</string>
+    <string name="inactive_tabs_auto_close_message_description" tools:ignore="UnusedResources">KARMA lahko zapre zavihke, ki si jih niste ogledali v zadnjem mesecu.</string>
     <!-- A call to action below the description to allow the user to turn on the auto closing of inactive tabs. -->
     <string name="inactive_tabs_auto_close_message_action" tools:ignore="UnusedResources">VKLOPI SAMODEJNO ZAPIRANJE</string>
 
@@ -2044,7 +2044,7 @@
     <!-- Header text for the inactive tabs survey asking for feedback to improve the inactive tabs feature. -->
     <string moz:removedIn="95" name="inactive_tabs_survey_header" tools:ignore="UnusedResources">Pomagajte nam, da postanemo boljši</string>
     <!-- Header text for the inactive tabs survey asking for feedback to improve the inactive tabs feature. -->
-    <string name="inactive_tabs_survey_header_1">Pomagajte izboljšati Firefox</string>
+    <string name="inactive_tabs_survey_header_1">Pomagajte izboljšati KARMA</string>
 
     <!-- Content text for the inactive tabs survey asking the primary survey feedback question. -->
     <string name="inactive_tabs_survey_content">Zakaj ste onemogočili nedejavne zavihke?</string>
@@ -2088,7 +2088,7 @@
     <!-- Title of an app feature. Smaller than a heading.-->
     <string name="pocket_stories_feature_title">Omogoča Pocket</string>
     <!-- Caption for describing a certain feature. The placeholder is for a clickable text (eg: Learn more) which will load an url in a new tab when clicked.  -->
-    <string name="pocket_stories_feature_caption">Del družine Firefox. %s</string>
+    <string name="pocket_stories_feature_caption">Del družine KARMA. %s</string>
     <!-- Clickable text for opening an external link for more information about Pocket. -->
     <string name="pocket_stories_feature_learn_more">Več o tem</string>
 </resources>

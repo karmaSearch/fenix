@@ -89,8 +89,8 @@
     <string name="cfr_neg_button_text">לא תודה</string>
 
     <!-- Open in App "contextual feature recommendation" (CFR) -->
-    <!-- Text for the info message. 'Firefox' intentionally hardcoded here.-->
-    <string name="open_in_app_cfr_info_message">באפשרותך להגדיר ש־Firefox יפתח קישורים ביישומים באופן אוטומטי.</string>
+    <!-- Text for the info message. 'KARMA' intentionally hardcoded here.-->
+    <string name="open_in_app_cfr_info_message">באפשרותך להגדיר ש־KARMA יפתח קישורים ביישומים באופן אוטומטי.</string>
     <!-- Text for the positive action button -->
     <string name="open_in_app_cfr_positive_button_text">מעבר להגדרות</string>
     <!-- Text for the negative action button -->
@@ -286,12 +286,12 @@
     <string name="search_engine_suggestions_description">חיפוש ישירות משורת הכתובת</string>
 
     <!-- Home onboarding -->
-    <!-- Onboarding home screen dialog title text. Firefox is intentionally hardcoded. -->
-    <string name="onboarding_home_screen_title_2">מה חדש ב־Firefox</string>
+    <!-- Onboarding home screen dialog title text. KARMA is intentionally hardcoded. -->
+    <string name="onboarding_home_screen_title_2">מה חדש ב־KARMA</string>
     <!-- Onboarding home screen dialog description text. -->
     <string name="onboarding_home_screen_description_2">עכשיו קל יותר לחזור למקום שבו הפסקת.</string>
-    <!-- Onboarding home screen dialog title text for the home section. Firefox is intentionally hardcoded. -->
-    <string name="onboarding_home_screen_section_home_title_2">מסך בית מותאם אישית של Firefox</string>
+    <!-- Onboarding home screen dialog title text for the home section. KARMA is intentionally hardcoded. -->
+    <string name="onboarding_home_screen_section_home_title_2">מסך בית מותאם אישית של KARMA</string>
     <!-- Onboarding home screen dialog description text for the home section. -->
     <string name="onboarding_home_screen_section_home_description_2">ניתן לעבור ללשוניות הפתוחות שלך, לסימניות ולהיסטוריית הגלישה שלך.</string>
     <!-- Onboarding home screen dialog description text for the tab tray section. -->
@@ -301,12 +301,12 @@
     <!-- Onboarding home screen dialog description text for the history section. -->
     <string name="onboarding_home_screen_section_useful_history_title_2">חיפושים אחרונים</string>
 
-    <!-- Onboarding home screen popup dialog, shown on top of the Jump back in section. Firefox is intentionally hardcoded. -->
-    <string name="onboarding_home_screen_jump_back_contextual_hint" tools:ignore="UnusedResources">כעת קל יותר להמשיך מהמקום שבו הפסקת, במסך הבית של Firefox המותאם אישית שלך. ניתן למצוא את הלשוניות האחרונות, הסימניות ותוצאות החיפוש שלך.</string>
+    <!-- Onboarding home screen popup dialog, shown on top of the Jump back in section. KARMA is intentionally hardcoded. -->
+    <string name="onboarding_home_screen_jump_back_contextual_hint" tools:ignore="UnusedResources">כעת קל יותר להמשיך מהמקום שבו הפסקת, במסך הבית של KARMA המותאם אישית שלך. ניתן למצוא את הלשוניות האחרונות, הסימניות ותוצאות החיפוש שלך.</string>
 
     <!-- Search Widget -->
-    <!-- Content description for searching with a widget. Firefox is intentionally hardcoded.-->
-    <string name="search_widget_content_description">פתיחת לשונית חדשה ב־Firefox</string>
+    <!-- Content description for searching with a widget. KARMA is intentionally hardcoded.-->
+    <string name="search_widget_content_description">פתיחת לשונית חדשה ב־KARMA</string>
     <!-- Text preview for smaller sized widgets -->
     <string name="search_widget_text_short">חיפוש</string>
     <!-- Text preview for larger sized widgets -->
@@ -367,12 +367,12 @@
     <string name="preferences_add_private_browsing_shortcut">הוספת קיצור דרך לגלישה פרטית</string>
     <!-- Preference for accessibility -->
     <string name="preferences_accessibility">נגישות</string>
-    <!-- Preference to override the Firefox Account server -->
-    <string name="preferences_override_fxa_server">שרת Firefox Account מותאם אישית</string>
+    <!-- Preference to override the KARMA Account server -->
+    <string name="preferences_override_fxa_server">שרת KARMA Account מותאם אישית</string>
     <!-- Preference to override the Sync token server -->
     <string name="preferences_override_sync_tokenserver">שרת Sync מותאם אישית</string>
     <!-- Toast shown after updating the FxA/Sync server override preferences -->
-    <string name="toast_override_fxa_sync_server_done">שרת Firefox Account/Sync השתנה. היישום ייסגר לצורך להחלת השינויים…</string>
+    <string name="toast_override_fxa_sync_server_done">שרת KARMA Account/Sync השתנה. היישום ייסגר לצורך להחלת השינויים…</string>
     <!-- Preference category for account information -->
     <string name="preferences_category_account">חשבון</string>
     <!-- Preference shown on banner to sign into account -->
@@ -390,9 +390,9 @@
     <!-- Preference for settings related to visual options -->
     <string name="preferences_customize">התאמה אישית</string>
     <!-- Preference description for banner about signing in -->
-    <string name="preferences_sign_in_description">סנכרון סימניות, היסטוריה ועוד עם חשבון ה־Firefox שלך</string>
+    <string name="preferences_sign_in_description">סנכרון סימניות, היסטוריה ועוד עם חשבון ה־KARMA שלך</string>
     <!-- Preference shown instead of account display name while account profile information isn't available yet. -->
-    <string name="preferences_account_default_name">חשבון Firefox</string>
+    <string name="preferences_account_default_name">חשבון KARMA</string>
     <!-- Preference text for account title when there was an error syncing FxA -->
     <string name="preferences_account_sync_error">יש להתחבר מחדש כדי להמשיך בסנכרון</string>
     <!-- Preference for language -->
@@ -523,7 +523,7 @@
     <!-- Name of the "receive tabs" notification channel. Displayed in the "App notifications" system settings for the app -->
     <string name="fxa_received_tab_channel_name">לשוניות שהתקבלו</string>
     <!-- Description of the "receive tabs" notification channel. Displayed in the "App notifications" system settings for the app -->
-    <string name="fxa_received_tab_channel_description">התרעות עבור לשוניות שהתקבלו ממכשירי Firefox אחרים.</string>
+    <string name="fxa_received_tab_channel_description">התרעות עבור לשוניות שהתקבלו ממכשירי KARMA אחרים.</string>
     <!--  The body for these is the URL of the tab received  -->
     <string name="fxa_tab_received_notification_name">התקבלה לשונית</string>
     <!-- When multiple tabs have been received -->
@@ -558,7 +558,7 @@
 
     <!-- Preference switch for marketing data collection -->
     <string name="preferences_marketing_data">נתוני שיווק</string>
-    <!-- Preference description for marketing data collection, parameter is the app name (e.g. Firefox) -->
+    <!-- Preference description for marketing data collection, parameter is the app name (e.g. KARMA) -->
     <string name="preferences_marketing_data_description">שיתוף מידע על התכונות שהכי משמשות אותך ב־%1$s עם Leanplum, ספק השיווק שלנו למכשירים ניידים.</string>
     <!-- Preference description for marketing data collection -->
     <string name="preferences_marketing_data_description2">משתף נתוני שימוש בסיסיים עם Adjust, ספק השיווק שלנו בסלולר</string>
@@ -581,7 +581,7 @@
     <!-- Header of the Turn on Sync preference view -->
     <string name="preferences_sync">הפעלת Sync</string>
     <!-- Preference for pairing -->
-    <string moz:removedIn="95" name="preferences_sync_pair" tools:ignore="UnusedResources">סריקת קוד צימוד ב־Firefox לשולחן העבודה</string>
+    <string moz:removedIn="95" name="preferences_sync_pair" tools:ignore="UnusedResources">סריקת קוד צימוד ב־KARMA לשולחן העבודה</string>
     <!-- Preference for account login -->
     <string name="preferences_sync_sign_in">כניסה</string>
     <!-- Preference for reconnecting to FxA sync -->
@@ -740,7 +740,7 @@
     <string name="studies_remove">הסרה</string>
     <!-- Title of the active section on the studies list -->
     <string name="studies_active">פעיל</string>
-    <!-- Description for studies, it indicates why Firefox use studies -->
+    <!-- Description for studies, it indicates why KARMA use studies -->
     <string name="studies_description">‏Firefox עשוי להתקין ולהריץ מחקרים מדי פעם בפעם.</string>
 
     <!-- Learn more link for studies, links to an article for more information about studies. -->
@@ -1161,7 +1161,7 @@
     <!-- An option to connect additional devices -->
     <string name="sync_connect_device">חיבור מכשיר נוסף</string>
     <!-- The dialog text shown when additional devices are not available -->
-    <string name="sync_connect_device_dialog">כדי לשלוח לשונית, יש להתחבר ל־Firefox לפחות במכשיר אחד נוסף.</string>
+    <string name="sync_connect_device_dialog">כדי לשלוח לשונית, יש להתחבר ל־KARMA לפחות במכשיר אחד נוסף.</string>
     <!-- Confirmation dialog button -->
     <string name="sync_confirmation_button">הבנתי</string>
     <!-- Share error message -->
@@ -1326,57 +1326,57 @@
     <string name="deleting_browsing_data_in_progress">בתהליך מחיקת נתוני גלישה…</string>
 
     <!-- Tips -->
-    <!-- text for firefox preview moving tip header "Firefox Preview" and "Firefox Nightly" are intentionally hardcoded -->
-    <string name="tip_firefox_preview_moved_header">‏Firefox Preview הוא עכשיו Firefox Nightly</string>
+    <!-- text for firefox preview moving tip header "KARMA Preview" and "KARMA Nightly" are intentionally hardcoded -->
+    <string name="tip_firefox_preview_moved_header">‏Firefox Preview הוא עכשיו KARMA Nightly</string>
     <!-- text for firefox preview moving tip description -->
     <string name="tip_firefox_preview_moved_description">‏Firefox Nightly מתעדכן כל לילה ויש לו תכונות ניסיוניות חדשות.
         עם זאת, יתכן שיהיה פחות יציב. ניתן להוריד את הדפדפן במהדורת beta לחוויה יציבה יותר.</string>
 
-    <!-- text for firefox preview moving tip button. "Firefox for Android Beta" is intentionally hardcoded -->
-    <string name="tip_firefox_preview_moved_button_2">קבלת Firefox עבור Android בטא</string>
+    <!-- text for firefox preview moving tip button. "KARMA for Android Beta" is intentionally hardcoded -->
+    <string name="tip_firefox_preview_moved_button_2">קבלת KARMA עבור Android בטא</string>
 
-    <!-- text for firefox preview moving tip header. "Firefox Nightly" is intentionally hardcoded -->
+    <!-- text for firefox preview moving tip header. "KARMA Nightly" is intentionally hardcoded -->
     <string name="tip_firefox_preview_moved_header_preview_installed">‏Firefox Nightly עבר</string>
     <!-- text for firefox preview moving tip description -->
     <string name="tip_firefox_preview_moved_description_preview_installed">יישומון זה כבר לא יקבל עדכוני אבטחה. יש להפסיק להשתמש ביישומון זה ולעבור ל־Nightly החדש.
-        \n\nכדי להעביר את הסימניות, כניסות והיסטוריה ליישומון אחר, ניתן ליצור חשבון Firefox.</string>
+        \n\nכדי להעביר את הסימניות, כניסות והיסטוריה ליישומון אחר, ניתן ליצור חשבון KARMA.</string>
     <!-- text for firefox preview moving tip button  -->
     <string name="tip_firefox_preview_moved_button_preview_installed">מעבר ל־NIghtly החדש</string>
 
-    <!-- text for firefox preview moving tip header. "Firefox Nightly" is intentionally hardcoded -->
+    <!-- text for firefox preview moving tip header. "KARMA Nightly" is intentionally hardcoded -->
     <string name="tip_firefox_preview_moved_header_preview_not_installed">‏Firefox Nightly עבר</string>
     <!-- text for firefox preview moving tip description -->
     <string name="tip_firefox_preview_moved_description_preview_not_installed">יישומון זה כבר לא יקבל עדכוני אבטחה. יש להשתמש ב־Nightly החדש ולהפסיק להשתמש ביישומון זה.
-        \n\nכדי להעביר את הסימניות, כניסות והיסטוריה ליישומון אחר, ניתן ליצור חשבון Firefox.</string>
+        \n\nכדי להעביר את הסימניות, כניסות והיסטוריה ליישומון אחר, ניתן ליצור חשבון KARMA.</string>
     <!-- text for firefox preview moving tip button  -->
     <string name="tip_firefox_preview_moved_button_preview_not_installed">קבלת ה־Nightly החדש</string>
 
     <!-- Onboarding -->
     <!-- Text for onboarding welcome message
-    The first parameter is the name of the app (e.g. Firefox Preview) -->
+    The first parameter is the name of the app (e.g. KARMA Preview) -->
     <string name="onboarding_header">ברוכים הבאים אל %s!</string>
-    <!-- text for the Firefox Accounts section header -->
+    <!-- text for the KARMA Accounts section header -->
     <string name="onboarding_fxa_section_header">כבר יש לך חשבון?</string>
     <!-- text for the "What's New" onboarding card header -->
     <string moz:removedIn="94" name="onboarding_whats_new_header1" tools:ignore="UnusedResources">מה חדש</string>
     <!-- text for the "what's new" onboarding card description
-    The first parameter is the short name of the app (e.g. Firefox) -->
+    The first parameter is the short name of the app (e.g. KARMA) -->
     <string moz:removedIn="94" name="onboarding_whats_new_description" tools:ignore="UnusedResources">יש לך שאלות על העיצוב החדש של %s? רוצה לדעת מה השתנה?</string>
     <!-- text for underlined clickable link that is part of "what's new" onboarding card description that links to an FAQ -->
     <string moz:removedIn="94" name="onboarding_whats_new_description_linktext" tools:ignore="UnusedResources">התשובות כאן</string>
-    <!-- text for the Firefox account onboarding sign in card header. The word "Firefox" should not be translated -->
-    <string name="onboarding_account_sign_in_header_1">סנכרון Firefox בין מכשירים</string>
-    <!-- Text for the button to learn more about signing in to your Firefox account -->
-    <string name="onboarding_manual_sign_in_description">משיכת הסימניות, ההיסטוריה והססמאות ל־Firefox במכשיר הזה.</string>
+    <!-- text for the KARMA account onboarding sign in card header. The word "KARMA" should not be translated -->
+    <string name="onboarding_account_sign_in_header_1">סנכרון KARMA בין מכשירים</string>
+    <!-- Text for the button to learn more about signing in to your KARMA account -->
+    <string name="onboarding_manual_sign_in_description">משיכת הסימניות, ההיסטוריה והססמאות ל־KARMA במכשיר הזה.</string>
     <!-- text for the firefox account onboarding card header when we detect you're already signed in to
-        another Firefox browser. (The word `Firefox` should not be translated)
+        another KARMA browser. (The word `KARMA` should not be translated)
         The first parameter is the email of the detected user's account -->
-    <string name="onboarding_firefox_account_auto_signin_header_3">דפדפן Firefox נוסף במכשיר זה מחובר כ־%s. האם ברצונך להתחבר עם חשבון זה?</string>
+    <string name="onboarding_firefox_account_auto_signin_header_3">דפדפן KARMA נוסף במכשיר זה מחובר כ־%s. האם ברצונך להתחבר עם חשבון זה?</string>
     <!-- text for the button to confirm automatic sign-in -->
     <string name="onboarding_firefox_account_auto_signin_confirm">כן, תחברו אותי</string>
     <!-- text for the automatic sign-in button while signing in is in process -->
     <string name="onboarding_firefox_account_signing_in">בתהליך התחברות…</string>
-    <!-- text for the button to manually sign into Firefox account. -->
+    <!-- text for the button to manually sign into KARMA account. -->
     <string name="onboarding_firefox_account_sign_in_1">הרשמה</string>
     <!-- text for the button to stay signed out when presented with an option to automatically sign-in. -->
     <string name="onboarding_firefox_account_stay_signed_out">להישאר מנותק</string>
@@ -1386,7 +1386,7 @@
     <string name="onboarding_firefox_account_automatic_signin_failed">ההתחברות נכשלה</string>
     <!-- text for the tracking protection onboarding card header -->
     <string name="onboarding_tracking_protection_header_3">פרטיות תמיד מופעלת</string>
-    <!-- text for the tracking protection card description. 'Firefox' intentionally hardcoded here -->
+    <!-- text for the tracking protection card description. 'KARMA' intentionally hardcoded here -->
     <string name="onboarding_tracking_protection_description_3">‏Firefox מונע באופן אוטומטי מחברות לעקוב אחריך בסתר ברחבי הרשת.</string>
     <!-- text for tracking protection radio button option for standard level of blocking -->
     <string name="onboarding_tracking_protection_standard_button_2">רגיל (ברירת מחדל)</string>
@@ -1415,7 +1415,7 @@
     <string name="onboarding_privacy_notice_header">הפרטיות שלך</string>
 
     <!-- text for the privacy notice onboarding card description
-    The first parameter is the name of the app (e.g. Firefox Preview) Substitute %s for long browser name. -->
+    The first parameter is the name of the app (e.g. KARMA Preview) Substitute %s for long browser name. -->
     <string name="onboarding_privacy_notice_description2">עיצבנו את %s כדי להעניק לך שליטה במה שמעניין אותך לשתף ברשת ומה שמעניין אותך לשתף איתנו.</string>
     <!-- Text for the button to read the privacy notice -->
     <string name="onboarding_privacy_notice_read_button">קריאת הצהרת הפרטיות שלנו</string>
@@ -1451,18 +1451,18 @@
     <!-- Title of QR Pairing Fragment -->
     <string name="sync_scan_code">סריקת הקוד</string>
     <!-- Instructions on how to access pairing -->
-    <string name="sign_in_instructions"><![CDATA[במחשב שלך יש לפתוח את Firefox ולעבור לכתובת <b>https://firefox.com/pair</b>]]></string>
+    <string name="sign_in_instructions"><![CDATA[במחשב שלך יש לפתוח את KARMA ולעבור לכתובת <b>https://firefox.com/pair</b>]]></string>
     <!-- Text shown for sign in pairing when ready -->
     <string name="sign_in_ready_for_scan">מוכן לסריקה</string>
     <!-- Text shown for settings option for sign with pairing -->
     <string name="sign_in_with_camera">התחברות באמצעות המצלמה שלך</string>
     <!-- Text shown for settings option for sign with email -->
     <string name="sign_in_with_email">שימוש בדוא״ל במקום</string>
-    <!-- Text shown for settings option for create new account text.'Firefox' intentionally hardcoded here.-->
-    <string name="sign_in_create_account_text"><![CDATA[אין לך חשבון? <u>באפשרותך ליצור אחד</u> כדי לסנכרן את Firefox בין מכשירים.]]></string>
+    <!-- Text shown for settings option for create new account text.'KARMA' intentionally hardcoded here.-->
+    <string name="sign_in_create_account_text"><![CDATA[אין לך חשבון? <u>באפשרותך ליצור אחד</u> כדי לסנכרן את KARMA בין מכשירים.]]></string>
     <!-- Text shown in confirmation dialog to sign out of account -->
     <string name="sign_out_confirmation_message">‏Firefox יפסיק להסתנכרן עם החשבון שלך, אבל לא ימחק את נתוני הגלישה שלך ממכשיר זה.</string>
-    <!-- Text shown in confirmation dialog to sign out of account. The first parameter is the name of the app (e.g. Firefox Preview) -->
+    <!-- Text shown in confirmation dialog to sign out of account. The first parameter is the name of the app (e.g. KARMA Preview) -->
     <string name="sign_out_confirmation_message_2">‏‏%s יפסיק להסתנכרן עם החשבון שלך, אבל לא ימחק את נתוני הגלישה שלך ממכשיר זה.</string>
     <!-- Option to continue signing out of account shown in confirmation dialog to sign out of account -->
     <string name="sign_out_disconnect">התנתקות</string>
@@ -1638,9 +1638,9 @@
     <!-- Preference for autofilling saved logins in Fenix -->
     <string moz:removedIn="93" name="preferences_passwords_autofill" tools:ignore="UnusedResources">מילוי אוטומטי</string>
 
-    <!-- Preference for autofilling saved logins in Firefox (in web content), %1$s will be replaced with the app name -->
+    <!-- Preference for autofilling saved logins in KARMA (in web content), %1$s will be replaced with the app name -->
     <string name="preferences_passwords_autofill2">מילוי אוטומטי ב־%1$s</string>
-    <!-- Description for the preference for autofilling saved logins in Firefox (in web content), %1$s will be replaced with the app name -->
+    <!-- Description for the preference for autofilling saved logins in KARMA (in web content), %1$s will be replaced with the app name -->
     <string name="preferences_passwords_autofill_description">מילוי ושמירת שמות משתמשים וססמאות באתרים בזמן שימוש ב־%1$s.</string>
     <!-- Preference for autofilling logins from Fenix in other apps (e.g. autofilling the Twitter app) -->
     <string name="preferences_android_autofill">מילוי אוטומטי ביישומונים אחרים</string>
@@ -1960,14 +1960,14 @@
     <!-- Synced Tabs -->
     <!-- Text displayed to ask user to connect another device as no devices found with account -->
     <string name="synced_tabs_connect_another_device">נא לחבר מכשיר נוסף.</string>
-    <!-- Text displayed when user has disabled tab syncing in Firefox Sync Account -->
+    <!-- Text displayed when user has disabled tab syncing in KARMA Sync Account -->
     <string name="synced_tabs_enable_tab_syncing">נא להפעיל סנכרון לשוניות.</string>
     <!-- Text displayed when user has no tabs that have been synced -->
-    <string name="synced_tabs_no_tabs">אין לך לשוניות פתוחות ב־Firefox בשאר המכשירים שלך.</string>
-    <!-- Text displayed in the synced tabs screen when a user is not signed in to Firefox Sync describing Synced Tabs -->
+    <string name="synced_tabs_no_tabs">אין לך לשוניות פתוחות ב־KARMA בשאר המכשירים שלך.</string>
+    <!-- Text displayed in the synced tabs screen when a user is not signed in to KARMA Sync describing Synced Tabs -->
     <string name="synced_tabs_sign_in_message">הצגת רשימת הלשוניות מהמכשירים האחרים שלך.</string>
 
-    <!-- Text displayed on a button in the synced tabs screen to link users to sign in when a user is not signed in to Firefox Sync -->
+    <!-- Text displayed on a button in the synced tabs screen to link users to sign in when a user is not signed in to KARMA Sync -->
     <string name="synced_tabs_sign_in_button">יש להתחבר כדי לסנכרן</string>
 
     <!-- The text displayed when a synced device has no tabs to show in the list of Synced Tabs. -->
@@ -2025,7 +2025,7 @@
     <!-- Header text for the inactive tabs survey asking for feedback to improve the inactive tabs feature. -->
     <string moz:removedIn="95" name="inactive_tabs_survey_header" tools:ignore="UnusedResources">אנא עזרו לנו להשתפר</string>
     <!-- Header text for the inactive tabs survey asking for feedback to improve the inactive tabs feature. -->
-    <string name="inactive_tabs_survey_header_1">סיוע בשיפור Firefox</string>
+    <string name="inactive_tabs_survey_header_1">סיוע בשיפור KARMA</string>
 
     <!-- Content text for the inactive tabs survey asking the primary survey feedback question. -->
     <string name="inactive_tabs_survey_content">מדוע השבתת את הלשוניות הלא פעילות?</string>
@@ -2047,7 +2047,7 @@
     <string name="inactive_tabs_survey_close_button_content_description">סגירה</string>
 
     <!-- Default browser experiment -->
-    <string name="default_browser_experiment_card_text">הגדרת קישורים מאתרים, מהודעות דוא״ל ומהודעות לפתיחה אוטומטית ב־Firefox.</string>
+    <string name="default_browser_experiment_card_text">הגדרת קישורים מאתרים, מהודעות דוא״ל ומהודעות לפתיחה אוטומטית ב־KARMA.</string>
 
     <!-- Content description for close button in collection placeholder. -->
     <string name="remove_home_collection_placeholder_content_description">הסרה</string>
@@ -2073,7 +2073,7 @@
     <!-- Title of an app feature. Smaller than a heading.-->
     <string name="pocket_stories_feature_title">מופעל באמצעות Pocket</string>
     <!-- Caption for describing a certain feature. The placeholder is for a clickable text (eg: Learn more) which will load an url in a new tab when clicked.  -->
-    <string name="pocket_stories_feature_caption">חלק ממשפחת Firefox. %s</string>
+    <string name="pocket_stories_feature_caption">חלק ממשפחת KARMA. %s</string>
     <!-- Clickable text for opening an external link for more information about Pocket. -->
     <string name="pocket_stories_feature_learn_more">מידע נוסף</string>
 </resources>
