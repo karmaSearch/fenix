@@ -59,10 +59,10 @@ class NimbusFeatures(private val context: Context) {
                 /**
                  * CreateS a map with the corresponding default values for each sections.
                  */
-                fun toMap(context: Context): Map<HomeScreenSection, Boolean> {
+                fun toMap(): Map<HomeScreenSection, Boolean> {
                     return values().associate { section ->
                         val value = if (section == pocket) {
-                            FeatureFlags.isPocketRecommendationsFeatureEnabled(context)
+                            FeatureFlags.isPocketRecommendationsFeatureEnabled()
                         } else {
                             section.default
                         }
@@ -77,7 +77,7 @@ class NimbusFeatures(private val context: Context) {
             val variables = experiments.getVariables(FeatureId.HOME_PAGE, false)
             val sections: Map<HomeScreenSection, Boolean> =
                 variables.getBoolMap("sections-enabled")?.mapKeysAsEnums()
-                    ?: HomeScreenSection.toMap(context)
+                    ?: HomeScreenSection.toMap()
             sections
         }
 

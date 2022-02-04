@@ -4,10 +4,6 @@
 
 package org.mozilla.fenix
 
-import android.content.Context
-import mozilla.components.support.locale.LocaleManager
-import mozilla.components.support.locale.LocaleManager.getSystemDefault
-
 /**
  * A single source for setting feature flags that are mostly based on build type.
  */
@@ -81,11 +77,7 @@ object FeatureFlags {
     /**
      * Show Pocket recommended stories on home.
      */
-    fun isPocketRecommendationsFeatureEnabled(context: Context): Boolean {
-        val langTag = LocaleManager.getCurrentLocale(context)
-            ?.toLanguageTag() ?: getSystemDefault().toLanguageTag()
-        return listOf("en-US", "en-CA").contains(langTag)
-    }
+    fun isPocketRecommendationsFeatureEnabled(): Boolean = false
 
     /**
      * Enables showing the homescreen onboarding card.
