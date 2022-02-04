@@ -73,6 +73,7 @@ import org.mozilla.fenix.search.toolbar.ToolbarView
 import org.mozilla.fenix.settings.SupportUtils
 import org.mozilla.fenix.widget.VoiceSearchActivity
 import androidx.navigation.fragment.NavHostFragment
+import org.mozilla.fenix.theme.ThemeManager
 
 typealias SearchDialogFragmentStore = SearchFragmentStore
 
@@ -369,8 +370,8 @@ class SearchDialogFragment : AppCompatDialogFragment(), UserInteractionHandler {
             updateToolbarContentDescription(it.searchEngineSource)
             toolbarView.update(it)
             awesomeBarView.update(it)
-            addVoiceSearchButton(it)
         }
+        addVoiceSearchButton()
 
         val activity = requireActivity() as HomeActivity
         restartHome(activity, false)
@@ -629,12 +630,10 @@ class SearchDialogFragment : AppCompatDialogFragment(), UserInteractionHandler {
         }
     }
 
-    private fun addVoiceSearchButton(searchFragmentState: SearchFragmentState) {
+    private fun addVoiceSearchButton() {
         if (voiceSearchButtonAlreadyAdded) return
-        val searchEngine = searchFragmentState.searchEngineSource.searchEngine
 
         val isVisible =
-            searchEngine?.id?.contains("google") == true &&
                 isSpeechAvailable() &&
                 requireContext().settings().shouldShowVoiceSearch
 
@@ -643,6 +642,7 @@ class SearchDialogFragment : AppCompatDialogFragment(), UserInteractionHandler {
                 BrowserToolbar.Button(
                     AppCompatResources.getDrawable(requireContext(), R.drawable.ic_microphone)!!,
                     requireContext().getString(R.string.voice_search_content_description),
+                    iconTintColorResource = ThemeManager.resolveAttribute(R.attr.insetTextColor, requireContext()),
                     visible = { true },
                     listener = ::launchVoiceSearch
                 )
