@@ -17,6 +17,7 @@ import mozilla.components.browser.icons.BrowserIcons
 import mozilla.components.browser.session.storage.SessionStorage
 import mozilla.components.browser.state.engine.EngineMiddleware
 import mozilla.components.browser.state.state.BrowserState
+import mozilla.components.browser.state.state.selectedOrDefaultSearchEngine
 import mozilla.components.browser.state.store.BrowserStore
 import mozilla.components.browser.storage.sync.PlacesBookmarksStorage
 import mozilla.components.browser.storage.sync.PlacesHistoryStorage
@@ -39,6 +40,7 @@ import mozilla.components.feature.pwa.ManifestStorage
 import mozilla.components.feature.pwa.WebAppShortcutManager
 import mozilla.components.feature.readerview.ReaderViewMiddleware
 import mozilla.components.feature.recentlyclosed.RecentlyClosedMiddleware
+import mozilla.components.feature.search.ext.buildSearchUrl
 import mozilla.components.feature.search.middleware.AdsTelemetryMiddleware
 import mozilla.components.feature.search.middleware.SearchMiddleware
 import mozilla.components.feature.search.region.RegionMiddleware
@@ -400,10 +402,12 @@ class Core(
             }
         }
 
+        val searchEngineStartURL = store.state.search.selectedOrDefaultSearchEngine?.let { it.buildSearchUrl("").split("&")[0] }
         DefaultTopSitesStorage(
             pinnedSiteStorage,
             historyStorage,
-            defaultTopSites
+            defaultTopSites,
+            searchEngineStartURL
         )
     }
 

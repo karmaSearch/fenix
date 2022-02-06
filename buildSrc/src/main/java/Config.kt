@@ -55,7 +55,7 @@ object Config {
         val cutoff = format.parse("2014122800000")
         val build = Date()
 
-        Math.floor((build.time - cutoff.time) / (1000.0 * 60.0 * 60.0)).toInt() + 9
+        Math.floor((build.time - cutoff.time) / (1000.0 * 60.0 * 60.0)).toInt()
     }
 
     /**
