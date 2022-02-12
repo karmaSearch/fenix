@@ -118,6 +118,8 @@ fun LearnAndActBlocs(
                 .clickable { onStoryClicked(item, Pair(0, 0)) }
                 .padding(start = 10.dp, end = 10.dp)) {
 
+            val defaultImageName = if(item.type.lowercase() == "learn" || item.type.lowercase() == "comprendre") R.drawable.ic_learn_placeholder else R.drawable.ic_act_placeholder
+
             Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
                 ImageLoader(
                     url = item.imageUrl,
@@ -136,7 +138,7 @@ fun LearnAndActBlocs(
 
                     Placeholder {
                         androidx.compose.foundation.Image(
-                            painter = painterResource(id = R.drawable.ic_act_placeholder),
+                            painter = painterResource(id = defaultImageName),
                             contentDescription = null,
                             modifier = Modifier
                                 .height(193.dp)
@@ -147,7 +149,7 @@ fun LearnAndActBlocs(
 
                     Fallback {
                         androidx.compose.foundation.Image(
-                            painter = painterResource(id = R.drawable.ic_act_placeholder),
+                            painter = painterResource(id = defaultImageName),
                             contentDescription = null,
                             modifier = Modifier
                                 .height(193.dp)
