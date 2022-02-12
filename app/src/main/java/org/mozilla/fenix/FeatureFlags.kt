@@ -57,7 +57,7 @@ object FeatureFlags {
     /**
      * Enables showing the home screen behind the search dialog
      */
-    const val showHomeBehindSearch = true
+    const val showHomeBehindSearch = false
 
     /**
      * Enables customizing the home screen

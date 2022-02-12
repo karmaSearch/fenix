@@ -52,6 +52,6 @@ internal class DefaultLearnAndActController(
     }
 
     override fun handleLearnAndActClicked(learnAndAct: LearnAndAct, position: Pair<Int, Int>) {
-        homeActivity.openToBrowserAndLoad(learnAndAct.actionUrl, false, BrowserDirection.FromHome)
+        homeActivity.openToBrowserAndLoad(learnAndAct.actionUrl, true, BrowserDirection.FromHome)
     }
 }
