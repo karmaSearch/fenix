@@ -4,7 +4,6 @@
 
 package org.mozilla.fenix.share
 
-import mozilla.components.concept.sync.Device
 import org.mozilla.fenix.share.listadapters.AppShareOption
 
 /**
@@ -12,29 +11,10 @@ import org.mozilla.fenix.share.listadapters.AppShareOption
  */
 class ShareInteractor(
     private val controller: ShareController
-) : ShareCloseInteractor, ShareToAccountDevicesInteractor, ShareToAppsInteractor {
-    override fun onReauth() {
-        controller.handleReauth()
-    }
+) : ShareCloseInteractor, ShareToAppsInteractor {
 
     override fun onShareClosed() {
         controller.handleShareClosed()
-    }
-
-    override fun onSignIn() {
-        controller.handleSignIn()
-    }
-
-    override fun onAddNewDevice() {
-        controller.handleAddNewDevice()
-    }
-
-    override fun onShareToDevice(device: Device) {
-        controller.handleShareToDevice(device)
-    }
-
-    override fun onShareToAllDevices(devices: List<Device>) {
-        controller.handleShareToAllDevices(devices)
     }
 
     override fun onShareToApp(appToShareTo: AppShareOption) {

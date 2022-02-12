@@ -133,35 +133,6 @@ class ShareViewModelTest {
         assertEquals(apps, viewModel.buildAppsList(info, application))
     }
 
-    @Test
-    fun `buildDevicesList returns offline option`() {
-        every { connectivityManager.isOnline() } returns false
-        assertEquals(listOf(SyncShareOption.Offline), viewModel.buildDeviceList(fxaAccountManager))
-
-        every { connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork) } returns null
-        assertEquals(listOf(SyncShareOption.Offline), viewModel.buildDeviceList(fxaAccountManager))
-    }
-
-    @Test
-    fun `buildDevicesList returns sign-in option`() {
-        every { connectivityManager.isOnline() } returns true
-        every { fxaAccountManager.authenticatedAccount() } returns null
-
-        assertEquals(listOf(SyncShareOption.SignIn), viewModel.buildDeviceList(fxaAccountManager))
-    }
-
-    @Test
-    fun `buildDevicesList returns reconnect option`() {
-        every { connectivityManager.isOnline() } returns true
-        every { fxaAccountManager.authenticatedAccount() } returns mockk()
-        every { fxaAccountManager.accountNeedsReauth() } returns true
-
-        assertEquals(
-            listOf(SyncShareOption.Reconnect),
-            viewModel.buildDeviceList(fxaAccountManager)
-        )
-    }
-
     private fun createResolveInfo(
         label: String,
         icon: Drawable,

@@ -126,11 +126,6 @@
             app:iconSpaceReserved="false"
             app:isPreferenceVisible="@bool/IS_DEBUG" />
 
-        <androidx.preference.SwitchPreference
-            android:key="@string/pref_key_remote_debugging"
-            android:title="@string/preferences_remote_debugging"
-            app:iconSpaceReserved="false"
-            android:defaultValue="false" />
     </PreferenceCategory>
 
     <androidx.preference.PreferenceCategory

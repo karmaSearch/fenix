@@ -26,7 +26,6 @@ import mozilla.components.service.fxa.manager.FxaAccountManager
 import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.ext.isOnline
 import org.mozilla.fenix.share.listadapters.AppShareOption
-import org.mozilla.fenix.share.listadapters.SyncShareOption
 
 class ShareViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -34,38 +33,14 @@ class ShareViewModel(application: Application) : AndroidViewModel(application) {
         internal const val RECENT_APPS_LIMIT = 6
     }
 
-    private val connectivityManager by lazy { application.getSystemService<ConnectivityManager>() }
-    private val fxaAccountManager = application.components.backgroundServices.accountManager
     @VisibleForTesting
     internal var recentAppsStorage = RecentAppsStorage(application.applicationContext)
     @VisibleForTesting
     internal var ioDispatcher = Dispatchers.IO
 
-    private val devicesListLiveData = MutableLiveData<List<SyncShareOption>>(emptyList())
     private val appsListLiveData = MutableLiveData<List<AppShareOption>>(emptyList())
     private val recentAppsListLiveData = MutableLiveData<List<AppShareOption>>(emptyList())
 
-    @VisibleForTesting
-    internal val networkCallback = object : ConnectivityManager.NetworkCallback() {
-        override fun onLost(network: Network) = reloadDevices(network)
-        override fun onAvailable(network: Network) = reloadDevices(network)
-
-        private fun reloadDevices(network: Network?) {
-            viewModelScope.launch(ioDispatcher) {
-                fxaAccountManager.authenticatedAccount()
-                    ?.deviceConstellation()
-                    ?.refreshDevices()
-
-                val devicesShareOptions = buildDeviceList(fxaAccountManager, network)
-                devicesListLiveData.postValue(devicesShareOptions)
-            }
-        }
-    }
-
-    /**
-     * List of devices and sync-related share options.
-     */
-    val devicesList: LiveData<List<SyncShareOption>> get() = devicesListLiveData
     /**
      * List of applications that can be shared to.
      */
@@ -80,8 +55,6 @@ class ShareViewModel(application: Application) : AndroidViewModel(application) {
      * Should be called when the fragment is attached so the data can be fetched early.
      */
     fun loadDevicesAndApps() {
-        val networkRequest = NetworkRequest.Builder().build()
-        connectivityManager?.registerNetworkCallback(networkRequest, networkCallback)
 
         // Start preparing the data as soon as we have a valid Context
         viewModelScope.launch(ioDispatcher) {
@@ -97,11 +70,6 @@ class ShareViewModel(application: Application) : AndroidViewModel(application) {
 
             recentAppsListLiveData.postValue(recentApps)
             appsListLiveData.postValue(apps)
-        }
-
-        viewModelScope.launch(ioDispatcher) {
-            val devices = buildDeviceList(fxaAccountManager)
-            devicesListLiveData.postValue(devices)
         }
     }
 
@@ -126,20 +94,13 @@ class ShareViewModel(application: Application) : AndroidViewModel(application) {
         return result
     }
 
-    /**
-     * Unregisters the network callback and cleans up.
-     */
-    override fun onCleared() {
-        connectivityManager?.unregisterNetworkCallback(networkCallback)
-    }
-
     @VisibleForTesting
     @WorkerThread
     fun getIntentActivities(shareIntent: Intent, context: Context): List<ResolveInfo>? {
         return context.packageManager.queryIntentActivities(shareIntent, 0)
     }
 
-    /**
+    /**0
      * Returns a list of apps that can be shared to.
      * @param intentActivities List of activities from [getIntentActivities].
      */
@@ -162,45 +123,4 @@ class ShareViewModel(application: Application) : AndroidViewModel(application) {
             }
     }
 
-    /**
-     * Builds list of options to display in the top row of the share sheet.
-     * This will primarily include devices that tabs can be sent to, but also options
-     * for reconnecting the account or sending to all devices.
-     */
-    @VisibleForTesting
-    @WorkerThread
-    internal fun buildDeviceList(accountManager: FxaAccountManager, network: Network? = null): List<SyncShareOption> {
-        val account = accountManager.authenticatedAccount()
-
-        return when {
-            // No network
-            connectivityManager?.isOnline(network) != true -> listOf(SyncShareOption.Offline)
-            // No account signed in
-            account == null -> listOf(SyncShareOption.SignIn)
-            // Account needs to be re-authenticated
-            accountManager.accountNeedsReauth() -> listOf(SyncShareOption.Reconnect)
-            // Signed in
-            else -> {
-                val shareableDevices = account.deviceConstellation().state()
-                    ?.otherDevices
-                    .orEmpty()
-                    .filter { it.capabilities.contains(DeviceCapability.SEND_TAB) }
-                    .sortedByDescending { it.lastAccessTime }
-
-                val list = mutableListOf<SyncShareOption>()
-                if (shareableDevices.isEmpty()) {
-                    // Show add device button if there are no devices
-                    list.add(SyncShareOption.AddNewDevice)
-                }
-
-                shareableDevices.mapTo(list) { SyncShareOption.SingleDevice(it) }
-
-                if (shareableDevices.size > 1) {
-                    // Show send all button if there are multiple devices
-                    list.add(SyncShareOption.SendAll(shareableDevices))
-                }
-                list
-            }
-        }
-    }
 }
