@@ -40,15 +40,6 @@ object SupportUtils {
     const val TC_URL = "https://jumpluna.58.com/i/29HU"
     const val GOOGLE_US_URL = "https://www.google.com/webhp?client=firefox-b-1-m&channel=ts"
     const val GOOGLE_XX_URL = "https://www.google.com/webhp?client=firefox-b-m&channel=ts"
-    const val ASPAS_NATURE = "https://www.aspas-nature.org/"
-    const val NOTREAFFAIRE = "https://notreaffaireatous.org/"
-    const val FRESQUEDELABIODIVERSITE = "https://www.fresquedelabiodiversite.org/"
-    const val L214 = "https://www.l214.com/"
-    const val REWILD =  "https://www.rewild.org/"
-    const val CIWFUK = "https://www.ciwf.org.uk/"
-    const val CIWF = "https://www.ciwf.com"
-    const val PETA = "https://www.peta.org.uk/"
-    const val WCS = "https://www.wcs.org/"
 
     enum class SumoTopic(internal val topicStr: String) {
         FENIX_MOVING("sync-delist"),

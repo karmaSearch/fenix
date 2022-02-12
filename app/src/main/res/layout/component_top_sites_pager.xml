@@ -9,6 +9,12 @@
     android:layout_marginHorizontal="@dimen/home_item_horizontal_margin"
     android:orientation="vertical">
 
+    <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/home_screen_top_sites_heading"
+        style="@style/HeaderTextStyle" />
+
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/top_sites_pager"
         android:layout_width="match_parent"

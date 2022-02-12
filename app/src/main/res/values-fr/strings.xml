@@ -134,7 +134,7 @@
     <string name="home_screen_shortcut_open_new_private_tab_2">Nouvel onglet nav. privée</string>
 
     <!-- Heading for the Top Sites block -->
-    <string moz:removedIn="95" name="home_screen_top_sites_heading" tools:ignore="UnusedResources">Sites principaux</string>
+    <string name="home_screen_top_sites_heading">Raccourcis</string>
 
     <!-- Recent Tabs -->
     <!-- Header text for jumping back into the recent tab in the home screen -->
@@ -1256,7 +1256,7 @@
     <!-- Text shown in snackbar action for viewing bookmarks -->
     <string name="snackbar_message_bookmarks_view">Afficher</string>
     <!-- Text shown in snackbar when user adds a site to top sites -->
-    <string name="snackbar_added_to_top_sites">Ajouté aux sites principaux !</string>
+    <string name="snackbar_added_to_top_sites">Ajouté aux raccourcis !</string>
     <!-- Text shown in snackbar when user closes a private tab -->
     <string name="snackbar_private_tab_closed">Onglet privé fermé</string>
     <!-- Text shown in snackbar when user closes all private tabs -->
@@ -1950,7 +1950,7 @@ Cependant, il peut être moins stable. Téléchargez la version bêta de notre n
     <!-- Bookmark deletion confirmation -->
     <string name="bookmark_deletion_confirmation">Voulez-vous vraiment supprimer ce marque-page ?</string>
     <!-- Browser menu button that adds a top site to the home fragment -->
-    <string name="browser_menu_add_to_top_sites">Ajouter aux sites principaux</string>
+    <string name="browser_menu_add_to_top_sites">Ajouter aux raccourcis</string>
     <!-- text shown before the issuer name to indicate who its verified by, parameter is the name of
      the certificate authority that verified the ticket-->
     <string name="certificate_info_verified_by">Vérifié par : %1$s</string>

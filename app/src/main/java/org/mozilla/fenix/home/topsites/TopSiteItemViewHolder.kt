@@ -72,32 +72,8 @@ class TopSiteItemViewHolder(
             binding.topSiteTitle.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null)
         }
 
-        when (topSite.url) {
-            SupportUtils.NOTREAFFAIRE -> {
-                binding.faviconImage.setImageDrawable(getDrawable(itemView.context, R.drawable.notreaffaireatous))
-            }
-            SupportUtils.ASPAS_NATURE -> {
-                binding.faviconImage.setImageDrawable(getDrawable(itemView.context, R.drawable.aspas))
-            }
-            SupportUtils.FRESQUEDELABIODIVERSITE -> {
-                binding.faviconImage.setImageDrawable(getDrawable(itemView.context, R.drawable.fresquedelabiodiversite))
-            }
-            SupportUtils.REWILD -> {
-                binding.faviconImage.setImageDrawable(getDrawable(itemView.context, R.drawable.rewild))
-            }
-            SupportUtils.L214 -> {
-                binding.faviconImage.setImageDrawable(getDrawable(itemView.context, R.drawable.l214))
-            }
-            SupportUtils.CIWF, SupportUtils.CIWFUK -> {
-                binding.faviconImage.setImageDrawable(getDrawable(itemView.context, R.drawable.ciwf))
-            }
-            SupportUtils.WCS -> {
-                binding.faviconImage.setImageDrawable(getDrawable(itemView.context, R.drawable.wcs))
-            }
-            else -> {
-                itemView.context.components.core.icons.loadIntoView(binding.faviconImage, topSite.url)
-            }
-        }
+
+        itemView.context.components.core.icons.loadIntoView(binding.faviconImage, topSite.url)
 
         this.topSite = topSite
     }
