@@ -7,4 +7,5 @@
     <bool name="API28">false</bool>
     <bool name="underAPI28">true</bool>
     <bool name="tablet">false</bool>
+    <bool name="learn_and_act_large_view">false</bool>
 </resources>

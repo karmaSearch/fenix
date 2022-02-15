@@ -4,4 +4,5 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 <resources>
     <bool name="tablet">true</bool>
+    <bool name="learn_and_act_large_view">true</bool>
 </resources>
