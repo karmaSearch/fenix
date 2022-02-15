@@ -30,7 +30,7 @@ class KarmaSettingsFragment : PreferenceFragmentCompat() {
         val recyclerView = requireView().findViewById<RecyclerView>(R.id.recycler_view)
         recyclerView.isVerticalScrollBarEnabled = false
         val isFr = LocaleManager.getSelectedLocale((activity as HomeActivity)).language =="fr"
-        val baseURL = "https://about.mykarma.org/" + (if(isFr) "fr/" else "")
+        val baseURL = "https://about.karmasearch.org/" + (if(isFr) "fr/" else "")
 
         when (preference.key) {
             resources.getString(R.string.pref_key_mission) -> openLinkInNormalTab(baseURL)

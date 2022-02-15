@@ -238,7 +238,7 @@ private fun LearnAndActBlocPreview() {
                     "Learn more",
                     "",
                     "",
-                    "https://mykarma.org/images/home/LearnAct2_FR.webp"
+                    "https://karmasearch.org/images/home/LearnAct2_FR.webp"
                 )
             )
             add(

@@ -23,8 +23,8 @@ object SupportUtils {
     const val RATE_APP_URL = "market://details?id=" + BuildConfig.APPLICATION_ID
     const val POCKET_TRENDING_URL = "https://getpocket.com/fenix-top-articles"
     const val WIKIPEDIA_URL = "https://www.wikipedia.org/"
-    const val KARMA_FEEDBACK_FORMS_FR = "https://form.typeform.com/to/kzYiRqBd"
-    const val KARMA_FEEDBACK_FORMS = "https://form.typeform.com/to/UnVXQT9V"
+    const val KARMA_FEEDBACK_FORMS_FR = "https://tally.so/r/wao0Wm"
+    const val KARMA_FEEDBACK_FORMS = "https://tally.so/r/m65Ron"
 
     const val FENIX_PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=${BuildConfig.APPLICATION_ID}"
     const val FIREFOX_BETA_PLAY_STORE_URL = "market://details?id=org.mozilla.firefox_beta"
