@@ -30,7 +30,7 @@ interface LearnAndActController {
      * @param storyClicked The just clicked [LearnAndAct] URL.
      * @param position `row x column` matrix representing the grid position of the clicked story.
      */
-    fun handleLearnAndActClicked(learnAndAct: LearnAndAct, position: Pair<Int, Int>)
+    fun handleLearnAndActClicked(learnAndAct: LearnAndAct)
 
 }
 
@@ -51,7 +51,15 @@ internal class DefaultLearnAndActController(
         homeStore.dispatch(HomeFragmentAction.LearnAndActShown(learnAndAct))
     }
 
-    override fun handleLearnAndActClicked(learnAndAct: LearnAndAct, position: Pair<Int, Int>) {
+    override fun handleLearnAndActClicked(learnAndAct: LearnAndAct) {
+        dismissSearchDialogIfDisplayed()
         homeActivity.openToBrowserAndLoad(learnAndAct.actionUrl, true, BrowserDirection.FromHome)
+    }
+
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    internal fun dismissSearchDialogIfDisplayed() {
+        if (navController.currentDestination?.id == R.id.searchDialogFragment) {
+            navController.navigateUp()
+        }
     }
 }

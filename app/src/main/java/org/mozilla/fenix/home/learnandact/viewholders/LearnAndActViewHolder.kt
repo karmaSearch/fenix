@@ -72,7 +72,7 @@ class LearnAndActViewHolder(
 fun LearnAndAct(
     store: HomeFragmentStore,
     onBlockShown: (List<LearnAndAct>) -> Unit,
-    onBlockClicked: (LearnAndAct, Pair<Int, Int>) -> Unit,
+    onBlockClicked: (LearnAndAct) -> Unit,
     @Dimension horizontalPadding: Float = 0f
 ) {
     val learnAndActBlocs = store
@@ -107,7 +107,7 @@ fun LearnAndAct(
 @Composable
 fun LearnAndActBlocs(
     learnAndActBlocs: List<LearnAndAct>,
-    onStoryClicked: (LearnAndAct, Pair<Int, Int>) -> Unit
+    onStoryClicked: (LearnAndAct) -> Unit
 ) {
 
     learnAndActBlocs.forEach { item ->
@@ -115,7 +115,7 @@ fun LearnAndActBlocs(
             elevation = 12.dp,
             backgroundColor = FirefoxTheme.colors.surface,
             modifier = Modifier
-                .clickable { onStoryClicked(item, Pair(0, 0)) }
+                .clickable { onStoryClicked(item) }
                 .padding(start = 10.dp, end = 10.dp)) {
 
             val defaultImageName = if(item.type.lowercase() == "learn" || item.type.lowercase() == "comprendre") R.drawable.ic_learn_placeholder else R.drawable.ic_act_placeholder
@@ -132,7 +132,7 @@ fun LearnAndActBlocs(
                                 .height(193.dp)
                                 .fillMaxWidth(),
                             contentDescription = null,
-                            contentScale = ContentScale.FillHeight
+                            contentScale = ContentScale.Crop
                         )
                     }
 
@@ -253,7 +253,7 @@ private fun LearnAndActBlocPreview() {
                 )
             )
 
-        }, onStoryClicked = { _, _ ->
+        }, onStoryClicked = { _ ->
 
         })
     }

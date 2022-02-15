@@ -435,8 +435,8 @@ class SessionControlInteractor(
         learnAndActController.handleLearnAndActShown(storiesShown)
     }
 
-    override fun onBlockClicked(bloc: LearnAndAct, position: Pair<Int, Int>) {
-        learnAndActController.handleLearnAndActClicked(learnAndAct = bloc, position = position)
+    override fun onBlockClicked(bloc: LearnAndAct) {
+        learnAndActController.handleLearnAndActClicked(learnAndAct = bloc)
     }
 
 }
