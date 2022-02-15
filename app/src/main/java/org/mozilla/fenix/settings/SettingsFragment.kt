@@ -187,9 +187,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 requireContext().metrics.track(Event.AddonsOpenInSettings)
                 SettingsFragmentDirections.actionSettingsFragmentToAddonsFragment()
             }
-            resources.getString(R.string.pref_key_data_choices) -> {
-                SettingsFragmentDirections.actionSettingsFragmentToDataChoicesFragment()
-            }
             resources.getString(R.string.pref_key_help) -> {
                 (activity as HomeActivity).openToBrowserAndLoad(
                     searchTermOrURL = SupportUtils.getSumoURLForTopic(
