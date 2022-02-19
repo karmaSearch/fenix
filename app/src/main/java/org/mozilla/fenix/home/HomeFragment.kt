@@ -59,6 +59,8 @@ import mozilla.components.concept.storage.FrecencyThresholdOption
 import mozilla.components.concept.sync.AccountObserver
 import mozilla.components.concept.sync.AuthType
 import mozilla.components.concept.sync.OAuthAccount
+import mozilla.components.feature.search.ext.buildSearchUrl
+import mozilla.components.feature.search.ext.waitForSelectedOrDefaultSearchEngine
 import mozilla.components.feature.tab.collections.TabCollection
 import mozilla.components.feature.top.sites.TopSitesConfig
 import mozilla.components.feature.top.sites.TopSitesFeature
@@ -274,15 +276,18 @@ class HomeFragment : Fragment() {
 
         }
 
-        topSitesFeature.set(
-            feature = TopSitesFeature(
-                view = DefaultTopSitesView(homeFragmentStore),
-                storage = components.core.topSitesStorage,
-                config = ::getTopSitesConfig
-            ),
-            owner = viewLifecycleOwner,
-            view = binding.root
-        )
+        components.core.store.waitForSelectedOrDefaultSearchEngine {
+            topSitesFeature.set(
+                feature = TopSitesFeature(
+                    view = DefaultTopSitesView(homeFragmentStore),
+                    storage = components.core.topSitesStorage,
+                    config = ::getTopSitesConfig,
+                    searchEngineStartURL = it?.let { it.buildSearchUrl("").split("&")[0] }
+                ),
+                owner = viewLifecycleOwner,
+                view = binding.root
+            )
+        }
 
         if (requireContext().settings().showRecentTabsFeature) {
             recentTabsListFeature.set(

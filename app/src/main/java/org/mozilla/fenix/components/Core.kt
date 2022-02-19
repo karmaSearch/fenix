@@ -7,7 +7,6 @@ package org.mozilla.fenix.components
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Build
-import android.os.StrictMode
 import androidx.core.content.ContextCompat
 import karma.service.learnandact.LearnAndActService
 import mozilla.components.browser.engine.gecko.GeckoEngine
@@ -17,7 +16,6 @@ import mozilla.components.browser.icons.BrowserIcons
 import mozilla.components.browser.session.storage.SessionStorage
 import mozilla.components.browser.state.engine.EngineMiddleware
 import mozilla.components.browser.state.state.BrowserState
-import mozilla.components.browser.state.state.selectedOrDefaultSearchEngine
 import mozilla.components.browser.state.store.BrowserStore
 import mozilla.components.browser.storage.sync.PlacesBookmarksStorage
 import mozilla.components.browser.storage.sync.PlacesHistoryStorage
@@ -40,7 +38,6 @@ import mozilla.components.feature.pwa.ManifestStorage
 import mozilla.components.feature.pwa.WebAppShortcutManager
 import mozilla.components.feature.readerview.ReaderViewMiddleware
 import mozilla.components.feature.recentlyclosed.RecentlyClosedMiddleware
-import mozilla.components.feature.search.ext.buildSearchUrl
 import mozilla.components.feature.search.middleware.AdsTelemetryMiddleware
 import mozilla.components.feature.search.middleware.SearchMiddleware
 import mozilla.components.feature.search.region.RegionMiddleware
@@ -66,12 +63,7 @@ import mozilla.components.service.pocket.PocketStoriesConfig
 import mozilla.components.service.pocket.PocketStoriesService
 import mozilla.components.service.sync.autofill.AutofillCreditCardsAddressesStorage
 import mozilla.components.service.sync.logins.SyncableLoginsStorage
-import mozilla.components.support.locale.LocaleManager
-import org.mozilla.fenix.AppRequestInterceptor
-import org.mozilla.fenix.BuildConfig
-import org.mozilla.fenix.Config
-import org.mozilla.fenix.HomeActivity
-import org.mozilla.fenix.R
+import org.mozilla.fenix.*
 import org.mozilla.fenix.components.search.SearchMigration
 import org.mozilla.fenix.downloads.DownloadService
 import org.mozilla.fenix.ext.components
@@ -83,8 +75,6 @@ import org.mozilla.fenix.historymetadata.HistoryMetadataService
 import org.mozilla.fenix.media.MediaSessionService
 import org.mozilla.fenix.perf.StrictModeManager
 import org.mozilla.fenix.perf.lazyMonitored
-import org.mozilla.fenix.settings.SupportUtils
-import org.mozilla.fenix.settings.advanced.getSelectedLocale
 import org.mozilla.fenix.telemetry.TelemetryMiddleware
 import org.mozilla.fenix.utils.Mockable
 import org.mozilla.fenix.utils.getUndoDelay
@@ -333,12 +323,10 @@ class Core(
     val topSitesStorage by lazyMonitored {
         val defaultTopSites = mutableListOf<Pair<String, String>>()
 
-        val searchEngineStartURL = store.state.search.selectedOrDefaultSearchEngine?.let { it.buildSearchUrl("").split("&")[0] }
         DefaultTopSitesStorage(
             pinnedSiteStorage,
             historyStorage,
-            defaultTopSites,
-            searchEngineStartURL
+            defaultTopSites
         )
     }
 

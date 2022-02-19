@@ -16,22 +16,23 @@ import androidx.core.content.getSystemService
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.work.Configuration.Builder
 import androidx.work.Configuration.Provider
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import mozilla.appservices.Megazord
 import mozilla.components.browser.state.action.SystemAction
 import mozilla.components.browser.state.selector.selectedTab
+import mozilla.components.browser.state.store.BrowserStore
 import mozilla.components.concept.base.crash.Breadcrumb
 import mozilla.components.concept.engine.webextension.WebExtension
 import mozilla.components.concept.engine.webextension.isUnsupported
 import mozilla.components.concept.push.PushProcessor
+import mozilla.components.concept.storage.FrecencyThresholdOption
 import mozilla.components.feature.addons.migration.DefaultSupportedAddonsChecker
 import mozilla.components.feature.addons.update.GlobalAddonDependencyProvider
+import mozilla.components.feature.autofill.AutofillUseCases
+import mozilla.components.feature.search.ext.buildSearchUrl
+import mozilla.components.feature.search.ext.waitForSelectedOrDefaultSearchEngine
 import mozilla.components.lib.crash.CrashReporter
+import mozilla.components.service.fxa.manager.SyncEnginesStorage
 import mozilla.components.service.glean.Glean
 import mozilla.components.service.glean.config.Configuration
 import mozilla.components.service.glean.net.ConceptFetchHttpUploader
@@ -45,43 +46,26 @@ import mozilla.components.support.rusthttp.RustHttpConfig
 import mozilla.components.support.rustlog.RustLog
 import mozilla.components.support.utils.logElapsedTime
 import mozilla.components.support.webextensions.WebExtensionSupport
-import org.mozilla.fenix.GleanMetrics.GleanBuildInfo
-import org.mozilla.fenix.GleanMetrics.Metrics
-import org.mozilla.fenix.GleanMetrics.PerfStartup
+import org.mozilla.experiments.nimbus.NimbusInterface
+import org.mozilla.experiments.nimbus.internal.EnrolledExperiment
+import org.mozilla.fenix.GleanMetrics.*
 import org.mozilla.fenix.components.Components
+import org.mozilla.fenix.components.Core
+import org.mozilla.fenix.components.metrics.Event
 import org.mozilla.fenix.components.metrics.MetricServiceType
+import org.mozilla.fenix.components.metrics.MozillaProductDetector
 import org.mozilla.fenix.components.metrics.SecurePrefsTelemetry
+import org.mozilla.fenix.components.toolbar.ToolbarPosition
 import org.mozilla.fenix.ext.settings
-import org.mozilla.fenix.perf.ProfilerMarkerFactProcessor
-import org.mozilla.fenix.perf.StartupTimeline
-import org.mozilla.fenix.perf.StorageStatsMetrics
-import org.mozilla.fenix.perf.runBlockingIncrement
+import org.mozilla.fenix.perf.*
 import org.mozilla.fenix.push.PushFxaIntegration
 import org.mozilla.fenix.push.WebPushEngineIntegration
 import org.mozilla.fenix.session.PerformanceActivityLifecycleCallbacks
 import org.mozilla.fenix.session.VisibilityLifecycleCallback
 import org.mozilla.fenix.telemetry.TelemetryLifecycleObserver
 import org.mozilla.fenix.utils.BrowsersCache
-import java.util.concurrent.TimeUnit
-import mozilla.components.browser.state.store.BrowserStore
-import mozilla.components.concept.storage.FrecencyThresholdOption
-import mozilla.components.feature.autofill.AutofillUseCases
-import mozilla.components.feature.search.ext.buildSearchUrl
-import mozilla.components.feature.search.ext.waitForSelectedOrDefaultSearchEngine
-import mozilla.components.service.fxa.manager.SyncEnginesStorage
-import org.mozilla.experiments.nimbus.NimbusInterface
-import org.mozilla.experiments.nimbus.internal.EnrolledExperiment
-import org.mozilla.fenix.GleanMetrics.Addons
-import org.mozilla.fenix.GleanMetrics.AndroidAutofill
-import org.mozilla.fenix.GleanMetrics.CustomizeHome
-import org.mozilla.fenix.GleanMetrics.Preferences
-import org.mozilla.fenix.GleanMetrics.SearchDefaultEngine
-import org.mozilla.fenix.components.Core
-import org.mozilla.fenix.components.metrics.Event
-import org.mozilla.fenix.components.metrics.MozillaProductDetector
-import org.mozilla.fenix.components.toolbar.ToolbarPosition
-import org.mozilla.fenix.perf.MarkersActivityLifecycleCallbacks
 import org.mozilla.fenix.utils.Settings
+import java.util.concurrent.TimeUnit
 
 /**
  *The main application class for Fenix. Records data to measure initialization performance.
@@ -236,45 +220,56 @@ open class FenixApplication : LocaleAwareApplication(), Provider {
 
         @OptIn(DelicateCoroutinesApi::class) // GlobalScope usage
         fun queueInitStorageAndServices() {
-            components.performance.visualCompletenessQueue.queue.runIfReadyOrQueue {
+            components.core.store.waitForSelectedOrDefaultSearchEngine {
+                // Populate the top site cache to improve initial load experience
+                // of the home fragment when the app is launched to a tab. The actual
+                // database call is not expensive. However, the additional context
+                // switches delay rendering top sites when the cache is empty, which
+                // we can prevent with this.
                 GlobalScope.launch(Dispatchers.IO) {
-                    logger.info("Running post-visual completeness tasks...")
-                    logElapsedTime(logger, "Storage initialization") {
-                        components.core.historyStorage.warmUp()
-                        components.core.bookmarksStorage.warmUp()
-                        components.core.passwordsStorage.warmUp()
-                        components.core.autofillStorage.warmUp()
+                    components.core.topSitesStorage.getTopSites(
+                        components.settings.topSitesMaxLimit,
+                        (if (components.settings.showTopFrecentSites)
+                            FrecencyThresholdOption.SKIP_ONE_TIME_PAGES
+                        else
+                            null),
+                        it?.let { it.buildSearchUrl("").split("&")[0] }
+                    )
+                }
+            }
 
-                        // Populate the top site cache to improve initial load experience
-                        // of the home fragment when the app is launched to a tab. The actual
-                        // database call is not expensive. However, the additional context
-                        // switches delay rendering top sites when the cache is empty, which
-                        // we can prevent with this.
-                        components.core.topSitesStorage.getTopSites(
-                            components.settings.topSitesMaxLimit,
-                            if (components.settings.showTopFrecentSites)
-                                FrecencyThresholdOption.SKIP_ONE_TIME_PAGES
-                            else
-                                null
-                        )
+                components.performance.visualCompletenessQueue.queue.runIfReadyOrQueue {
+                    GlobalScope.launch(Dispatchers.IO) {
+                        logger.info("Running post-visual completeness tasks...")
+                        logElapsedTime(logger, "Storage initialization") {
+                            components.core.historyStorage.warmUp()
+                            components.core.bookmarksStorage.warmUp()
+                            components.core.passwordsStorage.warmUp()
+                            components.core.autofillStorage.warmUp()
 
-                        // This service uses `historyStorage`, and so we can only touch it when we know
-                        // it's safe to touch `historyStorage. By 'safe', we mainly mean that underlying
-                        // places library will be able to load, which requires first running Megazord.init().
-                        // The visual completeness tasks are scheduled after the Megazord.init() call.
-                        components.core.historyMetadataService.cleanup(
-                            System.currentTimeMillis() - Core.HISTORY_METADATA_MAX_AGE_IN_MS
-                        )
+
+
+                            // This service uses `historyStorage`, and so we can only touch it when we know
+                            // it's safe to touch `historyStorage. By 'safe', we mainly mean that underlying
+                            // places library will be able to load, which requires first running Megazord.init().
+                            // The visual completeness tasks are scheduled after the Megazord.init() call.
+                            components.core.historyMetadataService.cleanup(
+                                System.currentTimeMillis() - Core.HISTORY_METADATA_MAX_AGE_IN_MS
+                            )
+                        }
+
+                        SecurePrefsTelemetry(
+                            this@FenixApplication,
+                            components.analytics.experiments
+                        ).startTests()
+                    }
+                    // Account manager initialization needs to happen on the main thread.
+                    GlobalScope.launch(Dispatchers.Main) {
+                        logElapsedTime(logger, "Kicking-off account manager") {
+                            components.backgroundServices.accountManager
+                        }
                     }
 
-                    SecurePrefsTelemetry(this@FenixApplication, components.analytics.experiments).startTests()
-                }
-                // Account manager initialization needs to happen on the main thread.
-                GlobalScope.launch(Dispatchers.Main) {
-                    logElapsedTime(logger, "Kicking-off account manager") {
-                        components.backgroundServices.accountManager
-                    }
-                }
             }
         }
 
