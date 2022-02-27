@@ -129,6 +129,16 @@ class SettingsFragment : PreferenceFragmentCompat() {
     }
 
     private fun update() {
+        val trackingProtectionPreference =
+            requirePreference<Preference>(R.string.pref_key_tracking_protection_settings)
+        trackingProtectionPreference.summary = context?.let {
+            if (it.settings().shouldUseTrackingProtection) {
+                getString(R.string.tracking_protection_on)
+            } else {
+                getString(R.string.tracking_protection_off)
+            }
+        }
+
         val aboutPreference = requirePreference<Preference>(R.string.pref_key_about)
         val appName = getString(R.string.app_name)
         aboutPreference.title = getString(R.string.preferences_about, appName)
@@ -170,6 +180,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }
             resources.getString(R.string.pref_key_search_settings) -> {
                 SettingsFragmentDirections.actionSettingsFragmentToSearchEngineFragment()
+            }
+            resources.getString(R.string.pref_key_tracking_protection_settings) -> {
+                requireContext().metrics.track(Event.TrackingProtectionSettings)
+                SettingsFragmentDirections.actionSettingsFragmentToTrackingProtectionFragment()
             }
             resources.getString(R.string.pref_key_site_permissions) -> {
                 SettingsFragmentDirections.actionSettingsFragmentToSitePermissionsFragment()
