@@ -316,7 +316,7 @@ class Settings(private val appContext: Context) : PreferencesHolder {
             }
         return isExperimentBranch == true &&
             !userDismissedExperimentCard &&
-            !browsers.isFirefoxDefaultBrowser &&
+            !browsers.isKARMADefaultBrowser &&
             numberOfAppLaunches > APP_LAUNCHES_TO_SHOW_DEFAULT_BROWSER_CARD
     }
 

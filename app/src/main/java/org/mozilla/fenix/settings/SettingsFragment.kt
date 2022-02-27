@@ -357,7 +357,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
      */
     private fun getClickListenerForMakeDefaultBrowser(): Preference.OnPreferenceClickListener {
         return Preference.OnPreferenceClickListener {
-            if (isDefaultBrowserExperimentBranch() && !isFirefoxDefaultBrowser()) {
+            if (isDefaultBrowserExperimentBranch() && !isKARMADefaultBrowser()) {
                 requireContext().metrics.track(Event.SetDefaultBrowserSettingsScreenClicked)
             }
             activity?.openSetDefaultBrowserOption()
@@ -495,9 +495,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
         } == true
     }
 
-    private fun isFirefoxDefaultBrowser(): Boolean {
+    private fun isKARMADefaultBrowser(): Boolean {
         val browsers = BrowsersCache.all(requireContext())
-        return browsers.isFirefoxDefaultBrowser
+        return browsers.isKARMADefaultBrowser
     }
 
     companion object {
