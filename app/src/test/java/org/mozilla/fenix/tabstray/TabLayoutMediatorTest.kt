@@ -4,6 +4,7 @@
 
 package org.mozilla.fenix.tabstray
 
+import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import io.mockk.every
 import io.mockk.mockk
@@ -22,10 +23,11 @@ class TabLayoutMediatorTest {
     private val metrics: MetricController = mockk(relaxed = true)
     private val tabLayout: TabLayout = mockk(relaxed = true)
     private val tab: TabLayout.Tab = mockk(relaxed = true)
+    private val viewPager: ViewPager2 = mockk(relaxed = true)
 
     @Test
     fun `page to normal tab position when mode is also normal`() {
-        val mediator = TabLayoutMediator(tabLayout, interactor, modeManager, tabsTrayStore, metrics)
+        val mediator = TabLayoutMediator(tabLayout, viewPager, interactor, modeManager, tabsTrayStore, metrics)
 
         every { modeManager.mode }.answers { BrowsingMode.Normal }
         every { tabLayout.getTabAt(POSITION_NORMAL_TABS) }.answers { tab }
@@ -33,12 +35,13 @@ class TabLayoutMediatorTest {
         mediator.selectActivePage()
 
         verify { tab.select() }
+        verify { viewPager.setCurrentItem(POSITION_NORMAL_TABS, false) }
         verify { tabsTrayStore.dispatch(TabsTrayAction.PageSelected(Page.positionToPage(POSITION_NORMAL_TABS))) }
     }
 
     @Test
     fun `page to private tab position when mode is also private`() {
-        val mediator = TabLayoutMediator(tabLayout, interactor, modeManager, tabsTrayStore, metrics)
+        val mediator = TabLayoutMediator(tabLayout, viewPager, interactor, modeManager, tabsTrayStore, metrics)
 
         every { modeManager.mode }.answers { BrowsingMode.Private }
         every { tabLayout.getTabAt(POSITION_PRIVATE_TABS) }.answers { tab }
@@ -51,7 +54,7 @@ class TabLayoutMediatorTest {
 
     @Test
     fun `selectTabAtPosition will dispatch the correct TabsTrayStore action`() {
-        val mediator = TabLayoutMediator(tabLayout, interactor, modeManager, tabsTrayStore, metrics)
+        val mediator = TabLayoutMediator(tabLayout, viewPager, interactor, modeManager, tabsTrayStore, metrics)
 
         every { tabLayout.getTabAt(POSITION_NORMAL_TABS) }.answers { tab }
         every { tabLayout.getTabAt(POSITION_PRIVATE_TABS) }.answers { tab }
@@ -68,7 +71,7 @@ class TabLayoutMediatorTest {
 
     @Test
     fun `lifecycle methods adds and removes observer`() {
-        val mediator = TabLayoutMediator(tabLayout, interactor, modeManager, tabsTrayStore, metrics)
+        val mediator = TabLayoutMediator(tabLayout, viewPager, interactor, modeManager, tabsTrayStore, metrics)
 
         every { modeManager.mode }.answers { BrowsingMode.Private }
 

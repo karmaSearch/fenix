@@ -7,25 +7,13 @@ package org.mozilla.fenix.tabstray.browser
 import android.content.Context
 import android.util.AttributeSet
 import androidx.recyclerview.widget.ConcatAdapter
-import mozilla.components.browser.state.state.TabSessionState
 import mozilla.components.browser.tabstray.TabViewHolder
-import mozilla.components.feature.tabs.tabstray.TabsFeature
 import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.ext.settings
 import org.mozilla.fenix.tabstray.ext.browserAdapter
 import org.mozilla.fenix.tabstray.ext.inactiveTabsAdapter
-import org.mozilla.fenix.tabstray.ext.isNormalTabInactive
-import java.util.concurrent.TimeUnit
-
-/**
- * The time until which a tab is considered in-active (in days).
- */
-const val DEFAULT_ACTIVE_DAYS = 14L
-
-/**
- * The maximum time from when a tab was created or accessed until it is considered "inactive".
- */
-val maxActiveTime = TimeUnit.DAYS.toMillis(DEFAULT_ACTIVE_DAYS)
+import org.mozilla.fenix.tabstray.ext.tabGroupAdapter
+import org.mozilla.fenix.tabstray.ext.titleHeaderAdapter
 
 class NormalBrowserTrayList @JvmOverloads constructor(
     context: Context,
@@ -34,49 +22,32 @@ class NormalBrowserTrayList @JvmOverloads constructor(
 ) : AbstractBrowserTrayList(context, attrs, defStyleAttr) {
 
     private val concatAdapter by lazy { adapter as ConcatAdapter }
-    private val tabSorter by lazy {
-        TabSorter(
-            context.settings(),
-            context.components.analytics.metrics,
-            concatAdapter
-        )
+
+    private val inactiveTabsBinding by lazy {
+        InactiveTabsBinding(tabsTrayStore, concatAdapter.inactiveTabsAdapter)
     }
-    private val inactiveTabsFilter: (TabSessionState) -> Boolean = filter@{
-        if (!context.settings().inactiveTabsAreEnabled) {
-            return@filter false
-        }
-        it.isNormalTabInactive(maxActiveTime)
+
+    private val normalTabsBinding by lazy {
+        NormalTabsBinding(tabsTrayStore, context.components.core.store, concatAdapter.browserAdapter)
+    }
+
+    private val titleHeaderBinding by lazy {
+        OtherHeaderBinding(tabsTrayStore) { concatAdapter.titleHeaderAdapter.handleListChanges(it) }
+    }
+
+    private val tabGroupBinding by lazy {
+        TabGroupBinding(tabsTrayStore) { concatAdapter.tabGroupAdapter.submitList(it) }
     }
 
     private val inactiveTabsInteractor by lazy {
         DefaultInactiveTabsInteractor(
             InactiveTabsController(
-                context.components.core.store,
+                tabsTrayStore,
                 context.components.appStore,
-                inactiveTabsFilter,
                 concatAdapter.inactiveTabsAdapter,
-                context.components.analytics.metrics
+                context.components.analytics.metrics,
+                context.settings()
             )
-        )
-    }
-
-    private val inactiveTabsAutoCloseInteractor by lazy {
-        DefaultInactiveTabsAutoCloseDialogInteractor(
-            InactiveTabsAutoCloseDialogController(
-                context.components.core.store,
-                context.settings(),
-                inactiveTabsFilter,
-                concatAdapter.inactiveTabsAdapter,
-                context.components.analytics.metrics
-            )
-        )
-    }
-
-    override val tabsFeature by lazy {
-        TabsFeature(
-            tabSorter,
-            context.components.core.store,
-            { !it.content.private },
         )
     }
 
@@ -95,9 +66,11 @@ class NormalBrowserTrayList @JvmOverloads constructor(
         super.onAttachedToWindow()
 
         concatAdapter.inactiveTabsAdapter.inactiveTabsInteractor = inactiveTabsInteractor
-        concatAdapter.inactiveTabsAdapter.inactiveTabsAutoCloseDialogInteractor = inactiveTabsAutoCloseInteractor
 
-        tabsFeature.start()
+        inactiveTabsBinding.start()
+        normalTabsBinding.start()
+        titleHeaderBinding.start()
+        tabGroupBinding.start()
 
         touchHelper.attachToRecyclerView(this)
     }
@@ -105,7 +78,10 @@ class NormalBrowserTrayList @JvmOverloads constructor(
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
 
-        tabsFeature.stop()
+        inactiveTabsBinding.stop()
+        normalTabsBinding.stop()
+        titleHeaderBinding.stop()
+        tabGroupBinding.stop()
 
         touchHelper.attachToRecyclerView(null)
     }

@@ -20,16 +20,6 @@ object FeatureFlags {
     val addressesFeature = Config.channel.isNightlyOrDebug
 
     /**
-     * Enables WebAuthn support.
-     */
-    const val webAuthFeature = true
-
-    /**
-     * Enables the Home button in the browser toolbar to navigate back to the home screen.
-     */
-    const val showHomeButtonFeature = true
-
-    /**
      * Enables the Start On Home feature in the settings page.
      */
     const val showStartOnHomeSettings = true
@@ -37,17 +27,17 @@ object FeatureFlags {
     /**
      * Enables the "recent" tabs feature in the home screen.
      */
-    const val showRecentTabsFeature = false
+    const val showRecentTabsFeature = true
 
     /**
      * Enables UI features based on history metadata.
      */
-    const val historyMetadataUIFeature = false
+    const val historyMetadataUIFeature = true
 
     /**
      * Enables the recently saved bookmarks feature in the home screen.
      */
-    const val recentBookmarksFeature = false
+    const val recentBookmarksFeature = true
 
     /**
      * Identifies and separates the tabs list with a secondary section containing least used tabs.
@@ -57,17 +47,17 @@ object FeatureFlags {
     /**
      * Enables showing the home screen behind the search dialog
      */
-    const val showHomeBehindSearch = false
-
-    /**
-     * Enables customizing the home screen
-     */
-    const val customizeHome = false
+    const val showHomeBehindSearch = true
 
     /**
      * Identifies and separates the tabs list with a group containing search term tabs.
      */
     val tabGroupFeature = Config.channel.isNightlyOrDebug
+
+    /**
+     * Allows tabs to be dragged around as long as tab groups are disabled
+     */
+    val tabReorderingFeature = Config.channel.isNightlyOrDebug
 
     /**
      * Enables showing search groupings in the History.
@@ -83,4 +73,14 @@ object FeatureFlags {
      * Enables showing the homescreen onboarding card.
      */
     const val showHomeOnboarding = false
+
+    /**
+     * Enables showing the option to clear site data.
+     */
+    val showClearSiteData = Config.channel.isNightlyOrDebug
+
+    /**
+     * Enables showing the wallpaper functionality.
+     */
+    val showWallpapers = Config.channel.isNightlyOrDebug
 }

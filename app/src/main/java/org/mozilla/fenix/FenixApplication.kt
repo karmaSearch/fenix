@@ -634,12 +634,14 @@ open class FenixApplication : LocaleAwareApplication(), Provider {
         }
 
         browserStore.waitForSelectedOrDefaultSearchEngine { searchEngine ->
-            if (searchEngine != null) {
+            searchEngine?.let {
+
                 SearchDefaultEngine.apply {
                     code.set(searchEngine.id)
                     name.set(searchEngine.name)
-                    submissionUrl.set(searchEngine.buildSearchUrl(""))
+                    searchUrl.set(searchEngine.buildSearchUrl(""))
                 }
+
             }
         }
     }
@@ -660,6 +662,7 @@ open class FenixApplication : LocaleAwareApplication(), Provider {
             voiceSearchEnabled.set(settings.shouldShowVoiceSearch)
             openLinksInAppEnabled.set(settings.openLinksInExternalApp)
             signedInSync.set(settings.signedInFxaAccount)
+            searchTermGroupsEnabled.set(settings.searchTermTabGroupsAreEnabled)
 
             val syncedItems = SyncEnginesStorage(applicationContext).getStatus().entries.filter {
                 it.value
@@ -713,6 +716,14 @@ open class FenixApplication : LocaleAwareApplication(), Provider {
 
     @VisibleForTesting
     internal fun reportHomeScreenMetrics(settings: Settings) {
+        CustomizeHome.openingScreen.set(
+            when {
+                settings.alwaysOpenTheHomepageWhenOpeningTheApp -> "homepage"
+                settings.alwaysOpenTheLastTabWhenOpeningTheApp -> "last tab"
+                settings.openHomepageAfterFourHoursOfInactivity -> "homepage after four hours"
+                else -> ""
+            }
+        )
         components.analytics.experiments.register(object : NimbusInterface.Observer {
             override fun onUpdatesApplied(updated: List<EnrolledExperiment>) {
                 CustomizeHome.jumpBackIn.set(settings.showRecentTabsFeature)

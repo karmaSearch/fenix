@@ -143,7 +143,7 @@ fun LearnAndActTextsColumn(
             lineHeight = 20.sp,
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
-            color = FirefoxTheme.colors.brandColor,
+            color = FirefoxTheme.colors.textAccent,
             fontFamily = FontFamily(Font(R.font.proximanova_bold)),
         )
     }
@@ -160,7 +160,7 @@ fun LearnAndActBlocs(
     learnAndActBlocs.forEach { item ->
         Card(shape = RoundedCornerShape(8.dp),
             elevation = 12.dp,
-            backgroundColor = FirefoxTheme.colors.surface,
+            backgroundColor = FirefoxTheme.colors.layer2,
             modifier = Modifier
                 .clickable { onStoryClicked(item) }
                 .padding(start = 10.dp, end = 10.dp)) {
@@ -212,7 +212,7 @@ fun LearnAndActBlocs(
                             lineHeight = 22.sp, fontSize = 16.sp, fontWeight = FontWeight.SemiBold,
                             modifier = Modifier
                                 .clip(RoundedCornerShape(0.dp, 12.dp, 12.dp, 0.dp))
-                                .background(FirefoxTheme.colors.brandColor)
+                                .background(FirefoxTheme.colors.textAccent)
                                 .padding(start = 17.dp, end = 17.dp, bottom = 0.dp)
                                 .height(24.dp),
                             color = Color.Black,
@@ -270,7 +270,7 @@ fun LearnAndActBlocs(
                         modifier = Modifier
                             .offset(y = -12.dp)
                             .clip(RoundedCornerShape(0.dp, 12.dp, 12.dp, 0.dp))
-                            .background(FirefoxTheme.colors.brandColor)
+                            .background(FirefoxTheme.colors.textAccent)
                             .padding(start = 17.dp, end = 17.dp, bottom = 0.dp)
                             .height(24.dp),
                         color = Color.Black,

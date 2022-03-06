@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// If you ever need to force a toolchain rebuild (taskcluster) then edit the following comment.
+// FORCE REBUILD 2021-11-24
+
 object Versions {
     const val kotlin = "1.5.31"
     const val coroutines = "1.5.2"
@@ -17,8 +20,8 @@ object Versions {
     const val detekt = "1.17.1"
     const val jna = "5.6.0"
 
-    const val androidx_activity_compose = "1.3.1"
-    const val androidx_compose = "1.0.4"
+    const val androidx_activity_compose = "1.4.0"
+    const val androidx_compose = "1.0.5"
     const val androidx_appcompat = "1.3.0"
     const val androidx_benchmark = "1.0.0"
     const val androidx_biometric = "1.1.0"
@@ -30,11 +33,11 @@ object Versions {
     const val androidx_lifecycle = "2.2.0"
     const val androidx_fragment = "1.3.4"
     const val androidx_navigation = "2.3.3"
-    const val androidx_recyclerview = "1.2.0-beta01"
+    const val androidx_recyclerview = "1.2.1"
     const val androidx_core = "1.3.2"
     const val androidx_paging = "2.1.2"
     const val androidx_transition = "1.4.0"
-    const val androidx_work = "2.5.0"
+    const val androidx_work = "2.7.1"
     const val androidx_datastore = "1.0.0"
     const val google_material = "1.2.1"
 
@@ -69,7 +72,6 @@ object Deps {
     const val kotlin_coroutines_test = "org.jetbrains.kotlinx:kotlinx-coroutines-test:${Versions.coroutines}"
     const val kotlin_coroutines_android = "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.coroutines}"
 
-    const val allopen = "org.jetbrains.kotlin:kotlin-allopen:${Versions.kotlin}"
     const val osslicenses_plugin = "com.google.android.gms:oss-licenses-plugin:${Versions.osslicenses_plugin}"
 
     const val mozilla_compose_awesomebar = "org.mozilla.components:compose-awesomebar:${Versions.mozilla_android_components}"

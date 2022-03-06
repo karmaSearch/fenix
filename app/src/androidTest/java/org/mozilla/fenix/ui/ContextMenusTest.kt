@@ -11,11 +11,13 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.mozilla.fenix.customannotations.SmokeTest
 import org.mozilla.fenix.ext.settings
 import org.mozilla.fenix.helpers.AndroidAssetDispatcher
 import org.mozilla.fenix.helpers.HomeActivityIntentTestRule
 import org.mozilla.fenix.helpers.TestAssetHelper
 import org.mozilla.fenix.ui.robots.downloadRobot
+import org.mozilla.fenix.ui.robots.homeScreen
 import org.mozilla.fenix.ui.robots.navigationToolbar
 
 /**
@@ -53,6 +55,7 @@ class ContextMenusTest {
         mockWebServer.shutdown()
     }
 
+    @SmokeTest
     @Test
     fun verifyContextOpenLinkNewTab() {
         val pageLinks =
@@ -76,6 +79,7 @@ class ContextMenusTest {
         }
     }
 
+    @SmokeTest
     @Test
     fun verifyContextOpenLinkPrivateTab() {
         val pageLinks =
@@ -217,6 +221,50 @@ class ContextMenusTest {
             dismissContentContextMenu(imageResource.url)
             longClickMatchingText("test_no_link_image")
             verifyNoLinkImageContextMenuItems(imageResource.url)
+        }
+    }
+
+    @SmokeTest
+    @Test
+    fun shareSelectedTextTest() {
+        val genericURL = TestAssetHelper.getGenericAsset(mockWebServer, 1)
+
+        navigationToolbar {
+        }.enterURLAndEnterToBrowser(genericURL.url) {
+            longClickMatchingText(genericURL.content)
+        }.clickShareSelectedText {
+            verifyAndroidShareLayout()
+        }
+    }
+
+    @SmokeTest
+    @Test
+    fun selectAndSearchTextTest() {
+        val genericURL = TestAssetHelper.getGenericAsset(mockWebServer, 1)
+
+        navigationToolbar {
+        }.enterURLAndEnterToBrowser(genericURL.url) {
+            longClickAndSearchText("Search", "content")
+            mDevice.waitForIdle()
+            verifyTabCounter("2")
+            verifyUrl("google")
+        }
+    }
+
+    @SmokeTest
+    @Test
+    fun privateSelectAndSearchTextTest() {
+        val genericURL = TestAssetHelper.getGenericAsset(mockWebServer, 1)
+
+        homeScreen {
+        }.togglePrivateBrowsingMode()
+
+        navigationToolbar {
+        }.enterURLAndEnterToBrowser(genericURL.url) {
+            longClickAndSearchText("Private Search", "content")
+            mDevice.waitForIdle()
+            verifyTabCounter("2")
+            verifyUrl("google")
         }
     }
 }

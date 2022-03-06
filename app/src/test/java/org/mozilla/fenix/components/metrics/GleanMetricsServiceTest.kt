@@ -4,7 +4,6 @@
 
 package org.mozilla.fenix.components.metrics
 
-import io.mockk.MockKAnnotations
 import mozilla.components.service.glean.testing.GleanTestRule
 import mozilla.components.support.test.robolectric.testContext
 import org.junit.Assert.assertEquals
@@ -34,8 +33,6 @@ class GleanMetricsServiceTest {
 
     @Before
     fun setup() {
-        MockKAnnotations.init(this)
-
         gleanService = GleanMetricsService(testContext)
     }
 
@@ -176,6 +173,22 @@ class GleanMetricsServiceTest {
         val events = History.recentSearchesTapped.testGetValue()
         assertEquals(1, events[0].extra!!.size)
         assertEquals("5", events[0].extra!!["page_number"])
+
+        assertFalse(History.searchTermGroupTapped.testHasValue())
+        gleanService.track(Event.HistorySearchTermGroupTapped)
+        assertTrue(History.searchTermGroupTapped.testHasValue())
+
+        assertFalse(History.searchTermGroupOpenTab.testHasValue())
+        gleanService.track(Event.HistorySearchTermGroupOpenTab)
+        assertTrue(History.searchTermGroupOpenTab.testHasValue())
+
+        assertFalse(History.searchTermGroupRemoveTab.testHasValue())
+        gleanService.track(Event.HistorySearchTermGroupRemoveTab)
+        assertTrue(History.searchTermGroupRemoveTab.testHasValue())
+
+        assertFalse(History.searchTermGroupRemoveAll.testHasValue())
+        gleanService.track(Event.HistorySearchTermGroupRemoveAll)
+        assertTrue(History.searchTermGroupRemoveAll.testHasValue())
     }
 
     @Test
@@ -270,10 +283,6 @@ class GleanMetricsServiceTest {
         assertFalse(TabsTray.closeAllTabs.testHasValue())
         gleanService.track(Event.TabsTrayCloseAllTabsPressed)
         assertTrue(TabsTray.closeAllTabs.testHasValue())
-
-        assertFalse(TabsTray.inactiveTabsRecentlyClosed.testHasValue())
-        gleanService.track(Event.TabsTrayRecentlyClosedPressed)
-        assertTrue(TabsTray.inactiveTabsRecentlyClosed.testHasValue())
     }
 
     @Test

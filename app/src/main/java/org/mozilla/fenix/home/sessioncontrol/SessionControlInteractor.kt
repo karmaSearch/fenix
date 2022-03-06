@@ -5,29 +5,27 @@
 package org.mozilla.fenix.home.sessioncontrol
 
 import karma.service.learnandact.LearnAndAct
-import mozilla.components.browser.state.state.TabSessionState
-import mozilla.components.concept.storage.BookmarkNode
 import mozilla.components.feature.tab.collections.Tab
 import mozilla.components.feature.tab.collections.TabCollection
 import mozilla.components.feature.top.sites.TopSite
 import mozilla.components.service.pocket.PocketRecommendedStory
 import org.mozilla.fenix.browser.browsingmode.BrowsingMode
 import org.mozilla.fenix.components.tips.Tip
-import org.mozilla.fenix.historymetadata.HistoryMetadataGroup
-import org.mozilla.fenix.historymetadata.controller.HistoryMetadataController
-import org.mozilla.fenix.historymetadata.interactor.HistoryMetadataInteractor
 import org.mozilla.fenix.home.HomeFragmentState
 import org.mozilla.fenix.home.learnandact.LearnAndActController
 import org.mozilla.fenix.home.learnandact.LearnAndActInteractor
+import org.mozilla.fenix.home.pocket.PocketRecommendedStoriesCategory
+import org.mozilla.fenix.home.pocket.PocketStoriesController
+import org.mozilla.fenix.home.pocket.PocketStoriesInteractor
+import org.mozilla.fenix.home.recentbookmarks.RecentBookmark
 import org.mozilla.fenix.home.recentbookmarks.controller.RecentBookmarksController
 import org.mozilla.fenix.home.recentbookmarks.interactor.RecentBookmarksInteractor
 import org.mozilla.fenix.home.recenttabs.controller.RecentTabController
 import org.mozilla.fenix.home.recenttabs.interactor.RecentTabInteractor
-import org.mozilla.fenix.home.pocket.PocketRecommendedStoriesCategory
-import org.mozilla.fenix.home.pocket.PocketStoriesController
-import org.mozilla.fenix.home.pocket.PocketStoriesInteractor
-import org.mozilla.fenix.tabstray.TabsTrayController
-import org.mozilla.fenix.tabstray.TabsTrayInteractor
+import org.mozilla.fenix.home.recentvisits.RecentlyVisitedItem.RecentHistoryGroup
+import org.mozilla.fenix.home.recentvisits.RecentlyVisitedItem.RecentHistoryHighlight
+import org.mozilla.fenix.home.recentvisits.controller.RecentVisitsController
+import org.mozilla.fenix.home.recentvisits.interactor.RecentVisitsInteractor
 
 /**
  * Interface for tab related actions in the [SessionControlInteractor].
@@ -248,7 +246,7 @@ class SessionControlInteractor(
     private val controller: SessionControlController,
     private val recentTabController: RecentTabController,
     private val recentBookmarksController: RecentBookmarksController,
-    private val historyMetadataController: HistoryMetadataController,
+    private val recentVisitsController: RecentVisitsController,
     private val pocketStoriesController: PocketStoriesController,
     private val learnAndActController: LearnAndActController
 ) : CollectionInteractor,
@@ -260,7 +258,7 @@ class SessionControlInteractor(
     ExperimentCardInteractor,
     RecentTabInteractor,
     RecentBookmarksInteractor,
-    HistoryMetadataInteractor,
+    RecentVisitsInteractor,
     CustomizeHomeIteractor,
     PocketStoriesInteractor,
     LearnAndActInteractor {
@@ -381,7 +379,7 @@ class SessionControlInteractor(
         recentTabController.handleRecentTabShowAllClicked()
     }
 
-    override fun onRecentBookmarkClicked(bookmark: BookmarkNode) {
+    override fun onRecentBookmarkClicked(bookmark: RecentBookmark) {
         recentBookmarksController.handleBookmarkClicked(bookmark)
     }
 
@@ -389,18 +387,26 @@ class SessionControlInteractor(
         recentBookmarksController.handleShowAllBookmarksClicked()
     }
 
-    override fun onHistoryMetadataShowAllClicked() {
-        historyMetadataController.handleHistoryShowAllClicked()
+    override fun onHistoryShowAllClicked() {
+        recentVisitsController.handleHistoryShowAllClicked()
     }
 
-    override fun onHistoryMetadataGroupClicked(historyMetadataGroup: HistoryMetadataGroup) {
-        historyMetadataController.handleHistoryMetadataGroupClicked(
-            historyMetadataGroup
+    override fun onRecentHistoryGroupClicked(recentHistoryGroup: RecentHistoryGroup) {
+        recentVisitsController.handleRecentHistoryGroupClicked(
+            recentHistoryGroup
         )
     }
 
-    override fun onRemoveGroup(searchTerm: String) {
-        historyMetadataController.handleRemoveGroup(searchTerm)
+    override fun onRemoveRecentHistoryGroup(groupTitle: String) {
+        recentVisitsController.handleRemoveRecentHistoryGroup(groupTitle)
+    }
+
+    override fun onRecentHistoryHighlightClicked(recentHistoryHighlight: RecentHistoryHighlight) {
+        recentVisitsController.handleRecentHistoryHighlightClicked(recentHistoryHighlight)
+    }
+
+    override fun onRemoveRecentHistoryHighlight(highlightUrl: String) {
+        recentVisitsController.handleRemoveRecentHistoryHighlight(highlightUrl)
     }
 
     override fun openCustomizeHomePage() {

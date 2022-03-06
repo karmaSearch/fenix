@@ -40,6 +40,7 @@ import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.ext.getPreferenceKey
 import org.mozilla.fenix.ext.withExperiment
 import org.mozilla.fenix.settings.PhoneFeature
+import org.mozilla.fenix.wallpapers.Wallpaper
 import org.mozilla.fenix.settings.deletebrowsingdata.DeleteBrowsingDataOnQuitType
 import org.mozilla.fenix.settings.logins.SavedLoginsSortingStrategyMenu
 import org.mozilla.fenix.settings.logins.SortingStrategy
@@ -156,6 +157,11 @@ class Settings(private val appContext: Context) : PreferencesHolder {
     var adjustCreative by stringPreference(
         appContext.getPreferenceKey(R.string.pref_key_adjust_creative),
         default = ""
+    )
+
+    var currentWallpaper by stringPreference(
+        appContext.getPreferenceKey(R.string.pref_key_current_wallpaper),
+        default = Wallpaper.NONE.name
     )
 
     var openLinksInAPrivateTab by booleanPreference(
@@ -484,7 +490,7 @@ class Settings(private val appContext: Context) : PreferencesHolder {
         }
     }
 
-    val shouldUseDarkTheme by booleanPreference(
+    var shouldUseDarkTheme by booleanPreference(
         appContext.getPreferenceKey(R.string.pref_key_dark_theme),
         default = false
     )
@@ -576,7 +582,7 @@ class Settings(private val appContext: Context) : PreferencesHolder {
 
     val blockCookiesSelectionInCustomTrackingProtection by stringPreference(
         appContext.getPreferenceKey(R.string.pref_key_tracking_protection_custom_cookies_select),
-        "social"
+        appContext.getString(R.string.social)
     )
 
     val blockTrackingContentInCustomTrackingProtection by booleanPreference(
@@ -586,7 +592,7 @@ class Settings(private val appContext: Context) : PreferencesHolder {
 
     val blockTrackingContentSelectionInCustomTrackingProtection by stringPreference(
         appContext.getPreferenceKey(R.string.pref_key_tracking_protection_custom_tracking_content_select),
-        "all"
+        appContext.getString(R.string.all)
     )
 
     val blockCryptominersInCustomTrackingProtection by booleanPreference(
@@ -872,7 +878,7 @@ class Settings(private val appContext: Context) : PreferencesHolder {
      */
     var shouldShowInactiveTabsTurnOffSurvey by booleanPreference(
         appContext.getPreferenceKey(R.string.pref_key_should_show_inactive_tabs_turn_off_survey),
-        default = true
+        default = false
     )
 
     fun getSitePermissionsPhoneFeatureAction(
@@ -934,6 +940,7 @@ class Settings(private val appContext: Context) : PreferencesHolder {
                 default = AutoplayAction.ALLOWED
             ),
             persistentStorage = getSitePermissionsPhoneFeatureAction(PhoneFeature.PERSISTENT_STORAGE),
+            crossOriginStorageAccess = getSitePermissionsPhoneFeatureAction(PhoneFeature.CROSS_ORIGIN_STORAGE_ACCESS),
             mediaKeySystemAccess = getSitePermissionsPhoneFeatureAction(PhoneFeature.MEDIA_KEY_SYSTEM_ACCESS)
         )
     }
@@ -947,6 +954,7 @@ class Settings(private val appContext: Context) : PreferencesHolder {
             PhoneFeature.AUTOPLAY_AUDIBLE,
             PhoneFeature.AUTOPLAY_INAUDIBLE,
             PhoneFeature.PERSISTENT_STORAGE,
+            PhoneFeature.CROSS_ORIGIN_STORAGE_ACCESS,
             PhoneFeature.MEDIA_KEY_SYSTEM_ACCESS
         ).map { it.getPreferenceKey(appContext) }
 
@@ -1145,8 +1153,7 @@ class Settings(private val appContext: Context) : PreferencesHolder {
     var savedLoginsSortingStrategy: SortingStrategy
         get() {
             return when (savedLoginsMenuHighlightedItem) {
-                SavedLoginsSortingStrategyMenu.Item.AlphabeticallySort ->
-                    SortingStrategy.Alphabetically(appContext.components.publicSuffixList)
+                SavedLoginsSortingStrategyMenu.Item.AlphabeticallySort -> SortingStrategy.Alphabetically
                 SavedLoginsSortingStrategyMenu.Item.LastUsedSort -> SortingStrategy.LastUsed
             }
         }

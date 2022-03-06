@@ -184,7 +184,7 @@ open class DefaultToolbarMenu(
         iconTintColorResource = primaryTextColor(),
         highlight = BrowserMenuHighlight.LowPriority(
             label = context.getString(R.string.browser_menu_install_on_homescreen),
-            notificationTint = getColor(context, R.color.whats_new_notification_color)
+            notificationTint = getColor(context, R.color.fx_mobile_icon_color_information)
         ),
         isHighlighted = {
             !context.settings().installPwaOpened
@@ -253,7 +253,7 @@ open class DefaultToolbarMenu(
         iconTintColorResource = primaryTextColor(),
         highlight = BrowserMenuHighlight.LowPriority(
             label = context.getString(R.string.browser_menu_open_app_link),
-            notificationTint = getColor(context, R.color.whats_new_notification_color)
+            notificationTint = getColor(context, R.color.fx_mobile_icon_color_information)
         ),
         isHighlighted = { !context.settings().openInAppOpened }
     ) {
@@ -323,7 +323,7 @@ open class DefaultToolbarMenu(
 
     val deleteDataOnQuit = BrowserMenuImageText(
         label = context.getString(R.string.delete_browsing_data_on_quit_action),
-        imageResource = R.drawable.ic_exit,
+        imageResource = R.drawable.mozac_ic_quit,
         iconTintColorResource = primaryTextColor()
     ) {
         onItemTapped.invoke(ToolbarMenu.Item.Quit)

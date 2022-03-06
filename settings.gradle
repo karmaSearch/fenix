@@ -50,6 +50,8 @@ if (localProperties != null) {
         def publishAppServicesCmd = [];
         if (System.properties['os.name'].toLowerCase().contains('windows')) {
             publishAppServicesCmd << "py";
+        } else if (System.properties['os.name'].toLowerCase().contains('mac')) {
+            publishAppServicesCmd << "python3";
         }
         publishAppServicesCmd << "./automation/publish_to_maven_local_if_modified.py";
         runCmd(publishAppServicesCmd, appServicesLocalPath, "Published application-services for local development.", false)
@@ -65,6 +67,8 @@ if (localProperties != null) {
         def publishAcCmd = [];
         if (System.properties['os.name'].toLowerCase().contains('windows')) {
             publishAcCmd << "py";
+        } else if (System.properties['os.name'].toLowerCase().contains('mac')) {
+            publishAcCmd << "python3";
         }
         publishAcCmd << "./automation/publish_to_maven_local_if_modified.py";
         runCmd(publishAcCmd, androidComponentsLocalPath, "Published android-components for local development.", false)
