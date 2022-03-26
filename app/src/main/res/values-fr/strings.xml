@@ -2069,4 +2069,17 @@ Cependant, il peut être moins stable. Téléchargez la version bêta de notre n
     <string name="preferences_karma_privacy">Vie Privée</string>
     <string name="preferences_karma_termsofservices">Conditions d\'Utilisation</string>
     <string name="preferences_karma_feedback">Vos Commentaires</string>
+
+    <string name="onboarding_next">Suivant</string>
+    <string name="onboarding_title_1">Chaque recherche compte</string>
+    <string name="onboarding_subtitle_1">Vos recherches financent des associations engagées pour la protection du Vivant</string>
+    <string name="onboarding_title_2">Les (bonnes) réponses</string>
+    <string name="onboarding_subtitle_2">Des résultats rapides et précis comme avec votre moteur actuel</string>
+    <string name="onboarding_title_3">Comprendre et agir</string>
+    <string name="onboarding_subtitle_3">Des articles pour s’informer, des leviers pour agir</string>
+    <string name="onboarding_title_4">S’émerveiller avec la biodiversité</string>
+    <string name="onboarding_subtitle_4">A chaque nouvel onglet, découvrez une image illustrant la beauté et la diversité du Vivant</string>
+    <string name="onboarding_skip">Passer</string>
+
+
 </resources>

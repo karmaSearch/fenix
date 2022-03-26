@@ -205,4 +205,8 @@
     <dimen name="accessibility_min_height">48dp</dimen>
 
     <dimen name="tap_increase_16">16dp</dimen>
+
+    <!-- Onboarding -->
+    <dimen name="onboarding_margin_horizontal">20dp</dimen>
+    <dimen name="onboarding_margin_between">20dp</dimen>
 </resources>

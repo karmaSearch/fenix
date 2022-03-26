@@ -233,7 +233,11 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
         // Unless the activity is recreated, navigate to home first (without rendering it)
         // to add it to the back stack.
         if (savedInstanceState == null) {
-            navigateToHome()
+            if (!getSettings().hasShownHomeOnboardingDialog) {
+                navigateToOnBoarding()
+            } else {
+                navigateToHome()
+            }
         }
 
         if (!shouldStartOnHome() && shouldNavigateToBrowserOnColdStart(savedInstanceState)) {
@@ -895,6 +899,10 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
 
     open fun navigateToHome() {
         navHost.navController.navigate(NavGraphDirections.actionStartupHome())
+    }
+
+    open fun navigateToOnBoarding() {
+        navHost.navController.navigate(NavGraphDirections.actionStartupOnboarding())
     }
 
     override fun attachBaseContext(base: Context) {

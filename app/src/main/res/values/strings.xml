@@ -1984,4 +1984,15 @@
     <string name="preferences_karma_termsofservices">Terms of Service</string>
     <string name="preferences_karma_feedback">Your Feedback</string>
 
+    <string name="onboarding_next">Continue</string>
+    <string name="onboarding_title_1">Search with a purpose</string>
+    <string name="onboarding_subtitle_1">Your searches fund non-profit organisations, for free</string>
+    <string name="onboarding_title_2">Find what you’re looking for</string>
+    <string name="onboarding_subtitle_2">KARMA works just like your usual search engine</string>
+    <string name="onboarding_title_3">Learn &amp; Act</string>
+    <string name="onboarding_subtitle_3">Get involved and keep up-to-date with the KARMA news feed</string>
+    <string name="onboarding_title_4"></string>
+    <string name="onboarding_subtitle_4">40</string>
+    <string name="onboarding_skip">Skip</string>
+
 </resources>

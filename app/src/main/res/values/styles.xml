@@ -171,6 +171,28 @@
         <item name="buttonBarPositiveButtonStyle">@style/DialogButtonStyleLight</item>
     </style>
 
+    <style name="OnboardingTitleTextViewStyle" parent="@android:style/TextAppearance.Medium">
+        <item name="fontFamily">@font/kgsecondchangessolid</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:textColor">@color/photonWhite</item>
+        <item name="android:textAlignment">center</item>
+    </style>
+
+    <style name="OnboardingSubitleTextViewStyle" parent="@android:style/TextAppearance.Medium">
+        <item name="fontFamily">@font/proximanova_medium</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/photonLightGrey50</item>
+        <item name="android:textAlignment">center</item>
+    </style>
+
+    <style name="OnboardingButtonStyle" parent="@style/Widget.AppCompat.Button">
+        <item name="android:fontFamily">@font/proximanova_medium</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">@color/photonWhite</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:background">@drawable/button_background</item>
+    </style>
+
     <style name="SelectLoginHeaderTextStyle" parent="Header16TextStyle">
         <item name="android:textColor">?selectLoginHeaderTextColor</item>
         <item name="drawableTint">?accentHighContrast</item>

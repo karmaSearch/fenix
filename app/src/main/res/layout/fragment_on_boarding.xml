@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/onboarding_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
+    </androidx.viewpager2.widget.ViewPager2>
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/page_indicator"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:tabBackground="@drawable/tab_selector"
+        app:tabGravity="center"
+        android:layout_gravity="bottom"
+        app:tabIndicatorHeight="0dp"
+        android:layout_marginBottom="20dp" />
+
+    <Button
+        android:id="@+id/onboarding_skip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableRight="@drawable/ic_arrowhead_right"
+        android:text="@string/onboarding_skip"
+        android:textColor="@color/photonWhite"
+        android:drawableTint="@color/photonWhite"
+        android:layout_gravity="bottom|right"
+        style="@style/NeutralButton"
+        android:layout_marginBottom="15dp"
+        android:layout_marginRight="10dp"/>
+
+
+</FrameLayout>
