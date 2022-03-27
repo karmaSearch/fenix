@@ -326,6 +326,15 @@ class Settings(private val appContext: Context) : PreferencesHolder {
             numberOfAppLaunches > APP_LAUNCHES_TO_SHOW_DEFAULT_BROWSER_CARD
     }
 
+    /**
+     * Shows if the set default browser experiment card should be shown on home screen.
+     */
+    fun shouldShowSetAsDefaultBrowserOnBoarding(): Boolean {
+        val browsers = BrowsersCache.all(appContext)
+
+        return !browsers.isKARMADefaultBrowser && !hasShownDefaultBrowserDialog
+    }
+
     var gridTabView by booleanPreference(
         appContext.getPreferenceKey(R.string.pref_key_tab_view_grid),
         default = true
@@ -790,6 +799,14 @@ class Settings(private val appContext: Context) : PreferencesHolder {
      */
     var hasShownHomeOnboardingDialog by booleanPreference(
         appContext.getPreferenceKey(R.string.pref_key_has_shown_home_onboarding),
+        default = false
+    )
+
+    /**
+     * Indicates if the default browser dialog has already shown before.
+     */
+    var hasShownDefaultBrowserDialog by booleanPreference(
+        appContext.getPreferenceKey(R.string.pref_key_has_shown_default_browser),
         default = false
     )
 

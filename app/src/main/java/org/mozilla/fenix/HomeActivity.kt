@@ -235,6 +235,8 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
         if (savedInstanceState == null) {
             if (!getSettings().hasShownHomeOnboardingDialog) {
                 navigateToOnBoarding()
+            }  else if (getSettings().shouldShowSetAsDefaultBrowserOnBoarding()) {
+                navigateToOnDefaultBrowser()
             } else {
                 navigateToHome()
             }
@@ -903,6 +905,10 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
 
     open fun navigateToOnBoarding() {
         navHost.navController.navigate(NavGraphDirections.actionStartupOnboarding())
+    }
+
+    open fun navigateToOnDefaultBrowser() {
+        navHost.navController.navigate(NavGraphDirections.actionStartupDefaultbrowser())
     }
 
     override fun attachBaseContext(base: Context) {

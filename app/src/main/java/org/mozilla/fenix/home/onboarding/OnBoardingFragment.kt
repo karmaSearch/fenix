@@ -55,7 +55,12 @@ class OnBoardingFragment: Fragment() {
         interactor = OnBoardingInteractorImpl(
             showNextPage = {
                 binding.onboardingPager.doOnLayout {
-                    binding.onboardingPager.currentItem = currentPage + 1
+                    if (currentPage < pageIndicator.tabCount-1) {
+                        currentPage += 1
+                        binding.onboardingPager.currentItem = currentPage
+                    } else {
+                        findNavController().navigateUp()
+                    }
                 }
             }
         )
@@ -67,6 +72,7 @@ class OnBoardingFragment: Fragment() {
             offscreenPageLimit = 1
         }
         pageIndicator = binding.pageIndicator
+        pageIndicator.addOnTabSelectedListener(onBoardingTabSelectedCallback)
         TabLayoutMediator(pageIndicator, binding.onboardingPager) { _, _ ->}.attach()
 
         binding.onboardingSkip.setOnClickListener {
@@ -77,10 +83,19 @@ class OnBoardingFragment: Fragment() {
 
     private val onBoardingPageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
-
             currentPage = position
         }
     }
 
+    private val onBoardingTabSelectedCallback = object : TabLayout.OnTabSelectedListener {
+        override fun onTabSelected(tab: TabLayout.Tab?) {
+            currentPage = tab!!.position
+        }
 
+        override fun onTabUnselected(tab: TabLayout.Tab?) {
+        }
+
+        override fun onTabReselected(tab: TabLayout.Tab?) {
+        }
+    }
 }
