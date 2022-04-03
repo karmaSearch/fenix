@@ -121,6 +121,11 @@ class Settings(private val appContext: Context) : PreferencesHolder {
         default = true
     )
 
+    var showLearnAndAct by booleanPreference(
+        appContext.getPreferenceKey(R.string.pref_key_enable_learn_and_act),
+        default = true
+    )
+
     var numberOfAppLaunches by intPreference(
         appContext.getPreferenceKey(R.string.pref_key_times_app_opened),
         default = 0
@@ -1227,7 +1232,7 @@ class Settings(private val appContext: Context) : PreferencesHolder {
     var showRecentTabsFeature by lazyFeatureFlagPreference(
         appContext.getPreferenceKey(R.string.pref_key_recent_tabs),
         featureFlag = FeatureFlags.showRecentTabsFeature,
-        default = { appContext.components.analytics.features.homeScreen.isRecentlyTabsActive() }
+        default = { false }
     )
 
     /**
@@ -1236,7 +1241,7 @@ class Settings(private val appContext: Context) : PreferencesHolder {
      */
     var showRecentBookmarksFeature by lazyFeatureFlagPreference(
         appContext.getPreferenceKey(R.string.pref_key_recent_bookmarks),
-        default = { appContext.components.analytics.features.homeScreen.isRecentlySavedActive() },
+        default = { false },
         featureFlag = FeatureFlags.recentBookmarksFeature
     )
 

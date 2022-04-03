@@ -15,6 +15,10 @@
         android:title="@string/top_sites_toggle_top_recent_sites_3" />
 
     <androidx.preference.SwitchPreference
+        android:key="@string/pref_key_enable_learn_and_act"
+        android:title="@string/learn_and_act_preference" />
+
+    <androidx.preference.SwitchPreference
         android:key="@string/pref_key_recent_tabs"
         android:title="@string/customize_toggle_jump_back_in"
         app:isPreferenceVisible="false" />

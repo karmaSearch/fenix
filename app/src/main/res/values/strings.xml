@@ -1894,6 +1894,7 @@
     <string name="top_sites_toggle_top_recent_sites_3">Most visited top sites</string>
 
     <string name="karma_picture_preference">KARMA pictures</string>
+    <string name="learn_and_act_preference">Learn &amp; Act</string>
 
     <!-- Title text displayed in the rename top site dialog. -->
 	<string name="top_sites_rename_dialog_title">Name</string>

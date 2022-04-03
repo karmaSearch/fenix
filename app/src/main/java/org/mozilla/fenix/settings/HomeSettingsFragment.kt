@@ -44,6 +44,11 @@ class HomeSettingsFragment : PreferenceFragmentCompat() {
             onPreferenceChangeListener = CustomizeHomeMetricsUpdater()
         }
 
+        requirePreference<SwitchPreference>(R.string.pref_key_enable_learn_and_act).apply {
+            isChecked = context.settings().showLearnAndAct
+            onPreferenceChangeListener = CustomizeHomeMetricsUpdater()
+        }
+
         requirePreference<SwitchPreference>(R.string.pref_key_recent_tabs).apply {
             isVisible = FeatureFlags.showRecentTabsFeature
             isChecked = context.settings().showRecentTabsFeature

@@ -126,6 +126,7 @@
     <!-- Toolbar Settings -->
     <string name="pref_key_toolbar_top" translatable="false">pref_key_toolbar_top</string>
     <string name="pref_key_toolbar_bottom" translatable="false">pref_key_toolbar_bottom</string>
+    <string name="pref_key_toolbar_cat" translatable="false">pref_key_toolbar_cat</string>
 
     <!-- Privacy Pop Window -->
     <string name="pref_key_privacy_pop_window" translatable="false">pref_key_privacy_pop_window</string>
@@ -204,6 +205,7 @@
     <!-- Whether or not the top frecent sites are shown along with pinned top sites -->
     <string name="pref_key_enable_top_frecent_sites" translatable="false">pref_key_top_frecent_sites</string>
     <string name="pref_key_enable_karma_picture" translatable="false">pref_key_enable_karma_picture</string>
+    <string name="pref_key_enable_learn_and_act" translatable="false">pref_key_enable_learn_and_act</string>
 
     <!-- A value  of `true` means the PWA dialog has been showed or user already has PWAs installed -->
     <string name="pref_key_user_knows_about_pwa" translatable="false">pref_key_user_knows_about_pwa</string>

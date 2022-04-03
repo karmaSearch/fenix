@@ -270,9 +270,13 @@ class HomeFragment : Fragment() {
         }
 
         lifecycleScope.launch(IO) {
-            val blocs = components.core.learnAndActService.getLearnAndAct()
+            if (requireContext().settings().showLearnAndAct) {
+                val blocs = components.core.learnAndActService.getLearnAndAct()
 
-            homeFragmentStore.dispatch(HomeFragmentAction.LearnAndActShown(blocs))
+                homeFragmentStore.dispatch(HomeFragmentAction.LearnAndActShown(blocs))
+            } else {
+                homeFragmentStore.dispatch(HomeFragmentAction.LearnAndActShown(kotlin.collections.emptyList()))
+            }
 
         }
 

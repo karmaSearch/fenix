@@ -47,7 +47,6 @@ internal fun normalModeAdapterItems(
     learnAndAct: List<LearnAndAct>
 ): List<AdapterItem> {
     val items = mutableListOf<AdapterItem>()
-    var shouldShowCustomizeHome = false
 
     // Add a synchronous, unconditional and invisible placeholder so home is anchored to the top when created.
     items.add(AdapterItem.TopPlaceholderItem)
@@ -62,24 +61,17 @@ internal fun normalModeAdapterItems(
         items.add(AdapterItem.TopSitePager(topSites))
     }
 
-    if(learnAndAct.isNotEmpty()) {
-        items.add(AdapterItem.LearnAndActItem)
-    }
-
     if (recentTabs.isNotEmpty()) {
-        shouldShowCustomizeHome = true
         items.add(AdapterItem.RecentTabsHeader)
         items.add(AdapterItem.RecentTabItem)
     }
 
     if (recentBookmarks.isNotEmpty()) {
-        shouldShowCustomizeHome = true
         items.add(AdapterItem.RecentBookmarksHeader)
         items.add(AdapterItem.RecentBookmarks)
     }
 
     if (recentVisits.isNotEmpty()) {
-        shouldShowCustomizeHome = true
         items.add(AdapterItem.RecentVisitsHeader)
         items.add(AdapterItem.RecentVisitsItems)
     }
@@ -93,13 +85,14 @@ internal fun normalModeAdapterItems(
     }
 
     if (pocketStories.isNotEmpty()) {
-        shouldShowCustomizeHome = true
         items.add(AdapterItem.PocketStoriesItem)
     }
 
-    if (shouldShowCustomizeHome) {
-        items.add(AdapterItem.CustomizeHomeButton)
+    if(learnAndAct.isNotEmpty()) {
+        items.add(AdapterItem.LearnAndActItem)
     }
+
+    items.add(AdapterItem.CustomizeHomeButton)
 
     items.add(AdapterItem.BottomSpacer)
 
