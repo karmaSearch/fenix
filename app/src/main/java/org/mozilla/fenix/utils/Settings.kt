@@ -116,6 +116,11 @@ class Settings(private val appContext: Context) : PreferencesHolder {
         default = { appContext.components.analytics.features.homeScreen.isTopSitesActive() }
     )
 
+    var showKARMAPicture by booleanPreference(
+        appContext.getPreferenceKey(R.string.pref_key_enable_karma_picture),
+        default = true
+    )
+
     var numberOfAppLaunches by intPreference(
         appContext.getPreferenceKey(R.string.pref_key_times_app_opened),
         default = 0

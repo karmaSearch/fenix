@@ -1985,6 +1985,8 @@ Cependant, il peut être moins stable. Téléchargez la version bêta de notre n
     <!-- Label for the preference to show the shortcuts for the most visited top sites on the homepage -->
     <string moz:removedIn="98" name="top_sites_toggle_top_recent_sites_3" tools:ignore="UnusedResources">Les sites les plus visités</string>
 
+    <string name="karma_picture_preference">KARMA images</string>
+
     <!-- Label for the preference to show the shortcuts for the most visited top sites on the homepage -->
     <string name="top_sites_toggle_top_recent_sites_4">Raccourcis</string>
 	<!-- Title text displayed in the rename top site dialog. -->

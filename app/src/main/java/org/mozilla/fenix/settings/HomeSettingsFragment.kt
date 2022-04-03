@@ -33,6 +33,12 @@ class HomeSettingsFragment : PreferenceFragmentCompat() {
     }
 
     private fun setupPreferences() {
+
+        requirePreference<SwitchPreference>(R.string.pref_key_enable_karma_picture).apply {
+            isChecked = context.settings().showKARMAPicture
+            onPreferenceChangeListener = CustomizeHomeMetricsUpdater()
+        }
+
         requirePreference<SwitchPreference>(R.string.pref_key_enable_top_frecent_sites).apply {
             isChecked = context.settings().showTopFrecentSites
             onPreferenceChangeListener = CustomizeHomeMetricsUpdater()

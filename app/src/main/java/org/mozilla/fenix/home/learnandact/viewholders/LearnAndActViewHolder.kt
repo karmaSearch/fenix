@@ -165,7 +165,7 @@ fun LearnAndActBlocs(
                 .clickable { onStoryClicked(item) }
                 .padding(start = 10.dp, end = 10.dp)) {
 
-            val defaultImageName = if(item.type.lowercase() == "learn" || item.type.lowercase() == "comprendre") R.drawable.ic_learn_placeholder else R.drawable.ic_act_placeholder
+            val defaultImageName = if(item.type.lowercase() == "learn") R.drawable.ic_learn_placeholder else R.drawable.ic_act_placeholder
 
             if (booleanResource(id = R.bool.learn_and_act_large_view)) {
 

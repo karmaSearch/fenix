@@ -7,7 +7,7 @@
 
     <!-- Layers -->
     <!-- Default Screen, Search, Frontlayer background -->
-    <color name="fx_mobile_layer_color_1">@color/photonLightGrey20</color>
+    <color name="fx_mobile_layer_color_1">@color/photonWhite</color>
     <!-- Card background, Menu background -->
     <color name="fx_mobile_layer_color_2" tools:ignore="UnusedResources">@color/photonWhite</color>
     <!-- App Bar Top, App Bar Bottom, Frontlayer header -->
@@ -338,4 +338,6 @@
 
     <!-- Toolbar menu icon colors -->
     <color name="toolbar_menu_transparent">@android:color/transparent</color>
+
+    <color name="karma_logo_illust">@color/photonDarkGrey50</color>
 </resources>

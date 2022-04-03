@@ -1892,7 +1892,10 @@
     <string name="top_sites_max_limit_confirmation_button">OK, Got It</string>
     <!-- Label for the preference to show the most visited top sites on the homepage -->
     <string name="top_sites_toggle_top_recent_sites_3">Most visited top sites</string>
-	<!-- Title text displayed in the rename top site dialog. -->
+
+    <string name="karma_picture_preference">KARMA pictures</string>
+
+    <!-- Title text displayed in the rename top site dialog. -->
 	<string name="top_sites_rename_dialog_title">Name</string>
 	<!-- Hint for renaming title of a top site -->
 	<string name="top_site_name_hint">Top site name</string>

@@ -5,6 +5,11 @@
 <androidx.preference.PreferenceScreen
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.preference.SwitchPreference
+        android:key="@string/pref_key_enable_karma_picture"
+        android:title="@string/karma_picture_preference" />
+
     <androidx.preference.SwitchPreference
         android:key="@string/pref_key_enable_top_frecent_sites"
         android:title="@string/top_sites_toggle_top_recent_sites_3" />

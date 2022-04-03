@@ -37,7 +37,8 @@
         android:id="@+id/ovalView"
         android:layout_width="wrap_content"
         android:layout_height="14dp"
-        android:background="@drawable/ic_bg_hill"
+        android:background="@drawable/ic_onboarding_bg_hill"
+        android:backgroundTint="@color/photonBlack"
         app:layout_constraintBottom_toBottomOf="@id/onboarding_background"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

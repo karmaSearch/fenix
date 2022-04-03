@@ -27,7 +27,7 @@ import org.mozilla.fenix.home.recenttabs.RecentTab.SearchGroup
 import org.mozilla.fenix.home.recentvisits.RecentlyVisitedItem
 import org.mozilla.fenix.home.recentvisits.RecentlyVisitedItem.RecentHistoryGroup
 import org.mozilla.fenix.home.recentvisits.RecentlyVisitedItem.RecentHistoryHighlight
-
+import org.mozilla.fenix.home.animalsbackground.AnimalBackground
 /**
  * The [Store] for holding the [HomeFragmentState] and applying [HomeFragmentAction]s.
  */
@@ -79,7 +79,8 @@ data class HomeFragmentState(
     val pocketStories: List<PocketRecommendedStory> = emptyList(),
     val pocketStoriesCategories: List<PocketRecommendedStoriesCategory> = emptyList(),
     val pocketStoriesCategoriesSelections: List<PocketRecommendedStoriesSelectedCategory> = emptyList(),
-    val learnAndAct: List<LearnAndAct> = emptyList()
+    val learnAndAct: List<LearnAndAct> = emptyList(),
+    var animalBackground: AnimalBackground? = null
 ) : State
 
 sealed class HomeFragmentAction : Action {
@@ -121,6 +122,8 @@ sealed class HomeFragmentAction : Action {
     ) : HomeFragmentAction()
     object RemoveCollectionsPlaceholder : HomeFragmentAction()
     object RemoveSetDefaultBrowserCard : HomeFragmentAction()
+    data class AnimalShown(val animalBackground: AnimalBackground) :
+        HomeFragmentAction()
 }
 
 @Suppress("ReturnCount", "LongMethod")
@@ -254,7 +257,7 @@ private fun homeFragmentStateReducer(
             state.copy(pocketStoriesCategories = updatedCategories)
         }
         is HomeFragmentAction.LearnAndActShown -> state.copy(learnAndAct = action.blocs)
-
+        is HomeFragmentAction.AnimalShown -> state.copy(animalBackground = action.animalBackground)
     }
 }
 

@@ -390,18 +390,40 @@ class HomeFragment : Fragment() {
         updateSessionControlView()
 
         appBarLayout = binding.homeAppBar
-        val appBarOffsetChangedListener =
-            OnOffsetChangedListener { appbarlayout, offset ->
+        val appBarOffsetChangedListener = object : AppBarLayout.OnOffsetChangedListener {
+
+            override fun onOffsetChanged(
+                appBarLayout: com.google.android.material.appbar.AppBarLayout,
+                verticalOffset: kotlin.Int
+            ) {
                 if (_binding != null) {
-                val toolBarHeight = binding.toolbarWrapper.height / 2
-                    binding.toolbarWrapper2.visibility =
-                    if (abs(offset - toolBarHeight) >= appbarlayout.height) View.VISIBLE else View.INVISIBLE
-                    binding.toolbarWrapper.visibility =
-                    if (abs(offset - toolBarHeight) >= appbarlayout.height) View.INVISIBLE else View.VISIBLE
+                    val toolBarHeight = binding.toolbarWrapper.height / 2
+
+                    if (abs(verticalOffset - toolBarHeight) >= appBarLayout.height) {
+                        binding.toolbarWrapper2.visibility = View.VISIBLE
+                        binding.toolbarWrapper.visibility = View.INVISIBLE
+                    } else {
+                        binding.toolbarWrapper2.visibility = View.INVISIBLE
+                        binding.toolbarWrapper.visibility = View.VISIBLE
+                    }
+                    if (requireContext().settings().showKARMAPicture) {
+                        when (requireContext().settings().toolbarPosition) {
+                            ToolbarPosition.TOP -> {
+                                binding.karmaLogo.visibility =
+                                    if (abs(verticalOffset - binding.toolbarWrapper.height) >= appBarLayout.height - binding.randomAnimalsImage.height - binding.karmaLogo.height / 2) View.INVISIBLE else View.VISIBLE
+                            }
+                            ToolbarPosition.BOTTOM -> {
+                                binding.karmaLogo.visibility = binding.toolbarWrapper.visibility
+                            }
+                        }
+                    }
+
                 }
             }
+        }
 
-        binding.homeAppBar.addOnOffsetChangedListener(appBarOffsetChangedListener);
+        binding.homeAppBar.addOnOffsetChangedListener(appBarOffsetChangedListener)
+
         activity.themeManager.applyStatusBarTheme(activity)
 
         requireContext().components.analytics.experiments.recordExposureEvent(FeatureId.HOME_PAGE)
@@ -486,8 +508,10 @@ class HomeFragment : Fragment() {
                     topMargin =
                         resources.getDimensionPixelSize(R.dimen.home_fragment_top_toolbar_header_margin)
                 }
+                binding.toolbarLayout.setBackgroundColor(android.graphics.Color.TRANSPARENT)
             }
             ToolbarPosition.BOTTOM -> {
+                binding.toolbarLayout.setBackgroundColor(requireContext().getColor(R.color.fx_mobile_layer_color_1))
             }
         }
     }
@@ -679,6 +703,7 @@ class HomeFragment : Fragment() {
     override fun onStart() {
         super.onStart()
 
+        subscribeToRandomAnimalBackground()
         subscribeToTabCollections()
 
         val context = requireContext()
@@ -1053,6 +1078,45 @@ class HomeFragment : Fragment() {
         }
     }
 
+    private fun subscribeToRandomAnimalBackground() {
+        if (requireContext().settings().showKARMAPicture) {
+            val randomAnimal =
+                requireComponents.core.randomAnimalBackgroundService.getRandomAnimals()
+
+            randomAnimal?.let {
+                val resource =
+                    resources.getIdentifier(it.imageName, "drawable", requireActivity().packageName)
+                binding.randomAnimalsImage.setImageResource(resource)
+                binding.randomAnimalsCreditInfo.text = it.infoText
+                binding.randomAnimalsCreditAuthor.text = it.author
+
+                val onClickOnImage = object : View.OnClickListener {
+                    override fun onClick(v: android.view.View) {
+
+                        if (v == binding.randomAnimalsCreditLayout) {
+                            (activity as HomeActivity).openToBrowserAndLoad(it.url, true, BrowserDirection.FromHome)
+                        }
+                    }
+                }
+
+                binding.randomAnimalsImage.setOnClickListener {
+                    binding.randomAnimalsCreditLayout.visibility = if(binding.randomAnimalsCreditLayout.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+                }
+
+                binding.randomAnimalsCreditLayout.setOnClickListener(onClickOnImage)
+            }
+            binding.randomAnimalsLayout.visibility = View.VISIBLE
+            binding.wordmark.visibility = View.GONE
+            binding.karmaLogo.visibility = View.VISIBLE
+
+
+        } else {
+            binding.randomAnimalsLayout.visibility = View.GONE
+            binding.wordmark.visibility = View.VISIBLE
+            binding.karmaLogo.visibility = View.GONE
+        }
+    }
+
     private fun registerCollectionStorageObserver() {
         requireComponents.core.tabCollectionStorage.register(collectionStorageObserver, this)
     }
@@ -1082,7 +1146,7 @@ class HomeFragment : Fragment() {
                         ) {
                             super.onScrollStateChanged(recyclerView, newState)
                             if (newState == SCROLL_STATE_IDLE) {
-                                appBarLayout?.setExpanded(false)
+                                updatePosition(false)
                                 animateCollection(indexOfCollection)
                                 recyclerView.removeOnScrollListener(this)
                             }
@@ -1091,7 +1155,7 @@ class HomeFragment : Fragment() {
                     recyclerView.addOnScrollListener(onScrollListener)
                     recyclerView.smoothScrollToPosition(indexOfCollection)
                 } else {
-                    appBarLayout?.setExpanded(false)
+                    updatePosition(false)
                     animateCollection(indexOfCollection)
                 }
             }
