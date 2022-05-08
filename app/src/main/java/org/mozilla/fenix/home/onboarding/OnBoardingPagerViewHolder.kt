@@ -23,6 +23,7 @@ class OnBoardingPagerViewHolder(
         binding.onboardingSubTitle.text = itemView.context.getString(onboarding.subTitle)
         binding.onboardingBackground.setImageDrawable(itemView.context.getDrawable(onboarding.backgroundImage))
         binding.onboardingIcon.setImageDrawable(itemView.context.getDrawable(onboarding.icon))
+        binding.onboardingButton.text = itemView.context.getString(onboarding.nextButtonTitle)
 
         binding.onboardingButton.setOnClickListener {
             interactor.showNextPage()

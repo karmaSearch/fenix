@@ -119,7 +119,7 @@ class Settings(private val appContext: Context) : PreferencesHolder {
 
     var showKARMAPicture by booleanPreference(
         appContext.getPreferenceKey(R.string.pref_key_enable_karma_picture),
-        default = true
+        default = false
     )
 
     var showLearnAndAct by booleanPreference(
@@ -289,7 +289,7 @@ class Settings(private val appContext: Context) : PreferencesHolder {
 
     val shouldShowHistorySuggestions by booleanPreference(
         appContext.getPreferenceKey(R.string.pref_key_search_browsing_history),
-        default = true
+        default = false
     )
 
     val shouldShowBookmarkSuggestions by booleanPreference(

@@ -54,6 +54,7 @@ class OnBoardingFragment: Fragment() {
         viewModel = OnBoardingViewModel()
         interactor = OnBoardingInteractorImpl(
             showNextPage = {
+
                 binding.onboardingPager.doOnLayout {
                     if (currentPage < pageIndicator.tabCount-1) {
                         currentPage += 1
@@ -84,12 +85,14 @@ class OnBoardingFragment: Fragment() {
     private val onBoardingPageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             currentPage = position
+            binding.onboardingSkip.visibility = if (currentPage == viewModel.onBoardingPages.size -1) View.GONE else View.VISIBLE
         }
     }
 
     private val onBoardingTabSelectedCallback = object : TabLayout.OnTabSelectedListener {
         override fun onTabSelected(tab: TabLayout.Tab?) {
             currentPage = tab!!.position
+            binding.onboardingSkip.visibility = if (currentPage == viewModel.onBoardingPages.size -1) View.GONE else View.VISIBLE
         }
 
         override fun onTabUnselected(tab: TabLayout.Tab?) {

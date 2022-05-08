@@ -1427,9 +1427,6 @@ Cependant, il peut être moins stable. Téléchargez la version bêta de notre n
     <!-- Text for the button to read the privacy notice -->
     <string name="onboarding_privacy_notice_read_button">Consulter notre politique de confidentialité</string>
 
-    <!-- text for the button to finish onboarding -->
-    <string name="onboarding_finish">Commencer la navigation</string>
-
     <!-- Onboarding theme -->
     <!-- text for the theme picker onboarding card header -->
     <string name="onboarding_theme_picker_header">Choisissez votre thème</string>
@@ -2082,6 +2079,7 @@ Cependant, il peut être moins stable. Téléchargez la version bêta de notre n
     <string name="onboarding_title_4">S’émerveiller avec la biodiversité</string>
     <string name="onboarding_subtitle_4">A chaque nouvel onglet, découvrez une image illustrant la beauté et la diversité du Vivant</string>
     <string name="onboarding_skip">Passer</string>
+    <string name="onboarding_finish">Rechercher avec KARMA</string>
     <string name="onboarding_default_browser_title">Faîtes de KARMA votre navigateur par défaut</string>
     <string name="onboarding_default_browser_subtitle">et financez la protection du vivant en surfant sur le web</string>
     <string name="onboarding_default_browser_arrow">Sélectionnez KARMA</string>
