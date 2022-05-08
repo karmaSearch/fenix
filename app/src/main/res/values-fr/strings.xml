@@ -2087,6 +2087,9 @@ Cependant, il peut être moins stable. Téléchargez la version bêta de notre n
     <string name="onboarding_default_browser_arrow">Sélectionnez KARMA</string>
     <string name="onboarding_default_browser_choose">C’est parti !</string>
     <string name="onboarding_default_browser_notnow">Plus tard</string>
+    <string name="add_widget_title">Ajoutez le widget KARMA pour rechercher directement depuis votre page d\'accueil !</string>
+    <string name="add_a_widget">Ajoutez le widget</string>
+    <string name="add_widget_later">Plus tard</string>
 
 
 </resources>

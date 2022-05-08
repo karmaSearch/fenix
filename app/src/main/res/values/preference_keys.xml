@@ -285,6 +285,7 @@
 
     <!-- Set default browser experiment card-->
     <string name="pref_key_experiment_card_home" translatable="false">pref_key_experiment_card_home</string>
+    <string name="pref_key_experiment_add_widget" translatable="false">pref_key_experiment_add_widget</string>
 
     <!-- Secret Info Setting Keys -->
     <string name="pref_key_secret_debug_info" translatable="false">pref_key_secret_debug_info</string>

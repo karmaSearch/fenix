@@ -47,6 +47,11 @@
         app:popUpTo="@id/homeFragment" />
 
     <action
+        android:id="@+id/action_global_home_add_widget"
+        app:destination="@id/addWidgetFragment"
+        app:popUpTo="@id/homeFragment" />
+
+    <action
         android:id="@+id/action_global_search_dialog"
         app:destination="@id/searchDialogFragment"
         app:popUpTo="@id/searchDialogFragment"
@@ -208,6 +213,11 @@
         android:name="org.mozilla.fenix.home.onboarding.DefaultBrowserFragment"
         tools:layout="@layout/fragment_default_browser">
     </fragment>
+
+    <dialog
+        android:id="@+id/addWidgetFragment"
+        android:name="org.mozilla.fenix.widget.AddKarmaWidgetFragment"
+        tools:layout="@layout/fragment_add_widget"/>
 
     <dialog
         android:id="@+id/homeOnboardingDialogFragment"

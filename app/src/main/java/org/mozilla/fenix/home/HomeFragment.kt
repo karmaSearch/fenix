@@ -442,6 +442,12 @@ class HomeFragment : Fragment() {
             wallpaperManger.updateWallpaper(binding.homeLayout, wallpaperManger.currentWallpaper)
         }
 
+        if (requireContext().settings().shouldShowAddWidgetCard()) {
+            nav(
+                R.id.homeFragment,
+                HomeFragmentDirections.actionGlobalHomeAddWidget()
+            )
+        }
         return binding.root
     }
 

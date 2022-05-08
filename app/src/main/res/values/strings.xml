@@ -2003,5 +2003,8 @@
     <string name="onboarding_default_browser_arrow">Select KARMA</string>
     <string name="onboarding_default_browser_choose">Choose KARMA</string>
     <string name="onboarding_default_browser_notnow">Not now</string>
+    <string name="add_widget_title">Add the KARMA widget to search directly from your homepage !</string>
+    <string name="add_a_widget">Add a widget</string>
+    <string name="add_widget_later">Later</string>
 
 </resources>

@@ -68,6 +68,7 @@ class Settings(private val appContext: Context) : PreferencesHolder {
         private const val CFR_COUNT_CONDITION_FOCUS_INSTALLED = 1
         private const val CFR_COUNT_CONDITION_FOCUS_NOT_INSTALLED = 3
         private const val APP_LAUNCHES_TO_SHOW_DEFAULT_BROWSER_CARD = 3
+        private const val APP_LAUNCHES_TO_SHOW_WIDGET_CARD = 4
         private const val INACTIVE_TAB_MINIMUM_TO_SHOW_AUTO_CLOSE_DIALOG = 20
 
         const val FOUR_HOURS_MS = 60 * 60 * 4 * 1000L
@@ -317,6 +318,15 @@ class Settings(private val appContext: Context) : PreferencesHolder {
      */
     var userDismissedExperimentCard by booleanPreference(
         appContext.getPreferenceKey(R.string.pref_key_experiment_card_home),
+        default = false
+    )
+
+    /**
+     * Shows if the user has chosen to close the set default browser experiment card
+     * on home screen or has clicked the set as default browser button.
+     */
+    var userDismissedAddWidgetCard by booleanPreference(
+        appContext.getPreferenceKey(R.string.pref_key_experiment_add_widget),
         default = false
     )
 
@@ -1275,4 +1285,13 @@ class Settings(private val appContext: Context) : PreferencesHolder {
         featureFlag = FeatureFlags.isPocketRecommendationsFeatureEnabled(),
         default = { appContext.components.analytics.features.homeScreen.isPocketRecommendationsActive() },
     )
+
+    /**
+     * Shows if the add widget card should be shown on home screen.
+     */
+    fun shouldShowAddWidgetCard(): Boolean {
+        return !searchWidgetInstalled &&
+                !userDismissedAddWidgetCard &&
+                numberOfAppLaunches > APP_LAUNCHES_TO_SHOW_WIDGET_CARD
+    }
 }
