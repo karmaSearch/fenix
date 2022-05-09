@@ -1090,7 +1090,7 @@ class Settings(private val appContext: Context) : PreferencesHolder {
 
     var openLinksInExternalApp by booleanPreference(
         appContext.getPreferenceKey(R.string.pref_key_open_links_in_external_app),
-        default = false
+        default = true
     )
 
     var allowDomesticChinaFxaServer by booleanPreference(
