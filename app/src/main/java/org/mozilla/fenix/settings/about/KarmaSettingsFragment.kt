@@ -56,7 +56,7 @@ class KarmaSettingsFragment : PreferenceFragmentCompat() {
         (activity as HomeActivity).openToBrowserAndLoad(
             searchTermOrURL = url,
             newTab = true,
-            from = BrowserDirection.FromAbout
+            from = BrowserDirection.FromKarmaSettings
         )
     }
 
