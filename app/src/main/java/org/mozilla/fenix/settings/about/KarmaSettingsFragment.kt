@@ -36,8 +36,8 @@ class KarmaSettingsFragment : PreferenceFragmentCompat() {
             resources.getString(R.string.pref_key_mission) -> openLinkInNormalTab(baseURL)
             resources.getString(R.string.pref_key_howitwork) -> openLinkInNormalTab(baseURL+"what")
             resources.getString(R.string.pref_key_privacy) -> openLinkInNormalTab(baseURL+"legal")
-            resources.getString(R.string.pref_key_privacy) -> openLinkInNormalTab(baseURL+"legal#imprint")
-            resources.getString(R.string.pref_key_partners) -> openLinkInNormalTab(if(isFr) "https://mykarma.notion.site/Nos-partenaires-8c26dd107da341ccb0f0c7216cc2a6d5" else "https://mykarma.notion.site/Our-Partners-a8cd5944d0e64872ac7f44c8b014a059")
+            resources.getString(R.string.pref_key_termsofservices) -> openLinkInNormalTab(if(isFr) "https://mykarma.notion.site/Conditions-d-utilisation-c5f461f440b3475cbac000dc10d8527e" else "https://mykarma.notion.site/Terms-of-service-e73514e7789b4f98b8883f88dbd11b32")
+            resources.getString(R.string.pref_key_partners) -> openLinkInNormalTab(baseURL+"partners")
             resources.getString(R.string.pref_key_feedback) -> navigateFromSettings(KarmaSettingsFragmentDirections.actionGlobalFeedbackFragment())
             resources.getString(R.string.pref_key_licence) -> navigateFromSettings(KarmaSettingsFragmentDirections.actionGlobalAboutFragment())
         }
