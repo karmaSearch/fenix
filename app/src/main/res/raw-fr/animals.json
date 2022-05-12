@@ -31,12 +31,6 @@
       "url": "https://unsplash.com/@rkatieb"
     },
     {
-      "imageName": "phoenix_han43",
-      "infoText": "Cochon par ",
-      "author": "Phoenix Han",
-      "url": ""
-    },
-    {
       "imageName": "philip_brown42",
       "infoText": "Colibri par ",
       "author": "Philip Brown",
@@ -67,28 +61,10 @@
       "url": "https://unsplash.com/@withluke"
     },
     {
-      "imageName": "luke_stackpoole37luke_stackpoole38",
-      "infoText": "",
-      "author": "Luke Stackpoole",
-      "url": "https://unsplash.com/@withluke"
-    },
-    {
       "imageName": "kseniya_konovets36",
       "infoText": "Vache par ",
       "author": "Kseniya Konovets",
       "url": "https://unsplash.com/@konovetsk"
-    },
-    {
-      "imageName": "kjell_jostein_sivertsen35",
-      "infoText": "Mouton par ",
-      "author": "Kjell Jostein Sivertsen",
-      "url": ""
-    },
-    {
-      "imageName": "jonathan_pie34",
-      "infoText": "Macareux en Atlantique par ",
-      "author": "Jonathan Pie",
-      "url": "https://unsplash.com/@r3dmax"
     },
     {
       "imageName": "jonathan_pie33",
@@ -167,12 +143,6 @@
       "infoText": "Flamand par ",
       "author": "Gaetano Cessati",
       "url": "https://unsplash.com/@gaetanocessati"
-    },
-    {
-      "imageName": "emre_coban19",
-      "infoText": "Veau par ",
-      "author": "Emre Coban",
-      "url": ""
     },
     {
       "imageName": "dustin_humes18",
@@ -269,12 +239,6 @@
       "infoText": "Papillon par ",
       "author": "Aarn Giri",
       "url": "https://unsplash.com/@_giri_"
-    },
-    {
-      "imageName": "emre_coban19",
-      "infoText": "Veau par ",
-      "author": "Emre Coban",
-      "url": ""
     }
   ]
 }
