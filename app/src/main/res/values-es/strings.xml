@@ -2112,4 +2112,5 @@
     <string name="pocket_stories_feature_caption">Parte de la familia Firefox. %s</string>
     <!-- Clickable text for opening an external link for more information about Pocket. -->
     <string name="pocket_stories_feature_learn_more">Aprender más</string>
+    <string name="onboarding_companion_searchbar">Haz tus busquedas aqui y protege la biodiversidad! Cuando seleccionas la barra de búsqueda, el ícono del micrófono te permite activar la búsqueda por voz</string>
 </resources>

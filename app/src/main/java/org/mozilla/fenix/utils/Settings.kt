@@ -1294,4 +1294,12 @@ class Settings(private val appContext: Context) : PreferencesHolder {
                 !userDismissedAddWidgetCard &&
                 numberOfAppLaunches > APP_LAUNCHES_TO_SHOW_WIDGET_CARD
     }
+
+    /**
+     * Indicates if the jump back in CRF should be shown.
+     */
+    var shouldShowCompanion by booleanPreference(
+        appContext.getPreferenceKey(R.string.pref_key_should_show_companion),
+        default = true
+    )
 }

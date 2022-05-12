@@ -107,6 +107,7 @@ import org.mozilla.fenix.home.sessioncontrol.SessionControlInteractor
 import org.mozilla.fenix.home.sessioncontrol.SessionControlView
 import org.mozilla.fenix.home.sessioncontrol.viewholders.CollectionViewHolder
 import org.mozilla.fenix.home.topsites.DefaultTopSitesView
+import org.mozilla.fenix.home.onboarding.SearchBarOnBoardingDialog
 import org.mozilla.fenix.onboarding.FenixOnboarding
 import org.mozilla.fenix.perf.MarkersFragmentLifecycleCallbacks
 import org.mozilla.fenix.settings.SupportUtils
@@ -387,6 +388,7 @@ class HomeFragment : Fragment() {
         sessionControlView = SessionControlView(
             homeFragmentStore,
             binding.sessionControlRecyclerView,
+            binding.toolbarWrapper,
             viewLifecycleOwner,
             sessionControlInteractor
         )
@@ -800,6 +802,7 @@ class HomeFragment : Fragment() {
                 )
             }
         }
+
     }
 
     private fun navToSavedLogins() {

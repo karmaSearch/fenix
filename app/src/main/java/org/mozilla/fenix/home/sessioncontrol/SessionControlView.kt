@@ -22,6 +22,7 @@ import org.mozilla.fenix.home.HomeFragmentState
 import org.mozilla.fenix.home.HomeFragmentStore
 import org.mozilla.fenix.home.Mode
 import org.mozilla.fenix.home.OnboardingState
+import org.mozilla.fenix.home.onboarding.SearchBarOnBoardingDialog
 import org.mozilla.fenix.home.recentbookmarks.RecentBookmark
 import org.mozilla.fenix.home.recenttabs.RecentTab
 import org.mozilla.fenix.home.recentvisits.RecentlyVisitedItem
@@ -184,6 +185,7 @@ private fun collectionTabItems(collection: TabCollection) =
 class SessionControlView(
     store: HomeFragmentStore,
     val containerView: View,
+    val searchBarView: View,
     viewLifecycleOwner: LifecycleOwner,
     internal val interactor: SessionControlInteractor
 ) {
@@ -205,6 +207,8 @@ class SessionControlView(
                     super.onLayoutCompleted(state)
 
                     JumpBackInCFRDialog(view).showIfNeeded()
+                    SearchBarOnBoardingDialog(searchBarView).showIfNeeded()
+
                 }
             }
             val itemTouchHelper =

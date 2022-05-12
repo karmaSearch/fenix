@@ -2004,5 +2004,6 @@
     <string name="add_widget_title">Add the KARMA widget to search directly from your homepage !</string>
     <string name="add_a_widget">Add a widget</string>
     <string name="add_widget_later">Later</string>
+    <string name="onboarding_companion_searchbar">Search the web here and protect biodiversity and animal welfare! When you select the search bar, click on the microphone icon to activate the vocal search</string>
 
 </resources>
