@@ -1058,12 +1058,6 @@ class HomeFragment : Fragment() {
                             HomeFragmentDirections.actionGlobalAccountProblemFragment()
                         )
                     }
-                    HomeMenu.Item.Extensions -> {
-                        nav(
-                            R.id.homeFragment,
-                            HomeFragmentDirections.actionGlobalAddonsManagementFragment()
-                        )
-                    }
                     HomeMenu.Item.Feedback -> {
                         nav(
                             R.id.homeFragment,

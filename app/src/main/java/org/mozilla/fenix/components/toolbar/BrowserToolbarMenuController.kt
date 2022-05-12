@@ -31,6 +31,7 @@ import org.mozilla.fenix.NavGraphDirections
 import org.mozilla.fenix.R
 import org.mozilla.fenix.browser.BrowserAnimator
 import org.mozilla.fenix.browser.BrowserFragmentDirections
+import org.mozilla.fenix.browser.browsingmode.BrowsingMode
 import org.mozilla.fenix.browser.readermode.ReaderModeController
 import org.mozilla.fenix.collections.SaveCollectionStep
 import org.mozilla.fenix.components.FenixSnackbar
@@ -74,6 +75,8 @@ class DefaultBrowserToolbarMenuController(
     private val topSitesStorage: DefaultTopSitesStorage,
     private val browserStore: BrowserStore
 ) : BrowserToolbarMenuController {
+
+    private val browsingModeManager get() = activity.browsingModeManager
 
     private val currentSession
         get() = store.state.findCustomTabOrSelectedTab(customTabSessionId)
@@ -351,6 +354,12 @@ class DefaultBrowserToolbarMenuController(
                     BrowserFragmentDirections.actionGlobalHome(focusOnAddressBar = true)
                 )
             }
+            is ToolbarMenu.Item.NewPrivateTab -> {
+                browsingModeManager.mode = BrowsingMode.fromBoolean(true)
+                navController.navigate(
+                    BrowserFragmentDirections.actionGlobalHome(focusOnAddressBar = true)
+                )
+            }
             is ToolbarMenu.Item.SetDefaultBrowser -> {
                 metrics.track(Event.SetDefaultBrowserToolbarMenuClicked)
                 activity.openSetDefaultBrowserOption()
@@ -401,6 +410,7 @@ class DefaultBrowserToolbarMenuController(
             is ToolbarMenu.Item.History -> Event.BrowserMenuItemTapped.Item.HISTORY
             is ToolbarMenu.Item.Downloads -> Event.BrowserMenuItemTapped.Item.DOWNLOADS
             is ToolbarMenu.Item.NewTab -> Event.BrowserMenuItemTapped.Item.NEW_TAB
+            is ToolbarMenu.Item.NewPrivateTab -> Event.BrowserMenuItemTapped.Item.NEW_PRIVATE_TAB
             is ToolbarMenu.Item.SetDefaultBrowser -> Event.BrowserMenuItemTapped.Item.SET_DEFAULT_BROWSER
         }
 
