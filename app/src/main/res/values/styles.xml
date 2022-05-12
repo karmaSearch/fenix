@@ -450,6 +450,7 @@
 
     <style name="Body16TextStyle" parent="TextAppearance.MaterialComponents.Body1">
         <item name="android:textColor">?primaryText</item>
+        <item name="fontFamily">@font/proximanova</item>
     </style>
 
     <style name="Body12TextStyle" parent="TextAppearance.MaterialComponents.Body1">

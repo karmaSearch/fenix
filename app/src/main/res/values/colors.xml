@@ -340,4 +340,7 @@
     <color name="toolbar_menu_transparent">@android:color/transparent</color>
 
     <color name="karma_logo_illust">@color/photonDarkGrey50</color>
+
+    <color name="companion_text">@color/photonBlack</color>
+
 </resources>

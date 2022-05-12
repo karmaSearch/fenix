@@ -63,10 +63,6 @@ class JumpBackInCFRDialog(val recyclerView: RecyclerView) {
             // removing title or setting it as an empty string does not prevent a11y services from assigning one
             setTitle(" ")
         }
-        popupBinding.closeInfoBanner.setOnClickListener {
-            popup.dismiss()
-        }
-
         anchor.getLocationOnScreen(anchorPosition)
         val (x, y) = anchorPosition
 
@@ -84,6 +80,8 @@ class JumpBackInCFRDialog(val recyclerView: RecyclerView) {
             attributes = attr
             setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         }
+        popup.setCanceledOnTouchOutside(true)
+
         return popup
     }
 }
