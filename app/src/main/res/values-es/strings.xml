@@ -2113,4 +2113,5 @@
     <!-- Clickable text for opening an external link for more information about Pocket. -->
     <string name="pocket_stories_feature_learn_more">Aprender más</string>
     <string name="onboarding_companion_searchbar">Haz tus busquedas aqui y protege la biodiversidad! Cuando seleccionas la barra de búsqueda, el ícono del micrófono te permite activar la búsqueda por voz</string>
+    <string name="onboarding_companion_learn_and_act">Los contenidos del “Learn &amp; Act” te brindan informaciones esenciales y te permiten tomar acciones concretas en torno a la salvaguardia de la biodiversidad y la protección del bienestar animal.</string>
 </resources>

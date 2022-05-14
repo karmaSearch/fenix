@@ -39,12 +39,13 @@ import org.mozilla.fenix.components.components
 import org.mozilla.fenix.home.HomeFragmentStore
 import org.mozilla.fenix.home.learnandact.LearnAndActInteractor
 import org.mozilla.fenix.theme.FirefoxTheme
+import org.mozilla.fenix.utils.view.ViewHolder
 
 class LearnAndActViewHolder(
     val composeView: ComposeView,
     val store: HomeFragmentStore,
     val interactor: LearnAndActInteractor
-) : RecyclerView.ViewHolder(composeView) {
+) : ViewHolder(composeView) {
     companion object {
         val LAYOUT_ID = View.generateViewId()
     }

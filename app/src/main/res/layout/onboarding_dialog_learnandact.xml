@@ -25,7 +25,7 @@
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
             android:maxWidth="300dp"
-            android:text="@string/onboarding_companion_searchbar"
+            android:text="@string/onboarding_companion_learn_and_act"
             android:textAppearance="@style/Body16TextStyle"
             android:textColor="@color/companion_text"
             android:textSize="18sp"

@@ -2089,6 +2089,7 @@ Cependant, il peut être moins stable. Téléchargez la version bêta de notre n
     <string name="add_a_widget">Ajoutez le widget</string>
     <string name="add_widget_later">Plus tard</string>
     <string name="onboarding_companion_searchbar">Faites ici vos recherches et protégez le Vivant ! Quand vous sélectionnez la barre de recherche, l’icône micro vous permet d’activer la recherche vocale</string>
+    <string name="onboarding_companion_learn_and_act">Les contenus du “Learn &amp; Act” vous donnent les informations essentielles et vous permettent d’agir concrètement autour de la sauvegarde de la biodiversité et la protection du bien-être animal</string>
 
 
 </resources>
