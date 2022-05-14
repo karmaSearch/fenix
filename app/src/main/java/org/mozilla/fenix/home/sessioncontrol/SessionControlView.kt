@@ -24,6 +24,7 @@ import org.mozilla.fenix.home.Mode
 import org.mozilla.fenix.home.OnboardingState
 import org.mozilla.fenix.home.onboarding.LearnAndActOnBoardingDialog
 import org.mozilla.fenix.home.onboarding.SearchBarOnBoardingDialog
+import org.mozilla.fenix.home.onboarding.TopSiteOnBoardingDialog
 import org.mozilla.fenix.home.recentbookmarks.RecentBookmark
 import org.mozilla.fenix.home.recenttabs.RecentTab
 import org.mozilla.fenix.home.recentvisits.RecentlyVisitedItem
@@ -209,6 +210,7 @@ class SessionControlView(
 
                     JumpBackInCFRDialog(view).showIfNeeded()
                     SearchBarOnBoardingDialog(searchBarView, view).showIfNeeded()
+                    TopSiteOnBoardingDialog(view).showIfNeeded()
                 }
             }
             val itemTouchHelper =

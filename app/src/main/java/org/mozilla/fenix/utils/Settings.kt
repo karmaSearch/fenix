@@ -1307,4 +1307,10 @@ class Settings(private val appContext: Context) : PreferencesHolder {
         appContext.getPreferenceKey(R.string.pref_key_should_show_learn_act_companion),
         default = true
     )
+
+    var shouldShowTopSiteCompanion by booleanPreference(
+        appContext.getPreferenceKey(R.string.pref_key_should_show_topsite_companion),
+        default = true
+    )
+
 }

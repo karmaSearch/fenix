@@ -15,11 +15,12 @@ import org.mozilla.fenix.databinding.ComponentTopSitesPagerBinding
 import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.home.sessioncontrol.AdapterItem
 import org.mozilla.fenix.home.sessioncontrol.TopSiteInteractor
+import org.mozilla.fenix.utils.view.ViewHolder
 
 class TopSitePagerViewHolder(
     view: View,
     interactor: TopSiteInteractor
-) : RecyclerView.ViewHolder(view) {
+) : ViewHolder(view) {
 
     private val binding = ComponentTopSitesPagerBinding.bind(view)
     private val topSitesPagerAdapter = TopSitesPagerAdapter(interactor)
