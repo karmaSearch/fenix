@@ -1231,7 +1231,7 @@ class Settings(private val appContext: Context) : PreferencesHolder {
 
     var historyMetadataUIFeature by lazyFeatureFlagPreference(
         appContext.getPreferenceKey(R.string.pref_key_history_metadata_feature),
-        default = { appContext.components.analytics.features.homeScreen.isRecentExplorationsActive() },
+        default = { false },
         featureFlag = FeatureFlags.historyMetadataUIFeature || isHistoryMetadataEnabled
     )
 
