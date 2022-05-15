@@ -6,7 +6,7 @@
     <corners android:radius="13dp" />
 
     <solid
-        android:color="@color/photonWhite" />
+        android:color="@color/companion_background" />
     <stroke android:color="@color/photonGreen50"
         android:width="1dp"/>
 

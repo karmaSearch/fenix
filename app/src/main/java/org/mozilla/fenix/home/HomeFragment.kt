@@ -387,6 +387,7 @@ class HomeFragment : Fragment() {
         sessionControlView = SessionControlView(
             homeFragmentStore,
             binding.sessionControlRecyclerView,
+            binding.toolbarWrapper,
             viewLifecycleOwner,
             sessionControlInteractor
         )
@@ -800,6 +801,7 @@ class HomeFragment : Fragment() {
                 )
             }
         }
+
     }
 
     private fun navToSavedLogins() {
