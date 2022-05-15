@@ -1299,18 +1299,12 @@ class Settings(private val appContext: Context) : PreferencesHolder {
      * Indicates if the companion in CRF should be shown.
      */
     var shouldShowCompanion by booleanPreference(
-        appContext.getPreferenceKey(R.string.pref_key_should_show_companion),
-        default = true
-    )
-
-    var shouldShowLearnAndActCompanion by booleanPreference(
-        appContext.getPreferenceKey(R.string.pref_key_should_show_learn_act_companion),
-        default = true
+            appContext.getPreferenceKey(R.string.pref_key_should_show_companion),
+            default = true
     )
 
     var shouldShowTopSiteCompanion by booleanPreference(
         appContext.getPreferenceKey(R.string.pref_key_should_show_topsite_companion),
         default = true
     )
-
 }

@@ -2006,6 +2006,7 @@
     <string name="add_widget_later">Later</string>
     <string name="onboarding_companion_searchbar">Search the web here and protect biodiversity and animal welfare! When you select the search bar, click on the microphone icon to activate the vocal search</string>
     <string name="onboarding_companion_learn_and_act">With "Learn &amp; Act", we will keep you informed about biodiversity and animal welfare latest news, and you will learn how to take concrete action to protect them</string>
+    <string name="onboarding_companion_settings">You can configure your KARMA home page through customize the home page in the application menu</string>
     <string name="onboarding_companion_shortcut">Here are your shortcuts and most visited websites. To delete a shortcut, just click on the icon and hold it down for a while. To add a new shortcut, just go to the menu when you are browsing</string>
 
 </resources>

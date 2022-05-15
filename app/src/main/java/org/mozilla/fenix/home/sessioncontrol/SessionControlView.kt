@@ -22,8 +22,7 @@ import org.mozilla.fenix.home.HomeFragmentState
 import org.mozilla.fenix.home.HomeFragmentStore
 import org.mozilla.fenix.home.Mode
 import org.mozilla.fenix.home.OnboardingState
-import org.mozilla.fenix.home.onboarding.LearnAndActOnBoardingDialog
-import org.mozilla.fenix.home.onboarding.SearchBarOnBoardingDialog
+import org.mozilla.fenix.home.onboarding.CompanionOnBoardingDialog
 import org.mozilla.fenix.home.onboarding.TopSiteOnBoardingDialog
 import org.mozilla.fenix.home.recentbookmarks.RecentBookmark
 import org.mozilla.fenix.home.recenttabs.RecentTab
@@ -209,8 +208,12 @@ class SessionControlView(
                     super.onLayoutCompleted(state)
 
                     JumpBackInCFRDialog(view).showIfNeeded()
-                    SearchBarOnBoardingDialog(searchBarView, view).showIfNeeded()
-                    TopSiteOnBoardingDialog(view).showIfNeeded()
+                    val dialog =  CompanionOnBoardingDialog(searchBarView, view)
+                    dialog.showIfNeeded()
+                    if (!dialog.isShowing) {
+                        TopSiteOnBoardingDialog(view).showIfNeeded()
+                    }
+
                 }
             }
             val itemTouchHelper =

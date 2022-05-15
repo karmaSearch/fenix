@@ -2115,4 +2115,5 @@
     <string name="onboarding_companion_searchbar">Haz tus busquedas aqui y protege la biodiversidad! Cuando seleccionas la barra de búsqueda, el ícono del micrófono te permite activar la búsqueda por voz</string>
     <string name="onboarding_companion_learn_and_act">Los contenidos del “Learn &amp; Act” te brindan informaciones esenciales y te permiten tomar acciones concretas en torno a la salvaguardia de la biodiversidad y la protección del bienestar animal.</string>
     <string name="onboarding_companion_shortcut">Aquí encontrarás tus accesos directos y los sitios más visitados. Puedes eliminar un acceso directo manteniendo presionado el ícono y agregar uno a través del menú cuando navegas por un sitio</string>
+    <string name="onboarding_companion_settings">Puedes configurar el diseño de la página de inicio de KARMA en el menú personalizar la página de inicio presente en el menú de la aplicación</string>
 </resources>

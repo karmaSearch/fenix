@@ -2090,6 +2090,7 @@ Cependant, il peut être moins stable. Téléchargez la version bêta de notre n
     <string name="add_widget_later">Plus tard</string>
     <string name="onboarding_companion_searchbar">Faites ici vos recherches et protégez le Vivant ! Quand vous sélectionnez la barre de recherche, l’icône micro vous permet d’activer la recherche vocale</string>
     <string name="onboarding_companion_learn_and_act">Les contenus du “Learn &amp; Act” vous donnent les informations essentielles et vous permettent d’agir concrètement autour de la sauvegarde de la biodiversité et la protection du bien-être animal</string>
+    <string name="onboarding_companion_settings">Vous pouvez paramétrer la disposition de la page d’accueil KARMA en cliquant sur personnaliser la page d’accueil dans le menu de l’application</string>
     <string name="onboarding_companion_shortcut">Vous trouverez ici vos raccourcis et les sites les plus visités. Vous pouvez supprimer un raccourci en appuyant  longuement sur l’icône et en rajouter un via le menu quand vous naviguez sur un site</string>
 
 
