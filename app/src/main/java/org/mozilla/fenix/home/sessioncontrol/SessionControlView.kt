@@ -193,6 +193,8 @@ class SessionControlView(
 
     val view: RecyclerView = containerView as RecyclerView
 
+    private var companionIsShowing: Boolean = false
+
     private val sessionControlAdapter = SessionControlAdapter(
         store,
         interactor,
@@ -207,11 +209,17 @@ class SessionControlView(
                 override fun onLayoutCompleted(state: RecyclerView.State?) {
                     super.onLayoutCompleted(state)
 
-                    JumpBackInCFRDialog(view).showIfNeeded()
-                    val dialog =  CompanionOnBoardingDialog(searchBarView, view)
-                    dialog.showIfNeeded()
-                    if (!dialog.isShowing) {
-                        TopSiteOnBoardingDialog(view).showIfNeeded()
+                    val companion = CompanionOnBoardingDialog(searchBarView, view)
+
+                    //prevent 2 dialog is same time
+                    if (!companionIsShowing) {
+                        companion.showIfNeeded()
+                        companionIsShowing = companion.isShowing
+
+                        if (!companionIsShowing) {
+                            JumpBackInCFRDialog(view).showIfNeeded()
+                            TopSiteOnBoardingDialog(view).showIfNeeded()
+                        }
                     }
 
                 }
