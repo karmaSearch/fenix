@@ -11,7 +11,7 @@ class RandomAnimalBackgroundService(val context: Context,
 
     fun getRandomAnimals() : AnimalBackground? {
         val stream: InputStream = context.resources
-                .openRawResource(R.raw.animals)
+                .openRawResource(R.raw.new_tab_images)
         val writer: Writer = StringWriter()
         val buffer = CharArray(1024)
         try {

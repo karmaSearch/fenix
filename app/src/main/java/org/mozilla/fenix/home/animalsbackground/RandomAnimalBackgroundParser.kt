@@ -1,14 +1,15 @@
 package org.mozilla.fenix.home.animalsbackground
 
 import mozilla.components.support.ktx.android.org.json.mapNotNull
+import mozilla.components.support.locale.LocaleManager
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
+import java.util.*
 
 class RandomAnimalBackgroundParser {
     fun jsonToAnimals(json: String): List<AnimalBackground>? = try {
-        val rawJSON = JSONObject(json)
-        val animalsArray = rawJSON.getJSONArray("images")
+        val animalsArray = JSONArray(json)
         val animals = animalsArray.mapNotNull(JSONArray::getJSONObject) { jsonToAnimalBackground(it) }
 
         // We return null, rather than the empty list, because devs might forget to check an empty list.
@@ -17,12 +18,20 @@ class RandomAnimalBackgroundParser {
         null
     }
 
-    private fun jsonToAnimalBackground(json: JSONObject): AnimalBackground =
-        AnimalBackground(
+    private fun jsonToAnimalBackground(json: JSONObject): AnimalBackground {
+        val defaultText = try {
+            json.getJSONObject("infoText").getString(LocaleManager.getSystemDefault().language)
+        } catch(e: JSONException) {
+            json.getJSONObject("infoText").getString("en")
+        }
+
+        return AnimalBackground(
             imageName = json.getString("imageName"),
             author = json.getString("author"),
-            infoText = json.getString("infoText"),
+            infoText = defaultText,
             url = json.getString("url")
         )
+    }
+
 
 }

@@ -1093,7 +1093,7 @@ class HomeFragment : Fragment() {
                 val resource =
                     resources.getIdentifier(it.imageName, "drawable", requireActivity().packageName)
                 binding.randomAnimalsImage.setImageResource(resource)
-                binding.randomAnimalsCreditInfo.text = it.infoText
+                binding.randomAnimalsCreditInfo.text = it.infoText + " "
                 binding.randomAnimalsCreditAuthor.text = it.author
 
                 val onClickOnImage = object : View.OnClickListener {
