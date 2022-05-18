@@ -174,36 +174,45 @@ fun LearnAndActBlocs(
                     .heightIn(max = 200.dp),
                     horizontalArrangement = Arrangement.SpaceAround) {
 
-                    ImageLoader(
-                        url = item.imageUrl,
-                        client = components.core.client
-                    ) {
-                        WithImage { painter ->
-                            androidx.compose.foundation.Image(
-                                painter = painter,
-                                modifier = Modifier.weight(8f, true),
-                                contentDescription = null,
-                                contentScale = ContentScale.FillWidth
-                            )
-                        }
+                    if (item.imageUrl.startsWith("http")) {
+                        ImageLoader(
+                            url = item.imageUrl,
+                            client = components.core.client
+                        ) {
+                            WithImage { painter ->
+                                androidx.compose.foundation.Image(
+                                    painter = painter,
+                                    modifier = Modifier.weight(8f, true),
+                                    contentDescription = null,
+                                    contentScale = ContentScale.FillWidth
+                                )
+                            }
 
-                        Placeholder {
-                            androidx.compose.foundation.Image(
-                                painter = painterResource(id = defaultImageName),
-                                modifier = Modifier.weight(8f, true),
-                                contentDescription = null,
-                                contentScale = ContentScale.FillWidth
-                            )
-                        }
+                            Placeholder {
+                                androidx.compose.foundation.Image(
+                                    painter = painterResource(id = defaultImageName),
+                                    modifier = Modifier.weight(8f, true),
+                                    contentDescription = null,
+                                    contentScale = ContentScale.FillWidth
+                                )
+                            }
 
-                        Fallback {
-                            androidx.compose.foundation.Image(
-                                painter = painterResource(id = defaultImageName),
-                                modifier = Modifier.weight(8f, true),
-                                contentDescription = null,
-                                contentScale = ContentScale.FillWidth
-                            )
+                            Fallback {
+                                androidx.compose.foundation.Image(
+                                    painter = painterResource(id = defaultImageName),
+                                    modifier = Modifier.weight(8f, true),
+                                    contentDescription = null,
+                                    contentScale = ContentScale.FillWidth
+                                )
+                            }
                         }
+                    } else {
+                        androidx.compose.foundation.Image(
+                            painter = painterResource(id = defaultImageName),
+                            modifier = Modifier.weight(8f, true),
+                            contentDescription = null,
+                            contentScale = ContentScale.FillWidth
+                        )
                     }
 
                     Column(
@@ -227,42 +236,53 @@ fun LearnAndActBlocs(
                 }
             } else {
                 Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
-                    ImageLoader(
-                        url = item.imageUrl,
-                        client = components.core.client
-                    ) {
-                        WithImage { painter ->
-                            androidx.compose.foundation.Image(
-                                painter = painter,
-                                modifier = Modifier
-                                    .height(193.dp)
-                                    .fillMaxWidth(),
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop
-                            )
-                        }
+                    if (item.imageUrl.startsWith("http")) {
+                        ImageLoader(
+                            url = item.imageUrl,
+                            client = components.core.client
+                        ) {
+                            WithImage { painter ->
+                                androidx.compose.foundation.Image(
+                                    painter = painter,
+                                    modifier = Modifier
+                                        .height(193.dp)
+                                        .fillMaxWidth(),
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
 
-                        Placeholder {
-                            androidx.compose.foundation.Image(
-                                painter = painterResource(id = defaultImageName),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .height(193.dp)
-                                    .fillMaxWidth(),
-                                contentScale = ContentScale.Crop
-                            )
-                        }
+                            Placeholder {
+                                androidx.compose.foundation.Image(
+                                    painter = painterResource(id = defaultImageName),
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .height(193.dp)
+                                        .fillMaxWidth(),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
 
-                        Fallback {
-                            androidx.compose.foundation.Image(
-                                painter = painterResource(id = defaultImageName),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .height(193.dp)
-                                    .fillMaxWidth(),
-                                contentScale = ContentScale.Crop
-                            )
+                            Fallback {
+                                androidx.compose.foundation.Image(
+                                    painter = painterResource(id = defaultImageName),
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .height(193.dp)
+                                        .fillMaxWidth(),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
                         }
+                    } else {
+                        androidx.compose.foundation.Image(
+                            painter = painterResource(id = defaultImageName),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .height(193.dp)
+                                .fillMaxWidth(),
+                            contentScale = ContentScale.Crop
+                        )
                     }
 
                     Text(
