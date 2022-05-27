@@ -26,6 +26,7 @@ import org.mozilla.fenix.ext.nav
 import org.mozilla.fenix.ext.requireComponents
 import org.mozilla.fenix.ext.setTextColor
 import org.mozilla.fenix.ext.showToolbar
+import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.library.LibraryPageFragment
 import org.mozilla.fenix.library.history.History
 import org.mozilla.fenix.library.historymetadata.controller.DefaultHistoryMetadataGroupController
@@ -72,8 +73,10 @@ class HistoryMetadataGroupFragment :
 
         interactor = DefaultHistoryMetadataGroupInteractor(
             controller = DefaultHistoryMetadataGroupController(
-                activity = activity as HomeActivity,
+                historyStorage = (activity as HomeActivity).components.core.historyStorage,
+                browserStore = (activity as HomeActivity).components.core.store,
                 store = historyMetadataGroupStore,
+                selectOrAddUseCase = requireComponents.useCases.tabsUseCases.selectOrAddTab,
                 metrics = requireComponents.analytics.metrics,
                 navController = findNavController(),
                 scope = lifecycleScope,
@@ -108,7 +111,7 @@ class HistoryMetadataGroupFragment :
 
             menu.findItem(R.id.delete_history_multi_select)?.let { deleteItem ->
                 deleteItem.title = SpannableString(deleteItem.title).apply {
-                    setTextColor(requireContext(), R.attr.destructive)
+                    setTextColor(requireContext(), R.attr.textWarning)
                 }
             }
         } else {

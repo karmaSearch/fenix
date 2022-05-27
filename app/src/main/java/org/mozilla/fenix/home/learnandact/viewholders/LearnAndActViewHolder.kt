@@ -35,15 +35,15 @@ import mozilla.components.support.images.compose.loader.Placeholder
 import mozilla.components.support.images.compose.loader.WithImage
 import mozilla.components.ui.colors.PhotonColors
 import org.mozilla.fenix.R
+import org.mozilla.fenix.components.AppStore
 import org.mozilla.fenix.components.components
-import org.mozilla.fenix.home.HomeFragmentStore
 import org.mozilla.fenix.home.learnandact.LearnAndActInteractor
 import org.mozilla.fenix.theme.FirefoxTheme
 import org.mozilla.fenix.utils.view.ViewHolder
 
 class LearnAndActViewHolder(
     val composeView: ComposeView,
-    val store: HomeFragmentStore,
+    val store: AppStore,
     val interactor: LearnAndActInteractor
 ) : ViewHolder(composeView) {
     companion object {
@@ -69,7 +69,7 @@ class LearnAndActViewHolder(
 @Composable
 @Suppress("LongParameterList")
 fun LearnAndAct(
-    store: HomeFragmentStore,
+    store: AppStore,
     onBlockShown: (List<LearnAndAct>) -> Unit,
     onBlockClicked: (LearnAndAct) -> Unit
 ) {

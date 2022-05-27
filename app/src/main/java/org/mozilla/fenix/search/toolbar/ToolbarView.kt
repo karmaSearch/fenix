@@ -53,7 +53,7 @@ interface ToolbarInteractor {
 @Suppress("LongParameterList")
 class ToolbarView(
     private val context: Context,
-    settings: Settings,
+    private val settings: Settings,
     private val interactor: ToolbarInteractor,
     private val historyStorage: HistoryStorage?,
     private val isPrivate: Boolean,
@@ -79,14 +79,14 @@ class ToolbarView(
             }
 
             background = AppCompatResources.getDrawable(
-                context, context.theme.resolveAttribute(R.attr.foundation)
+                context, context.theme.resolveAttribute(R.attr.layer1)
             )
 
             edit.hint = context.getString(R.string.search_hint)
 
             edit.colors = edit.colors.copy(
                 text = context.getColorFromAttr(R.attr.insetTextColor),
-                hint = context.getColorFromAttr(R.attr.secondaryText),
+                hint = context.getColorFromAttr(R.attr.textSecondary),
                 suggestionBackground = ContextCompat.getColor(
                     context,
                     R.color.suggestion_highlight_color
@@ -152,7 +152,7 @@ class ToolbarView(
 
         val searchEngine = searchState.searchEngineSource.searchEngine
 
-        if (searchEngine != null) {
+        if (!settings.showUnifiedSearchFeature && searchEngine != null) {
             val iconSize =
                 context.resources.getDimensionPixelSize(R.dimen.preference_icon_drawable_size)
 

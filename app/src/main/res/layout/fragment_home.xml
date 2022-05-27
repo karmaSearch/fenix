@@ -15,6 +15,12 @@
     android:layout_height="match_parent"
     android:background="?homeBackground">
 
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/wallpaperImageView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"/>
+
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/homeAppBar"
         android:layout_width="match_parent"
@@ -46,7 +52,7 @@
                         android:clickable="false"
                         android:focusable="false"
                         android:importantForAccessibility="no"
-                        tools:src="@drawable/pathum_danthanarayana41"
+                        tools:src="@drawable/philip_brown"
                         android:scaleType="centerCrop"/>
                     <View
                         android:id="@+id/ovalView"
@@ -145,7 +151,7 @@
                      android:layout_height="wrap_content"
                      android:layout_gravity="end|center_vertical"
                      android:layout_marginEnd="20dp"
-                     app:iconTint="?primaryText"
+                     app:iconTint="?textPrimary"
                      app:srcCompat="@drawable/ic_search"/>
              </FrameLayout>
          </LinearLayout>
@@ -222,7 +228,7 @@
              android:layout_height="wrap_content"
              android:layout_gravity="end|center_vertical"
              android:layout_marginEnd="20dp"
-             app:iconTint="?primaryText"
+             app:iconTint="?textPrimary"
              app:srcCompat="@drawable/ic_search"/>
      </FrameLayout>
 
@@ -232,7 +238,7 @@
          android:layout_width="wrap_content"
          android:layout_height="wrap_content"
          android:layout_gravity="center"
-         android:src="@drawable/ic_karma_logo_illus"
+         app:srcCompat="@drawable/ic_karma_logo_illus"
          app:layout_constraintBottom_toBottomOf="@+id/bottom_bar"
          app:layout_constraintEnd_toEndOf="parent"
          app:layout_constraintStart_toStartOf="parent"

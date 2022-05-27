@@ -66,11 +66,12 @@
         app:destination="@id/historyMetadataGroupFragment" />
 
     <action
+        android:id="@+id/action_global_wallpaperSettingsFragment"
+        app:destination="@id/wallpaperSettingsFragment" />
+
+    <action
         android:id="@+id/action_global_shareFragment"
         app:destination="@id/shareFragment" />
-    <action
-        android:id="@+id/action_global_crash_reporter"
-        app:destination="@id/crashReporterFragment" />
     <action
         android:id="@+id/action_global_turn_on_sync"
         app:destination="@id/turnOnSyncFragment" />
@@ -181,6 +182,11 @@
             app:nullable="true"
             android:defaultValue="@null"
             app:argType="string" />
+        <argument
+            android:name="page"
+            android:defaultValue="NormalTabs"
+            app:argType="org.mozilla.fenix.tabstray.Page"
+            />
     </dialog>
 
     <fragment
@@ -298,7 +304,20 @@
         android:id="@+id/historyFragment"
         android:name="org.mozilla.fenix.library.history.HistoryFragment"
         android:label="@string/library_history"
-        tools:layout="@layout/fragment_history" />
+        tools:layout="@layout/fragment_history">
+
+        <action
+            android:id="@+id/action_global_history_search_dialog"
+            app:destination="@id/historySearchDialogFragment"
+            app:popUpTo="@id/historySearchDialogFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <dialog
+        android:id="@+id/historySearchDialogFragment"
+        android:name="org.mozilla.fenix.library.history.HistorySearchDialogFragment"
+        tools:layout="@layout/fragment_history_search_dialog">
+    </dialog>
 
     <fragment
         android:id="@+id/historyMetadataGroupFragment"
@@ -333,7 +352,18 @@
         <action
             android:id="@+id/action_bookmarkFragment_to_bookmarkAddFolderFragment"
             app:destination="@id/bookmarkAddFolderFragment" />
+        <action
+            android:id="@+id/action_bookmarkFragment_to_bookmarkSearchDialogFragment"
+            app:destination="@id/bookmarkSearchDialogFragment"
+            app:popUpTo="@id/bookmarkSearchDialogFragment"
+            app:popUpToInclusive="true" />
     </fragment>
+
+    <dialog
+        android:id="@+id/bookmarkSearchDialogFragment"
+        android:name="org.mozilla.fenix.library.bookmarks.BookmarkSearchDialogFragment"
+        tools:layout="@layout/fragment_bookmark_search_dialog">
+    </dialog>
 
     <fragment
         android:id="@+id/bookmarkEditFragment"
@@ -595,6 +625,13 @@
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
         <action
+            android:id="@+id/action_settingsFragment_to_httpsOnlyFragment"
+            app:destination="@id/httpsOnlyFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
             android:id="@+id/action_settingsFragment_to_trackingProtectionFragment"
             app:destination="@id/trackingProtectionFragment"
             app:enterAnim="@anim/slide_in_right"
@@ -658,7 +695,19 @@
     <fragment
         android:id="@+id/homeSettingsFragment"
         android:name="org.mozilla.fenix.settings.HomeSettingsFragment"
-        android:label="@string/preferences_home_2" />
+        android:label="@string/preferences_home_2">
+        <action
+            android:id="@+id/action_homeSettingsFragment_to_wallpaperSettingsFragment"
+            app:destination="@id/wallpaperSettingsFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+    <fragment
+        android:id="@+id/wallpaperSettingsFragment"
+        android:name="org.mozilla.fenix.settings.wallpaper.WallpaperSettingsFragment"
+        android:label="@string/customize_wallpapers"/>
     <fragment
         android:id="@+id/feedbackSettingsFragment"
         android:name="org.mozilla.fenix.settings.FeedbackSettingsFragment"
@@ -784,14 +833,6 @@
         android:name="org.mozilla.fenix.settings.SecretDebugSettingsFragment"
         android:label="@string/preferences_debug_info" />
     <fragment
-        android:id="@+id/crashReporterFragment"
-        android:name="org.mozilla.fenix.crashes.CrashReporterFragment"
-        tools:layout="@layout/fragment_crash_reporter">
-        <argument
-            android:name="crashIntent"
-            app:argType="android.content.Intent" />
-    </fragment>
-    <fragment
         android:id="@+id/aboutLibrariesFragment"
         android:name="org.mozilla.fenix.settings.about.AboutLibrariesFragment"
         tools:layout="@layout/fragment_about_libraries" />
@@ -803,6 +844,10 @@
         android:id="@+id/privateBrowsingFragment"
         android:name="org.mozilla.fenix.settings.PrivateBrowsingFragment"
         android:label="@string/preferences_private_browsing_options" />
+    <fragment
+        android:id="@+id/httpsOnlyFragment"
+        android:name="org.mozilla.fenix.settings.HttpsOnlyFragment"
+        android:label="@string/preferences_https_only_title" />
     <fragment
         android:id="@+id/trackingProtectionFragment"
         android:name="org.mozilla.fenix.settings.TrackingProtectionFragment">
@@ -1196,6 +1241,14 @@
             <argument
                 android:name="experimentName"
                 app:argType="string" />
+            <action
+                android:id="@+id/action_nimbusBranchesFragment_to_dataChoicesFragment"
+                app:destination="@id/dataChoicesFragment"
+                app:enterAnim="@anim/slide_in_right"
+                app:exitAnim="@anim/slide_out_left"
+                app:popEnterAnim="@anim/slide_in_left"
+                app:popExitAnim="@anim/slide_out_right"
+                app:popUpTo="@id/settingsFragment" />
         </fragment>
     </navigation>
 

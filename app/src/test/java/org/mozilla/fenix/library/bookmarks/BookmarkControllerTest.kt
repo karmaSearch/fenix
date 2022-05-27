@@ -6,6 +6,7 @@ package org.mozilla.fenix.library.bookmarks
 
 import android.content.ClipboardManager
 import android.content.Context
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDirections
@@ -37,7 +38,6 @@ import org.mozilla.fenix.HomeActivity
 import org.mozilla.fenix.R
 import org.mozilla.fenix.browser.browsingmode.BrowsingMode
 import org.mozilla.fenix.components.Services
-import org.mozilla.fenix.components.metrics.Event
 import org.mozilla.fenix.ext.bookmarkStorage
 import org.mozilla.fenix.ext.components
 
@@ -54,16 +54,18 @@ class BookmarkControllerTest {
     private val homeActivity: HomeActivity = mockk(relaxed = true)
     private val services: Services = mockk(relaxed = true)
     private val addNewTabUseCase: TabsUseCases.AddNewTabUseCase = mockk(relaxed = true)
+    private val navBackStackEntry: NavBackStackEntry = mockk(relaxed = true)
+    private val navDestination: NavDestination = mockk(relaxed = true)
 
     private val item =
-        BookmarkNode(BookmarkNodeType.ITEM, "456", "123", 0, "Mozilla", "http://mozilla.org", 0, null)
+        BookmarkNode(BookmarkNodeType.ITEM, "456", "123", 0u, "Mozilla", "http://mozilla.org", 0, null)
     private val subfolder =
-        BookmarkNode(BookmarkNodeType.FOLDER, "987", "123", 0, "Subfolder", null, 0, listOf())
+        BookmarkNode(BookmarkNodeType.FOLDER, "987", "123", 0u, "Subfolder", null, 0, listOf())
     private val childItem = BookmarkNode(
         BookmarkNodeType.ITEM,
         "987",
         "123",
-        2,
+        2u,
         "Firefox",
         "https://www.mozilla.org/en-US/firefox/",
         0,
@@ -73,14 +75,14 @@ class BookmarkControllerTest {
         BookmarkNodeType.FOLDER,
         "123",
         null,
-        0,
+        0u,
         "Mobile",
         null,
         0,
         listOf(item, item, childItem, subfolder)
     )
     private val root = BookmarkNode(
-        BookmarkNodeType.FOLDER, BookmarkRoot.Root.id, null, 0, BookmarkRoot.Root.name, null, 0, null
+        BookmarkNodeType.FOLDER, BookmarkRoot.Root.id, null, 0u, BookmarkRoot.Root.name, null, 0, null
     )
 
     @Before
@@ -89,6 +91,9 @@ class BookmarkControllerTest {
         every { navController.currentDestination } returns NavDestination("").apply {
             id = R.id.bookmarkFragment
         }
+        every { navController.previousBackStackEntry } returns navBackStackEntry
+        every { navBackStackEntry.destination } returns navDestination
+        every { navDestination.id } returns R.id.browserFragment
         every { bookmarkStore.dispatch(any()) } returns mockk()
         every { sharedViewModel.selectedFolder = any() } just runs
         every { tabsUseCases.addTab } returns addNewTabUseCase
@@ -110,8 +115,55 @@ class BookmarkControllerTest {
     }
 
     @Test
-    fun `handleBookmarkTapped should load the bookmark in a new tab`() {
+    fun `WHEN handleBookmarkTapped is called with BrowserFragment THEN load the bookmark in current tab`() {
         var invokePendingDeletionInvoked = false
+        val flags = EngineSession.LoadUrlFlags.select(EngineSession.LoadUrlFlags.ALLOW_JAVASCRIPT_URL)
+
+        createController(
+            invokePendingDeletion = {
+                invokePendingDeletionInvoked = true
+            }
+        ).handleBookmarkTapped(item)
+
+        assertTrue(invokePendingDeletionInvoked)
+        verify {
+            homeActivity.openToBrowserAndLoad(
+                item.url!!,
+                false,
+                BrowserDirection.FromBookmarks,
+                flags = flags
+            )
+        }
+    }
+
+    @Test
+    fun `WHEN handleBookmarkTapped is called with HomeFragment THEN load the bookmark in new tab`() {
+        var invokePendingDeletionInvoked = false
+        val flags = EngineSession.LoadUrlFlags.select(EngineSession.LoadUrlFlags.ALLOW_JAVASCRIPT_URL)
+
+        every { navDestination.id } returns R.id.homeFragment
+
+        createController(
+            invokePendingDeletion = {
+                invokePendingDeletionInvoked = true
+            }
+        ).handleBookmarkTapped(item)
+
+        assertTrue(invokePendingDeletionInvoked)
+        verify {
+            homeActivity.openToBrowserAndLoad(
+                item.url!!,
+                true,
+                BrowserDirection.FromBookmarks,
+                flags = flags
+            )
+        }
+    }
+
+    @Test
+    fun `WHEN handleBookmarkTapped is called with private browsing THEN load the bookmark in new tab`() {
+        var invokePendingDeletionInvoked = false
+        every { homeActivity.browsingModeManager.mode } returns BrowsingMode.Private
         val flags = EngineSession.LoadUrlFlags.select(EngineSession.LoadUrlFlags.ALLOW_JAVASCRIPT_URL)
 
         createController(
@@ -290,7 +342,7 @@ class BookmarkControllerTest {
         verify {
             homeActivity.openToBrowserAndLoad(
                 item.url!!,
-                true,
+                false,
                 BrowserDirection.FromBookmarks,
                 flags = flags
             )
@@ -343,12 +395,12 @@ class BookmarkControllerTest {
     fun `handleBookmarkDeletion for an item should properly call a passed in delegate`() {
         var deleteBookmarkNodesInvoked = false
         createController(
-            deleteBookmarkNodes = { nodes, event ->
+            deleteBookmarkNodes = { nodes, removeEvent ->
                 assertEquals(setOf(item), nodes)
-                assertEquals(Event.RemoveBookmark, event)
+                assertEquals(BookmarkRemoveType.SINGLE, removeEvent)
                 deleteBookmarkNodesInvoked = true
             }
-        ).handleBookmarkDeletion(setOf(item), Event.RemoveBookmark)
+        ).handleBookmarkDeletion(setOf(item), BookmarkRemoveType.SINGLE)
 
         assertTrue(deleteBookmarkNodesInvoked)
     }
@@ -357,12 +409,12 @@ class BookmarkControllerTest {
     fun `handleBookmarkDeletion for multiple bookmarks should properly call a passed in delegate`() {
         var deleteBookmarkNodesInvoked = false
         createController(
-            deleteBookmarkNodes = { nodes, event ->
+            deleteBookmarkNodes = { nodes, removeEvent ->
                 assertEquals(setOf(item, subfolder), nodes)
-                assertEquals(Event.RemoveBookmarks, event)
+                assertEquals(BookmarkRemoveType.MULTIPLE, removeEvent)
                 deleteBookmarkNodesInvoked = true
             }
-        ).handleBookmarkDeletion(setOf(item, subfolder), Event.RemoveBookmarks)
+        ).handleBookmarkDeletion(setOf(item, subfolder), BookmarkRemoveType.MULTIPLE)
 
         assertTrue(deleteBookmarkNodesInvoked)
     }
@@ -412,11 +464,23 @@ class BookmarkControllerTest {
         }
     }
 
+    @Test
+    fun `WHEN onSearch is called with BookmarkFragment THEN navigate to BookmarkSearchDialogFragment`() {
+        val controller = createController()
+
+        controller.handleSearch()
+        verify {
+            navController.navigate(
+                BookmarkFragmentDirections.actionBookmarkFragmentToBookmarkSearchDialogFragment()
+            )
+        }
+    }
+
     @Suppress("LongParameterList")
     private fun createController(
         loadBookmarkNode: suspend (String) -> BookmarkNode? = { _ -> null },
         showSnackbar: (String) -> Unit = { _ -> },
-        deleteBookmarkNodes: (Set<BookmarkNode>, Event) -> Unit = { _, _ -> },
+        deleteBookmarkNodes: (Set<BookmarkNode>, BookmarkRemoveType) -> Unit = { _, _ -> },
         deleteBookmarkFolder: (Set<BookmarkNode>) -> Unit = { _ -> },
         invokePendingDeletion: () -> Unit = { },
         showTabTray: () -> Unit = { }

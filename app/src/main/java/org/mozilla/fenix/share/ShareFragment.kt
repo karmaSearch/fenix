@@ -39,7 +39,7 @@ class ShareFragment : AppCompatDialogFragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        viewModel.loadDevicesAndApps()
+        viewModel.loadDevicesAndApps(requireContext())
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

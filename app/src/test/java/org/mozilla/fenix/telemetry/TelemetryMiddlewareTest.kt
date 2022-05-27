@@ -7,7 +7,6 @@ package org.mozilla.fenix.telemetry
 import androidx.test.core.app.ApplicationProvider
 import io.mockk.mockk
 import io.mockk.verify
-import kotlinx.coroutines.test.TestCoroutineDispatcher
 import mozilla.components.browser.state.action.ContentAction
 import mozilla.components.browser.state.action.EngineAction
 import mozilla.components.browser.state.action.TabListAction
@@ -15,6 +14,7 @@ import mozilla.components.browser.state.engine.EngineMiddleware
 import mozilla.components.browser.state.state.BrowserState
 import mozilla.components.browser.state.state.createTab
 import mozilla.components.browser.state.state.recover.RecoverableTab
+import mozilla.components.browser.state.state.recover.TabState
 import mozilla.components.browser.state.store.BrowserStore
 import mozilla.components.service.glean.testing.GleanTestRule
 import mozilla.components.support.base.android.Clock
@@ -43,10 +43,9 @@ class TelemetryMiddlewareTest {
     private lateinit var settings: Settings
     private lateinit var telemetryMiddleware: TelemetryMiddleware
     private lateinit var metrics: MetricController
-    private val testDispatcher = TestCoroutineDispatcher()
 
     @get:Rule
-    val coroutinesTestRule = MainCoroutineRule(testDispatcher)
+    val coroutinesTestRule = MainCoroutineRule()
 
     @get:Rule
     val gleanRule = GleanTestRule(ApplicationProvider.getApplicationContext())
@@ -167,8 +166,8 @@ class TelemetryMiddlewareTest {
     fun `WHEN tabs are restored THEN the open tab count is updated`() {
         assertEquals(0, settings.openTabsCount)
         val tabsToRestore = listOf(
-            RecoverableTab(url = "https://mozilla.org", id = "1"),
-            RecoverableTab(url = "https://firefox.com", id = "2")
+            RecoverableTab(null, TabState(url = "https://mozilla.org", id = "1")),
+            RecoverableTab(null, TabState(url = "https://firefox.com", id = "2"))
         )
 
         store.dispatch(
@@ -208,9 +207,9 @@ class TelemetryMiddlewareTest {
         store.dispatch(
             TabListAction.RestoreAction(
                 listOf(
-                    RecoverableTab(url = "https://www.mozilla.org", id = "foreground"),
-                    RecoverableTab(url = "https://getpocket.com", id = "background_pocket"),
-                    RecoverableTab(url = "https://theverge.com", id = "background_verge")
+                    RecoverableTab(null, TabState(url = "https://www.mozilla.org", id = "foreground")),
+                    RecoverableTab(null, TabState(url = "https://getpocket.com", id = "background_pocket")),
+                    RecoverableTab(null, TabState(url = "https://theverge.com", id = "background_verge"))
                 ),
                 selectedTabId = "foreground",
                 restoreLocation = TabListAction.RestoreAction.RestoreLocation.BEGINNING
@@ -232,9 +231,9 @@ class TelemetryMiddlewareTest {
         store.dispatch(
             TabListAction.RestoreAction(
                 listOf(
-                    RecoverableTab(url = "https://www.mozilla.org", id = "foreground"),
-                    RecoverableTab(url = "https://getpocket.com", id = "background_pocket"),
-                    RecoverableTab(url = "https://theverge.com", id = "background_verge")
+                    RecoverableTab(null, TabState(url = "https://www.mozilla.org", id = "foreground")),
+                    RecoverableTab(null, TabState(url = "https://getpocket.com", id = "background_pocket")),
+                    RecoverableTab(null, TabState(url = "https://theverge.com", id = "background_verge"))
                 ),
                 selectedTabId = "foreground",
                 restoreLocation = TabListAction.RestoreAction.RestoreLocation.BEGINNING
@@ -266,9 +265,9 @@ class TelemetryMiddlewareTest {
         store.dispatch(
             TabListAction.RestoreAction(
                 listOf(
-                    RecoverableTab(url = "https://www.mozilla.org", id = "foreground"),
-                    RecoverableTab(url = "https://getpocket.com", id = "background_pocket"),
-                    RecoverableTab(url = "https://theverge.com", id = "background_verge")
+                    RecoverableTab(null, TabState(url = "https://www.mozilla.org", id = "foreground")),
+                    RecoverableTab(null, TabState(url = "https://getpocket.com", id = "background_pocket")),
+                    RecoverableTab(null, TabState(url = "https://theverge.com", id = "background_verge"))
                 ),
                 selectedTabId = "foreground",
                 restoreLocation = TabListAction.RestoreAction.RestoreLocation.BEGINNING
@@ -303,9 +302,9 @@ class TelemetryMiddlewareTest {
         store.dispatch(
             TabListAction.RestoreAction(
                 listOf(
-                    RecoverableTab(url = "https://www.mozilla.org", id = "foreground"),
-                    RecoverableTab(url = "https://getpocket.com", id = "background_pocket"),
-                    RecoverableTab(url = "https://theverge.com", id = "background_verge")
+                    RecoverableTab(null, TabState(url = "https://www.mozilla.org", id = "foreground")),
+                    RecoverableTab(null, TabState(url = "https://getpocket.com", id = "background_pocket")),
+                    RecoverableTab(null, TabState(url = "https://theverge.com", id = "background_verge"))
                 ),
                 selectedTabId = "foreground",
                 restoreLocation = TabListAction.RestoreAction.RestoreLocation.BEGINNING

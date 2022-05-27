@@ -11,6 +11,9 @@ import org.mozilla.fenix.databinding.ExperimentDefaultBrowserBinding
 import org.mozilla.fenix.ext.increaseTapArea
 import org.mozilla.fenix.home.sessioncontrol.SessionControlInteractor
 
+/**
+ * View holder for the default browser card.
+ */
 class ExperimentDefaultBrowserCardViewHolder(
     view: View,
     private val interactor: SessionControlInteractor

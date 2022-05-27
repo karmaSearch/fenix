@@ -32,12 +32,14 @@ import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -51,6 +53,7 @@ import org.mozilla.fenix.home.recentvisits.RecentlyVisitedItem
 import org.mozilla.fenix.home.recentvisits.RecentlyVisitedItem.RecentHistoryGroup
 import org.mozilla.fenix.home.recentvisits.RecentlyVisitedItem.RecentHistoryHighlight
 import org.mozilla.fenix.theme.FirefoxTheme
+import org.mozilla.fenix.theme.Theme
 
 // Number of recently visited items per column.
 private const val VISITS_PER_COLUMN = 3
@@ -306,6 +309,10 @@ private fun RecentlyVisitedMenu(
     recentVisit: RecentlyVisitedItem,
     onDismissRequest: () -> Unit,
 ) {
+    DisposableEffect(LocalConfiguration.current.orientation) {
+        onDispose { onDismissRequest() }
+    }
+
     DropdownMenu(
         expanded = showMenu,
         onDismissRequest = { onDismissRequest() },
@@ -343,7 +350,7 @@ private fun RecentlyVisitedDivider(
 ) {
     Divider(
         modifier = modifier,
-        color = FirefoxTheme.colors.borderDefault,
+        color = FirefoxTheme.colors.borderPrimary,
         thickness = 0.5.dp
     )
 }
@@ -363,7 +370,7 @@ private val LazyListState.atLeastHalfVisibleItems
 @Composable
 @Preview
 private fun RecentlyVisitedPreview() {
-    FirefoxTheme {
+    FirefoxTheme(theme = Theme.getTheme(isPrivate = false)) {
         RecentlyVisited(
             recentVisits = listOf(
                 RecentHistoryGroup(title = "running shoes"),

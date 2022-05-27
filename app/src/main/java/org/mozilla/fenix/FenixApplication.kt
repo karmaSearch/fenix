@@ -31,6 +31,8 @@ import mozilla.components.feature.addons.update.GlobalAddonDependencyProvider
 import mozilla.components.feature.autofill.AutofillUseCases
 import mozilla.components.feature.search.ext.buildSearchUrl
 import mozilla.components.feature.search.ext.waitForSelectedOrDefaultSearchEngine
+import mozilla.components.feature.serviceworker.ServiceWorkerSupport
+import mozilla.components.feature.top.sites.TopSitesProviderConfig
 import mozilla.components.lib.crash.CrashReporter
 import mozilla.components.service.fxa.manager.SyncEnginesStorage
 import mozilla.components.service.glean.Glean
@@ -48,23 +50,38 @@ import mozilla.components.support.utils.logElapsedTime
 import mozilla.components.support.webextensions.WebExtensionSupport
 import org.mozilla.experiments.nimbus.NimbusInterface
 import org.mozilla.experiments.nimbus.internal.EnrolledExperiment
-import org.mozilla.fenix.GleanMetrics.*
+import org.mozilla.fenix.GleanMetrics.Addons
+import org.mozilla.fenix.GleanMetrics.AndroidAutofill
+import org.mozilla.fenix.GleanMetrics.CustomizeHome
+import org.mozilla.fenix.GleanMetrics.GleanBuildInfo
+import org.mozilla.fenix.GleanMetrics.Metrics
+import org.mozilla.fenix.GleanMetrics.PerfStartup
+import org.mozilla.fenix.GleanMetrics.Preferences
+import org.mozilla.fenix.GleanMetrics.SearchDefaultEngine
+import org.mozilla.fenix.GleanMetrics.TopSites
 import org.mozilla.fenix.components.Components
 import org.mozilla.fenix.components.Core
-import org.mozilla.fenix.components.metrics.Event
 import org.mozilla.fenix.components.metrics.MetricServiceType
 import org.mozilla.fenix.components.metrics.MozillaProductDetector
-import org.mozilla.fenix.components.metrics.SecurePrefsTelemetry
 import org.mozilla.fenix.components.toolbar.ToolbarPosition
+import org.mozilla.fenix.ext.isCustomEngine
+import org.mozilla.fenix.ext.isKnownSearchDomain
 import org.mozilla.fenix.ext.settings
-import org.mozilla.fenix.perf.*
+import org.mozilla.fenix.perf.MarkersActivityLifecycleCallbacks
+import org.mozilla.fenix.perf.ProfilerMarkerFactProcessor
+import org.mozilla.fenix.perf.StartupTimeline
+import org.mozilla.fenix.perf.StorageStatsMetrics
+import org.mozilla.fenix.perf.runBlockingIncrement
 import org.mozilla.fenix.push.PushFxaIntegration
 import org.mozilla.fenix.push.WebPushEngineIntegration
 import org.mozilla.fenix.session.PerformanceActivityLifecycleCallbacks
 import org.mozilla.fenix.session.VisibilityLifecycleCallback
+import org.mozilla.fenix.settings.CustomizationFragment
 import org.mozilla.fenix.telemetry.TelemetryLifecycleObserver
 import org.mozilla.fenix.utils.BrowsersCache
 import org.mozilla.fenix.utils.Settings
+import org.mozilla.fenix.utils.Settings.Companion.TOP_SITES_PROVIDER_MAX_THRESHOLD
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 /**
@@ -100,12 +117,12 @@ open class FenixApplication : LocaleAwareApplication(), Provider {
             return
         }
 
-
+        // We need to always initialize Glean and do it early here.
         initializeGlean()
-
 
         setupInMainProcessOnly()
 
+        downloadWallpapers()
         // DO NOT MOVE ANYTHING BELOW THIS stop CALL.
         PerfStartup.applicationOnCreate.stopAndAccumulate(completeMethodDurationTimerId)
     }
@@ -114,7 +131,7 @@ open class FenixApplication : LocaleAwareApplication(), Provider {
     protected open fun initializeGlean() {
         val telemetryEnabled = settings().isTelemetryEnabled
 
-        logger.debug("Initializing Glean (uploadEnabled=$telemetryEnabled, isFennec=${Config.channel.isFennec})")
+        logger.debug("Initializing Glean (uploadEnabled=$telemetryEnabled})")
 
         Glean.initialize(
             applicationContext = this,
@@ -173,6 +190,10 @@ open class FenixApplication : LocaleAwareApplication(), Provider {
 
         setupLeakCanary()
         startMetricsIfEnabled()
+        ServiceWorkerSupport.install(
+            components.core.engine,
+            components.useCases.tabsUseCases.addTab
+        )
         setupPush()
 
         visibilityLifecycleCallback = VisibilityLifecycleCallback(getSystemService())
@@ -227,49 +248,43 @@ open class FenixApplication : LocaleAwareApplication(), Provider {
                 // switches delay rendering top sites when the cache is empty, which
                 // we can prevent with this.
                 GlobalScope.launch(Dispatchers.IO) {
-                    components.core.topSitesStorage.getTopSites(
-                        components.settings.topSitesMaxLimit,
-                        (if (components.settings.showTopFrecentSites)
-                            FrecencyThresholdOption.SKIP_ONE_TIME_PAGES
-                        else
-                            null),
-                        it?.let { it.buildSearchUrl("").split("&")[0] }
-                    )
+                    logger.info("Running post-visual completeness tasks...")
+                    logElapsedTime(logger, "Storage initialization") {
+                        components.core.historyStorage.warmUp()
+                        components.core.bookmarksStorage.warmUp()
+                        components.core.passwordsStorage.warmUp()
+                        components.core.autofillStorage.warmUp()
+
+                        // Populate the top site cache to improve initial load experience
+                        // of the home fragment when the app is launched to a tab. The actual
+                        // database call is not expensive. However, the additional context
+                        // switches delay rendering top sites when the cache is empty, which
+                        // we can prevent with this.
+                        components.core.topSitesStorage.getTopSites(
+                            totalSites = components.settings.topSitesMaxLimit,
+                            frecencyConfig = FrecencyThresholdOption.SKIP_ONE_TIME_PAGES,
+                            providerConfig = TopSitesProviderConfig(
+                                showProviderTopSites = components.settings.showContileFeature,
+                                maxThreshold = TOP_SITES_PROVIDER_MAX_THRESHOLD
+                            ),
+                            searchEngineStartURL = it?.let { it.buildSearchUrl("").split("&")[0] }
+                        )
+
+                        // This service uses `historyStorage`, and so we can only touch it when we know
+                        // it's safe to touch `historyStorage. By 'safe', we mainly mean that underlying
+                        // places library will be able to load, which requires first running Megazord.init().
+                        // The visual completeness tasks are scheduled after the Megazord.init() call.
+                        components.core.historyMetadataService.cleanup(
+                            System.currentTimeMillis() - Core.HISTORY_METADATA_MAX_AGE_IN_MS
+                        )
+                    }
                 }
-            }
-
-                components.performance.visualCompletenessQueue.queue.runIfReadyOrQueue {
-                    GlobalScope.launch(Dispatchers.IO) {
-                        logger.info("Running post-visual completeness tasks...")
-                        logElapsedTime(logger, "Storage initialization") {
-                            components.core.historyStorage.warmUp()
-                            components.core.bookmarksStorage.warmUp()
-                            components.core.passwordsStorage.warmUp()
-                            components.core.autofillStorage.warmUp()
-
-
-
-                            // This service uses `historyStorage`, and so we can only touch it when we know
-                            // it's safe to touch `historyStorage. By 'safe', we mainly mean that underlying
-                            // places library will be able to load, which requires first running Megazord.init().
-                            // The visual completeness tasks are scheduled after the Megazord.init() call.
-                            components.core.historyMetadataService.cleanup(
-                                System.currentTimeMillis() - Core.HISTORY_METADATA_MAX_AGE_IN_MS
-                            )
-                        }
-
-                        SecurePrefsTelemetry(
-                            this@FenixApplication,
-                            components.analytics.experiments
-                        ).startTests()
+                // Account manager initialization needs to happen on the main thread.
+                GlobalScope.launch(Dispatchers.Main) {
+                    logElapsedTime(logger, "Kicking-off account manager") {
+                        components.backgroundServices.accountManager
                     }
-                    // Account manager initialization needs to happen on the main thread.
-                    GlobalScope.launch(Dispatchers.Main) {
-                        logElapsedTime(logger, "Kicking-off account manager") {
-                            components.backgroundServices.accountManager
-                        }
-                    }
-
+                }
             }
         }
 
@@ -324,16 +339,15 @@ open class FenixApplication : LocaleAwareApplication(), Provider {
     // To re-enable this, we need to do so in a way that won't interfere with any startup operations
     // which acquire reserved+ sqlite lock. Currently, Fennec migrations need to write to storage
     // on startup, and since they run in a background service we can't simply order these operations.
-
-    @OptIn(DelicateCoroutinesApi::class) // GlobalScope usage
-    private fun runStorageMaintenance() {
-        GlobalScope.launch(Dispatchers.IO) {
-            // Bookmarks and history storage sit on top of the same db file so we only need to
-            // run maintenance on one - arbitrarily using bookmarks.
-            components.core.bookmarksStorage.runMaintenance()
-        }
-        settings().lastPlacesStorageMaintenance = System.currentTimeMillis()
-    }
+    // @OptIn(DelicateCoroutinesApi::class) // GlobalScope usage
+    // private fun runStorageMaintenance() {
+    //     GlobalScope.launch(Dispatchers.IO) {
+    //        // Bookmarks and history storage sit on top of the same db file so we only need to
+    //        // run maintenance on one - arbitrarily using bookmarks.
+    //        // components.core.bookmarksStorage.runMaintenance()
+    //     }
+    //     settings().lastPlacesStorageMaintenance = System.currentTimeMillis()
+    // }
 
     protected open fun setupLeakCanary() {
         // no-op, LeakCanary is disabled by default
@@ -563,6 +577,12 @@ open class FenixApplication : LocaleAwareApplication(), Provider {
                 defaultMozBrowser.set(it)
             }
 
+            if (settings.contileContextId.isEmpty()) {
+                settings.contileContextId = TopSites.contextId.generateAndSet().toString()
+            } else {
+                TopSites.contextId.set(UUID.fromString(settings.contileContextId))
+            }
+
             mozillaProducts.set(mozillaProductDetector.getInstalledMozillaProducts(applicationContext))
 
             adjustCampaign.set(settings.adjustCampaignId)
@@ -610,8 +630,8 @@ open class FenixApplication : LocaleAwareApplication(), Provider {
 
             toolbarPosition.set(
                 when (settings.toolbarPosition) {
-                    ToolbarPosition.BOTTOM -> Event.ToolbarPositionChanged.Position.BOTTOM.name
-                    ToolbarPosition.TOP -> Event.ToolbarPositionChanged.Position.TOP.name
+                    ToolbarPosition.BOTTOM -> CustomizationFragment.Companion.Position.BOTTOM.name
+                    ToolbarPosition.TOP -> CustomizationFragment.Companion.Position.TOP.name
                 }
             )
 
@@ -728,9 +748,10 @@ open class FenixApplication : LocaleAwareApplication(), Provider {
             override fun onUpdatesApplied(updated: List<EnrolledExperiment>) {
                 CustomizeHome.jumpBackIn.set(settings.showRecentTabsFeature)
                 CustomizeHome.recentlySaved.set(settings.showRecentBookmarksFeature)
-                CustomizeHome.mostVisitedSites.set(settings.showTopFrecentSites)
+                CustomizeHome.mostVisitedSites.set(settings.showTopSitesFeature)
                 CustomizeHome.recentlyVisited.set(settings.historyMetadataUIFeature)
                 CustomizeHome.pocket.set(settings.showPocketRecommendationsFeature)
+                CustomizeHome.contile.set(settings.showContileFeature)
             }
         })
     }
@@ -765,4 +786,13 @@ open class FenixApplication : LocaleAwareApplication(), Provider {
     }
 
     override fun getWorkManagerConfiguration() = Builder().setMinimumLoggingLevel(INFO).build()
+
+    @OptIn(DelicateCoroutinesApi::class)
+    open fun downloadWallpapers() {
+        if (FeatureFlags.showWallpapers) {
+            GlobalScope.launch {
+                components.wallpaperManager.downloadAllRemoteWallpapers()
+            }
+        }
+    }
 }

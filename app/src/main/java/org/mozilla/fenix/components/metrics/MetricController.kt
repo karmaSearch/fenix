@@ -26,7 +26,7 @@ import mozilla.components.feature.search.telemetry.ads.AdsTelemetry
 import mozilla.components.feature.search.telemetry.incontent.InContentTelemetry
 import mozilla.components.feature.syncedtabs.facts.SyncedTabsFacts
 import mozilla.components.feature.top.sites.facts.TopSitesFacts
-import mozilla.components.lib.dataprotect.SecurePrefsReliabilityExperiment
+import mozilla.components.service.glean.private.NoExtras
 import mozilla.components.support.base.Component
 import mozilla.components.support.base.facts.Action
 import mozilla.components.support.base.facts.Fact
@@ -35,6 +35,7 @@ import mozilla.components.support.base.facts.Facts
 import mozilla.components.support.base.log.logger.Logger
 import mozilla.components.support.webextensions.facts.WebExtensionFacts
 import org.mozilla.fenix.BuildConfig
+import org.mozilla.fenix.GleanMetrics.LoginDialog
 import org.mozilla.fenix.GleanMetrics.PerfAwesomebar
 import org.mozilla.fenix.search.awesomebar.ShortcutsSuggestionProvider
 import org.mozilla.fenix.utils.Settings
@@ -94,11 +95,31 @@ internal class ReleaseMetricController(
     init {
         Facts.registerProcessor(object : FactProcessor {
             override fun process(fact: Fact) {
-                fact.toEvent()?.also {
-                    track(it)
-                }
+                fact.process()
             }
         })
+    }
+
+    @VisibleForTesting
+    internal fun Fact.process(): Unit = when (component to item) {
+        Component.FEATURE_PROMPTS to LoginDialogFacts.Items.DISPLAY -> {
+            LoginDialog.displayed.record(NoExtras())
+        }
+        Component.FEATURE_PROMPTS to LoginDialogFacts.Items.CANCEL -> {
+            LoginDialog.cancelled.record(NoExtras())
+        }
+        Component.FEATURE_PROMPTS to LoginDialogFacts.Items.NEVER_SAVE -> {
+            LoginDialog.neverSave.record(NoExtras())
+        }
+        Component.FEATURE_PROMPTS to LoginDialogFacts.Items.SAVE -> {
+            LoginDialog.saved.record(NoExtras())
+        }
+        else -> {
+            this.toEvent()?.also {
+                track(it)
+            }
+            Unit
+        }
     }
 
     override fun start(type: MetricServiceType) {
@@ -159,10 +180,6 @@ internal class ReleaseMetricController(
 
     @Suppress("LongMethod", "MaxLineLength")
     private fun Fact.toEvent(): Event? = when {
-        Component.FEATURE_PROMPTS == component && LoginDialogFacts.Items.DISPLAY == item -> Event.LoginDialogPromptDisplayed
-        Component.FEATURE_PROMPTS == component && LoginDialogFacts.Items.CANCEL == item -> Event.LoginDialogPromptCancelled
-        Component.FEATURE_PROMPTS == component && LoginDialogFacts.Items.NEVER_SAVE == item -> Event.LoginDialogPromptNeverSave
-        Component.FEATURE_PROMPTS == component && LoginDialogFacts.Items.SAVE == item -> Event.LoginDialogPromptSave
         Component.FEATURE_PROMPTS == component && CreditCardAutofillDialogFacts.Items.AUTOFILL_CREDIT_CARD_FORM_DETECTED == item ->
             Event.CreditCardFormDetected
         Component.FEATURE_PROMPTS == component && CreditCardAutofillDialogFacts.Items.AUTOFILL_CREDIT_CARD_SUCCESS == item ->
@@ -287,28 +304,6 @@ internal class ReleaseMetricController(
         Component.FEATURE_AWESOMEBAR == component && AwesomeBarFacts.Items.OPENED_TAB_SUGGESTION_CLICKED == item -> {
             Event.OpenedTabSuggestionClicked
         }
-
-        Component.LIB_DATAPROTECT == component && SecurePrefsReliabilityExperiment.Companion.Actions.EXPERIMENT == item -> {
-            Event.SecurePrefsExperimentFailure(metadata?.get("javaClass") as String? ?: "null")
-        }
-        Component.LIB_DATAPROTECT == component && SecurePrefsReliabilityExperiment.Companion.Actions.GET == item -> {
-            if (SecurePrefsReliabilityExperiment.Companion.Values.FAIL.v == value?.toInt()) {
-                Event.SecurePrefsGetFailure(metadata?.get("javaClass") as String? ?: "null")
-            } else {
-                Event.SecurePrefsGetSuccess(value ?: "")
-            }
-        }
-        Component.LIB_DATAPROTECT == component && SecurePrefsReliabilityExperiment.Companion.Actions.WRITE == item -> {
-            if (SecurePrefsReliabilityExperiment.Companion.Values.FAIL.v == value?.toInt()) {
-                Event.SecurePrefsWriteFailure(metadata?.get("javaClass") as String? ?: "null")
-            } else {
-                Event.SecurePrefsWriteSuccess
-            }
-        }
-        Component.LIB_DATAPROTECT == component && SecurePrefsReliabilityExperiment.Companion.Actions.RESET == item -> {
-            Event.SecurePrefsReset
-        }
-
         Component.FEATURE_SEARCH == component && AdsTelemetry.SERP_ADD_CLICKED == item -> {
             Event.SearchAdClicked(value!!)
         }

@@ -78,6 +78,7 @@ class QuickSettingsSheetDialogFragment : FenixDialogFragment() {
         val rootView = inflateRootView(container)
         _binding = FragmentQuickSettingsDialogSheetBinding.bind(rootView)
 
+        val navController = findNavController()
         quickSettingsStore = QuickSettingsFragmentStore.createStore(
             context = context,
             websiteUrl = args.url,
@@ -96,19 +97,17 @@ class QuickSettingsSheetDialogFragment : FenixDialogFragment() {
             quickSettingsStore = quickSettingsStore,
             browserStore = components.core.store,
             ioScope = viewLifecycleOwner.lifecycleScope + Dispatchers.IO,
-            navController = { findNavController() },
+            navController = navController,
             sessionId = args.sessionId,
             sitePermissions = args.sitePermissions,
             settings = components.settings,
             permissionStorage = components.core.permissionStorage,
             reload = components.useCases.sessionUseCases.reload,
-            addNewTab = components.useCases.tabsUseCases.addTab,
             requestRuntimePermissions = { permissions ->
                 requestPermissions(permissions, REQUEST_CODE_QUICK_SETTINGS_PERMISSIONS)
                 tryToRequestPermissions = true
             },
-            displayPermissions = ::showPermissionsView,
-            dismiss = ::dismiss
+            displayPermissions = ::showPermissionsView
         )
 
         interactor = QuickSettingsInteractor(quickSettingsController)
@@ -122,7 +121,8 @@ class QuickSettingsSheetDialogFragment : FenixDialogFragment() {
             ioScope = viewLifecycleOwner.lifecycleScope + Dispatchers.IO,
             containerView = binding.clearSiteDataLayout,
             containerDivider = binding.clearSiteDataDivider,
-            interactor = interactor
+            interactor = interactor,
+            navController = navController
         )
 
         return rootView

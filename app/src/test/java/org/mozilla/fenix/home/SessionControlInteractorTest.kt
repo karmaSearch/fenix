@@ -13,6 +13,10 @@ import mozilla.components.service.pocket.PocketRecommendedStory
 import org.junit.Before
 import org.junit.Test
 import org.mozilla.fenix.browser.browsingmode.BrowsingMode
+import org.mozilla.fenix.components.appstate.AppState
+import org.mozilla.fenix.home.pocket.PocketRecommendedStoriesCategory
+import org.mozilla.fenix.home.pocket.PocketStoriesController
+import org.mozilla.fenix.home.recentbookmarks.RecentBookmark
 import org.mozilla.fenix.historymetadata.controller.HistoryMetadataController
 import org.mozilla.fenix.home.learnandact.LearnAndActController
 import org.mozilla.fenix.home.recentbookmarks.controller.RecentBookmarksController
@@ -207,6 +211,18 @@ class SessionControlInteractorTest {
     }
 
     @Test
+    fun `WHEN onSettingsClicked is called THEN handleTopSiteSettingsClicked is called`() {
+        interactor.onSettingsClicked()
+        verify { controller.handleTopSiteSettingsClicked() }
+    }
+
+    @Test
+    fun `WHEN onSponsorPrivacyClicked is called THEN handleSponsorPrivacyClicked is called`() {
+        interactor.onSponsorPrivacyClicked()
+        verify { controller.handleSponsorPrivacyClicked() }
+    }
+
+    @Test
     fun `GIVEN a PocketStoriesInteractor WHEN stories are shown THEN handle it in a PocketStoriesController`() {
         val shownStories: List<PocketRecommendedStory> = mockk()
 
@@ -254,9 +270,9 @@ class SessionControlInteractorTest {
 
     @Test
     fun reportSessionMetrics() {
-        val homeFragmentState: HomeFragmentState = mockk(relaxed = true)
-        every { homeFragmentState.recentBookmarks } returns emptyList()
-        interactor.reportSessionMetrics(homeFragmentState)
-        verify { controller.handleReportSessionMetrics(homeFragmentState) }
+        val appState: AppState = mockk(relaxed = true)
+        every { appState.recentBookmarks } returns emptyList()
+        interactor.reportSessionMetrics(appState)
+        verify { controller.handleReportSessionMetrics(appState) }
     }
 }

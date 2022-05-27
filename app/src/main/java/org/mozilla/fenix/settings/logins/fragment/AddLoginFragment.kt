@@ -4,7 +4,6 @@
 
 package org.mozilla.fenix.settings.logins.fragment
 
-import android.content.Context
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.text.Editable
@@ -14,7 +13,6 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import android.view.inputmethod.InputMethodManager
 import android.webkit.URLUtil
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
@@ -23,6 +21,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import mozilla.components.lib.state.ext.consumeFrom
 import mozilla.components.support.ktx.android.view.hideKeyboard
+import mozilla.components.support.ktx.android.view.showKeyboard
 import org.mozilla.fenix.R
 import org.mozilla.fenix.components.StoreProvider
 import org.mozilla.fenix.databinding.FragmentAddLoginBinding
@@ -108,10 +107,7 @@ class AddLoginFragment : Fragment(R.layout.fragment_add_login) {
 
     private fun setUpClickListeners() {
         binding.hostnameText.requestFocus()
-        val imm =
-            requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        @Suppress("DEPRECATION")
-        imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, 0)
+        binding.hostnameText.showKeyboard()
 
         binding.clearHostnameTextButton.setOnClickListener {
             binding.hostnameText.text?.clear()
@@ -252,7 +248,7 @@ class AddLoginFragment : Fragment(R.layout.fragment_add_login) {
                 layout.setErrorIconDrawable(R.drawable.mozac_ic_warning_with_bottom_padding)
                 layout.setErrorIconTintList(
                     ColorStateList.valueOf(
-                        ContextCompat.getColor(requireContext(), R.color.destructive_normal_theme)
+                        ContextCompat.getColor(requireContext(), R.color.fx_mobile_text_color_warning)
                     )
                 )
             }
@@ -263,7 +259,7 @@ class AddLoginFragment : Fragment(R.layout.fragment_add_login) {
                 layout.setErrorIconDrawable(R.drawable.mozac_ic_warning_with_bottom_padding)
                 layout.setErrorIconTintList(
                     ColorStateList.valueOf(
-                        ContextCompat.getColor(requireContext(), R.color.destructive_normal_theme)
+                        ContextCompat.getColor(requireContext(), R.color.fx_mobile_text_color_warning)
                     )
                 )
             }
@@ -286,7 +282,7 @@ class AddLoginFragment : Fragment(R.layout.fragment_add_login) {
             layout.setErrorIconDrawable(R.drawable.mozac_ic_warning_with_bottom_padding)
             layout.setErrorIconTintList(
                 ColorStateList.valueOf(
-                    ContextCompat.getColor(requireContext(), R.color.destructive_normal_theme)
+                    ContextCompat.getColor(requireContext(), R.color.fx_mobile_text_color_warning)
                 )
             )
         }
@@ -299,7 +295,7 @@ class AddLoginFragment : Fragment(R.layout.fragment_add_login) {
             layout.setErrorIconDrawable(R.drawable.mozac_ic_warning_with_bottom_padding)
             layout.setErrorIconTintList(
                 ColorStateList.valueOf(
-                    ContextCompat.getColor(requireContext(), R.color.destructive_normal_theme)
+                    ContextCompat.getColor(requireContext(), R.color.fx_mobile_text_color_warning)
                 )
             )
         }

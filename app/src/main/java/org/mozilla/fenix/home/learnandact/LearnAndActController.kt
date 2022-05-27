@@ -4,17 +4,11 @@ import androidx.annotation.VisibleForTesting
 import androidx.navigation.NavController
 import karma.service.learnandact.LearnAndAct
 import mozilla.components.lib.state.Store
-import mozilla.components.service.pocket.PocketRecommendedStory
 import org.mozilla.fenix.BrowserDirection
 import org.mozilla.fenix.HomeActivity
 import org.mozilla.fenix.R
-import org.mozilla.fenix.components.metrics.Event
-import org.mozilla.fenix.components.metrics.MetricController
-import org.mozilla.fenix.home.HomeFragmentAction
-import org.mozilla.fenix.home.HomeFragmentStore
-import org.mozilla.fenix.home.pocket.POCKET_CATEGORIES_SELECTED_AT_A_TIME_COUNT
-import org.mozilla.fenix.home.pocket.PocketRecommendedStoriesCategory
-import org.mozilla.fenix.home.pocket.PocketStoriesController
+import org.mozilla.fenix.components.AppStore
+import org.mozilla.fenix.components.appstate.AppAction
 
 interface LearnAndActController {
     /**
@@ -43,12 +37,12 @@ interface LearnAndActController {
  */
 internal class DefaultLearnAndActController(
     private val homeActivity: HomeActivity,
-    private val homeStore: HomeFragmentStore,
+    private val appStore: AppStore,
     private val navController: NavController
 ) : LearnAndActController {
 
     override fun handleLearnAndActShown(learnAndAct: List<LearnAndAct>) {
-        homeStore.dispatch(HomeFragmentAction.LearnAndActShown(learnAndAct))
+        appStore.dispatch(AppAction.LearnAndActShown(learnAndAct))
     }
 
     override fun handleLearnAndActClicked(learnAndAct: LearnAndAct) {

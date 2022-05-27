@@ -8,6 +8,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.VisibleForTesting
+import androidx.compose.ui.platform.ComposeView
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.RecyclerView
 import mozilla.components.browser.state.store.BrowserStore
@@ -15,10 +16,9 @@ import org.mozilla.fenix.components.AppStore
 import org.mozilla.fenix.ext.settings
 import org.mozilla.fenix.tabstray.browser.BrowserTabsAdapter
 import org.mozilla.fenix.tabstray.browser.BrowserTrayInteractor
-import org.mozilla.fenix.tabstray.browser.TitleHeaderAdapter
 import org.mozilla.fenix.tabstray.browser.InactiveTabsAdapter
 import org.mozilla.fenix.tabstray.browser.TabGroupAdapter
-import org.mozilla.fenix.tabstray.syncedtabs.TabClickDelegate
+import org.mozilla.fenix.tabstray.browser.TitleHeaderAdapter
 import org.mozilla.fenix.tabstray.viewholders.AbstractPageViewHolder
 import org.mozilla.fenix.tabstray.viewholders.NormalBrowserPageViewHolder
 import org.mozilla.fenix.tabstray.viewholders.PrivateBrowserPageViewHolder
@@ -57,13 +57,11 @@ class TrayPagerAdapter(
         )
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AbstractPageViewHolder {
-        val itemView = LayoutInflater.from(parent.context).inflate(viewType, parent, false)
-
-        return when (viewType) {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AbstractPageViewHolder =
+        when (viewType) {
             NormalBrowserPageViewHolder.LAYOUT_ID -> {
                 NormalBrowserPageViewHolder(
-                    itemView,
+                    LayoutInflater.from(parent.context).inflate(viewType, parent, false),
                     tabsTrayStore,
                     browserStore,
                     appStore,
@@ -72,23 +70,37 @@ class TrayPagerAdapter(
             }
             PrivateBrowserPageViewHolder.LAYOUT_ID -> {
                 PrivateBrowserPageViewHolder(
-                    itemView,
+                    LayoutInflater.from(parent.context).inflate(viewType, parent, false),
                     tabsTrayStore,
                     browserStore,
                     interactor
                 )
             }
+            SyncedTabsPageViewHolder.LAYOUT_ID -> {
+                SyncedTabsPageViewHolder(
+                    composeView = ComposeView(parent.context).apply {
+                        layoutParams = ViewGroup.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.MATCH_PARENT
+                        )
+                    },
+                    tabsTrayStore = tabsTrayStore,
+                    navigationInteractor = navInteractor
+                )
+            }
             else -> throw IllegalStateException("Unknown viewType.")
         }
-    }
 
+    /**
+     * Until [TrayPagerAdapter] is replaced with a Compose implementation, [SyncedTabsPageViewHolder]
+     * will need to be called with an empty bind() function since it no longer needs an adapter to render.
+     * For more details: https://github.com/mozilla-mobile/fenix/issues/21318
+     */
     override fun onBindViewHolder(viewHolder: AbstractPageViewHolder, position: Int) {
-        val adapter = when (position) {
-            POSITION_NORMAL_TABS -> normalAdapter
-            POSITION_PRIVATE_TABS -> privateAdapter
-            else -> throw IllegalStateException("View type does not exist.")
+        when (viewHolder) {
+            is NormalBrowserPageViewHolder -> viewHolder.bind(normalAdapter)
+            is PrivateBrowserPageViewHolder -> viewHolder.bind(privateAdapter)
         }
-        viewHolder.bind(adapter)
     }
 
     override fun getItemViewType(position: Int): Int {

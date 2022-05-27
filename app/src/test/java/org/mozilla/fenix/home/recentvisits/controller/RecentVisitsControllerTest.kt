@@ -14,7 +14,6 @@ import io.mockk.verify
 import io.mockk.verifyOrder
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.TestCoroutineScope
 import mozilla.components.browser.state.action.HistoryMetadataAction
 import mozilla.components.browser.state.store.BrowserStore
@@ -29,29 +28,27 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mozilla.fenix.R
+import org.mozilla.fenix.components.AppStore
+import org.mozilla.fenix.components.appstate.AppAction
 import org.mozilla.fenix.components.metrics.Event
 import org.mozilla.fenix.components.metrics.MetricController
-import org.mozilla.fenix.home.HomeFragmentAction
-import org.mozilla.fenix.home.HomeFragmentAction.RemoveRecentHistoryHighlight
 import org.mozilla.fenix.home.HomeFragmentDirections
-import org.mozilla.fenix.home.HomeFragmentStore
 import org.mozilla.fenix.home.recentvisits.RecentlyVisitedItem.RecentHistoryGroup
 import org.mozilla.fenix.home.recentvisits.RecentlyVisitedItem.RecentHistoryHighlight
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class RecentVisitsControllerTest {
 
-    private val testDispatcher = TestCoroutineDispatcher()
-
     @get:Rule
-    val coroutinesTestRule = MainCoroutineRule(testDispatcher)
+    val coroutinesTestRule = MainCoroutineRule()
+    private val testDispatcher = coroutinesTestRule.testDispatcher
 
     private val selectOrAddTabUseCase: SelectOrAddUseCase = mockk(relaxed = true)
     private val navController = mockk<NavController>(relaxed = true)
     private val metrics: MetricController = mockk(relaxed = true)
 
     private lateinit var storage: HistoryMetadataStorage
-    private lateinit var homeFragmentStore: HomeFragmentStore
+    private lateinit var appStore: AppStore
     private lateinit var store: BrowserStore
     private val scope = TestCoroutineScope()
 
@@ -63,12 +60,12 @@ class RecentVisitsControllerTest {
             every { id } returns R.id.homeFragment
         }
         storage = mockk(relaxed = true)
-        homeFragmentStore = mockk(relaxed = true)
+        appStore = mockk(relaxed = true)
         store = mockk(relaxed = true)
 
         controller = spyk(
             DefaultRecentVisitsController(
-                homeStore = homeFragmentStore,
+                appStore = appStore,
                 store = store,
                 selectOrAddTabUseCase = selectOrAddTabUseCase,
                 navController = navController,
@@ -149,7 +146,7 @@ class RecentVisitsControllerTest {
         testDispatcher.advanceUntilIdle()
         verify {
             store.dispatch(HistoryMetadataAction.DisbandSearchGroupAction(searchTerm = historyGroup.title))
-            homeFragmentStore.dispatch(HomeFragmentAction.DisbandSearchGroupAction(searchTerm = historyGroup.title))
+            appStore.dispatch(AppAction.DisbandSearchGroupAction(searchTerm = historyGroup.title))
             metrics.track(Event.RecentSearchesGroupDeleted)
         }
 
@@ -176,7 +173,7 @@ class RecentVisitsControllerTest {
         controller.handleRemoveRecentHistoryHighlight(highlightUrl)
 
         verify {
-            homeFragmentStore.dispatch(RemoveRecentHistoryHighlight(highlightUrl))
+            appStore.dispatch(AppAction.RemoveRecentHistoryHighlight(highlightUrl))
             scope.launch {
                 storage.deleteHistoryMetadataForUrl(highlightUrl)
             }

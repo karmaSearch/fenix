@@ -11,7 +11,6 @@ import io.mockk.mockk
 import io.mockk.spyk
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineDispatcher
 import mozilla.components.browser.state.action.TabListAction
 import mozilla.components.browser.state.state.BrowserState
 import mozilla.components.browser.state.state.createTab
@@ -23,20 +22,20 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mozilla.fenix.R
+import org.mozilla.fenix.components.AppStore
 import org.mozilla.fenix.components.metrics.Event
 import org.mozilla.fenix.components.metrics.MetricController
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class RecentTabControllerTest {
 
-    private val testDispatcher = TestCoroutineDispatcher()
-
     @get:Rule
-    val coroutinesTestRule = MainCoroutineRule(testDispatcher)
+    val coroutinesTestRule = MainCoroutineRule()
 
     private val navController: NavController = mockk(relaxed = true)
     private val selectTabUseCase: TabsUseCases = mockk(relaxed = true)
     private val metrics: MetricController = mockk(relaxed = true)
+    private val appStore: AppStore = mockk()
 
     private lateinit var store: BrowserStore
 
@@ -53,6 +52,7 @@ class RecentTabControllerTest {
                 navController = navController,
                 metrics = metrics,
                 store = store,
+                appStore = appStore,
             )
         )
         every { navController.navigateUp() } returns true

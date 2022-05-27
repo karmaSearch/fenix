@@ -15,18 +15,22 @@ import android.view.accessibility.AccessibilityManager
 import androidx.annotation.VisibleForTesting
 import androidx.annotation.VisibleForTesting.PRIVATE
 import androidx.lifecycle.LifecycleOwner
+import mozilla.components.concept.engine.Engine.HttpsOnlyMode
 import mozilla.components.feature.sitepermissions.SitePermissionsRules
 import mozilla.components.feature.sitepermissions.SitePermissionsRules.Action
 import mozilla.components.feature.sitepermissions.SitePermissionsRules.AutoplayAction
+import mozilla.components.service.contile.ContileTopSitesProvider
 import mozilla.components.support.ktx.android.content.PreferencesHolder
 import mozilla.components.support.ktx.android.content.booleanPreference
 import mozilla.components.support.ktx.android.content.floatPreference
 import mozilla.components.support.ktx.android.content.intPreference
 import mozilla.components.support.ktx.android.content.longPreference
 import mozilla.components.support.ktx.android.content.stringPreference
+import mozilla.components.support.ktx.android.content.stringSetPreference
 import org.mozilla.fenix.BuildConfig
 import org.mozilla.fenix.Config
 import org.mozilla.fenix.FeatureFlags
+import org.mozilla.fenix.FeatureFlags.historyImprovementFeatures
 import org.mozilla.fenix.R
 import org.mozilla.fenix.browser.browsingmode.BrowsingMode
 import org.mozilla.fenix.components.metrics.MozillaProductDetector
@@ -34,19 +38,20 @@ import org.mozilla.fenix.components.settings.counterPreference
 import org.mozilla.fenix.components.settings.featureFlagPreference
 import org.mozilla.fenix.components.settings.lazyFeatureFlagPreference
 import org.mozilla.fenix.components.toolbar.ToolbarPosition
-import org.mozilla.fenix.experiments.ExperimentBranch
-import org.mozilla.fenix.experiments.FeatureId
 import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.ext.getPreferenceKey
-import org.mozilla.fenix.ext.withExperiment
+import org.mozilla.fenix.nimbus.DefaultBrowserMessage
+import org.mozilla.fenix.nimbus.FxNimbus
+import org.mozilla.fenix.nimbus.HomeScreenSection
+import org.mozilla.fenix.nimbus.MessageSurfaceId
 import org.mozilla.fenix.settings.PhoneFeature
-import org.mozilla.fenix.wallpapers.Wallpaper
 import org.mozilla.fenix.settings.deletebrowsingdata.DeleteBrowsingDataOnQuitType
 import org.mozilla.fenix.settings.logins.SavedLoginsSortingStrategyMenu
 import org.mozilla.fenix.settings.logins.SortingStrategy
 import org.mozilla.fenix.settings.registerOnSharedPreferenceChangeListener
 import org.mozilla.fenix.settings.sitepermissions.AUTOPLAY_BLOCK_ALL
 import org.mozilla.fenix.settings.sitepermissions.AUTOPLAY_BLOCK_AUDIBLE
+import org.mozilla.fenix.wallpapers.WallpaperManager
 import java.security.InvalidParameterException
 
 private const val AUTOPLAY_USER_SETTING = "AUTOPLAY_USER_SETTING"
@@ -59,7 +64,6 @@ private const val AUTOPLAY_USER_SETTING = "AUTOPLAY_USER_SETTING"
 class Settings(private val appContext: Context) : PreferencesHolder {
 
     companion object {
-        const val topSitesMaxCount = 16
         const val FENIX_PREFERENCES = "fenix_preferences"
 
         private const val BLOCKED_INT = 0
@@ -76,6 +80,21 @@ class Settings(private val appContext: Context) : PreferencesHolder {
         const val THREE_DAYS_MS = 3 * ONE_DAY_MS
         const val ONE_WEEK_MS = 60 * 60 * 24 * 7 * 1000L
         const val ONE_MONTH_MS = (60 * 60 * 24 * 365 * 1000L) / 12
+
+        /**
+         * The minimum number a search groups should contain.
+         * Filtering is applied depending on the [historyImprovementFeatures] flag value.
+         */
+        const val SEARCH_GROUP_MINIMUM_SITES: Int = 2
+
+        // The maximum number of top sites to display.
+        const val TOP_SITES_MAX_COUNT = 16
+
+        /**
+         * Only fetch top sites from the [ContileTopSitesProvider] when the number of default and
+         * pinned sites are below this maximum threshold.
+         */
+        const val TOP_SITES_PROVIDER_MAX_THRESHOLD = 8
 
         private fun Action.toInt() = when (this) {
             Action.BLOCKED -> BLOCKED_INT
@@ -111,10 +130,13 @@ class Settings(private val appContext: Context) : PreferencesHolder {
     override val preferences: SharedPreferences =
         appContext.getSharedPreferences(FENIX_PREFERENCES, MODE_PRIVATE)
 
-    var showTopFrecentSites by lazyFeatureFlagPreference(
-        appContext.getPreferenceKey(R.string.pref_key_enable_top_frecent_sites),
+    /**
+     * Indicates whether or not top sites should be shown on the home screen.
+     */
+    var showTopSitesFeature by lazyFeatureFlagPreference(
+        appContext.getPreferenceKey(R.string.pref_key_show_top_sites),
         featureFlag = true,
-        default = { appContext.components.analytics.features.homeScreen.isTopSitesActive() }
+        default = { homescreenSections[HomeScreenSection.TOP_SITES] == true },
     )
 
     var showKARMAPicture by booleanPreference(
@@ -170,9 +192,19 @@ class Settings(private val appContext: Context) : PreferencesHolder {
         default = ""
     )
 
+    var contileContextId by stringPreference(
+        appContext.getPreferenceKey(R.string.pref_key_contile_context_id),
+        default = ""
+    )
+
     var currentWallpaper by stringPreference(
         appContext.getPreferenceKey(R.string.pref_key_current_wallpaper),
-        default = Wallpaper.NONE.name
+        default = WallpaperManager.defaultWallpaper.name
+    )
+
+    var wallpapersSwitchedByLogoTap by booleanPreference(
+        appContext.getPreferenceKey(R.string.pref_key_wallpapers_switched_by_logo_tap),
+        default = true
     )
 
     var openLinksInAPrivateTab by booleanPreference(
@@ -185,30 +217,10 @@ class Settings(private val appContext: Context) : PreferencesHolder {
         default = false
     )
 
-    var shouldDisplayMasterPasswordMigrationTip by booleanPreference(
-        appContext.getString(R.string.pref_key_master_password_tip),
-        true
-    )
-
     var shouldReturnToBrowser by booleanPreference(
         appContext.getString(R.string.pref_key_return_to_browser),
         false
     )
-
-    // If any of the prefs have been modified, quit displaying the fenix moved tip
-    fun shouldDisplayFenixMovingTip(): Boolean =
-        preferences.getBoolean(
-            appContext.getString(R.string.pref_key_migrating_from_fenix_nightly_tip),
-            true
-        ) &&
-            preferences.getBoolean(
-                appContext.getString(R.string.pref_key_migrating_from_firefox_nightly_tip),
-                true
-            ) &&
-            preferences.getBoolean(
-                appContext.getString(R.string.pref_key_migrating_from_fenix_tip),
-                true
-            )
 
     var defaultSearchEngineName by stringPreference(
         appContext.getPreferenceKey(R.string.pref_key_search_engine),
@@ -232,10 +244,10 @@ class Settings(private val appContext: Context) : PreferencesHolder {
 
     val isCrashReportingEnabled: Boolean
         get() = isCrashReportEnabledInBuild &&
-            preferences.getBoolean(
-                appContext.getPreferenceKey(R.string.pref_key_crash_reporter),
-                false
-            )
+                preferences.getBoolean(
+                    appContext.getPreferenceKey(R.string.pref_key_crash_reporter),
+                    false
+                )
 
     val isRemoteDebuggingEnabled by booleanPreference(
         appContext.getPreferenceKey(R.string.pref_key_remote_debugging),
@@ -334,16 +346,9 @@ class Settings(private val appContext: Context) : PreferencesHolder {
      * Shows if the set default browser experiment card should be shown on home screen.
      */
     fun shouldShowSetAsDefaultBrowserCard(): Boolean {
-        val browsers = BrowsersCache.all(appContext)
-        val experiments = appContext.components.analytics.experiments
-        val isExperimentBranch =
-            experiments.withExperiment(FeatureId.DEFAULT_BROWSER) { experimentBranch ->
-                (experimentBranch == ExperimentBranch.DEFAULT_BROWSER_NEW_TAB_BANNER)
-            }
-        return isExperimentBranch == true &&
-            !userDismissedExperimentCard &&
-            !browsers.isKARMADefaultBrowser &&
-            numberOfAppLaunches > APP_LAUNCHES_TO_SHOW_DEFAULT_BROWSER_CARD
+        return isDefaultBrowserMessageLocation(MessageSurfaceId.HOMESCREEN_BANNER) &&
+                !userDismissedExperimentCard &&
+                numberOfAppLaunches > APP_LAUNCHES_TO_SHOW_DEFAULT_BROWSER_CARD
     }
 
     /**
@@ -354,6 +359,20 @@ class Settings(private val appContext: Context) : PreferencesHolder {
 
         return !browsers.isKARMADefaultBrowser && !hasShownDefaultBrowserDialog
     }
+
+    private val defaultBrowserFeature: DefaultBrowserMessage by lazy {
+        FxNimbus.features.defaultBrowserMessage.value()
+    }
+
+    fun isDefaultBrowserMessageLocation(surfaceId: MessageSurfaceId): Boolean =
+        defaultBrowserFeature.messageLocation?.let { experimentalSurfaceId ->
+            if (experimentalSurfaceId == surfaceId) {
+                val browsers = BrowsersCache.all(appContext)
+                !browsers.isKARMADefaultBrowser
+            } else {
+                false
+            }
+        } ?: false
 
     var gridTabView by booleanPreference(
         appContext.getPreferenceKey(R.string.pref_key_tab_view_grid),
@@ -461,11 +480,21 @@ class Settings(private val appContext: Context) : PreferencesHolder {
     )
 
     /**
+     * Indicates if the Firefox logo on the home screen should be animated,
+     * to show users that they can change the wallpaper by tapping on the Firefox logo.
+     */
+    var shouldAnimateFirefoxLogo by featureFlagPreference(
+        appContext.getPreferenceKey(R.string.pref_key_show_logo_animation),
+        default = FeatureFlags.showWallpapers,
+        featureFlag = FeatureFlags.showWallpapers
+    )
+
+    /**
      * Indicates if the user has enabled the search term tab groups feature.
      */
-    var searchTermTabGroupsAreEnabled by featureFlagPreference(
+    var searchTermTabGroupsAreEnabled by lazyFeatureFlagPreference(
         appContext.getPreferenceKey(R.string.pref_key_search_term_tab_groups),
-        default = FeatureFlags.tabGroupFeature,
+        default = { FxNimbus.features.searchTermGroups.value(appContext).enabled },
         featureFlag = FeatureFlags.tabGroupFeature
     )
 
@@ -529,6 +558,21 @@ class Settings(private val appContext: Context) : PreferencesHolder {
         default = false
     )
 
+    var shouldUseHttpsOnly by booleanPreference(
+        appContext.getPreferenceKey(R.string.pref_key_https_only),
+        default = false
+    )
+
+    var shouldUseHttpsOnlyInAllTabs by booleanPreference(
+        appContext.getPreferenceKey(R.string.pref_key_https_only_in_all_tabs),
+        default = true
+    )
+
+    var shouldUseHttpsOnlyInPrivateTabsOnly by booleanPreference(
+        appContext.getPreferenceKey(R.string.pref_key_https_only_in_private_tabs),
+        default = false
+    )
+
     var shouldUseTrackingProtection by booleanPreference(
         appContext.getPreferenceKey(R.string.pref_key_tracking_protection),
         default = true
@@ -543,7 +587,8 @@ class Settings(private val appContext: Context) : PreferencesHolder {
     fun checkIfFenixIsDefaultBrowserOnAppResume(): Boolean {
         val prefKey = appContext.getPreferenceKey(R.string.pref_key_default_browser)
         val isDefaultBrowserNow = isDefaultBrowserBlocking()
-        val wasDefaultBrowserOnLastResume = this.preferences.getBoolean(prefKey, isDefaultBrowserNow)
+        val wasDefaultBrowserOnLastResume =
+            this.preferences.getBoolean(prefKey, isDefaultBrowserNow)
         this.preferences.edit().putBoolean(prefKey, isDefaultBrowserNow).apply()
         return isDefaultBrowserNow && !wasDefaultBrowserOnLastResume
     }
@@ -898,8 +943,8 @@ class Settings(private val appContext: Context) : PreferencesHolder {
      */
     fun shouldShowInactiveTabsAutoCloseDialog(numbersOfTabs: Int): Boolean {
         return !hasInactiveTabsAutoCloseDialogBeenDismissed &&
-            numbersOfTabs >= INACTIVE_TAB_MINIMUM_TO_SHOW_AUTO_CLOSE_DIALOG &&
-            !closeTabsAfterOneMonth
+                numbersOfTabs >= INACTIVE_TAB_MINIMUM_TO_SHOW_AUTO_CLOSE_DIALOG &&
+                !closeTabsAfterOneMonth
     }
 
     /**
@@ -908,14 +953,6 @@ class Settings(private val appContext: Context) : PreferencesHolder {
     var shouldShowJumpBackInCFR by booleanPreference(
         appContext.getPreferenceKey(R.string.pref_key_should_show_jump_back_in_tabs_popup),
         default = true
-    )
-
-    /**
-     * Should we display a feedback request to the user when he turns off the Inactive Tabs feature
-     */
-    var shouldShowInactiveTabsTurnOffSurvey by booleanPreference(
-        appContext.getPreferenceKey(R.string.pref_key_should_show_inactive_tabs_turn_off_survey),
-        default = false
     )
 
     fun getSitePermissionsPhoneFeatureAction(
@@ -1129,7 +1166,7 @@ class Settings(private val appContext: Context) : PreferencesHolder {
 
     val topSitesMaxLimit by intPreference(
         appContext.getPreferenceKey(R.string.pref_key_top_sites_max_limit),
-        default = topSitesMaxCount
+        default = TOP_SITES_MAX_COUNT
     )
 
     var openTabsCount by intPreference(
@@ -1229,6 +1266,10 @@ class Settings(private val appContext: Context) : PreferencesHolder {
         default = false
     )
 
+    private val homescreenSections: Map<HomeScreenSection, Boolean> by lazy {
+        FxNimbus.features.homescreen.value().sectionsEnabled
+    }
+
     var historyMetadataUIFeature by lazyFeatureFlagPreference(
         appContext.getPreferenceKey(R.string.pref_key_history_metadata_feature),
         default = { false },
@@ -1283,8 +1324,57 @@ class Settings(private val appContext: Context) : PreferencesHolder {
     var showPocketRecommendationsFeature by lazyFeatureFlagPreference(
         appContext.getPreferenceKey(R.string.pref_key_pocket_homescreen_recommendations),
         featureFlag = FeatureFlags.isPocketRecommendationsFeatureEnabled(),
-        default = { appContext.components.analytics.features.homeScreen.isPocketRecommendationsActive() },
+        default = { homescreenSections[HomeScreenSection.POCKET] == true },
     )
+
+    /**
+     * Indicates if the Contile functionality should be visible.
+     */
+    var showContileFeature by lazyFeatureFlagPreference(
+        key = appContext.getPreferenceKey(R.string.pref_key_enable_contile),
+        default = { homescreenSections[HomeScreenSection.CONTILE_TOP_SITES] == true },
+        featureFlag = FeatureFlags.contileFeature,
+    )
+
+
+    /**
+     * Indicates if the Task Continuity enhancements are enabled.
+     */
+    var enableTaskContinuityEnhancements by featureFlagPreference(
+        key = appContext.getPreferenceKey(R.string.pref_key_enable_task_continuity),
+        default = false,
+        featureFlag = FeatureFlags.taskContinuityFeature,
+    )
+
+    /**
+     * Indicates if the Unified Search feature should be visible.
+     */
+    var showUnifiedSearchFeature by featureFlagPreference(
+        key = appContext.getPreferenceKey(R.string.pref_key_show_unified_search),
+        default = false,
+        featureFlag = FeatureFlags.unifiedSearchFeature
+    )
+
+    /**
+     * Blocklist used to filter items from the home screen that have previously been removed.
+     */
+    var homescreenBlocklist by stringSetPreference(
+        appContext.getPreferenceKey(R.string.pref_key_home_blocklist),
+        default = setOf()
+    )
+
+    /**
+     * Get the current mode for how https-only is enabled.
+     */
+    fun getHttpsOnlyMode(): HttpsOnlyMode {
+        return if (!shouldUseHttpsOnly) {
+            HttpsOnlyMode.DISABLED
+        } else if (shouldUseHttpsOnlyInPrivateTabsOnly) {
+            HttpsOnlyMode.ENABLED_PRIVATE_ONLY
+        } else {
+            HttpsOnlyMode.ENABLED
+        }
+    }
 
     /**
      * Shows if the add widget card should be shown on home screen.
@@ -1299,8 +1389,8 @@ class Settings(private val appContext: Context) : PreferencesHolder {
      * Indicates if the companion in CRF should be shown.
      */
     var shouldShowCompanion by booleanPreference(
-            appContext.getPreferenceKey(R.string.pref_key_should_show_companion),
-            default = true
+        appContext.getPreferenceKey(R.string.pref_key_should_show_companion),
+        default = true
     )
 
     var shouldShowTopSiteCompanion by booleanPreference(

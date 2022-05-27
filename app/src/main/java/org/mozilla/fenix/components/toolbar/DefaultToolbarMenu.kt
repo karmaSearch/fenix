@@ -23,12 +23,14 @@ import mozilla.components.browser.menu.item.BrowserMenuImageSwitch
 import mozilla.components.browser.menu.item.BrowserMenuImageText
 import mozilla.components.browser.menu.item.BrowserMenuImageTextCheckboxButton
 import mozilla.components.browser.menu.item.BrowserMenuItemToolbar
+import mozilla.components.browser.menu.item.TwoStateBrowserMenuImageText
 import mozilla.components.browser.menu.item.WebExtensionPlaceholderMenuItem
 import mozilla.components.browser.state.selector.findTab
 import mozilla.components.browser.state.selector.selectedTab
 import mozilla.components.browser.state.state.TabSessionState
 import mozilla.components.browser.state.store.BrowserStore
 import mozilla.components.concept.storage.BookmarksStorage
+import mozilla.components.feature.top.sites.PinnedSiteStorage
 import mozilla.components.feature.webcompat.reporter.WebCompatReporterFeature
 import mozilla.components.lib.state.ext.flowScoped
 import mozilla.components.support.ktx.android.content.getColorFromAttr
@@ -37,20 +39,17 @@ import org.mozilla.fenix.HomeActivity
 import org.mozilla.fenix.R
 import org.mozilla.fenix.browser.browsingmode.BrowsingMode
 import org.mozilla.fenix.components.accounts.FenixAccountManager
-import org.mozilla.fenix.experiments.ExperimentBranch
-import org.mozilla.fenix.experiments.FeatureId
 import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.ext.settings
-import org.mozilla.fenix.ext.withExperiment
-import org.mozilla.fenix.home.HomeMenu
+import org.mozilla.fenix.nimbus.MessageSurfaceId
 import org.mozilla.fenix.theme.ThemeManager
-import org.mozilla.fenix.utils.BrowsersCache
 
 /**
  * Builds the toolbar object used with the 3-dot menu in the browser fragment.
  * @param store reference to the application's [BrowserStore].
  * @param hasAccountProblem If true, there was a problem signing into the Firefox account.
  * @param shouldReverseItems If true, reverse the menu items.
+ * @param pinnedSiteStorage Used to check if the current url is a pinned site.
  * @param onItemTapped Called when a menu item is tapped.
  * @param lifecycleOwner View lifecycle owner used to determine when to cancel UI jobs.
  * @param bookmarksStorage Used to check if a page is bookmarked.
@@ -63,9 +62,11 @@ open class DefaultToolbarMenu(
     private val onItemTapped: (ToolbarMenu.Item) -> Unit = {},
     private val lifecycleOwner: LifecycleOwner,
     private val bookmarksStorage: BookmarksStorage,
+    private val pinnedSiteStorage: PinnedSiteStorage,
     val isPinningSupported: Boolean
 ) : ToolbarMenu {
 
+    private var isCurrentUrlPinned = false
     private var isCurrentUrlBookmarked = false
     private var isBookmarkedJob: Job? = null
 
@@ -99,7 +100,7 @@ open class DefaultToolbarMenu(
             isInPrimaryState = {
                 selectedSession?.content?.canGoBack ?: true
             },
-            secondaryImageTintResource = ThemeManager.resolveAttribute(R.attr.disabled, context),
+            secondaryImageTintResource = ThemeManager.resolveAttribute(R.attr.textDisabled, context),
             disableInSecondaryState = true,
             longClickListener = { onItemTapped.invoke(ToolbarMenu.Item.Back(viewHistory = true)) }
         ) {
@@ -113,7 +114,7 @@ open class DefaultToolbarMenu(
             isInPrimaryState = {
                 selectedSession?.content?.canGoForward ?: true
             },
-            secondaryImageTintResource = ThemeManager.resolveAttribute(R.attr.disabled, context),
+            secondaryImageTintResource = ThemeManager.resolveAttribute(R.attr.textDisabled, context),
             disableInSecondaryState = true,
             longClickListener = { onItemTapped.invoke(ToolbarMenu.Item.Forward(viewHistory = true)) }
         ) {
@@ -272,13 +273,23 @@ open class DefaultToolbarMenu(
         onItemTapped.invoke(ToolbarMenu.Item.AddToHomeScreen)
     }
 
-    val addToTopSitesItem = BrowserMenuImageText(
-        label = context.getString(R.string.browser_menu_add_to_top_sites),
-        imageResource = R.drawable.ic_top_sites,
-        iconTintColorResource = primaryTextColor()
-    ) {
-        onItemTapped.invoke(ToolbarMenu.Item.AddToTopSites)
-    }
+    val addRemoveTopSitesItem = TwoStateBrowserMenuImageText(
+        primaryLabel = context.getString(R.string.browser_menu_add_to_top_sites),
+        secondaryLabel = context.getString(R.string.browser_menu_remove_from_top_sites),
+        primaryStateIconResource = R.drawable.ic_top_sites,
+        secondaryStateIconResource = R.drawable.ic_top_sites,
+        iconTintColorResource = primaryTextColor(),
+        isInPrimaryState = { !isCurrentUrlPinned },
+        isInSecondaryState = { isCurrentUrlPinned },
+        primaryStateAction = {
+            isCurrentUrlPinned = true
+            onItemTapped.invoke(ToolbarMenu.Item.AddToTopSites)
+        },
+        secondaryStateAction = {
+            isCurrentUrlPinned = false
+            onItemTapped.invoke(ToolbarMenu.Item.RemoveFromTopSites)
+        }
+    )
 
     val saveToCollectionItem = BrowserMenuImageText(
         label = context.getString(R.string.browser_menu_save_to_collection_2),
@@ -291,12 +302,16 @@ open class DefaultToolbarMenu(
     val settingsItem = BrowserMenuHighlightableItem(
         label = context.getString(R.string.browser_menu_settings),
         startImageResource = R.drawable.mozac_ic_settings,
-        iconTintColorResource = if (hasAccountProblem)
-            ThemeManager.resolveAttribute(R.attr.syncDisconnected, context) else
-            primaryTextColor(),
-        textColorResource = if (hasAccountProblem)
-            ThemeManager.resolveAttribute(R.attr.primaryText, context) else
-            primaryTextColor(),
+        iconTintColorResource = if (hasAccountProblem) {
+            ThemeManager.resolveAttribute(R.attr.syncDisconnected, context)
+        } else {
+            primaryTextColor()
+        },
+        textColorResource = if (hasAccountProblem) {
+            ThemeManager.resolveAttribute(R.attr.textPrimary, context)
+        } else {
+            primaryTextColor()
+        },
         highlight = BrowserMenuHighlight.HighPriority(
             endImageResource = R.drawable.ic_sync_disconnected,
             backgroundTint = context.getColorFromAttr(R.attr.syncDisconnectedBackground),
@@ -351,7 +366,7 @@ open class DefaultToolbarMenu(
                 BrowserMenuDivider(),
                 addToHomeScreenItem.apply { visible = ::canAddToHomescreen },
                 installToHomescreen.apply { visible = ::canInstall },
-                addToTopSitesItem,
+                addRemoveTopSitesItem,
                 saveToCollectionItem,
                 BrowserMenuDivider(),
                 settingsItem,
@@ -370,11 +385,20 @@ open class DefaultToolbarMenu(
 
     @ColorRes
     @VisibleForTesting
-    internal fun primaryTextColor() = ThemeManager.resolveAttribute(R.attr.primaryText, context)
+    internal fun primaryTextColor() = ThemeManager.resolveAttribute(R.attr.textPrimary, context)
 
     @ColorRes
     @VisibleForTesting
     internal fun menuItemButtonTintColor() = ThemeManager.resolveAttribute(R.attr.menuItemButtonTintColor, context)
+
+    @VisibleForTesting
+    internal fun updateIsCurrentUrlPinned(currentUrl: String) {
+        lifecycleOwner.lifecycleScope.launch {
+            isCurrentUrlPinned = pinnedSiteStorage
+                .getPinnedSites()
+                .find { it.url == currentUrl } != null
+        }
+    }
 
     @VisibleForTesting
     internal fun registerForIsBookmarkedUpdates() {
@@ -387,6 +411,9 @@ open class DefaultToolbarMenu(
                     )
                 }
                 .collect {
+                    isCurrentUrlPinned = false
+                    updateIsCurrentUrlPinned(it.content.url)
+
                     isCurrentUrlBookmarked = false
                     updateCurrentUrlIsBookmarked(it.content.url)
                 }
@@ -404,10 +431,11 @@ open class DefaultToolbarMenu(
     }
 
     private fun getSetDefaultBrowserItem(): BrowserMenuImageText? {
-        val browsers = BrowsersCache.all(context)
-
-        return if (!browsers.isKARMADefaultBrowser) {
-            return BrowserMenuImageText(
+        val settings = context.components.settings
+        return if (
+            settings.isDefaultBrowserMessageLocation(MessageSurfaceId.APP_MENU_ITEM)
+        ) {
+            BrowserMenuImageText(
                 label = context.getString(R.string.preferences_set_as_default_browser),
                 imageResource = R.drawable.ic_globe
             ) {

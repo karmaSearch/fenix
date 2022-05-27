@@ -10,20 +10,10 @@ import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
-import org.mozilla.fenix.R
-import org.mozilla.fenix.components.metrics.Event
 import org.mozilla.fenix.databinding.FragmentOnBoardingBinding
-import org.mozilla.fenix.ext.components
-import org.mozilla.fenix.ext.nav
-import org.mozilla.fenix.ext.settings
-import org.mozilla.fenix.home.HomeFragmentDirections
-import org.mozilla.fenix.home.topsites.PagerIndicator
-import org.mozilla.fenix.library.history.HistoryViewModel
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+import org.mozilla.fenix.ext.settings
+
 
 /**
  * A simple [Fragment] subclass.

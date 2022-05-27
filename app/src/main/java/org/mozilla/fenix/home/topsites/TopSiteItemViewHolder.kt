@@ -5,20 +5,25 @@
 package org.mozilla.fenix.home.topsites
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.view.MotionEvent
 import android.view.View
 import android.widget.PopupWindow
+import androidx.annotation.VisibleForTesting
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
-import mozilla.components.browser.menu.BrowserMenuBuilder
-import mozilla.components.browser.menu.item.SimpleBrowserMenuItem
+import androidx.core.view.isVisible
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import mozilla.components.feature.top.sites.TopSite
-import mozilla.components.feature.top.sites.TopSite.Type.DEFAULT
-import mozilla.components.feature.top.sites.TopSite.Type.FRECENT
-import mozilla.components.feature.top.sites.TopSite.Type.PINNED
+import org.mozilla.fenix.GleanMetrics.Pings
+import org.mozilla.fenix.GleanMetrics.TopSites
 import org.mozilla.fenix.R
 import org.mozilla.fenix.components.metrics.Event
 import org.mozilla.fenix.databinding.TopSiteItemBinding
+import org.mozilla.fenix.ext.bitmapForUrl
 import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.ext.loadIntoView
 import org.mozilla.fenix.home.sessioncontrol.TopSiteInteractor
@@ -27,21 +32,21 @@ import org.mozilla.fenix.utils.view.ViewHolder
 
 class TopSiteItemViewHolder(
     view: View,
+    private val viewLifecycleOwner: LifecycleOwner,
     private val interactor: TopSiteInteractor
 ) : ViewHolder(view) {
     private lateinit var topSite: TopSite
     private val binding = TopSiteItemBinding.bind(view)
 
     init {
-        binding.topSiteItem.setOnClickListener {
-            interactor.onSelectTopSite(topSite.url, topSite.type)
-        }
-
         binding.topSiteItem.setOnLongClickListener {
             interactor.onTopSiteMenuOpened()
-            it.context.components.analytics.metrics.track(Event.TopSiteLongPress(topSite.type))
+            it.context.components.analytics.metrics.track(Event.TopSiteLongPress(topSite))
 
-            val topSiteMenu = TopSiteItemMenu(view.context, topSite.type != FRECENT) { item ->
+            val topSiteMenu = TopSiteItemMenu(
+                context = view.context,
+                topSite = topSite
+            ) { item ->
                 when (item) {
                     is TopSiteItemMenu.Item.OpenInPrivateTab -> interactor.onOpenInPrivateTabClicked(
                         topSite
@@ -52,30 +57,65 @@ class TopSiteItemViewHolder(
                     is TopSiteItemMenu.Item.RemoveTopSite -> interactor.onRemoveTopSiteClicked(
                         topSite
                     )
+                    is TopSiteItemMenu.Item.Settings -> interactor.onSettingsClicked()
+                    is TopSiteItemMenu.Item.SponsorPrivacy -> interactor.onSponsorPrivacyClicked()
                 }
             }
             val menu = topSiteMenu.menuBuilder.build(view.context).show(anchor = it)
+
             it.setOnTouchListener @SuppressLint("ClickableViewAccessibility") { v, event ->
                 onTouchEvent(v, event, menu)
             }
+
             true
         }
     }
 
-    fun bind(topSite: TopSite) {
+    fun bind(topSite: TopSite, position: Int) {
+        binding.topSiteItem.setOnClickListener {
+            interactor.onSelectTopSite(topSite, position)
+        }
+
         binding.topSiteTitle.text = topSite.title
 
-        if (topSite.type == PINNED || topSite.type == DEFAULT) {
+        if (topSite is TopSite.Pinned || topSite is TopSite.Default) {
             val pinIndicator = getDrawable(itemView.context, R.drawable.ic_new_pin)
             binding.topSiteTitle.setCompoundDrawablesWithIntrinsicBounds(pinIndicator, null, null, null)
         } else {
             binding.topSiteTitle.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null)
         }
 
+        if (topSite is TopSite.Provided) {
+            binding.topSiteSubtitle.isVisible = true
 
-        itemView.context.components.core.icons.loadIntoView(binding.faviconImage, topSite.url)
+            viewLifecycleOwner.lifecycleScope.launch(IO) {
+                itemView.context.components.core.client.bitmapForUrl(topSite.imageUrl)?.let { bitmap ->
+                    withContext(Main) {
+                        binding.faviconImage.setImageBitmap(bitmap)
+                        submitTopSitesImpressionPing(topSite, position)
+                    }
+                }
+            }
+        } else {
+            itemView.context.components.core.icons.loadIntoView(binding.faviconImage, topSite.url)
+        }
 
         this.topSite = topSite
+    }
+
+    @VisibleForTesting
+    internal fun submitTopSitesImpressionPing(topSite: TopSite.Provided, position: Int) {
+        itemView.context.components.analytics.metrics.track(
+            Event.TopSiteContileImpression(
+                position = position + 1,
+                source = Event.TopSiteContileImpression.Source.NEWTAB
+            )
+        )
+
+        topSite.id?.let { TopSites.contileTileId.set(it) }
+        topSite.title?.let { TopSites.contileAdvertiser.set(it.lowercase()) }
+        TopSites.contileReportingUrl.set(topSite.impressionUrl)
+        Pings.topsitesImpression.submit()
     }
 
     private fun onTouchEvent(
@@ -91,43 +131,5 @@ class TopSiteItemViewHolder(
 
     companion object {
         const val LAYOUT_ID = R.layout.top_site_item
-    }
-}
-
-class TopSiteItemMenu(
-    private val context: Context,
-    private val isPinnedSite: Boolean,
-    private val onItemTapped: (Item) -> Unit = {}
-) {
-    sealed class Item {
-        object OpenInPrivateTab : Item()
-        object RenameTopSite : Item()
-        object RemoveTopSite : Item()
-    }
-
-    val menuBuilder by lazy { BrowserMenuBuilder(menuItems) }
-
-    private val menuItems by lazy {
-        listOfNotNull(
-            SimpleBrowserMenuItem(
-                context.getString(R.string.bookmark_menu_open_in_private_tab_button)
-            ) {
-                onItemTapped.invoke(Item.OpenInPrivateTab)
-            },
-            if (isPinnedSite) SimpleBrowserMenuItem(
-                context.getString(R.string.rename_top_site)
-            ) {
-                onItemTapped.invoke(Item.RenameTopSite)
-            } else null,
-            SimpleBrowserMenuItem(
-                if (isPinnedSite) {
-                    context.getString(R.string.remove_top_site)
-                } else {
-                    context.getString(R.string.delete_from_history)
-                }
-            ) {
-                onItemTapped.invoke(Item.RemoveTopSite)
-            }
-        )
     }
 }

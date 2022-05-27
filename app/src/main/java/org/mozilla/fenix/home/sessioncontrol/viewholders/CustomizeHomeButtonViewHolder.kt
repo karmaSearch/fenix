@@ -5,7 +5,6 @@
 package org.mozilla.fenix.home.sessioncontrol.viewholders
 
 import android.view.View
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,43 +17,38 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.recyclerview.widget.RecyclerView
-import mozilla.components.ui.colors.PhotonColors
+import androidx.lifecycle.LifecycleOwner
 import org.mozilla.fenix.R
+import org.mozilla.fenix.compose.ComposeViewHolder
 import org.mozilla.fenix.home.sessioncontrol.CustomizeHomeIteractor
 import org.mozilla.fenix.theme.FirefoxTheme
+import org.mozilla.fenix.theme.Theme
 
 class CustomizeHomeButtonViewHolder(
-    val composeView: ComposeView,
+    composeView: ComposeView,
+    viewLifecycleOwner: LifecycleOwner,
     private val interactor: CustomizeHomeIteractor
-) : RecyclerView.ViewHolder(composeView) {
-
-    init {
-        composeView.setViewCompositionStrategy(
-            ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
-        )
-        composeView.setContent {
-            FirefoxTheme {
-                Column {
-                    Spacer(modifier = Modifier.height(68.dp))
-
-                    CustomizeHomeButton(
-                        onButtonClick = { interactor.openCustomizeHomePage() }
-                    )
-                }
-            }
-        }
-    }
+) : ComposeViewHolder(composeView, viewLifecycleOwner) {
 
     companion object {
         val LAYOUT_ID = View.generateViewId()
+    }
+
+    @Composable
+    override fun Content() {
+        Column {
+            Spacer(modifier = Modifier.height(68.dp))
+
+            CustomizeHomeButton(
+                onButtonClick = { interactor.openCustomizeHomePage() }
+            )
+        }
     }
 }
 
@@ -67,11 +61,6 @@ class CustomizeHomeButtonViewHolder(
 fun CustomizeHomeButton(
     onButtonClick: () -> Unit
 ) {
-    val backgroundColor = when (isSystemInDarkTheme()) {
-        true -> PhotonColors.DarkGrey50
-        false -> PhotonColors.LightGrey40
-    }
-
     Button(
         onClick = { onButtonClick() },
         modifier = Modifier
@@ -80,8 +69,8 @@ fun CustomizeHomeButton(
             .height(36.dp),
         elevation = ButtonDefaults.elevation(defaultElevation = 0.dp, pressedElevation = 0.dp),
         colors = outlinedButtonColors(
-            backgroundColor = backgroundColor,
-            contentColor = FirefoxTheme.colors.textPrimary
+            backgroundColor = FirefoxTheme.colors.actionTertiary,
+            contentColor = FirefoxTheme.colors.textActionTertiary
         )
     ) {
         Text(
@@ -98,5 +87,9 @@ fun CustomizeHomeButton(
 @Composable
 @Preview
 fun CustomizeHomeButtonPreview() {
-    CustomizeHomeButton(onButtonClick = {})
+    FirefoxTheme(theme = Theme.getTheme(isPrivate = false)) {
+        CustomizeHomeButton(
+            onButtonClick = {}
+        )
+    }
 }

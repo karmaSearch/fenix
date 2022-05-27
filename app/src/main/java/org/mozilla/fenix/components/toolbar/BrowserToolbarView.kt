@@ -105,11 +105,11 @@ class BrowserToolbarView(
                 )
                 val secondaryTextColor = ContextCompat.getColor(
                     context,
-                    ThemeManager.resolveAttribute(R.attr.secondaryText, context)
+                    ThemeManager.resolveAttribute(R.attr.textSecondary, context)
                 )
                 val separatorColor = ContextCompat.getColor(
                     context,
-                    ThemeManager.resolveAttribute(R.attr.toolbarDivider, context)
+                    ThemeManager.resolveAttribute(R.attr.borderPrimary, context)
                 )
 
                 display.urlFormatter = { url -> URLStringUtils.toDisplayUrl(url) }
@@ -154,6 +154,7 @@ class BrowserToolbarView(
                     },
                     lifecycleOwner = lifecycleOwner,
                     bookmarksStorage = bookmarkStorage,
+                    pinnedSiteStorage = components.core.pinnedSiteStorage,
                     isPinningSupported = isPinningSupported
                 )
                 view.display.setMenuDismissAction {

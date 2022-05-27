@@ -24,29 +24,22 @@ import org.mozilla.fenix.IntentReceiverActivity
 import org.mozilla.fenix.R
 import org.mozilla.fenix.customannotations.SmokeTest
 import org.mozilla.fenix.ext.components
-import org.mozilla.fenix.ext.settings
 import org.mozilla.fenix.helpers.AndroidAssetDispatcher
-import org.mozilla.fenix.helpers.Constants.PackageName.YOUTUBE_APP
+import org.mozilla.fenix.helpers.Constants
 import org.mozilla.fenix.helpers.FeatureSettingsHelper
 import org.mozilla.fenix.helpers.HomeActivityIntentTestRule
 import org.mozilla.fenix.helpers.RecyclerViewIdlingResource
 import org.mozilla.fenix.helpers.RetryTestRule
 import org.mozilla.fenix.helpers.TestAssetHelper
-import org.mozilla.fenix.helpers.TestAssetHelper.downloadFileName
 import org.mozilla.fenix.helpers.TestHelper
 import org.mozilla.fenix.helpers.TestHelper.appName
-import org.mozilla.fenix.helpers.TestHelper.assertExternalAppOpens
+import org.mozilla.fenix.helpers.TestHelper.assertNativeAppOpens
 import org.mozilla.fenix.helpers.TestHelper.createCustomTabIntent
-import org.mozilla.fenix.helpers.TestHelper.deleteDownloadFromStorage
-import org.mozilla.fenix.helpers.TestHelper.isPackageInstalled
-import org.mozilla.fenix.helpers.TestHelper.returnToBrowser
 import org.mozilla.fenix.helpers.TestHelper.scrollToElementByText
 import org.mozilla.fenix.helpers.ViewVisibilityIdlingResource
 import org.mozilla.fenix.ui.robots.browserScreen
-import org.mozilla.fenix.ui.robots.clickTabCrashedRestoreButton
 import org.mozilla.fenix.ui.robots.collectionRobot
 import org.mozilla.fenix.ui.robots.customTabScreen
-import org.mozilla.fenix.ui.robots.downloadRobot
 import org.mozilla.fenix.ui.robots.enhancedTrackingProtection
 import org.mozilla.fenix.ui.robots.homeScreen
 import org.mozilla.fenix.ui.robots.navigationToolbar
@@ -133,8 +126,6 @@ class SmokeTest {
             IdlingRegistry.getInstance().unregister(recentlyClosedTabsListIdlingResource!!)
         }
 
-        deleteDownloadFromStorage(downloadFileName)
-
         if (bookmarksListIdlingResource != null) {
             IdlingRegistry.getInstance().unregister(bookmarksListIdlingResource!!)
         }
@@ -151,6 +142,7 @@ class SmokeTest {
         featureSettingsHelper.resetAllFeatureFlags()
     }
 
+    @Ignore("Failing, see: https://github.com/mozilla-mobile/fenix/issues/24381")
     // Verifies the first run onboarding screen
     @Test
     fun firstRunScreenTest() {
@@ -270,6 +262,26 @@ class SmokeTest {
     }
 
     @Test
+    // Verifies the Add-ons menu opens from a tab's 3 dot menu
+    fun openMainMenuAddonsTest() {
+        val defaultWebPage = TestAssetHelper.getGenericAsset(mockWebServer, 1)
+
+        navigationToolbar {
+        }.enterURLAndEnterToBrowser(defaultWebPage.url) {
+        }.openThreeDotMenu {
+        }.openAddonsManagerMenu {
+            addonsListIdlingResource =
+                RecyclerViewIdlingResource(
+                    activityTestRule.activity.findViewById(R.id.add_ons_list),
+                    1
+                )
+            IdlingRegistry.getInstance().register(addonsListIdlingResource!!)
+            verifyAddonsItems()
+            IdlingRegistry.getInstance().unregister(addonsListIdlingResource!!)
+        }
+    }
+
+    @Test
     // Verifies the Synced tabs menu or Sync Sign In menu opens from a tab's 3 dot menu.
     // The test is assuming we are NOT signed in.
     fun openMainMenuSyncItemTest() {
@@ -309,22 +321,6 @@ class SmokeTest {
         }.openThreeDotMenu {
         }.openFindInPage {
             verifyFindInPageSearchBarItems()
-        }
-    }
-
-    @Test
-    // Verifies the Add to top sites option in a tab's 3 dot menu
-    fun openMainMenuAddTopSiteTest() {
-        val defaultWebPage = TestAssetHelper.getGenericAsset(mockWebServer, 1)
-
-        navigationToolbar {
-        }.enterURLAndEnterToBrowser(defaultWebPage.url) {
-        }.openThreeDotMenu {
-            expandMenu()
-        }.addToFirefoxHome {
-            verifySnackBarText("Added to top sites!")
-        }.goToHomescreen {
-            verifyExistingTopSitesTabs(defaultWebPage.title)
         }
     }
 
@@ -385,17 +381,14 @@ class SmokeTest {
     @Test
     // Verifies the Open in app button when an app is installed
     fun mainMenuOpenInAppTest() {
-        val youtubeUrl = "m.youtube.com"
-        if (isPackageInstalled(YOUTUBE_APP)) {
-            navigationToolbar {
-            }.enterURLAndEnterToBrowser(youtubeUrl.toUri()) {
-                verifyNotificationDotOnMainMenu()
-            }.openThreeDotMenu {
-            }.clickOpenInApp {
-                assertExternalAppOpens(YOUTUBE_APP)
-                returnToBrowser()
-                verifyUrl(youtubeUrl)
-            }
+        val playStoreUrl = "play.google.com/store/apps/details?id=org.mozilla.fenix"
+
+        navigationToolbar {
+        }.enterURLAndEnterToBrowser(playStoreUrl.toUri()) {
+            verifyNotificationDotOnMainMenu()
+        }.openThreeDotMenu {
+        }.clickOpenInApp {
+            assertNativeAppOpens(Constants.PackageName.GOOGLE_PLAY_SERVICES, playStoreUrl)
         }
     }
 
@@ -494,86 +487,6 @@ class SmokeTest {
     }
 
     @Test
-    // Ads a new search engine from the list of custom engines
-    fun addPredefinedSearchEngineTest() {
-        val searchEngine = "Reddit"
-
-        homeScreen {
-        }.openThreeDotMenu {
-        }.openSettings {
-        }.openSearchSubMenu {
-            openAddSearchEngineMenu()
-            verifyAddSearchEngineList()
-            addNewSearchEngine(searchEngine)
-            verifyEngineListContains(searchEngine)
-        }.goBack {
-        }.goBack {
-        }.openSearch {
-            verifyKeyboardVisibility()
-            clickSearchEngineShortcutButton()
-            verifyEnginesListShortcutContains(activityTestRule, searchEngine)
-            changeDefaultSearchEngine(activityTestRule, searchEngine)
-        }.submitQuery("mozilla ") {
-            verifyUrl(searchEngine)
-        }
-    }
-
-    @Test
-    // Verifies setting as default a customized search engine name and URL
-    @Ignore("Failing intermittently https://github.com/mozilla-mobile/fenix/issues/22256")
-    fun editCustomSearchEngineTest() {
-        val searchEngine = object {
-            var title = "Elefant"
-            var url = "https://www.elefant.ro/search?SearchTerm=%s"
-            var newTitle = "Test"
-        }
-
-        homeScreen {
-        }.openThreeDotMenu {
-        }.openSettings {
-        }.openSearchSubMenu {
-            openAddSearchEngineMenu()
-            selectAddCustomSearchEngine()
-            typeCustomEngineDetails(searchEngine.title, searchEngine.url)
-            saveNewSearchEngine()
-            openEngineOverflowMenu(searchEngine.title)
-            clickEdit()
-            typeCustomEngineDetails(searchEngine.newTitle, searchEngine.url)
-            saveEditSearchEngine()
-            changeDefaultSearchEngine(searchEngine.newTitle)
-        }.goBack {
-        }.goBack {
-        }.openSearch {
-            verifyDefaultSearchEngine(searchEngine.newTitle)
-            clickSearchEngineShortcutButton()
-            verifyEnginesListShortcutContains(activityTestRule, searchEngine.newTitle)
-        }
-    }
-
-    @Test
-    // Test running on beta/release builds in CI:
-    // caution when making changes to it, so they don't block the builds
-    // Goes through the settings and changes the search suggestion toggle, then verifies it changes.
-    fun toggleSearchSuggestions() {
-
-        homeScreen {
-        }.openSearch {
-            typeSearch("mozilla")
-            verifySearchEngineSuggestionResults(activityTestRule, "mozilla firefox")
-        }.dismissSearchBar {
-        }.openThreeDotMenu {
-        }.openSettings {
-        }.openSearchSubMenu {
-            disableShowSearchSuggestions()
-        }.goBack {
-        }.goBack {
-        }.openSearch {
-            typeSearch("mozilla")
-            verifyNoSuggestionsAreDisplayed(activityTestRule, "mozilla firefox")
-        }
-    }
-
-    @Test
     // Swipes the nav bar left/right to switch between tabs
     fun swipeToSwitchTabTest() {
         val firstWebPage = TestAssetHelper.getGenericAsset(mockWebServer, 1)
@@ -616,8 +529,8 @@ class SmokeTest {
             verifySecurityPromptForLogins()
             tapSetupLater()
             // Verify that the login appears correctly
-            verifySavedLoginFromPrompt()
-            viewSavedLoginDetails()
+            verifySavedLoginFromPrompt("test@example.com")
+            viewSavedLoginDetails("test@example.com")
             revealPassword()
             verifyPasswordSaved("test") // failing here locally
         }
@@ -652,36 +565,6 @@ class SmokeTest {
         }.goBack {
         }.openCamera {
             verifyUnblockedByAndroid()
-        }
-    }
-
-    @Test
-    // Installs uBlock add-on and checks that the app doesn't crash while loading pages with trackers
-    fun noCrashWithAddonInstalledTest() {
-        // setting ETP to Strict mode to test it works with add-ons
-        activityTestRule.activity.settings().setStrictETP()
-
-        val addonName = "uBlock Origin"
-        val trackingProtectionPage =
-            TestAssetHelper.getEnhancedTrackingProtectionAsset(mockWebServer)
-
-        homeScreen {
-        }.openThreeDotMenu {
-        }.openAddonsManagerMenu {
-            addonsListIdlingResource =
-                RecyclerViewIdlingResource(
-                    activityTestRule.activity.findViewById(R.id.add_ons_list),
-                    1
-                )
-            IdlingRegistry.getInstance().register(addonsListIdlingResource!!)
-            clickInstallAddon(addonName)
-            acceptInstallAddon()
-            verifyDownloadAddonPrompt(addonName, activityTestRule.activityRule)
-            IdlingRegistry.getInstance().unregister(addonsListIdlingResource!!)
-        }.goBack {
-        }.openNavigationToolbar {
-        }.enterURLAndEnterToBrowser(trackingProtectionPage.url) {
-            verifyPageContent(trackingProtectionPage.content)
         }
     }
 
@@ -730,40 +613,6 @@ class SmokeTest {
             IdlingRegistry.getInstance().unregister(recentlyClosedTabsListIdlingResource!!)
             clickDeleteRecentlyClosedTabs()
             verifyEmptyRecentlyClosedTabsList()
-        }
-    }
-
-    @Test
-    /* Verifies downloads in the Downloads Menu:
-      - downloads appear in the list
-      - deleting a download from device storage, removes it from the Downloads Menu too
-    */
-    fun manageDownloadsInDownloadsMenuTest() {
-        val downloadWebPage = TestAssetHelper.getDownloadAsset(mockWebServer)
-
-        navigationToolbar {
-        }.enterURLAndEnterToBrowser(downloadWebPage.url) {
-            mDevice.waitForIdle()
-        }
-
-        downloadRobot {
-            verifyDownloadPrompt()
-        }.clickDownload {
-            mDevice.waitForIdle()
-            verifyDownloadNotificationPopup()
-        }
-
-        browserScreen {
-        }.openThreeDotMenu {
-        }.openDownloadsManager {
-            waitForDownloadsListToExist()
-            verifyDownloadedFileName(downloadFileName)
-            verifyDownloadedFileIcon()
-            deleteDownloadFromStorage(downloadFileName)
-        }.exitDownloadsManagerToBrowser {
-        }.openThreeDotMenu {
-        }.openDownloadsManager {
-            verifyEmptyDownloadsList()
         }
     }
 
@@ -908,6 +757,7 @@ class SmokeTest {
         }
     }
 
+    @Ignore("Failing, see: https://github.com/mozilla-mobile/fenix/issues/23296")
     @Test
     // Test running on beta/release builds in CI:
     // caution when making changes to it, so they don't block the builds
@@ -1075,6 +925,26 @@ class SmokeTest {
         }
     }
 
+    @Ignore("Failing, see: https://github.com/mozilla-mobile/fenix/issues/24508")
+    @Test
+    fun addPrivateBrowsingShortcutTest() {
+        homeScreen {
+        }.dismissOnboarding()
+
+        homeScreen {
+        }.triggerPrivateBrowsingShortcutPrompt {
+            verifyNoThanksPrivateBrowsingShortcutButton()
+            verifyAddPrivateBrowsingShortcutButton()
+            clickAddPrivateBrowsingShortcutButton()
+            clickAddAutomaticallyButton()
+        }.openHomeScreenShortcut("Private $appName") {}
+        searchScreen {
+            verifySearchView()
+        }.dismissSearchBar {
+            verifyPrivateSessionMessage()
+        }
+    }
+
     @Test
     fun mainMenuInstallPWATest() {
         val pwaPage = "https://mozilla-mobile.github.io/testapp/"
@@ -1134,34 +1004,6 @@ class SmokeTest {
     }
 
     @Test
-    fun closeTabCrashedReporterTest() {
-
-        homeScreen {
-        }.openNavigationToolbar {
-        }.openTabCrashReporter {
-        }.clickTabCrashedCloseButton {
-        }.openTabDrawer {
-            verifyNoOpenTabsInNormalBrowsing()
-        }
-    }
-
-    @Ignore("Test failure caused by: https://github.com/mozilla-mobile/fenix/issues/19964")
-    @Test
-    fun restoreTabCrashedReporterTest() {
-        val website = TestAssetHelper.getGenericAsset(mockWebServer, 1)
-
-        homeScreen {
-        }.openNavigationToolbar {
-        }.enterURLAndEnterToBrowser(website.url) {}
-
-        navigationToolbar {
-        }.openTabCrashReporter {
-            clickTabCrashedRestoreButton()
-            verifyPageContent(website.content)
-        }
-    }
-
-    @Test
     // Verifies the main menu of a custom tab with a custom menu item
     fun customTabMenuItemsTest() {
         val customTabPage = TestAssetHelper.getGenericAsset(mockWebServer, 1)
@@ -1217,7 +1059,7 @@ class SmokeTest {
             assertPlaybackState(browserStore, MediaSession.PlaybackState.PLAYING)
         }.openNotificationShade {
             verifySystemNotificationExists(audioTestPage.title)
-            clickMediaSystemNotificationControlButton("Pause")
+            clickSystemNotificationControlButton("Pause")
             verifyMediaSystemNotificationButtonState("Play")
         }
 

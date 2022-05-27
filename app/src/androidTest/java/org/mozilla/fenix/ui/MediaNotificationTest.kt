@@ -66,7 +66,7 @@ class MediaNotificationTest {
             assertPlaybackState(browserStore, MediaSession.PlaybackState.PLAYING)
         }.openNotificationShade {
             verifySystemNotificationExists(videoTestPage.title)
-            clickMediaSystemNotificationControlButton("Pause")
+            clickSystemNotificationControlButton("Pause")
             verifyMediaSystemNotificationButtonState("Play")
         }
 
@@ -88,6 +88,7 @@ class MediaNotificationTest {
         mDevice.pressBack()
     }
 
+    @Ignore("Failing, see: https://github.com/mozilla-mobile/fenix/issues/23716")
     @Test
     fun mediaSystemNotificationInPrivateModeTest() {
         val audioTestPage = TestAssetHelper.getAudioPageAsset(mockWebServer)
@@ -99,7 +100,7 @@ class MediaNotificationTest {
             assertPlaybackState(browserStore, MediaSession.PlaybackState.PLAYING)
         }.openNotificationShade {
             verifySystemNotificationExists("A site is playing media")
-            clickMediaSystemNotificationControlButton("Pause")
+            clickSystemNotificationControlButton("Pause")
             verifyMediaSystemNotificationButtonState("Play")
         }
 

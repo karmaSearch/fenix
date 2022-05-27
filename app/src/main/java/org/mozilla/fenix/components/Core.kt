@@ -38,6 +38,7 @@ import mozilla.components.feature.pwa.ManifestStorage
 import mozilla.components.feature.pwa.WebAppShortcutManager
 import mozilla.components.feature.readerview.ReaderViewMiddleware
 import mozilla.components.feature.recentlyclosed.RecentlyClosedMiddleware
+import mozilla.components.feature.recentlyclosed.RecentlyClosedTabsStorage
 import mozilla.components.feature.search.middleware.AdsTelemetryMiddleware
 import mozilla.components.feature.search.middleware.SearchMiddleware
 import mozilla.components.feature.search.region.RegionMiddleware
@@ -53,17 +54,24 @@ import mozilla.components.feature.webcompat.WebCompatFeature
 import mozilla.components.feature.webcompat.reporter.WebCompatReporterFeature
 import mozilla.components.feature.webnotifications.WebNotificationFeature
 import mozilla.components.lib.dataprotect.SecureAbove22Preferences
+import mozilla.components.service.contile.ContileTopSitesProvider
+import mozilla.components.service.contile.ContileTopSitesUpdater
 import mozilla.components.service.digitalassetlinks.RelationChecker
 import mozilla.components.service.digitalassetlinks.local.StatementApi
 import mozilla.components.service.digitalassetlinks.local.StatementRelationChecker
 import mozilla.components.service.location.LocationService
 import mozilla.components.service.location.MozillaLocationService
-import mozilla.components.service.pocket.Frequency
 import mozilla.components.service.pocket.PocketStoriesConfig
 import mozilla.components.service.pocket.PocketStoriesService
 import mozilla.components.service.sync.autofill.AutofillCreditCardsAddressesStorage
 import mozilla.components.service.sync.logins.SyncableLoginsStorage
-import org.mozilla.fenix.*
+import mozilla.components.support.base.worker.Frequency
+import mozilla.components.support.locale.LocaleManager
+import org.mozilla.fenix.AppRequestInterceptor
+import org.mozilla.fenix.BuildConfig
+import org.mozilla.fenix.Config
+import org.mozilla.fenix.HomeActivity
+import org.mozilla.fenix.R
 import org.mozilla.fenix.components.search.SearchMigration
 import org.mozilla.fenix.downloads.DownloadService
 import org.mozilla.fenix.ext.components
@@ -77,6 +85,9 @@ import org.mozilla.fenix.home.animalsbackground.RandomAnimalBackgroundService
 import org.mozilla.fenix.media.MediaSessionService
 import org.mozilla.fenix.perf.StrictModeManager
 import org.mozilla.fenix.perf.lazyMonitored
+import org.mozilla.fenix.settings.SupportUtils
+import org.mozilla.fenix.settings.advanced.getSelectedLocale
+import org.mozilla.fenix.tabstray.SearchTermTabGroupMiddleware
 import org.mozilla.fenix.telemetry.TelemetryMiddleware
 import org.mozilla.fenix.utils.getUndoDelay
 import org.mozilla.geckoview.GeckoRuntime
@@ -113,7 +124,8 @@ class Core(
             clearColor = ContextCompat.getColor(
                 context,
                 R.color.fx_mobile_layer_color_1
-            )
+            ),
+            httpsOnlyMode = context.settings().getHttpsOnlyMode()
         )
 
         GeckoEngine(
@@ -186,7 +198,7 @@ class Core(
         val middlewareList =
             mutableListOf(
                 LastAccessMiddleware(),
-                RecentlyClosedMiddleware(context, RECENTLY_CLOSED_MAX, engine),
+                RecentlyClosedMiddleware(recentlyClosedTabsStorage, RECENTLY_CLOSED_MAX),
                 DownloadMiddleware(context, DownloadService::class.java),
                 ReaderViewMiddleware(),
                 TelemetryMiddleware(
@@ -205,18 +217,21 @@ class Core(
                 PromptMiddleware(),
                 AdsTelemetryMiddleware(adsTelemetry),
                 LastMediaAccessMiddleware(),
-                HistoryMetadataMiddleware(historyMetadataService)
+                HistoryMetadataMiddleware(historyMetadataService),
+                SearchTermTabGroupMiddleware()
             )
 
         BrowserStore(
             middleware = middlewareList + EngineMiddleware.create(
                 engine,
-                // We are disabling automatic suspending of engine sessions under memory pressure
-                // in Nightly as a test. Instead we solely rely on GeckoView and the Android system
-                // to reclaim memory when needed.
+                // We are disabling automatic suspending of engine sessions under memory pressure.
+                // Instead we solely rely on GeckoView and the Android system to reclaim memory
+                // when needed. For details, see:
+                // https://bugzilla.mozilla.org/show_bug.cgi?id=1752594
                 // https://github.com/mozilla-mobile/fenix/issues/12731
                 // https://github.com/mozilla-mobile/android-components/issues/11300
-                trimMemoryAutomatically = Config.channel.isReleaseOrBeta
+                // https://github.com/mozilla-mobile/android-components/issues/11653
+                trimMemoryAutomatically = false
             )
         ).apply {
             // Install the "icons" WebExtension to automatically load icons for every visited website.
@@ -301,6 +316,8 @@ class Core(
      */
     val lazyRemoteTabsStorage = lazyMonitored { RemoteTabsStorage() }
 
+    val recentlyClosedTabsStorage = lazyMonitored { RecentlyClosedTabsStorage(context, engine, crashReporter) }
+
     // For most other application code (non-startup), these wrappers are perfectly fine and more ergonomic.
     val historyStorage: PlacesHistoryStorage get() = lazyHistoryStorage.value
     val bookmarksStorage: PlacesBookmarksStorage get() = lazyBookmarksStorage.value
@@ -329,13 +346,31 @@ class Core(
     val learnAndActService by lazyMonitored { LearnAndActService(client, context) }
     val randomAnimalBackgroundService by lazyMonitored { RandomAnimalBackgroundService(context, RandomAnimalBackgroundParser()) }
 
+    val contileTopSitesProvider by lazyMonitored {
+        ContileTopSitesProvider(
+            context = context,
+            client = client,
+            maxCacheAgeInMinutes = CONTILE_MAX_CACHE_AGE
+        )
+    }
+
+    @Suppress("MagicNumber")
+    val contileTopSitesUpdater by lazyMonitored {
+        ContileTopSitesUpdater(
+            context = context,
+            provider = contileTopSitesProvider,
+            frequency = Frequency(3, TimeUnit.HOURS)
+        )
+    }
+
     val topSitesStorage by lazyMonitored {
         val defaultTopSites = mutableListOf<Pair<String, String>>()
 
         DefaultTopSitesStorage(
-            pinnedSiteStorage,
-            historyStorage,
-            defaultTopSites
+            pinnedSitesStorage = pinnedSiteStorage,
+            historyStorage = historyStorage,
+            topSitesProvider = contileTopSitesProvider,
+            defaultTopSites = defaultTopSites
         )
     }
 
@@ -379,10 +414,9 @@ class Core(
     }
 
     companion object {
-        private const val KEY_STRENGTH = 256
         private const val KEY_STORAGE_NAME = "core_prefs"
-        private const val PASSWORDS_KEY = "passwords"
         private const val RECENTLY_CLOSED_MAX = 10
         const val HISTORY_METADATA_MAX_AGE_IN_MS = 14 * 24 * 60 * 60 * 1000 // 14 days
+        private const val CONTILE_MAX_CACHE_AGE = 60L // 60 minutes
     }
 }

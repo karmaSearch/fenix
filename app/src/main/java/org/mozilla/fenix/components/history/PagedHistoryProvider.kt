@@ -13,8 +13,8 @@ import mozilla.components.concept.storage.VisitType
 import mozilla.components.support.ktx.kotlin.tryGetHostFromUrl
 import org.mozilla.fenix.FeatureFlags
 import org.mozilla.fenix.library.history.History
-import org.mozilla.fenix.perf.runBlockingIncrement
-import kotlin.math.abs
+import org.mozilla.fenix.library.history.HistoryItemTimeGroup
+import org.mozilla.fenix.utils.Settings.Companion.SEARCH_GROUP_MINIMUM_SITES
 
 private const val BUFFER_TIME = 15000 /* 15 seconds in ms */
 
@@ -27,6 +27,9 @@ sealed class HistoryDB {
     abstract val title: String
     abstract val visitedAt: Long
     abstract val selected: Boolean
+    val historyTimeGroup: HistoryItemTimeGroup by lazy {
+        HistoryItemTimeGroup.timeGroupForTimestamp(visitedAt)
+    }
 
     data class Regular(
         override val title: String,
@@ -72,9 +75,9 @@ interface PagedHistoryProvider {
      *
      * @param offset How much to offset the list by
      * @param numberOfItems How many items to fetch
-     * @param onComplete A callback that returns the list of [HistoryDB]
+     * @return list of [HistoryDB]
      */
-    fun getHistory(offset: Int, numberOfItems: Int, onComplete: (List<HistoryDB>) -> Unit)
+    suspend fun getHistory(offset: Int, numberOfItems: Int): List<HistoryDB>
 }
 
 /**
@@ -82,8 +85,9 @@ interface PagedHistoryProvider {
  */
 class DefaultPagedHistoryProvider(
     private val historyStorage: PlacesHistoryStorage,
-    private val showHistorySearchGroups: Boolean = FeatureFlags.showHistorySearchGroups,
+    private val historyImprovementFeatures: Boolean = FeatureFlags.historyImprovementFeatures,
 ) : PagedHistoryProvider {
+
     /**
      * Types of visits we currently do not display in the History UI.
      */
@@ -107,82 +111,51 @@ class DefaultPagedHistoryProvider(
 
     @Volatile private var historyGroups: List<HistoryDB.Group>? = null
 
-    @Suppress("LongMethod")
-    override fun getHistory(
+    override suspend fun getHistory(
         offset: Int,
-        numberOfItems: Int,
-        onComplete: (List<HistoryDB>) -> Unit,
-    ) {
-        // A PagedList DataSource runs on a background thread automatically.
-        // If we run this in our own coroutineScope it breaks the PagedList
-        runBlockingIncrement {
-            val history: List<HistoryDB>
-
-            if (showHistorySearchGroups) {
-                // We need to re-fetch all the history metadata if the offset resets back at 0
-                // in the case of a pull to refresh.
-                if (historyGroups == null || offset == 0) {
-                    historyGroups = historyStorage.getHistoryMetadataSince(Long.MIN_VALUE)
-                        .sortedByDescending { it.createdAt }
-                        .filter { it.key.searchTerm != null }
-                        .groupBy { it.key.searchTerm!! }
-                        .map { (searchTerm, items) ->
-                            HistoryDB.Group(
-                                title = searchTerm,
-                                visitedAt = items.first().createdAt,
-                                items = items.map { it.toHistoryDBMetadata() }
-                            )
-                        }
-                }
-
-                history = getHistoryAndSearchGroups(offset, numberOfItems)
-            } else {
-                history = historyStorage
-                    .getVisitsPaginated(
-                        offset.toLong(),
-                        numberOfItems.toLong(),
-                        excludeTypes = excludedVisitTypes
+        numberOfItems: Int
+    ): List<HistoryDB> {
+        // We need to re-fetch all the history metadata if the offset resets back at 0
+        // in the case of a pull to refresh.
+        if (historyGroups == null || offset == 0) {
+            historyGroups = historyStorage.getHistoryMetadataSince(Long.MIN_VALUE)
+                .asSequence()
+                .sortedByDescending { it.createdAt }
+                .filter { it.key.searchTerm != null }
+                .groupBy { it.key.searchTerm!! }
+                .map { (searchTerm, items) ->
+                    HistoryDB.Group(
+                        title = searchTerm,
+                        visitedAt = items.first().createdAt,
+                        items = items.map { it.toHistoryDBMetadata() }
                     )
-                    .map { transformVisitInfoToHistoryItem(it) }
-            }
-
-            onComplete(history)
+                }
+                .filter {
+                    if (historyImprovementFeatures) {
+                        it.items.size >= SEARCH_GROUP_MINIMUM_SITES
+                    } else {
+                        true
+                    }
+                }
+                .toList()
         }
+
+        return getHistoryAndSearchGroups(offset, numberOfItems)
     }
 
     /**
      * Removes [group] and any corresponding history visits.
      */
     suspend fun deleteMetadataSearchGroup(group: History.Group) {
+        // The intention is to delete items from history for good.
+        // Corresponding metadata items would also be removed,
+        // because of ON DELETE CASCADE relation in DB schema.
         for (historyMetadata in group.items) {
-            getMatchingHistory(historyMetadata)?.let {
-                historyStorage.deleteVisit(
-                    url = it.url,
-                    timestamp = it.visitTime
-                )
-            }
+            historyStorage.deleteVisitsFor(historyMetadata.url)
         }
-
-        historyStorage.deleteHistoryMetadata(
-            searchTerm = group.title
-        )
 
         // Force a re-fetch of the groups next time we go through #getHistory.
         historyGroups = null
-    }
-
-    /**
-     * Returns the [History.Regular] corresponding to the given [History.Metadata] item.
-     */
-    private suspend fun getMatchingHistory(historyMetadata: History.Metadata): VisitInfo? {
-        val history = historyStorage.getDetailedVisits(
-            start = historyMetadata.visitedAt - BUFFER_TIME,
-            end = historyMetadata.visitedAt + BUFFER_TIME,
-            excludeTypes = excludedVisitTypes
-        )
-        return history
-            .filter { it.url == historyMetadata.url }
-            .minByOrNull { abs(historyMetadata.visitedAt - it.visitTime) }
     }
 
     @Suppress("MagicNumber")
@@ -191,7 +164,7 @@ class DefaultPagedHistoryProvider(
         numberOfItems: Int,
     ): List<HistoryDB> {
         val result = mutableListOf<HistoryDB>()
-        val history: List<HistoryDB.Regular> = historyStorage
+        var history: List<HistoryDB.Regular> = historyStorage
             .getVisitsPaginated(
                 offset.toLong(),
                 numberOfItems.toLong(),
@@ -234,6 +207,10 @@ class DefaultPagedHistoryProvider(
         }
         val historyMetadata = historyGroupsInOffset.flatMap { it.items }
 
+        if (historyImprovementFeatures) {
+            history = history.distinctBy { Pair(it.historyTimeGroup, it.url) }
+        }
+
         // Add all history items that are not in a group filtering out any matches with a history
         // metadata item.
         result.addAll(history.filter { item -> historyMetadata.find { it.url == item.url } == null })
@@ -249,8 +226,11 @@ class DefaultPagedHistoryProvider(
             }
         )
 
-        return result.removeConsecutiveDuplicates()
-            .sortedByDescending { it.visitedAt }
+        return if (historyImprovementFeatures) {
+            result.sortedByDescending { it.visitedAt }
+        } else {
+            result.removeConsecutiveDuplicates().sortedByDescending { it.visitedAt }
+        }
     }
 
     private fun transformVisitInfoToHistoryItem(visit: VisitInfo): HistoryDB.Regular {

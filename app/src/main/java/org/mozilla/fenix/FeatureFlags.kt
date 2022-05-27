@@ -20,11 +20,6 @@ object FeatureFlags {
     val addressesFeature = Config.channel.isNightlyOrDebug
 
     /**
-     * Enables the Start On Home feature in the settings page.
-     */
-    const val showStartOnHomeSettings = true
-
-    /**
      * Enables the "recent" tabs feature in the home screen.
      */
     const val showRecentTabsFeature = true
@@ -45,11 +40,6 @@ object FeatureFlags {
     const val inactiveTabs = true
 
     /**
-     * Enables showing the home screen behind the search dialog
-     */
-    const val showHomeBehindSearch = true
-
-    /**
      * Identifies and separates the tabs list with a group containing search term tabs.
      */
     val tabGroupFeature = Config.channel.isNightlyOrDebug
@@ -58,11 +48,6 @@ object FeatureFlags {
      * Allows tabs to be dragged around as long as tab groups are disabled
      */
     val tabReorderingFeature = Config.channel.isNightlyOrDebug
-
-    /**
-     * Enables showing search groupings in the History.
-     */
-    const val showHistorySearchGroups = true
 
     /**
      * Show Pocket recommended stories on home.
@@ -77,10 +62,30 @@ object FeatureFlags {
     /**
      * Enables showing the option to clear site data.
      */
-    val showClearSiteData = Config.channel.isNightlyOrDebug
+    const val showClearSiteData = true
 
     /**
      * Enables showing the wallpaper functionality.
      */
-    val showWallpapers = false//Config.channel.isNightlyOrDebug
+    const val showWallpapers = false
+
+    /**
+     * Enables the Contile top sites.
+     */
+    const val contileFeature = false
+
+    /**
+     * Enables history improvement features.
+     */
+    const val historyImprovementFeatures = true
+
+    /**
+     * Enables the Task Continuity enhancements.
+     */
+    val taskContinuityFeature = Config.channel.isDebug
+
+    /**
+     * Enables the Unified Search feature.
+     */
+    val unifiedSearchFeature = Config.channel.isNightlyOrDebug
 }

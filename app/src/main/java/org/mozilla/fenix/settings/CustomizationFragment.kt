@@ -13,6 +13,7 @@ import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreference
 import org.mozilla.fenix.FeatureFlags
+import org.mozilla.fenix.GleanMetrics.ToolbarSettings
 import org.mozilla.fenix.R
 import org.mozilla.fenix.components.metrics.Event
 import org.mozilla.fenix.components.toolbar.ToolbarPosition
@@ -117,9 +118,9 @@ class CustomizationFragment : PreferenceFragmentCompat() {
         val topPreference =
             requirePreference<RadioButtonPreference>(R.string.pref_key_toolbar_top)
         topPreference.onClickListener {
-            requireContext().components.analytics.metrics.track(
-                Event.ToolbarPositionChanged(
-                    Event.ToolbarPositionChanged.Position.TOP
+            ToolbarSettings.changedPosition.record(
+                ToolbarSettings.ChangedPositionExtra(
+                    Position.TOP.name
                 )
             )
         }
@@ -127,9 +128,9 @@ class CustomizationFragment : PreferenceFragmentCompat() {
         val bottomPreference =
             requirePreference<RadioButtonPreference>(R.string.pref_key_toolbar_bottom)
         bottomPreference.onClickListener {
-            requireContext().components.analytics.metrics.track(
-                Event.ToolbarPositionChanged(
-                    Event.ToolbarPositionChanged.Position.BOTTOM
+            ToolbarSettings.changedPosition.record(
+                ToolbarSettings.ChangedPositionExtra(
+                    Position.BOTTOM.name
                 )
             )
         }
@@ -160,5 +161,10 @@ class CustomizationFragment : PreferenceFragmentCompat() {
             isChecked = context.settings().isSwipeToolbarToSwitchTabsEnabled
             onPreferenceChangeListener = SharedPreferenceUpdater()
         }
+    }
+
+    companion object {
+        // Used to send telemetry data about toolbar position changes
+        enum class Position { TOP, BOTTOM }
     }
 }

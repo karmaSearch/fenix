@@ -1,6 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
-   License, v. 2.0. If a copy of the MPL was not distributed with this
-   file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package org.mozilla.fenix.library.history
 
@@ -17,12 +17,14 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mozilla.fenix.R
 import org.mozilla.fenix.components.metrics.MetricController
+import org.mozilla.fenix.ext.navigateSafe
 import org.mozilla.fenix.helpers.FenixRobolectricTestRunner
 
 @RunWith(FenixRobolectricTestRunner::class)
 class HistoryControllerTest {
-    private val historyItem = History.Regular(0, "title", "url", 0.toLong())
+    private val historyItem = History.Regular(0, "title", "url", 0.toLong(), HistoryItemTimeGroup.timeGroupForTimestamp(0))
     private val scope = TestCoroutineScope()
     private val store: HistoryFragmentStore = mockk(relaxed = true)
     private val state: HistoryFragmentState = mockk(relaxed = true)
@@ -112,6 +114,19 @@ class HistoryControllerTest {
 
         controller.handleModeSwitched()
         assertTrue(invalidateOptionsMenuInvoked)
+    }
+
+    @Test
+    fun onSearch() {
+        val controller = createController()
+
+        controller.handleSearch()
+        verify {
+            navController.navigateSafe(
+                R.id.historyFragment,
+                HistoryFragmentDirections.actionGlobalHistorySearchDialog()
+            )
+        }
     }
 
     @Test

@@ -57,6 +57,7 @@ import mozilla.components.feature.search.BrowserStoreSearchAdapter
 import mozilla.components.service.fxa.sync.SyncReason
 import mozilla.components.support.base.feature.ActivityResultHandler
 import mozilla.components.support.base.feature.UserInteractionHandler
+import mozilla.components.support.base.log.logger.Logger
 import mozilla.components.support.ktx.android.arch.lifecycle.addObservers
 import mozilla.components.support.ktx.android.content.call
 import mozilla.components.support.ktx.android.content.email
@@ -87,6 +88,7 @@ import org.mozilla.fenix.ext.settings
 import org.mozilla.fenix.home.HomeFragmentDirections
 import org.mozilla.fenix.home.intent.CrashReporterIntentProcessor
 import org.mozilla.fenix.home.intent.DefaultBrowserIntentProcessor
+import org.mozilla.fenix.home.intent.HomeDeepLinkIntentProcessor
 import org.mozilla.fenix.home.intent.OpenBrowserIntentProcessor
 import org.mozilla.fenix.home.intent.OpenSpecificTabIntentProcessor
 import org.mozilla.fenix.home.intent.SpeechProcessingIntentProcessor
@@ -108,6 +110,7 @@ import org.mozilla.fenix.perf.StartupTypeTelemetry
 import org.mozilla.fenix.search.SearchDialogFragmentDirections
 import org.mozilla.fenix.session.PrivateNotificationService
 import org.mozilla.fenix.settings.FeedbackSettingsFragmentDirections
+import org.mozilla.fenix.settings.HttpsOnlyFragmentDirections
 import org.mozilla.fenix.settings.SettingsFragmentDirections
 import org.mozilla.fenix.settings.TrackingProtectionFragmentDirections
 import org.mozilla.fenix.settings.about.AboutFragmentDirections
@@ -165,6 +168,7 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
 
     private val externalSourceIntentProcessors by lazy {
         listOf(
+            HomeDeepLinkIntentProcessor(this),
             SpeechProcessingIntentProcessor(this, components.core.store, components.analytics.metrics),
             StartSearchIntentProcessor(components.analytics.metrics),
             OpenBrowserIntentProcessor(this, ::getIntentSessionId),
@@ -246,9 +250,7 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
         if (!shouldStartOnHome() && shouldNavigateToBrowserOnColdStart(savedInstanceState)) {
             navigateToBrowserOnColdStart()
         } else {
-            if (FeatureFlags.showStartOnHomeSettings) {
-                components.analytics.metrics.track(Event.StartOnHomeEnterHomeScreen)
-            }
+            components.analytics.metrics.track(Event.StartOnHomeEnterHomeScreen)
         }
 
         Performance.processIntentIfPerformanceTest(intent, this)
@@ -285,6 +287,10 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
 
         components.core.requestInterceptor.setNavigationController(navHost.navController)
 
+        if (settings().showContileFeature) {
+            components.core.contileTopSitesUpdater.startPeriodicWork()
+        }
+
         if (settings().showPocketRecommendationsFeature) {
             components.core.pocketStoriesService.startPeriodicStoriesRefresh()
         }
@@ -315,6 +321,7 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
     }
 
     @CallSuper
+    @Suppress("TooGenericExceptionCaught")
     override fun onResume() {
         super.onResume()
 
@@ -326,8 +333,6 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
 
         components.backgroundServices.accountManagerAvailableQueue.runIfReadyOrQueue {
             lifecycleScope.launch {
-                // Make sure accountManager is initialized.
-                components.backgroundServices.accountManager.start()
                 // If we're authenticated, kick-off a sync and a device state refresh.
                 components.backgroundServices.accountManager.authenticatedAccount()?.let {
                     components.backgroundServices.accountManager.syncNow(
@@ -338,7 +343,21 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
             }
         }
 
-        isFenixTheDefaultBrowser()
+        lifecycleScope.launch(IO) {
+            try {
+                if (settings().showContileFeature) {
+                    components.core.contileTopSitesProvider.refreshTopSitesIfCacheExpired()
+                }
+            } catch (e: Exception) {
+                Logger.error("Failed to refresh contile top sites", e)
+            }
+
+            if (settings().checkIfFenixIsDefaultBrowserOnAppResume()) {
+                metrics.track(Event.ChangedToDefaultBrowser)
+            }
+
+            DefaultBrowserNotificationWorker.setDefaultBrowserNotificationIfNeeded(applicationContext)
+        }
     }
 
     override fun onStart() {
@@ -441,6 +460,7 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
             )
         )
 
+        components.core.contileTopSitesUpdater.stopPeriodicWork()
         components.core.pocketStoriesService.stopPeriodicStoriesRefresh()
         privateNotificationObserver?.stop()
     }
@@ -487,7 +507,9 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
         )
 
         val intentProcessors =
-            listOf(CrashReporterIntentProcessor()) + externalSourceIntentProcessors
+            listOf(
+                CrashReporterIntentProcessor(components.appStore)
+            ) + externalSourceIntentProcessors
         val intentHandled =
             intentProcessors.any { it.process(intent, navHost.navController, this.intent) }
         browsingModeManager.mode = getModeFromIntentOrLastKnown(intent)
@@ -775,12 +797,18 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
             SettingsFragmentDirections.actionGlobalBrowser(customTabSessionId)
         BrowserDirection.FromBookmarks ->
             BookmarkFragmentDirections.actionGlobalBrowser(customTabSessionId)
+        BrowserDirection.FromBookmarkSearchDialog ->
+            SearchDialogFragmentDirections.actionGlobalBrowser(customTabSessionId)
         BrowserDirection.FromHistory ->
             HistoryFragmentDirections.actionGlobalBrowser(customTabSessionId)
+        BrowserDirection.FromHistorySearchDialog ->
+            SearchDialogFragmentDirections.actionGlobalBrowser(customTabSessionId)
         BrowserDirection.FromHistoryMetadataGroup ->
             HistoryMetadataGroupFragmentDirections.actionGlobalBrowser(customTabSessionId)
         BrowserDirection.FromTrackingProtectionExceptions ->
             TrackingProtectionExceptionsFragmentDirections.actionGlobalBrowser(customTabSessionId)
+        BrowserDirection.FromHttpsOnlyMode ->
+            HttpsOnlyFragmentDirections.actionGlobalBrowser(customTabSessionId)
         BrowserDirection.FromAbout ->
             AboutFragmentDirections.actionGlobalBrowser(customTabSessionId)
         BrowserDirection.FromKarmaSettings ->
@@ -988,19 +1016,6 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
         }
     }
 
-    private fun isFenixTheDefaultBrowser() {
-        // Launch this on a background thread so as not to affect startup performance
-        lifecycleScope.launch(IO) {
-            if (
-                settings().checkIfFenixIsDefaultBrowserOnAppResume()
-            ) {
-                metrics.track(Event.ChangedToDefaultBrowser)
-            }
-
-            DefaultBrowserNotificationWorker.setDefaultBrowserNotificationIfNeeded(applicationContext)
-        }
-    }
-
     @VisibleForTesting
     internal fun isActivityColdStarted(startingIntent: Intent, activityIcicle: Bundle?): Boolean {
         // First time opening this activity in the task.
@@ -1016,9 +1031,6 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
      *  links from an external apps should always opened in the [BrowserFragment].
      */
     fun shouldStartOnHome(intent: Intent? = this.intent): Boolean {
-        if (!FeatureFlags.showStartOnHomeSettings) {
-            return false
-        }
         return components.strictMode.resetAfter(StrictMode.allowThreadDiskReads()) {
             // We only want to open on home when users tap the app,
             // we want to ignore other cases when the app gets open by users clicking on links.

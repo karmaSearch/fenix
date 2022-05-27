@@ -14,12 +14,18 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import mozilla.components.browser.state.action.EngineAction
 import mozilla.components.browser.state.action.HistoryMetadataAction
@@ -30,6 +36,7 @@ import mozilla.components.lib.state.ext.consumeFrom
 import mozilla.components.service.fxa.sync.SyncReason
 import mozilla.components.support.base.feature.UserInteractionHandler
 import org.mozilla.fenix.BrowserDirection
+import org.mozilla.fenix.FeatureFlags
 import org.mozilla.fenix.HomeActivity
 import org.mozilla.fenix.NavHostActivity
 import org.mozilla.fenix.R
@@ -51,8 +58,17 @@ import org.mozilla.fenix.utils.allowUndo
 class HistoryFragment : LibraryPageFragment<History>(), UserInteractionHandler {
     private lateinit var historyStore: HistoryFragmentStore
     private lateinit var historyInteractor: HistoryInteractor
-    private lateinit var viewModel: HistoryViewModel
     private lateinit var historyProvider: DefaultPagedHistoryProvider
+
+    private var userHasHistory = MutableLiveData(true)
+    private var history: Flow<PagingData<History>> = Pager(
+        PagingConfig(PAGE_SIZE),
+        null
+    ) {
+        HistoryDataSource(
+            historyProvider = historyProvider
+        )
+    }.flow
 
     private var undoScope: CoroutineScope? = null
     private var pendingHistoryDeletionJob: (suspend () -> Unit)? = null
@@ -96,7 +112,8 @@ class HistoryFragment : LibraryPageFragment<History>(), UserInteractionHandler {
         )
         _historyView = HistoryView(
             binding.historyLayout,
-            historyInteractor
+            historyInteractor,
+            onZeroItemsLoaded = { userHasHistory.value = false }
         )
 
         return view
@@ -149,18 +166,15 @@ class HistoryFragment : LibraryPageFragment<History>(), UserInteractionHandler {
             historyView.update(it)
         }
 
-        // Data may have been updated in below groups.
-        // When returning to this fragment we need to ensure we display the latest data.
-        viewModel = HistoryViewModel(historyProvider).also { model ->
-            model.userHasHistory.observe(
-                viewLifecycleOwner,
-                historyView::updateEmptyState
-            )
+        userHasHistory.observe(
+            viewLifecycleOwner,
+            historyView::updateEmptyState
+        )
 
-            model.history.observe(
-                viewLifecycleOwner,
-                historyView.historyAdapter::submitList
-            )
+        lifecycleScope.launch {
+            history.collect {
+                historyView.historyAdapter.submitData(it)
+            }
         }
     }
 
@@ -176,10 +190,14 @@ class HistoryFragment : LibraryPageFragment<History>(), UserInteractionHandler {
             menu.findItem(R.id.share_history_multi_select)?.isVisible = true
             menu.findItem(R.id.delete_history_multi_select)?.title =
                 SpannableString(getString(R.string.bookmark_menu_delete_button)).apply {
-                    setTextColor(requireContext(), R.attr.destructive)
+                    setTextColor(requireContext(), R.attr.textWarning)
                 }
         } else {
             inflater.inflate(R.menu.history_menu, menu)
+        }
+
+        if (!FeatureFlags.historyImprovementFeatures) {
+            menu.findItem(R.id.history_search)?.isVisible = false
         }
     }
 
@@ -236,6 +254,11 @@ class HistoryFragment : LibraryPageFragment<History>(), UserInteractionHandler {
             }
 
             showTabTray()
+            true
+        }
+        R.id.history_search -> {
+            requireComponents.analytics.metrics.track(Event.HistorySearchIconTapped)
+            historyInteractor.onSearch()
             true
         }
         R.id.history_delete_all -> {
@@ -312,7 +335,7 @@ class HistoryFragment : LibraryPageFragment<History>(), UserInteractionHandler {
                         requireComponents.core.historyStorage.deleteEverything()
                         deleteOpenTabsEngineHistory(requireComponents.core.store)
                         launch(Main) {
-                            viewModel.invalidate()
+                            historyView.historyAdapter.refresh()
                             historyStore.dispatch(HistoryFragmentAction.ExitDeletionMode)
                             showSnackBar(
                                 requireView(),
@@ -357,7 +380,7 @@ class HistoryFragment : LibraryPageFragment<History>(), UserInteractionHandler {
                         analytics.metrics.track(Event.HistoryItemRemoved)
 
                         when (item) {
-                            is History.Regular -> core.historyStorage.deleteVisit(item.url, item.visitedAt)
+                            is History.Regular -> core.historyStorage.deleteVisitsFor(item.url)
                             is History.Group -> {
                                 // NB: If we have non-search groups, this logic needs to be updated.
                                 historyProvider.deleteMetadataSearchGroup(item)
@@ -401,6 +424,10 @@ class HistoryFragment : LibraryPageFragment<History>(), UserInteractionHandler {
     private suspend fun syncHistory() {
         val accountManager = requireComponents.backgroundServices.accountManager
         accountManager.syncNow(SyncReason.User)
-        viewModel.invalidate()
+        historyView.historyAdapter.refresh()
+    }
+
+    companion object {
+        private const val PAGE_SIZE = 25
     }
 }

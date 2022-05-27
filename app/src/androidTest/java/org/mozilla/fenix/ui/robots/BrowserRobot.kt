@@ -19,7 +19,6 @@ import androidx.test.espresso.intent.matcher.BundleMatchers
 import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.matcher.RootMatchers.isDialog
 import androidx.test.espresso.matcher.ViewMatchers
-import androidx.test.espresso.matcher.ViewMatchers.Visibility
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withContentDescription
 import androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility
@@ -50,6 +49,8 @@ import org.mozilla.fenix.helpers.ext.waitNotNull
 
 class BrowserRobot {
     private lateinit var sessionLoadedIdlingResource: SessionLoadedIdlingResource
+
+    fun waitForPageToLoad() = progressBar.waitUntilGone(waitingTime)
 
     fun verifyCurrentPrivateSession(context: Context) {
         val selectedTab = context.components.core.store.state.selectedTab
@@ -97,7 +98,10 @@ class BrowserRobot {
         )
 
         runWithIdleRes(sessionLoadedIdlingResource) {
-            assertTrue(mDevice.findObject(UiSelector().textContains(expectedText)).waitForExists(waitingTime))
+            assertTrue(
+                "Page didn't load or doesn't contain the expected text",
+                mDevice.findObject(UiSelector().textContains(expectedText)).waitForExists(waitingTime)
+            )
         }
     }
 
@@ -306,10 +310,11 @@ class BrowserRobot {
     }
 
     fun clickLinkMatchingText(expectedText: String) {
-        val mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        mDevice.waitNotNull(Until.findObject(text(expectedText)), waitingTime)
+        mDevice.findObject(UiSelector().resourceId("$packageName:id/engineView"))
+            .waitForExists(waitingTime)
+        mDevice.findObject(UiSelector().textContains(expectedText)).waitForExists(waitingTime)
 
-        val element = mDevice.findObject(text(expectedText))
+        val element = mDevice.findObject(UiSelector().textContains(expectedText))
         element.click()
     }
 
@@ -451,6 +456,11 @@ class BrowserRobot {
     }
 
     fun saveLoginFromPrompt(optionToSaveLogin: String) {
+        mDevice.waitForObjects(
+            mDevice.findObject(
+                UiSelector().resourceId("$packageName:id/feature_prompt_login_fragment")
+            )
+        )
         mDevice.findObject(text(optionToSaveLogin)).click()
     }
 
@@ -550,6 +560,107 @@ class BrowserRobot {
         }
     }
 
+    fun clickTabCrashedRestoreButton() {
+        assertTrue(
+            mDevice.findObject(UiSelector().resourceId("$packageName:id/restoreTabButton"))
+                .waitForExists(waitingTime)
+        )
+
+        val tabCrashRestoreButton = mDevice.findObject(UiSelector().resourceIdMatches("$packageName:id/restoreTabButton"))
+        tabCrashRestoreButton.click()
+    }
+
+    fun fillAndSubmitGoogleSearchQuery(searchString: String) {
+        mDevice.findObject(
+            UiSelector().resourceId("$packageName:id/engineView")
+        ).waitForExists(waitingTime)
+        googleSearchBox.setText(searchString)
+        mDevice.pressEnter()
+        mDevice.waitForIdle(waitingTime)
+    }
+
+    fun fillAndSubmitLoginCredentials(userName: String, password: String) {
+        userNameTextBox.setText(userName)
+        passwordTextBox.setText(password)
+
+        submitLoginButton.click()
+
+        mDevice.waitForObjects(mDevice.findObject(UiSelector().resourceId("$packageName:id/save_confirm")))
+    }
+
+    fun clearUserNameLoginCredential() {
+        mDevice.waitForObjects(userNameTextBox)
+        userNameTextBox.clearTextField()
+        mDevice.waitForIdle(waitingTime)
+    }
+
+    fun clickSuggestedLoginsButton() {
+        var currentTries = 0
+        while (currentTries++ < 3) {
+            try {
+                mDevice.waitForObjects(suggestedLogins)
+                suggestedLogins.click()
+                mDevice.waitForObjects(suggestedLogins)
+                break
+            } catch (e: UiObjectNotFoundException) {
+                userNameTextBox.click()
+            }
+        }
+    }
+
+    fun clickLoginSuggestion(userName: String) {
+        val loginSuggestion =
+            mDevice.findObject(
+                UiSelector()
+                    .textContains(userName)
+                    .resourceId("$packageName:id/username")
+            )
+
+        loginSuggestion.click()
+    }
+
+    fun verifySuggestedUserName(userName: String) {
+        mDevice.findObject(
+            UiSelector()
+                .resourceId("$packageName:id/mozac_feature_login_multiselect_expand")
+        ).waitForExists(waitingTime)
+
+        assertTrue(
+            mDevice.findObject(UiSelector().textContains(userName)).waitForExists(waitingTime)
+        )
+    }
+
+    fun verifyPrefilledLoginCredentials(userName: String) {
+        mDevice.waitForObjects(userNameTextBox)
+        assertTrue(userNameTextBox.text.equals(userName))
+    }
+
+    fun verifyPrefilledPWALoginCredentials(userName: String, shortcutTitle: String) {
+        mDevice.waitForIdle(waitingTime)
+
+        var currentTries = 0
+        while (currentTries++ < 3) {
+            try {
+                assertTrue(submitLoginButton.waitForExists(waitingTime))
+                submitLoginButton.click()
+                assertTrue(userNameTextBox.text.equals(userName))
+                break
+            } catch (e: AssertionError) {
+                addToHomeScreen {
+                }.searchAndOpenHomeScreenShortcut(shortcutTitle) {}
+            }
+        }
+    }
+
+    fun verifySaveLoginPromptIsDisplayed() {
+        assertTrue(
+            mDevice.findObject(
+                UiSelector()
+                    .resourceId("$packageName:id/feature_prompt_login_fragment")
+            ).waitForExists(waitingTime)
+        )
+    }
+
     class Transition {
         private val mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         private fun threeDotButton() = onView(
@@ -579,7 +690,7 @@ class BrowserRobot {
 
         fun openTabDrawer(interact: TabDrawerRobot.() -> Unit): TabDrawerRobot.Transition {
             mDevice.findObject(
-                UiSelector().descriptionContains("open tab. Tap to switch tabs.")
+                UiSelector().descriptionContains("Tap to switch tabs.")
             ).waitForExists(waitingTime)
 
             tabsCounter().click()
@@ -631,7 +742,6 @@ class BrowserRobot {
         }
 
         fun clickTabCrashedCloseButton(interact: HomeScreenRobot.() -> Unit): HomeScreenRobot.Transition {
-
             assertTrue(
                 mDevice.findObject(UiSelector().resourceId("$packageName:id/closeTabButton"))
                     .waitForExists(waitingTime)
@@ -639,6 +749,8 @@ class BrowserRobot {
 
             val tabCrashedCloseButton = mDevice.findObject(text("Close tab"))
             tabCrashedCloseButton.click()
+
+            mDevice.waitForIdle()
 
             HomeScreenRobot().interact()
             return HomeScreenRobot.Transition()
@@ -650,6 +762,64 @@ class BrowserRobot {
 
             ShareOverlayRobot().interact()
             return ShareOverlayRobot.Transition()
+        }
+
+        fun clickDownloadLink(title: String, interact: DownloadRobot.() -> Unit): DownloadRobot.Transition {
+            val downloadLink = mDevice.findObject(UiSelector().textContains(title))
+
+            assertTrue(
+                "$title download link not found",
+                downloadLink.waitForExists(waitingTime)
+            )
+            downloadLink.click()
+
+            DownloadRobot().interact()
+            return DownloadRobot.Transition()
+        }
+
+        fun clickStartCameraButton(interact: SitePermissionsRobot.() -> Unit): SitePermissionsRobot.Transition {
+            // Test page used for testing permissions located at https://mozilla-mobile.github.io/testapp/permissions
+            cameraButton.waitForExists(waitingTime)
+            cameraButton.click()
+
+            SitePermissionsRobot().interact()
+            return SitePermissionsRobot.Transition()
+        }
+
+        fun clickStartMicrophoneButton(interact: SitePermissionsRobot.() -> Unit): SitePermissionsRobot.Transition {
+            // Test page used for testing permissions located at https://mozilla-mobile.github.io/testapp/permissions
+            microphoneButton.waitForExists(waitingTime)
+            microphoneButton.click()
+
+            SitePermissionsRobot().interact()
+            return SitePermissionsRobot.Transition()
+        }
+
+        fun clickStartAudioVideoButton(interact: SitePermissionsRobot.() -> Unit): SitePermissionsRobot.Transition {
+            // Test page used for testing permissions located at https://mozilla-mobile.github.io/testapp/permissions
+            audioVideoButton.waitForExists(waitingTime)
+            audioVideoButton.click()
+
+            SitePermissionsRobot().interact()
+            return SitePermissionsRobot.Transition()
+        }
+
+        fun clickOpenNotificationButton(interact: SitePermissionsRobot.() -> Unit): SitePermissionsRobot.Transition {
+            // Test page used for testing permissions located at https://mozilla-mobile.github.io/testapp/permissions
+            notificationButton.waitForExists(waitingTime)
+            notificationButton.click()
+
+            SitePermissionsRobot().interact()
+            return SitePermissionsRobot.Transition()
+        }
+
+        fun clickGetLocationButton(interact: SitePermissionsRobot.() -> Unit): SitePermissionsRobot.Transition {
+            // Test page used for testing permissions located at https://mozilla-mobile.github.io/testapp/permissions
+            getLocationButton.waitForExists(waitingTime)
+            getLocationButton.click()
+
+            SitePermissionsRobot().interact()
+            return SitePermissionsRobot.Transition()
         }
     }
 }
@@ -666,9 +836,9 @@ fun searchBar() = onView(withId(R.id.mozac_browser_toolbar_url_view))
 fun homeScreenButton() = onView(withContentDescription(R.string.browser_toolbar_home))
 
 private fun assertHomeScreenButton() =
-    homeScreenButton().check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
+    homeScreenButton().check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
 
-private fun assertSearchBar() = searchBar().check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
+private fun assertSearchBar() = searchBar().check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
 
 private fun assertNavURLBar() = assertTrue(navURLBar().waitForExists(waitingTime))
 
@@ -676,14 +846,14 @@ private fun assertNavURLBarHidden() = assertTrue(navURLBar().waitUntilGone(waiti
 
 private fun assertSecureConnectionLockIcon() {
     onView(withId(R.id.mozac_browser_toolbar_security_indicator))
-        .check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
+        .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
 }
 
 private fun menuButton() = onView(withId(R.id.icon))
 
 private fun assertMenuButton() {
     menuButton()
-        .check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
+        .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
 }
 
 private fun tabsCounter() = mDevice.findObject(By.res("$packageName:id/counter_root"))
@@ -695,13 +865,57 @@ private fun mediaPlayerPlayButton() =
             .text("Play")
     )
 
-fun clickTabCrashedRestoreButton() {
-
-    assertTrue(
-        mDevice.findObject(UiSelector().resourceId("$packageName:id/restoreTabButton"))
-            .waitForExists(waitingTime)
+private var progressBar =
+    mDevice.findObject(
+        UiSelector().resourceId("$packageName:id/mozac_browser_toolbar_progress")
     )
 
-    val tabCrashRestoreButton = mDevice.findObject(UiSelector().resourceIdMatches("$packageName:id/restoreTabButton"))
-    tabCrashRestoreButton.click()
-}
+private val suggestedLogins = mDevice.findObject(UiSelector().resourceId("$packageName:id/loginSelectBar"))
+
+// Permissions test page elements & prompts
+// Test page used located at https://mozilla-mobile.github.io/testapp/permissions
+private val cameraButton = mDevice.findObject(UiSelector().text("Open camera"))
+
+private val microphoneButton = mDevice.findObject(UiSelector().text("Open microphone"))
+
+private val audioVideoButton = mDevice.findObject(UiSelector().text("Camera & Microphone"))
+
+private val notificationButton = mDevice.findObject(UiSelector().text("Open notifications dialogue"))
+
+private val getLocationButton = mDevice.findObject(UiSelector().text("Get Location"))
+
+// Login form test page elements
+// Test page used located at https://mozilla-mobile.github.io/testapp/loginForm
+val userNameTextBox =
+    mDevice.findObject(
+        UiSelector()
+            .resourceId("username")
+            .className("android.widget.EditText")
+            .packageName("$packageName")
+    )
+
+private val submitLoginButton =
+    mDevice.findObject(
+        UiSelector()
+            .resourceId("submit")
+            .textContains("Submit Query")
+            .className("android.widget.Button")
+            .packageName("$packageName")
+    )
+
+val passwordTextBox =
+    mDevice.findObject(
+        UiSelector()
+            .resourceId("password")
+            .className("android.widget.EditText")
+            .packageName("$packageName")
+    )
+
+val googleSearchBox =
+    mDevice.findObject(
+        UiSelector()
+            .index(0)
+            .resourceId("mib")
+            .className("android.widget.EditText")
+            .packageName("$packageName")
+    )

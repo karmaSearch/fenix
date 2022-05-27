@@ -9,6 +9,7 @@ import androidx.navigation.NavController
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import io.mockk.MockKAnnotations
 import io.mockk.Runs
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.RelaxedMockK
@@ -39,17 +40,23 @@ import mozilla.components.feature.session.SessionUseCases
 import mozilla.components.feature.tab.collections.TabCollection
 import mozilla.components.feature.tabs.CustomTabsUseCases
 import mozilla.components.feature.top.sites.DefaultTopSitesStorage
+import mozilla.components.feature.top.sites.PinnedSiteStorage
+import mozilla.components.feature.top.sites.TopSite
 import mozilla.components.feature.top.sites.TopSitesUseCases
+import mozilla.components.service.glean.testing.GleanTestRule
 import mozilla.components.support.base.feature.ViewBoundFeatureWrapper
 import mozilla.components.support.test.ext.joinBlocking
+import mozilla.components.support.test.robolectric.testContext
 import mozilla.components.support.test.rule.MainCoroutineRule
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mozilla.fenix.GleanMetrics.Collections
 import org.mozilla.fenix.HomeActivity
 import org.mozilla.fenix.NavGraphDirections
 import org.mozilla.fenix.R
@@ -74,6 +81,8 @@ class DefaultBrowserToolbarMenuControllerTest {
 
     @get:Rule
     val coroutinesTestRule = MainCoroutineRule()
+    @get:Rule
+    val gleanTestRule = GleanTestRule(testContext)
 
     @MockK private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     @RelaxedMockK private lateinit var activity: HomeActivity
@@ -92,6 +101,7 @@ class DefaultBrowserToolbarMenuControllerTest {
     @MockK private lateinit var sessionFeatureWrapper: ViewBoundFeatureWrapper<SessionFeature>
     @RelaxedMockK private lateinit var sessionFeature: SessionFeature
     @RelaxedMockK private lateinit var topSitesStorage: DefaultTopSitesStorage
+    @RelaxedMockK private lateinit var pinnedSiteStorage: PinnedSiteStorage
 
     private lateinit var browserStore: BrowserStore
     private lateinit var selectedTab: TabSessionState
@@ -422,6 +432,28 @@ class DefaultBrowserToolbarMenuControllerTest {
     }
 
     @Test
+    fun `GIVEN a top site page is open WHEN Remove from top sites is pressed THEN show snackbar`() = runBlockingTest {
+        val snackbarMessage = "Site removed"
+        val item = ToolbarMenu.Item.RemoveFromTopSites
+        val removePinnedSiteUseCase: TopSitesUseCases.RemoveTopSiteUseCase =
+            mockk(relaxed = true)
+        val topSite: TopSite = mockk()
+        every { topSite.url } returns selectedTab.content.url
+        coEvery { pinnedSiteStorage.getPinnedSites() } returns listOf(topSite)
+        every { topSitesUseCase.removeTopSites } returns removePinnedSiteUseCase
+        every {
+            swipeRefreshLayout.context.getString(R.string.snackbar_top_site_removed)
+        } returns snackbarMessage
+
+        val controller = createController(scope = this, store = browserStore)
+        controller.handleToolbarItemInteraction(item)
+
+        verify { snackbar.setText(snackbarMessage) }
+        verify { metrics.track(Event.BrowserMenuItemTapped(Event.BrowserMenuItemTapped.Item.REMOVE_FROM_TOP_SITES)) }
+        verify { removePinnedSiteUseCase.invoke(topSite) }
+    }
+
+    @Test
     fun `WHEN addon extensions menu item is pressed THEN navigate to addons manager`() = runBlockingTest {
         val item = ToolbarMenu.Item.AddonsManager
 
@@ -525,11 +557,17 @@ class DefaultBrowserToolbarMenuControllerTest {
                 Event.BrowserMenuItemTapped(Event.BrowserMenuItemTapped.Item.SAVE_TO_COLLECTION)
             )
         }
-        verify {
-            metrics.track(
-                Event.CollectionSaveButtonPressed(DefaultBrowserToolbarController.TELEMETRY_BROWSER_IDENTIFIER)
-            )
-        }
+
+        assertTrue(Collections.saveButton.testHasValue())
+        val recordedEvents = Collections.saveButton.testGetValue()
+        assertEquals(1, recordedEvents.size)
+        val eventExtra = recordedEvents.single().extra
+        assertNotNull(eventExtra)
+        assertTrue(eventExtra!!.containsKey("from_screen"))
+        assertEquals(
+            DefaultBrowserToolbarMenuController.TELEMETRY_BROWSER_IDENTIFIER,
+            eventExtra["from_screen"]
+        )
 
         val directions = BrowserFragmentDirections.actionGlobalCollectionCreationFragment(
             saveCollectionStep = SaveCollectionStep.SelectCollection,
@@ -549,13 +587,18 @@ class DefaultBrowserToolbarMenuControllerTest {
         controller.handleToolbarItemInteraction(item)
 
         verify { metrics.track(Event.BrowserMenuItemTapped(Event.BrowserMenuItemTapped.Item.SAVE_TO_COLLECTION)) }
-        verify {
-            metrics.track(
-                Event.CollectionSaveButtonPressed(
-                    DefaultBrowserToolbarController.TELEMETRY_BROWSER_IDENTIFIER
-                )
-            )
-        }
+
+        assertTrue(Collections.saveButton.testHasValue())
+        val recordedEvents = Collections.saveButton.testGetValue()
+        assertEquals(1, recordedEvents.size)
+        val eventExtra = recordedEvents.single().extra
+        assertNotNull(eventExtra)
+        assertTrue(eventExtra!!.containsKey("from_screen"))
+        assertEquals(
+            DefaultBrowserToolbarMenuController.TELEMETRY_BROWSER_IDENTIFIER,
+            eventExtra["from_screen"]
+        )
+
         val directions = BrowserFragmentDirections.actionGlobalCollectionCreationFragment(
             saveCollectionStep = SaveCollectionStep.NameCollection,
             tabIds = arrayOf(selectedTab.id),
@@ -641,6 +684,7 @@ class DefaultBrowserToolbarMenuControllerTest {
         readerModeController = readerModeController,
         sessionFeature = sessionFeatureWrapper,
         topSitesStorage = topSitesStorage,
+        pinnedSiteStorage = pinnedSiteStorage,
         browserStore = browserStore
     ).apply {
         ioScope = scope

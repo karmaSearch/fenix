@@ -7,6 +7,8 @@ package org.mozilla.fenix.tabstray
 import androidx.annotation.VisibleForTesting
 import mozilla.components.lib.state.Middleware
 import mozilla.components.lib.state.MiddlewareContext
+import org.mozilla.fenix.GleanMetrics.Metrics
+import org.mozilla.fenix.GleanMetrics.TabsTray
 import org.mozilla.fenix.components.metrics.Event
 import org.mozilla.fenix.components.metrics.MetricController
 
@@ -33,18 +35,20 @@ class TabsTrayMiddleware(
             is TabsTrayAction.UpdateInactiveTabs -> {
                 if (shouldReportInactiveTabMetrics) {
                     shouldReportInactiveTabMetrics = false
-                    metrics.track(Event.InactiveTabsCountUpdate(action.tabs.size))
-                    metrics.track(Event.TabsTrayHasInactiveTabs(action.tabs.size))
+
+                    TabsTray.hasInactiveTabs.record(TabsTray.HasInactiveTabsExtra(action.tabs.size))
+                    Metrics.inactiveTabsCount.set(action.tabs.size.toLong())
                 }
             }
-            is TabsTrayAction.UpdateSearchGroupTabs -> {
+            is TabsTrayAction.UpdateTabPartitions -> {
                 if (shouldReportSearchGroupMetrics) {
                     shouldReportSearchGroupMetrics = false
+                    val tabGroups = action.tabPartition?.tabGroups ?: emptyList()
 
-                    metrics.track(Event.SearchTermGroupCount(action.groups.size))
+                    metrics.track(Event.SearchTermGroupCount(tabGroups.size))
 
-                    if (action.groups.isNotEmpty()) {
-                        val tabsPerGroup = action.groups.map { it.tabs.size }
+                    if (tabGroups.isNotEmpty()) {
+                        val tabsPerGroup = tabGroups.map { it.tabIds.size }
                         val averageTabsPerGroup = tabsPerGroup.average()
                         metrics.track(Event.AverageTabsPerSearchTermGroup(averageTabsPerGroup))
 
@@ -52,6 +56,15 @@ class TabsTrayMiddleware(
                         metrics.track(Event.SearchTermGroupSizeDistribution(tabGroupSizeMapping))
                     }
                 }
+            }
+            is TabsTrayAction.EnterSelectMode -> {
+                TabsTray.enterMultiselectMode.record(TabsTray.EnterMultiselectModeExtra(false))
+            }
+            is TabsTrayAction.AddSelectTab -> {
+                TabsTray.enterMultiselectMode.record(TabsTray.EnterMultiselectModeExtra(true))
+            }
+            else -> {
+                // no-op
             }
         }
     }

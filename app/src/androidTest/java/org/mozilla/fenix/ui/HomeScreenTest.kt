@@ -8,10 +8,13 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
+import org.mozilla.fenix.customannotations.SmokeTest
 import org.mozilla.fenix.ext.settings
 import org.mozilla.fenix.helpers.HomeActivityTestRule
+import org.mozilla.fenix.helpers.RetryTestRule
 import org.mozilla.fenix.helpers.TestAssetHelper.waitingTime
 import org.mozilla.fenix.helpers.ext.waitNotNull
 import org.mozilla.fenix.ui.robots.homeScreen
@@ -30,6 +33,10 @@ class HomeScreenTest {
 
     @get:Rule
     val activityTestRule = HomeActivityTestRule()
+
+    @Rule
+    @JvmField
+    val retryTestRule = RetryTestRule(3)
 
     @Test
     fun homeScreenItemsTest() {
@@ -53,6 +60,7 @@ class HomeScreenTest {
         }
     }
 
+    @Ignore("Failing, see: https://github.com/mozilla-mobile/fenix/issues/24508")
     @Test
     fun privateModeScreenItemsTest() {
         homeScreen { }.dismissOnboarding()
@@ -136,6 +144,21 @@ class HomeScreenTest {
             verifyKeyboardVisibility()
         }.dismissSearchBar {
             verifyWelcomeHeader()
+        }
+    }
+
+    @SmokeTest
+    @Test
+    fun tapLogoToChangeWallpaperTest() {
+        homeScreen {
+            clickFirefoxLogo()
+            verifyWallpaperImageApplied(true)
+            clickFirefoxLogo()
+            verifyWallpaperImageApplied(true)
+            clickFirefoxLogo()
+            verifyWallpaperImageApplied(true)
+            clickFirefoxLogo()
+            verifyWallpaperImageApplied(false)
         }
     }
 }

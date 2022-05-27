@@ -5,49 +5,52 @@
 package org.mozilla.fenix.home.recenttabs.view
 
 import android.view.View
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.LifecycleOwner
 import mozilla.components.lib.state.ext.observeAsComposableState
 import org.mozilla.fenix.R
-import org.mozilla.fenix.home.HomeFragmentStore
+import org.mozilla.fenix.components.components
+import org.mozilla.fenix.compose.ComposeViewHolder
 import org.mozilla.fenix.home.recenttabs.interactor.RecentTabInteractor
-import org.mozilla.fenix.theme.FirefoxTheme
-import org.mozilla.fenix.utils.view.ViewHolder
 
 /**
  * View holder for a recent tab item.
  *
  * @param composeView [ComposeView] which will be populated with Jetpack Compose UI content.
- * @param store [HomeFragmentStore] containing the list of recent tabs to be displayed.
  * @param interactor [RecentTabInteractor] which will have delegated to all user interactions.
  */
 class RecentTabViewHolder(
-    val composeView: ComposeView,
-    private val store: HomeFragmentStore,
+    composeView: ComposeView,
+    viewLifecycleOwner: LifecycleOwner,
     private val interactor: RecentTabInteractor
-) : ViewHolder(composeView) {
+) : ComposeViewHolder(composeView, viewLifecycleOwner) {
 
     init {
-        val horizontalPadding = composeView.resources.getDimensionPixelSize(R.dimen.home_item_horizontal_margin)
+        val horizontalPadding =
+            composeView.resources.getDimensionPixelSize(R.dimen.home_item_horizontal_margin)
         composeView.setPadding(horizontalPadding, 0, horizontalPadding, 0)
-
-        composeView.setViewCompositionStrategy(
-            ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
-        )
-        composeView.setContent {
-            val recentTabs = store.observeAsComposableState { state -> state.recentTabs }
-
-            FirefoxTheme {
-                RecentTabs(
-                    recentTabs = recentTabs.value ?: emptyList(),
-                    onRecentTabClick = { interactor.onRecentTabClicked(it) },
-                    onRecentSearchGroupClicked = { interactor.onRecentSearchGroupClicked(it) }
-                )
-            }
-        }
     }
 
     companion object {
         val LAYOUT_ID = View.generateViewId()
+    }
+
+    @Composable
+    override fun Content() {
+        val recentTabs = components.appStore.observeAsComposableState { state -> state.recentTabs }
+
+        RecentTabs(
+            recentTabs = recentTabs.value ?: emptyList(),
+            onRecentTabClick = { interactor.onRecentTabClicked(it) },
+            onRecentSearchGroupClick = { interactor.onRecentSearchGroupClicked(it) },
+            menuItems = listOf(
+                RecentTabMenuItem(
+                    title = stringResource(id = R.string.recent_tab_menu_item_remove),
+                    onClick = { tab -> interactor.onRemoveRecentTab(tab) }
+                )
+            )
+        )
     }
 }
