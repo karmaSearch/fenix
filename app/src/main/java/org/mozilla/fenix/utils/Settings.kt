@@ -68,6 +68,7 @@ class Settings(private val appContext: Context) : PreferencesHolder {
         private const val CFR_COUNT_CONDITION_FOCUS_INSTALLED = 1
         private const val CFR_COUNT_CONDITION_FOCUS_NOT_INSTALLED = 3
         private const val APP_LAUNCHES_TO_SHOW_DEFAULT_BROWSER_CARD = 3
+        private const val APP_LAUNCHES_TO_SHOW_WIDGET_CARD = 4
         private const val INACTIVE_TAB_MINIMUM_TO_SHOW_AUTO_CLOSE_DIALOG = 20
 
         const val FOUR_HOURS_MS = 60 * 60 * 4 * 1000L
@@ -114,6 +115,16 @@ class Settings(private val appContext: Context) : PreferencesHolder {
         appContext.getPreferenceKey(R.string.pref_key_enable_top_frecent_sites),
         featureFlag = true,
         default = { appContext.components.analytics.features.homeScreen.isTopSitesActive() }
+    )
+
+    var showKARMAPicture by booleanPreference(
+        appContext.getPreferenceKey(R.string.pref_key_enable_karma_picture),
+        default = false
+    )
+
+    var showLearnAndAct by booleanPreference(
+        appContext.getPreferenceKey(R.string.pref_key_enable_learn_and_act),
+        default = true
     )
 
     var numberOfAppLaunches by intPreference(
@@ -278,7 +289,7 @@ class Settings(private val appContext: Context) : PreferencesHolder {
 
     val shouldShowHistorySuggestions by booleanPreference(
         appContext.getPreferenceKey(R.string.pref_key_search_browsing_history),
-        default = true
+        default = false
     )
 
     val shouldShowBookmarkSuggestions by booleanPreference(
@@ -311,6 +322,15 @@ class Settings(private val appContext: Context) : PreferencesHolder {
     )
 
     /**
+     * Shows if the user has chosen to close the set default browser experiment card
+     * on home screen or has clicked the set as default browser button.
+     */
+    var userDismissedAddWidgetCard by booleanPreference(
+        appContext.getPreferenceKey(R.string.pref_key_experiment_add_widget),
+        default = false
+    )
+
+    /**
      * Shows if the set default browser experiment card should be shown on home screen.
      */
     fun shouldShowSetAsDefaultBrowserCard(): Boolean {
@@ -324,6 +344,15 @@ class Settings(private val appContext: Context) : PreferencesHolder {
             !userDismissedExperimentCard &&
             !browsers.isKARMADefaultBrowser &&
             numberOfAppLaunches > APP_LAUNCHES_TO_SHOW_DEFAULT_BROWSER_CARD
+    }
+
+    /**
+     * Shows if the set default browser experiment card should be shown on home screen.
+     */
+    fun shouldShowSetAsDefaultBrowserOnBoarding(): Boolean {
+        val browsers = BrowsersCache.all(appContext)
+
+        return !browsers.isKARMADefaultBrowser && !hasShownDefaultBrowserDialog
     }
 
     var gridTabView by booleanPreference(
@@ -793,6 +822,14 @@ class Settings(private val appContext: Context) : PreferencesHolder {
         default = false
     )
 
+    /**
+     * Indicates if the default browser dialog has already shown before.
+     */
+    var hasShownDefaultBrowserDialog by booleanPreference(
+        appContext.getPreferenceKey(R.string.pref_key_has_shown_default_browser),
+        default = false
+    )
+
     fun incrementVisitedInstallableCount() = pwaInstallableVisitCount.increment()
 
     @VisibleForTesting(otherwise = PRIVATE)
@@ -1053,7 +1090,7 @@ class Settings(private val appContext: Context) : PreferencesHolder {
 
     var openLinksInExternalApp by booleanPreference(
         appContext.getPreferenceKey(R.string.pref_key_open_links_in_external_app),
-        default = false
+        default = true
     )
 
     var allowDomesticChinaFxaServer by booleanPreference(
@@ -1205,7 +1242,7 @@ class Settings(private val appContext: Context) : PreferencesHolder {
     var showRecentTabsFeature by lazyFeatureFlagPreference(
         appContext.getPreferenceKey(R.string.pref_key_recent_tabs),
         featureFlag = FeatureFlags.showRecentTabsFeature,
-        default = { appContext.components.analytics.features.homeScreen.isRecentlyTabsActive() }
+        default = { false }
     )
 
     /**
@@ -1214,7 +1251,7 @@ class Settings(private val appContext: Context) : PreferencesHolder {
      */
     var showRecentBookmarksFeature by lazyFeatureFlagPreference(
         appContext.getPreferenceKey(R.string.pref_key_recent_bookmarks),
-        default = { appContext.components.analytics.features.homeScreen.isRecentlySavedActive() },
+        default = { false },
         featureFlag = FeatureFlags.recentBookmarksFeature
     )
 
@@ -1247,5 +1284,27 @@ class Settings(private val appContext: Context) : PreferencesHolder {
         appContext.getPreferenceKey(R.string.pref_key_pocket_homescreen_recommendations),
         featureFlag = FeatureFlags.isPocketRecommendationsFeatureEnabled(),
         default = { appContext.components.analytics.features.homeScreen.isPocketRecommendationsActive() },
+    )
+
+    /**
+     * Shows if the add widget card should be shown on home screen.
+     */
+    fun shouldShowAddWidgetCard(): Boolean {
+        return !searchWidgetInstalled &&
+                !userDismissedAddWidgetCard &&
+                numberOfAppLaunches > APP_LAUNCHES_TO_SHOW_WIDGET_CARD
+    }
+
+    /**
+     * Indicates if the companion in CRF should be shown.
+     */
+    var shouldShowCompanion by booleanPreference(
+            appContext.getPreferenceKey(R.string.pref_key_should_show_companion),
+            default = true
+    )
+
+    var shouldShowTopSiteCompanion by booleanPreference(
+        appContext.getPreferenceKey(R.string.pref_key_should_show_topsite_companion),
+        default = true
     )
 }

@@ -2,15 +2,13 @@
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
-<rotate xmlns:android="http://schemas.android.com/apk/res/android"
-    android:fromDegrees="45"
-    android:pivotX="-40%"
-    android:pivotY="87%"
-    android:toDegrees="45">
-    <shape android:shape="rectangle">
-        <stroke
-            android:width="10dp"
-            android:color="#FFFFFF" />
-        <solid android:color="#FFFFFF" />
-    </shape>
-</rotate>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item>
+        <rotate android:fromDegrees="45" android:toDegrees="45" android:pivotX="-40%" android:pivotY="87%" >
+            <shape android:shape="rectangle" >
+                <stroke android:color="@color/photonGreen50" android:width="1dp"/>
+                <solid android:color="@color/photonWhite" />
+            </shape>
+        </rotate>
+    </item>
+</layer-list>

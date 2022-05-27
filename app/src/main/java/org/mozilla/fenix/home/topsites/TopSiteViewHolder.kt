@@ -11,11 +11,12 @@ import org.mozilla.fenix.R
 import org.mozilla.fenix.databinding.ComponentTopSitesBinding
 import org.mozilla.fenix.home.sessioncontrol.TopSiteInteractor
 import org.mozilla.fenix.utils.AccessibilityGridLayoutManager
+import org.mozilla.fenix.utils.view.ViewHolder
 
 class TopSiteViewHolder(
     view: View,
     interactor: TopSiteInteractor
-) : RecyclerView.ViewHolder(view) {
+) : ViewHolder(view) {
 
     private val topSitesAdapter = TopSitesAdapter(interactor)
     val binding = ComponentTopSitesBinding.bind(view)

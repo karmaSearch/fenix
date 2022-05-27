@@ -49,16 +49,8 @@ class CurrentMode(
 
     private val accountManager by lazy { context.components.backgroundServices.accountManager }
 
-    fun getCurrentMode() = if (onboarding.userHasBeenOnboarded()) {
-        Mode.fromBrowsingMode(browsingModeManager.mode)
-    } else {
-        val account = accountManager.authenticatedAccount()
-        if (account != null) {
-            Mode.Onboarding(OnboardingState.SignedIn)
-        } else {
-            Mode.Onboarding(OnboardingState.SignedOutNoAutoSignIn)
-        }
-    }
+    fun getCurrentMode() = Mode.fromBrowsingMode(browsingModeManager.mode)
+
 
     fun emitModeChanges() {
         dispatchModeChanges(getCurrentMode())

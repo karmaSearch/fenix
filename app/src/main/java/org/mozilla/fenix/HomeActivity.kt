@@ -110,6 +110,7 @@ import org.mozilla.fenix.session.PrivateNotificationService
 import org.mozilla.fenix.settings.FeedbackSettingsFragmentDirections
 import org.mozilla.fenix.settings.SettingsFragmentDirections
 import org.mozilla.fenix.settings.TrackingProtectionFragmentDirections
+import org.mozilla.fenix.settings.about.AboutFragmentDirections
 import org.mozilla.fenix.settings.about.KarmaSettingsFragmentDirections
 import org.mozilla.fenix.settings.logins.fragment.LoginDetailFragmentDirections
 import org.mozilla.fenix.settings.logins.fragment.SavedLoginsAuthFragmentDirections
@@ -233,7 +234,13 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
         // Unless the activity is recreated, navigate to home first (without rendering it)
         // to add it to the back stack.
         if (savedInstanceState == null) {
-            navigateToHome()
+            if (!getSettings().hasShownHomeOnboardingDialog) {
+                navigateToOnBoarding()
+            }  else if (getSettings().shouldShowSetAsDefaultBrowserOnBoarding()) {
+                navigateToOnDefaultBrowser()
+            } else {
+                navigateToHome()
+            }
         }
 
         if (!shouldStartOnHome() && shouldNavigateToBrowserOnColdStart(savedInstanceState)) {
@@ -775,6 +782,8 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
         BrowserDirection.FromTrackingProtectionExceptions ->
             TrackingProtectionExceptionsFragmentDirections.actionGlobalBrowser(customTabSessionId)
         BrowserDirection.FromAbout ->
+            AboutFragmentDirections.actionGlobalBrowser(customTabSessionId)
+        BrowserDirection.FromKarmaSettings ->
             KarmaSettingsFragmentDirections.actionGlobalBrowser(customTabSessionId)
         BrowserDirection.FromTrackingProtection ->
             TrackingProtectionFragmentDirections.actionGlobalBrowser(customTabSessionId)
@@ -895,6 +904,14 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
 
     open fun navigateToHome() {
         navHost.navController.navigate(NavGraphDirections.actionStartupHome())
+    }
+
+    open fun navigateToOnBoarding() {
+        navHost.navController.navigate(NavGraphDirections.actionStartupOnboarding())
+    }
+
+    open fun navigateToOnDefaultBrowser() {
+        navHost.navController.navigate(NavGraphDirections.actionStartupDefaultbrowser())
     }
 
     override fun attachBaseContext(base: Context) {

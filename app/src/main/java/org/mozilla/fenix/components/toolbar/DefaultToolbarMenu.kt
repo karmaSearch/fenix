@@ -71,7 +71,6 @@ open class DefaultToolbarMenu(
 
     private val shouldDeleteDataOnQuit = context.settings().shouldDeleteBrowsingDataOnQuit
     private val shouldUseBottomToolbar = context.settings().shouldUseBottomToolbar
-    private val accountManager = FenixAccountManager(context)
 
     private val selectedSession: TabSessionState?
         get() = store.state.selectedTab
@@ -201,6 +200,14 @@ open class DefaultToolbarMenu(
         onItemTapped.invoke(ToolbarMenu.Item.NewTab)
     }
 
+    var newPrivateTab = BrowserMenuImageText(
+        context.getString(R.string.home_screen_shortcut_open_new_private_tab_2),
+        R.drawable.ic_new_private_tab,
+        primaryTextColor()
+    ) {
+        onItemTapped.invoke(ToolbarMenu.Item.NewPrivateTab)
+    }
+
     val historyItem = BrowserMenuImageText(
         context.getString(R.string.library_history),
         R.drawable.ic_history,
@@ -216,10 +223,6 @@ open class DefaultToolbarMenu(
     ) {
         onItemTapped.invoke(ToolbarMenu.Item.Downloads)
     }
-
-    val extensionsItem = WebExtensionPlaceholderMenuItem(
-        id = WebExtensionPlaceholderMenuItem.MAIN_EXTENSIONS_MENU_ID
-    )
 
     val findInPageItem = BrowserMenuImageText(
         label = context.getString(R.string.browser_menu_find_in_page),
@@ -335,12 +338,12 @@ open class DefaultToolbarMenu(
             listOfNotNull(
                 if (shouldUseBottomToolbar) null else menuToolbar,
                 newTabItem,
+                newPrivateTab,
                 getSetDefaultBrowserItem(),
                 BrowserMenuDivider(),
                 bookmarksItem,
                 historyItem,
                 downloadsItem,
-                extensionsItem,
                 findInPageItem,
                 desktopSiteItem,
                 customizeReaderView.apply { visible = ::shouldShowReaderViewCustomization },

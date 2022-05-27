@@ -171,6 +171,28 @@
         <item name="buttonBarPositiveButtonStyle">@style/DialogButtonStyleLight</item>
     </style>
 
+    <style name="OnboardingTitleTextViewStyle" parent="@android:style/TextAppearance.Medium">
+        <item name="fontFamily">@font/kgsecondchangessolid</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:textColor">@color/photonWhite</item>
+        <item name="android:textAlignment">center</item>
+    </style>
+
+    <style name="OnboardingSubitleTextViewStyle" parent="@android:style/TextAppearance.Medium">
+        <item name="fontFamily">@font/proximanova_medium</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/photonLightGrey50</item>
+        <item name="android:textAlignment">center</item>
+    </style>
+
+    <style name="OnboardingButtonStyle" parent="@style/Widget.AppCompat.Button">
+        <item name="android:fontFamily">@font/proximanova_medium</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">@color/photonWhite</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:background">@drawable/button_background</item>
+    </style>
+
     <style name="SelectLoginHeaderTextStyle" parent="Header16TextStyle">
         <item name="android:textColor">?selectLoginHeaderTextColor</item>
         <item name="drawableTint">?accentHighContrast</item>
@@ -246,6 +268,7 @@
         <!-- Updated color attributes -->
         <item name="primaryText">@color/fx_mobile_private_text_color_primary</item>
         <item name="secondaryText">@color/secondary_text_private_theme</item>
+        <item name="insetTextColor">@color/photonWhite</item>
         <item name="contrastText">@color/contrast_text_private_theme</item>
         <item name="accent">@color/accent_private_theme</item>
         <item name="accentBright">@color/accent_bright_private_theme</item>
@@ -365,8 +388,8 @@
         <item name="android:paddingBottom">4dp</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textSize">14sp</item>
-        <item name="android:textColor">@color/toggle_text_color</item>
-        <item name="drawableTint">@color/toggle_text_color</item>
+        <item name="android:textColor">@color/primary_text_normal_theme</item>
+        <item name="drawableTint">@color/primary_text_normal_theme</item>
         <item name="android:layout_gravity">center_vertical</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:singleLine">true</item>
@@ -427,6 +450,7 @@
 
     <style name="Body16TextStyle" parent="TextAppearance.MaterialComponents.Body1">
         <item name="android:textColor">?primaryText</item>
+        <item name="fontFamily">@font/proximanova</item>
     </style>
 
     <style name="Body12TextStyle" parent="TextAppearance.MaterialComponents.Body1">

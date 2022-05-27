@@ -7,7 +7,7 @@
 
     <!-- Layers -->
     <!-- Default Screen, Search, Frontlayer background -->
-    <color name="fx_mobile_layer_color_1">@color/photonLightGrey20</color>
+    <color name="fx_mobile_layer_color_1">@color/photonWhite</color>
     <!-- Card background, Menu background -->
     <color name="fx_mobile_layer_color_2" tools:ignore="UnusedResources">@color/photonWhite</color>
     <!-- App Bar Top, App Bar Bottom, Frontlayer header -->
@@ -143,14 +143,14 @@
     <color name="dark_grey_90_gradient_end">#0015141A</color>
     <color name="preference_section_header_normal_theme">@color/accent_bright_light_theme</color>
 
-    <color name="mozac_widget_favicon_background_light_theme">@color/photonLightGrey20</color>
+    <color name="mozac_widget_favicon_background_light_theme">@color/photonWhite</color>
     <color name="mozac_widget_favicon_border_light_theme">@color/photonLightGrey30</color>
 
     <!-- Dark theme color palette -->
     <color name="accent_bright_dark_theme">@color/photonViolet70</color>
     <color name="accent_high_contrast_dark_theme">@color/photonGreen50</color>
 
-    <color name="mozac_widget_favicon_background_dark_theme">@color/photonDarkGrey60</color>
+    <color name="mozac_widget_favicon_background_dark_theme">@color/photonDarkGrey30</color>
     <color name="mozac_widget_favicon_border_dark_theme">@color/photonDarkGrey10</color>
 
     <!-- Tab Tray -->
@@ -338,4 +338,10 @@
 
     <!-- Toolbar menu icon colors -->
     <color name="toolbar_menu_transparent">@android:color/transparent</color>
+
+    <color name="karma_logo_illust">@color/photonDarkGrey50</color>
+
+    <color name="companion_text">@color/photonBlack</color>
+    <color name="companion_background">@color/photonWhite</color>
+
 </resources>

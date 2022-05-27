@@ -67,6 +67,8 @@
     <string name="pref_key_should_show_default_browser_notification" translatable="false">pref_key_should_show_default_browser_notification</string>
     <string name="pref_key_is_first_run" translatable="false">pref_key_is_first_run</string>
     <string name="pref_key_has_shown_home_onboarding" translatable="false">pref_key_has_shown_home_onboarding</string>
+    <string name="pref_key_has_shown_default_browser" translatable="false">pref_key_has_shown_default_browser</string>
+
     <string name="pref_key_feedback" translatable="false">pref_key_feedback</string>
     <string name="pref_key_contact" translatable="false">pref_key_contact</string>
 
@@ -124,6 +126,7 @@
     <!-- Toolbar Settings -->
     <string name="pref_key_toolbar_top" translatable="false">pref_key_toolbar_top</string>
     <string name="pref_key_toolbar_bottom" translatable="false">pref_key_toolbar_bottom</string>
+    <string name="pref_key_toolbar_cat" translatable="false">pref_key_toolbar_cat</string>
 
     <!-- Privacy Pop Window -->
     <string name="pref_key_privacy_pop_window" translatable="false">pref_key_privacy_pop_window</string>
@@ -201,6 +204,8 @@
     <string name="pref_key_top_sites_max_limit" translatable="false">pref_key_top_sites_max_limit</string>
     <!-- Whether or not the top frecent sites are shown along with pinned top sites -->
     <string name="pref_key_enable_top_frecent_sites" translatable="false">pref_key_top_frecent_sites</string>
+    <string name="pref_key_enable_karma_picture" translatable="false">pref_key_enable_karma_picture</string>
+    <string name="pref_key_enable_learn_and_act" translatable="false">pref_key_enable_learn_and_act</string>
 
     <!-- A value  of `true` means the PWA dialog has been showed or user already has PWAs installed -->
     <string name="pref_key_user_knows_about_pwa" translatable="false">pref_key_user_knows_about_pwa</string>
@@ -217,6 +222,8 @@
     <string name="pref_key_has_inactive_tabs_auto_close_dialog_dismissed" translatable="false">pref_key_has_inactive_tabs_auto_close_dialog_dismissed</string>
     <!-- A value  of `true` means the jump back in onboarding popup has not been shown yet -->
     <string name="pref_key_should_show_jump_back_in_tabs_popup" translatable="false">pref_key_should_show_jump_back_in_tabs_popup</string>
+    <string name="pref_key_should_show_companion" translatable="false">pref_key_should_show_companion</string>
+    <string name="pref_key_should_show_topsite_companion" translatable="false">pref_key_should_show_topsite_companion</string>
 
     <!-- A value  of `true` means the inactive tabs turn off - survey hasn't been shown yet-->
     <string name="pref_key_should_show_inactive_tabs_turn_off_survey" translatable="false">pref_key_should_show_inactive_tabs_turn_off_survey</string>
@@ -280,6 +287,7 @@
 
     <!-- Set default browser experiment card-->
     <string name="pref_key_experiment_card_home" translatable="false">pref_key_experiment_card_home</string>
+    <string name="pref_key_experiment_add_widget" translatable="false">pref_key_experiment_add_widget</string>
 
     <!-- Secret Info Setting Keys -->
     <string name="pref_key_secret_debug_info" translatable="false">pref_key_secret_debug_info</string>

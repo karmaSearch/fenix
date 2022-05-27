@@ -32,6 +32,7 @@
     </androidx.preference.PreferenceCategory>
 
     <androidx.preference.PreferenceCategory
+        android:key="@string/pref_key_toolbar_cat"
         android:layout="@layout/preference_cat_style"
         android:title="@string/preferences_toolbar"
         app:iconSpaceReserved="false">

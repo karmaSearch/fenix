@@ -159,7 +159,7 @@
             app:iconSpaceReserved="false" />
 
         <androidx.preference.SwitchPreference
-            android:defaultValue="false"
+            android:defaultValue="true"
             android:key="@string/pref_key_open_links_in_external_app"
             android:title="@string/preferences_open_links_in_apps"
             app:iconSpaceReserved="false" />

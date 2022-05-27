@@ -22,6 +22,8 @@ import org.mozilla.fenix.home.HomeFragmentState
 import org.mozilla.fenix.home.HomeFragmentStore
 import org.mozilla.fenix.home.Mode
 import org.mozilla.fenix.home.OnboardingState
+import org.mozilla.fenix.home.onboarding.CompanionOnBoardingDialog
+import org.mozilla.fenix.home.onboarding.TopSiteOnBoardingDialog
 import org.mozilla.fenix.home.recentbookmarks.RecentBookmark
 import org.mozilla.fenix.home.recenttabs.RecentTab
 import org.mozilla.fenix.home.recentvisits.RecentlyVisitedItem
@@ -47,7 +49,6 @@ internal fun normalModeAdapterItems(
     learnAndAct: List<LearnAndAct>
 ): List<AdapterItem> {
     val items = mutableListOf<AdapterItem>()
-    var shouldShowCustomizeHome = false
 
     // Add a synchronous, unconditional and invisible placeholder so home is anchored to the top when created.
     items.add(AdapterItem.TopPlaceholderItem)
@@ -62,24 +63,17 @@ internal fun normalModeAdapterItems(
         items.add(AdapterItem.TopSitePager(topSites))
     }
 
-    if(learnAndAct.isNotEmpty()) {
-        items.add(AdapterItem.LearnAndActItem)
-    }
-
     if (recentTabs.isNotEmpty()) {
-        shouldShowCustomizeHome = true
         items.add(AdapterItem.RecentTabsHeader)
         items.add(AdapterItem.RecentTabItem)
     }
 
     if (recentBookmarks.isNotEmpty()) {
-        shouldShowCustomizeHome = true
         items.add(AdapterItem.RecentBookmarksHeader)
         items.add(AdapterItem.RecentBookmarks)
     }
 
     if (recentVisits.isNotEmpty()) {
-        shouldShowCustomizeHome = true
         items.add(AdapterItem.RecentVisitsHeader)
         items.add(AdapterItem.RecentVisitsItems)
     }
@@ -93,13 +87,14 @@ internal fun normalModeAdapterItems(
     }
 
     if (pocketStories.isNotEmpty()) {
-        shouldShowCustomizeHome = true
         items.add(AdapterItem.PocketStoriesItem)
     }
 
-    if (shouldShowCustomizeHome) {
-        items.add(AdapterItem.CustomizeHomeButton)
+    if(learnAndAct.isNotEmpty()) {
+        items.add(AdapterItem.LearnAndActItem)
     }
+
+    items.add(AdapterItem.CustomizeHomeButton)
 
     items.add(AdapterItem.BottomSpacer)
 
@@ -191,11 +186,14 @@ private fun collectionTabItems(collection: TabCollection) =
 class SessionControlView(
     store: HomeFragmentStore,
     val containerView: View,
+    val searchBarView: View,
     viewLifecycleOwner: LifecycleOwner,
     internal val interactor: SessionControlInteractor
 ) {
 
     val view: RecyclerView = containerView as RecyclerView
+
+    private var companionIsShowing: Boolean = false
 
     private val sessionControlAdapter = SessionControlAdapter(
         store,
@@ -211,7 +209,19 @@ class SessionControlView(
                 override fun onLayoutCompleted(state: RecyclerView.State?) {
                     super.onLayoutCompleted(state)
 
-                    JumpBackInCFRDialog(view).showIfNeeded()
+                    val companion = CompanionOnBoardingDialog(searchBarView, view)
+
+                    //prevent 2 dialog is same time
+                    if (!companionIsShowing) {
+                        companion.showIfNeeded()
+                        companionIsShowing = companion.isShowing
+
+                        if (!companionIsShowing) {
+                            JumpBackInCFRDialog(view).showIfNeeded()
+                            TopSiteOnBoardingDialog(view).showIfNeeded()
+                        }
+                    }
+
                 }
             }
             val itemTouchHelper =

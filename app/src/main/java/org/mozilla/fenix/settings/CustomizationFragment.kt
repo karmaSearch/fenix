@@ -9,6 +9,7 @@ import android.os.Build
 import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreference
 import org.mozilla.fenix.FeatureFlags
@@ -113,7 +114,8 @@ class CustomizationFragment : PreferenceFragmentCompat() {
     }
 
     private fun setupToolbarCategory() {
-        val topPreference = requirePreference<RadioButtonPreference>(R.string.pref_key_toolbar_top)
+        val topPreference =
+            requirePreference<RadioButtonPreference>(R.string.pref_key_toolbar_top)
         topPreference.onClickListener {
             requireContext().components.analytics.metrics.track(
                 Event.ToolbarPositionChanged(
@@ -122,7 +124,8 @@ class CustomizationFragment : PreferenceFragmentCompat() {
             )
         }
 
-        val bottomPreference = requirePreference<RadioButtonPreference>(R.string.pref_key_toolbar_bottom)
+        val bottomPreference =
+            requirePreference<RadioButtonPreference>(R.string.pref_key_toolbar_bottom)
         bottomPreference.onClickListener {
             requireContext().components.analytics.metrics.track(
                 Event.ToolbarPositionChanged(
@@ -136,6 +139,11 @@ class CustomizationFragment : PreferenceFragmentCompat() {
         bottomPreference.setCheckedWithoutClickListener(toolbarPosition == ToolbarPosition.BOTTOM)
 
         addToRadioGroup(topPreference, bottomPreference)
+
+        requirePreference<PreferenceCategory>(R.string.pref_key_toolbar_cat).also {
+            it.isVisible = it.context.settings().shouldUseBottomToolbar
+        }
+
     }
 
     private fun setupGesturesCategory() {

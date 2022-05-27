@@ -5,6 +5,11 @@
 <androidx.preference.PreferenceScreen
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.preference.SwitchPreference
+        android:key="@string/pref_key_enable_karma_picture"
+        android:title="@string/karma_picture_preference" />
+
     <androidx.preference.SwitchPreference
         android:key="@string/pref_key_enable_top_frecent_sites"
         android:title="@string/top_sites_toggle_top_recent_sites_3" />
@@ -23,6 +28,10 @@
         android:key="@string/pref_key_history_metadata_feature"
         android:title="@string/customize_toggle_recently_visited"
         app:isPreferenceVisible="false" />
+
+    <androidx.preference.SwitchPreference
+        android:key="@string/pref_key_enable_learn_and_act"
+        android:title="@string/learn_and_act_preference" />
 
     <androidx.preference.SwitchPreference
         android:key="@string/pref_key_pocket_homescreen_recommendations"

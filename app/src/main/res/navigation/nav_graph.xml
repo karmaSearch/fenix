@@ -12,6 +12,18 @@
         app:popUpToInclusive="true" />
 
     <action
+        android:id="@+id/action_startup_onboarding"
+        app:destination="@id/onboardingFragment"
+        app:popUpTo="@id/startupFragment"
+        app:popUpToInclusive="true" />
+
+    <action
+        android:id="@+id/action_startup_defaultbrowser"
+        app:destination="@id/defaultbrowserFragment"
+        app:popUpTo="@id/startupFragment"
+        app:popUpToInclusive="true" />
+
+    <action
         android:id="@+id/action_global_home"
         app:destination="@id/homeFragment"
         app:popUpTo="@id/homeFragment"
@@ -32,6 +44,11 @@
     <action
         android:id="@+id/action_global_home_onboarding_dialog"
         app:destination="@id/homeOnboardingDialogFragment"
+        app:popUpTo="@id/homeFragment" />
+
+    <action
+        android:id="@+id/action_global_home_add_widget"
+        app:destination="@id/addWidgetFragment"
         app:popUpTo="@id/homeFragment" />
 
     <action
@@ -184,6 +201,24 @@
             android:defaultValue="-1L"
             app:argType="long" />
     </fragment>
+
+    <fragment
+        android:id="@+id/onboardingFragment"
+        android:name="org.mozilla.fenix.home.onboarding.OnBoardingFragment"
+        tools:layout="@layout/fragment_on_boarding">
+    </fragment>
+
+    <fragment
+        android:id="@+id/defaultbrowserFragment"
+        android:name="org.mozilla.fenix.home.onboarding.DefaultBrowserFragment"
+        tools:layout="@layout/fragment_default_browser">
+    </fragment>
+
+    <dialog
+        android:id="@+id/addWidgetFragment"
+        android:name="org.mozilla.fenix.widget.AddKarmaWidgetFragment"
+        tools:layout="@layout/fragment_add_widget"/>
+
     <dialog
         android:id="@+id/homeOnboardingDialogFragment"
         android:name="org.mozilla.fenix.onboarding.HomeOnboardingDialogFragment"

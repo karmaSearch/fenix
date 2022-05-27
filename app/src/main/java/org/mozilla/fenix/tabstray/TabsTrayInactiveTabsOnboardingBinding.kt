@@ -75,8 +75,8 @@ class TabsTrayInactiveTabsOnboardingBinding(
             // removing title or setting it as an empty string does not prevent a11y services from assigning one
             setTitle(" ")
         }
-        popupBinding.closeInfoBanner.setOnClickListener {
-            popup.dismiss()
+
+        popup.setOnDismissListener {
             settings.shouldShowInactiveTabsOnboardingPopup = false
             metrics.track(Event.TabsTrayInactiveTabsCFRDismissed)
         }
@@ -114,6 +114,7 @@ class TabsTrayInactiveTabsOnboardingBinding(
             attributes = attr
             setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         }
+        popup.setCanceledOnTouchOutside(true)
         popup.show()
         metrics.track(Event.TabsTrayInactiveTabsCFRIsVisible)
     }

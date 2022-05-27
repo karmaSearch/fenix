@@ -36,7 +36,6 @@ class HomeMenu(
         object Bookmarks : Item()
         object History : Item()
         object Downloads : Item()
-        object Extensions : Item()
         data class SyncAccount(val accountState: AccountState) : Item()
         object WhatsNew : Item()
         object Help : Item()
@@ -114,14 +113,6 @@ class HomeMenu(
             onItemTapped.invoke(Item.Downloads)
         }
 
-        val extensionsItem = BrowserMenuImageText(
-            context.getString(R.string.browser_menu_add_ons),
-            R.drawable.ic_addons_extensions,
-            primaryTextColor
-        ) {
-            onItemTapped.invoke(Item.Extensions)
-        }
-
         val customizeHomeItem = BrowserMenuImageText(
             context.getString(R.string.browser_menu_customize_home),
             R.drawable.ic_customize,
@@ -156,7 +147,6 @@ class HomeMenu(
             bookmarksItem,
             historyItem,
             downloadsItem,
-            extensionsItem,
             desktopItem,
             BrowserMenuDivider(),
             customizeHomeItem,
