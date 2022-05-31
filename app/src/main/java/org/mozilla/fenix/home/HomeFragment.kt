@@ -22,6 +22,7 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.PopupWindow
 import androidx.annotation.VisibleForTesting
+import androidx.compose.ui.graphics.Color
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.constraintlayout.widget.ConstraintSet.BOTTOM
@@ -370,7 +371,7 @@ class HomeFragment : Fragment() {
         updateSessionControlView()
 
         appBarLayout = binding.homeAppBar
-        val appBarOffsetChangedListener = object : AppBarLayout.OnOffsetChangedListener {
+        val appBarOffsetChangedListener = object : OnOffsetChangedListener {
 
             override fun onOffsetChanged(
                 appBarLayout: com.google.android.material.appbar.AppBarLayout,
@@ -382,27 +383,28 @@ class HomeFragment : Fragment() {
                     if (abs(verticalOffset - toolBarHeight) >= appBarLayout.height) {
                         binding.toolbarWrapper2.visibility = View.VISIBLE
                         binding.toolbarWrapper.visibility = View.INVISIBLE
+                        //binding.toolbarLayout.setBackgroundColor(ContextCompat.getColor(context!!, R.color.fx_mobile_layer_color_1))
                     } else {
                         binding.toolbarWrapper2.visibility = View.INVISIBLE
                         binding.toolbarWrapper.visibility = View.VISIBLE
+                        //binding.toolbarLayout.setBackgroundColor(android.graphics.Color.TRANSPARENT)
                     }
                     if (requireContext().settings().showKARMAPicture) {
-                        when (requireContext().settings().toolbarPosition) {
-                            ToolbarPosition.TOP -> {
-                                binding.karmaLogo.visibility =
+                        binding.karmaLogo.visibility =
                                     if (abs(verticalOffset - binding.toolbarWrapper.height) >= appBarLayout.height - binding.randomAnimalsImage.height - binding.karmaLogo.height / 2) View.INVISIBLE else View.VISIBLE
-                            }
-                            ToolbarPosition.BOTTOM -> {
-                                binding.karmaLogo.visibility = binding.toolbarWrapper.visibility
-                            }
-                        }
+                    } else {
+                        binding.karmaLogo.visibility = View.GONE
                     }
 
                 }
             }
         }
-
-        binding.homeAppBar.addOnOffsetChangedListener(appBarOffsetChangedListener)
+        if (requireContext().settings().toolbarPosition == ToolbarPosition.TOP) {
+            binding.homeAppBar.addOnOffsetChangedListener(appBarOffsetChangedListener)
+        } else {
+            binding.toolbarWrapper2.visibility = View.VISIBLE
+            binding.toolbarWrapper.visibility = View.GONE
+        }
 
         activity.themeManager.applyStatusBarTheme(activity)
 
@@ -495,7 +497,8 @@ class HomeFragment : Fragment() {
                 binding.toolbarLayout.setBackgroundColor(android.graphics.Color.TRANSPARENT)
             }
             ToolbarPosition.BOTTOM -> {
-                binding.toolbarLayout.setBackgroundColor(requireContext().getColor(R.color.fx_mobile_layer_color_1))
+                binding.toolbarLayout.setBackgroundColor(ContextCompat.getColor(context!!, R.color.fx_mobile_layer_color_1))
+                //binding.toolbarLayout.setBackgroundColor(android.graphics.Color.TRANSPARENT)
             }
         }
     }
@@ -1075,7 +1078,7 @@ class HomeFragment : Fragment() {
             }
             binding.randomAnimalsLayout.visibility = View.VISIBLE
             binding.wordmark.visibility = View.GONE
-            binding.karmaLogo.visibility = View.VISIBLE
+            binding.karmaLogo.visibility = if(requireContext().settings().toolbarPosition == ToolbarPosition.TOP) View.VISIBLE else View.GONE
 
 
         } else {
