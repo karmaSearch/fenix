@@ -141,7 +141,7 @@ class HistorySearchDialogFragment : AppCompatDialogFragment(), UserInteractionHa
                         searchTermOrURL = SupportUtils.getGenericSumoURLForTopic(
                             SupportUtils.SumoTopic.SEARCH_SUGGESTION
                         ),
-                        newTab = true,
+                        newTab = false,
                         from = BrowserDirection.FromHistorySearchDialog
                     )
             }

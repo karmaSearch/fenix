@@ -991,7 +991,7 @@ class HomeFragment : Fragment() {
                     HomeMenu.Item.Help -> {
                         (activity as HomeActivity).openToBrowserAndLoad(
                             searchTermOrURL = SupportUtils.getSumoURLForTopic(context, HELP),
-                            newTab = true,
+                            newTab = false,
                             from = BrowserDirection.FromHome
                         )
                     }
@@ -1000,7 +1000,7 @@ class HomeFragment : Fragment() {
                         context.metrics.track(Event.WhatsNewTapped)
                         (activity as HomeActivity).openToBrowserAndLoad(
                             searchTermOrURL = SupportUtils.getWhatsNewUrl(context),
-                            newTab = true,
+                            newTab = false,
                             from = BrowserDirection.FromHome
                         )
                     }

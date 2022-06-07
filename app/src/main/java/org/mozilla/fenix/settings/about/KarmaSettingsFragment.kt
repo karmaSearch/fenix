@@ -55,7 +55,7 @@ class KarmaSettingsFragment : PreferenceFragmentCompat() {
     private fun openLinkInNormalTab(url: String) {
         (activity as HomeActivity).openToBrowserAndLoad(
             searchTermOrURL = url,
-            newTab = true,
+            newTab = false,
             from = BrowserDirection.FromKarmaSettings
         )
     }

@@ -254,7 +254,7 @@ class DefaultNavigationInteractor(
         dismissTabTray()
         activity.openToBrowserAndLoad(
             searchTermOrURL = tab.active().url,
-            newTab = true,
+            newTab = false,
             from = BrowserDirection.FromTabsTray
         )
     }

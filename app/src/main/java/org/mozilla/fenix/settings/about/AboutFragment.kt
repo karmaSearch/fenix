@@ -156,7 +156,7 @@ class AboutFragment : Fragment(), AboutPageListener {
     private fun openLinkInNormalTab(url: String) {
         (activity as HomeActivity).openToBrowserAndLoad(
             searchTermOrURL = url,
-            newTab = true,
+            newTab = false,
             from = BrowserDirection.FromAbout
         )
     }

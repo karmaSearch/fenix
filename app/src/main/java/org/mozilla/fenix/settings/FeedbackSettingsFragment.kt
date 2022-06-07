@@ -38,7 +38,7 @@ class FeedbackSettingsFragment: PreferenceFragmentCompat() {
             resources.getString(R.string.pref_key_feedback) -> {
                 (activity as HomeActivity).openToBrowserAndLoad(
                     searchTermOrURL = if (LocaleManager.getSelectedLocale((activity as HomeActivity)).language =="fr") SupportUtils.KARMA_FEEDBACK_FORMS_FR else SupportUtils.KARMA_FEEDBACK_FORMS,
-                    newTab = true,
+                    newTab = false,
                     from = BrowserDirection.FromFeedBackSettings
                 )
             }
@@ -63,7 +63,7 @@ class FeedbackSettingsFragment: PreferenceFragmentCompat() {
                     // Opening the play store website.
                     (activity as HomeActivity).openToBrowserAndLoad(
                         searchTermOrURL = SupportUtils.FENIX_PLAY_STORE_URL,
-                        newTab = true,
+                        newTab = false,
                         from = BrowserDirection.FromSettings
                     )
                 }

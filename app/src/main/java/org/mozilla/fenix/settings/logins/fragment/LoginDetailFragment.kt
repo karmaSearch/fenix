@@ -177,7 +177,7 @@ class LoginDetailFragment : SecureFragment(R.layout.fragment_login_detail) {
     private fun navigateToBrowser(address: String) {
         (activity as HomeActivity).openToBrowserAndLoad(
             address,
-            newTab = true,
+            newTab = false,
             from = BrowserDirection.FromLoginDetailFragment
         )
     }

@@ -47,7 +47,7 @@ internal class DefaultLearnAndActController(
 
     override fun handleLearnAndActClicked(learnAndAct: LearnAndAct) {
         dismissSearchDialogIfDisplayed()
-        homeActivity.openToBrowserAndLoad(learnAndAct.actionUrl, true, BrowserDirection.FromHome)
+        homeActivity.openToBrowserAndLoad(learnAndAct.actionUrl, false, BrowserDirection.FromHome)
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)

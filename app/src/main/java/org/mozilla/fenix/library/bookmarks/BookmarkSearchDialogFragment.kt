@@ -139,7 +139,7 @@ class BookmarkSearchDialogFragment : AppCompatDialogFragment(), UserInteractionH
                         searchTermOrURL = SupportUtils.getGenericSumoURLForTopic(
                             SupportUtils.SumoTopic.SEARCH_SUGGESTION
                         ),
-                        newTab = true,
+                        newTab = false,
                         from = BrowserDirection.FromBookmarkSearchDialog
                     )
             }

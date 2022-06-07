@@ -109,7 +109,7 @@ class AddSearchEngineFragment :
                     requireContext(),
                     SupportUtils.SumoTopic.CUSTOM_SEARCH_ENGINES
                 ),
-                newTab = true,
+                newTab = false,
                 from = BrowserDirection.FromAddSearchEngineFragment
             )
         }

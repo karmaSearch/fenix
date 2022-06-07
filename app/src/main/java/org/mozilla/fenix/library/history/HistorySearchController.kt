@@ -40,7 +40,7 @@ class HistorySearchDialogController(
 
         activity.openToBrowserAndLoad(
             searchTermOrURL = url,
-            newTab = true,
+            newTab = false,
             from = BrowserDirection.FromHistorySearchDialog,
             flags = flags
         )

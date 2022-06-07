@@ -41,7 +41,7 @@ class AddonPermissionsDetailsFragment :
     override fun openWebsite(addonSiteUrl: Uri) {
         (activity as HomeActivity).openToBrowserAndLoad(
             searchTermOrURL = addonSiteUrl.toString(),
-            newTab = true,
+            newTab = false,
             from = BrowserDirection.FromAddonPermissionsDetailsFragment
         )
     }

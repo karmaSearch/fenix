@@ -29,7 +29,7 @@ class DefaultTrackingProtectionExceptionsInteractor(
             searchTermOrURL = SupportUtils.getGenericSumoURLForTopic(
                 SupportUtils.SumoTopic.TRACKING_PROTECTION
             ),
-            newTab = true,
+            newTab = false,
             from = BrowserDirection.FromTrackingProtectionExceptions
         )
     }

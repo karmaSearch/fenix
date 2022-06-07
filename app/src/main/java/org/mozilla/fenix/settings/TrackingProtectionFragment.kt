@@ -84,7 +84,7 @@ class TrackingProtectionFragment : PreferenceFragmentCompat() {
             (activity as HomeActivity).openToBrowserAndLoad(
                 searchTermOrURL = SupportUtils.getGenericSumoURLForTopic
                 (SupportUtils.SumoTopic.TRACKING_PROTECTION),
-                newTab = true,
+                newTab = false,
                 from = BrowserDirection.FromTrackingProtection
             )
             true

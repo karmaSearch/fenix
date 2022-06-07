@@ -31,7 +31,7 @@ class DefaultStudiesInteractor(
     override fun openWebsite(url: String) {
         homeActivity.openToBrowserAndLoad(
             searchTermOrURL = url,
-            newTab = true,
+            newTab = false,
             from = BrowserDirection.FromStudiesFragment
         )
     }
