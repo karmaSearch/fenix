@@ -141,10 +141,6 @@ class CustomizationFragment : PreferenceFragmentCompat() {
 
         addToRadioGroup(topPreference, bottomPreference)
 
-        requirePreference<PreferenceCategory>(R.string.pref_key_toolbar_cat).also {
-            it.isVisible = it.context.settings().shouldUseBottomToolbar
-        }
-
     }
 
     private fun setupGesturesCategory() {
