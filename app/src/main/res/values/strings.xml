@@ -277,7 +277,7 @@
     <!-- Text preview for smaller sized widgets -->
     <string name="search_widget_text_short">Search</string>
     <!-- Text preview for larger sized widgets -->
-    <string name="search_widget_text_long">Search the web with KARMA</string>
+    <string name="search_widget_text_long">Search to make a difference</string>
     <!-- Content description (not visible, for screen readers etc.): Voice search -->
     <string name="search_widget_voice">Voice search</string>
 
