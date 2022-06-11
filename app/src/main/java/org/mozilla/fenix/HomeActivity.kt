@@ -295,6 +295,11 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
             components.core.pocketStoriesService.startPeriodicStoriesRefresh()
         }
 
+        if (settings().showLearnAndAct) {
+            components.core.learnAndActService.startLearnAndActRefresh()
+
+        }
+
         components.core.engine.profiler?.addMarker(
             MarkersActivityLifecycleCallbacks.MARKER_NAME, startTimeProfiler, "HomeActivity.onCreate"
         )
@@ -462,6 +467,8 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
 
         components.core.contileTopSitesUpdater.stopPeriodicWork()
         components.core.pocketStoriesService.stopPeriodicStoriesRefresh()
+        components.core.learnAndActService.stopPeriodicLearnAndActRefresh()
+
         privateNotificationObserver?.stop()
     }
 

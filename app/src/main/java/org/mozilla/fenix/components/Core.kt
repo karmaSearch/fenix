@@ -62,6 +62,8 @@ import mozilla.components.service.digitalassetlinks.local.StatementRelationCheck
 import mozilla.components.service.location.LocationService
 import mozilla.components.service.location.MozillaLocationService
 import mozilla.components.service.pocket.PocketStoriesConfig
+import karma.service.learnandact.LearnAndActConfig
+
 import mozilla.components.service.pocket.PocketStoriesService
 import mozilla.components.service.sync.autofill.AutofillCreditCardsAddressesStorage
 import mozilla.components.service.sync.logins.SyncableLoginsStorage
@@ -342,8 +344,12 @@ class Core(
     val pocketStoriesConfig by lazyMonitored {
         PocketStoriesConfig(client, Frequency(4, TimeUnit.HOURS))
     }
+
+    val learnAndActConfig by lazyMonitored {
+        LearnAndActConfig(client, Frequency(4, TimeUnit.HOURS))
+    }
     val pocketStoriesService by lazyMonitored { PocketStoriesService(context, pocketStoriesConfig) }
-    val learnAndActService by lazyMonitored { LearnAndActService(client, context) }
+    val learnAndActService by lazyMonitored { LearnAndActService(context, learnAndActConfig) }
     val randomAnimalBackgroundService by lazyMonitored { RandomAnimalBackgroundService(context, RandomAnimalBackgroundParser()) }
 
     val contileTopSitesProvider by lazyMonitored {
