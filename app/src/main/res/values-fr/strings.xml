@@ -1091,10 +1091,10 @@
     <string name="notification_marketing_channel_name">Marketing</string>
     <!-- Title shown in the notification that pops up to remind the user to set fenix as default browser.
     %1$s is a placeholder that will be replaced by the app name (Fenix). -->
-    <string name="notification_default_browser_title">Définir %1$s comme navigateur par défaut</string>
+    <string name="notification_default_browser_title">%1$s est rapide et privé</string>
     <!-- Text shown in the notification that pops up to remind the user to set fenix as default browser.
     %1$s is a placeholder that will be replaced by the app name (Fenix). -->
-    <string name="notification_default_browser_text">Cliquez ici pour installer %1$s comme navigateur par défaut 🐼</string>
+    <string name="notification_default_browser_text">Faites de %1$s votre navigateur par défaut</string>
 
     <!-- Snackbar -->
     <!-- Text shown in snackbar when user deletes a collection -->
@@ -1924,6 +1924,8 @@ Cependant, il peut être moins stable. Téléchargez la version bêta de notre n
     <string name="onboarding_companion_settings">Vous pouvez paramétrer la disposition de la page d’accueil KARMA en cliquant sur personnaliser la page d’accueil dans le menu de l’application</string>
     <string name="onboarding_companion_shortcut">Vous trouverez ici vos raccourcis et les sites les plus visités. Vous pouvez supprimer un raccourci en appuyant  longuement sur l’icône et en rajouter un via le menu quand vous naviguez sur un site</string>
     <string name="home_screen_top_sites_heading">Raccourcis</string>
-
-
+    <string name="karma_notification_default_browser_title">Aidez-nous à protéger le Vivant ! 🌎 </string>
+    <string name="karma_notification_default_browser_text">Définissez %1$s en tant que moteur de recherche par défaut afin de maximiser votre impact 💪 🦁</string>
+    <string name="karma_notification_widget_title">Avez vous installé le widget KARMA ? 🤓 📲</string>
+    <string name="karma_notification_widget_text">Le widget permet d’effectuer une recherche directement de votre écran d’accueil 🦊 🌱</string>
 </resources>

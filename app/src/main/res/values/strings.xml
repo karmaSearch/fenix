@@ -1033,10 +1033,10 @@
     <string name="notification_marketing_channel_name">Marketing</string>
     <!-- Title shown in the notification that pops up to remind the user to set fenix as default browser.
     %1$s is a placeholder that will be replaced by the app name (Fenix). -->
-    <string name="notification_default_browser_title">Set %1$s as your default browser</string>
+    <string name="notification_default_browser_title">%1$s is fast and private</string>
     <!-- Text shown in the notification that pops up to remind the user to set fenix as default browser.
     %1$s is a placeholder that will be replaced by the app name (Fenix). -->
-    <string name="notification_default_browser_text">Click here to install %1$s as your default browser 🐼</string>
+    <string name="notification_default_browser_text">Make %1$s your default browser</string>
 
     <!-- Snackbar -->
     <!-- Text shown in snackbar when user deletes a collection -->
@@ -1829,5 +1829,9 @@
     <string name="onboarding_companion_settings">You can configure your KARMA home page through customize the home page in the application menu</string>
     <string name="onboarding_companion_shortcut">Here are your shortcuts and most visited websites. To delete a shortcut, just click on the icon and hold it down for a while. To add a new shortcut, just go to the menu when you are browsing</string>
     <string name="home_screen_top_sites_heading">Shortcuts</string>
+    <string name="karma_notification_default_browser_title">Help us to protect the biodiversity ! 🌎</string>
+    <string name="karma_notification_default_browser_text">Set %1$s as your default browser to maximize your impact 💪 🦁</string>
+    <string name="karma_notification_widget_title">Have you tried the KARMA widget? 🤓 📲</string>
+    <string name="karma_notification_widget_text">You can search directly from your homescreen with the KARMA widget 🦊 🌱</string>
 
 </resources>

@@ -1,7 +1,3 @@
-/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 package org.mozilla.fenix.onboarding
 
 import android.app.Notification
@@ -14,28 +10,21 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
-import androidx.work.ExistingWorkPolicy
-import androidx.work.OneTimeWorkRequest
-import androidx.work.WorkManager
-import androidx.work.Worker
-import androidx.work.WorkerParameters
-import java.util.concurrent.TimeUnit
+import androidx.work.*
 import mozilla.components.support.base.ids.SharedIdsHelper
 import org.mozilla.fenix.HomeActivity
 import org.mozilla.fenix.R
 import org.mozilla.fenix.ext.settings
 import org.mozilla.fenix.utils.IntentUtils
 import org.mozilla.fenix.utils.Settings
+import java.util.concurrent.TimeUnit
 
-class DefaultBrowserNotificationWorker(
+class WidgetNotificationWorker(
     val context: Context,
     workerParameters: WorkerParameters
 ) : Worker(context, workerParameters) {
 
     override fun doWork(): Result {
-        if (context.settings().isDefaultBrowserBlocking()) {
-            return Result.success()
-        }
         ensureChannelExists()
         NotificationManagerCompat.from(applicationContext)
             .notify(NOTIFICATION_TAG, NOTIFICATION_ID, buildNotification())
@@ -49,7 +38,7 @@ class DefaultBrowserNotificationWorker(
     private fun buildNotification(): Notification {
         val channelId = ensureChannelExists()
         val intent = Intent(applicationContext, HomeActivity::class.java)
-        intent.putExtra(INTENT_DEFAULT_BROWSER_NOTIFICATION, true)
+        intent.putExtra(INTENT_WIDGET_NOTIFICATION, true)
 
         val pendingIntent = PendingIntent.getActivity(
             applicationContext,
@@ -59,14 +48,13 @@ class DefaultBrowserNotificationWorker(
         )
 
         with(applicationContext) {
-            val appName = getString(R.string.app_name)
             return NotificationCompat.Builder(this, channelId)
                 .setSmallIcon(R.drawable.ic_status_logo)
                 .setContentTitle(
-                    applicationContext.getString(R.string.karma_notification_default_browser_title)
+                    applicationContext.getString(R.string.karma_notification_widget_title)
                 )
                 .setContentText(
-                    applicationContext.getString(R.string.karma_notification_default_browser_text, appName)
+                    applicationContext.getString(R.string.karma_notification_widget_text)
                 )
                 .setBadgeIconType(NotificationCompat.BADGE_ICON_SMALL)
                 .setColor(ContextCompat.getColor(this, R.color.photonGreen50))
@@ -101,36 +89,35 @@ class DefaultBrowserNotificationWorker(
     }
 
     companion object {
-        private const val NOTIFICATION_CHANNEL_ID = "org.mozilla.fenix.default.browser.channel"
-        private const val NOTIFICATION_ID = 1
-        private const val NOTIFICATION_PENDING_INTENT_TAG = "org.mozilla.fenix.default.browser"
-        private const val INTENT_DEFAULT_BROWSER_NOTIFICATION = "org.mozilla.fenix.default.browser.intent"
-        private const val NOTIFICATION_TAG = "org.mozilla.fenix.default.browser.tag"
-        private const val NOTIFICATION_WORK_NAME = "org.mozilla.fenix.default.browser.work"
-        private const val NOTIFICATION_1_DELAY = Settings.ONE_DAY_MS
-        private const val NOTIFICATION_2_DELAY = Settings.THREE_DAYS_MS
-        private const val NOTIFICATION_3_DELAY = Settings.ONE_WEEK_MS
-        private const val NOTIFICATION_4_DELAY = Settings.ONE_MONTH_MS
-        private val NOTIFICATIONS_DELAY = listOf(NOTIFICATION_1_DELAY, NOTIFICATION_2_DELAY, NOTIFICATION_3_DELAY, NOTIFICATION_4_DELAY)
+        private const val NOTIFICATION_CHANNEL_ID = "org.mozilla.fenix.widget.channel"
+        private const val NOTIFICATION_ID = 2
+        private const val NOTIFICATION_PENDING_INTENT_TAG = "org.mozilla.fenix.widget"
+        private const val INTENT_WIDGET_NOTIFICATION = "org.mozilla.fenix.widget.intent"
+        private const val NOTIFICATION_TAG = "org.mozilla.fenix.widget.tag"
+        private const val NOTIFICATION_WORK_NAME = "org.mozilla.fenix.widget.work"
+        private const val NOTIFICATION_DELAY = Settings.THREE_DAYS_MS
 
-        fun isDefaultBrowserNotificationIntent(intent: Intent) =
-            intent.extras?.containsKey(INTENT_DEFAULT_BROWSER_NOTIFICATION) ?: false
+        fun isWidgetNotificationIntent(intent: Intent) =
+            intent.extras?.containsKey(INTENT_WIDGET_NOTIFICATION) ?: false
 
-        fun setDefaultBrowserNotificationIfNeeded(context: Context) {
+        fun setWidgetNotificationIfNeeded(context: Context) {
+            val instanceWorkManager = WorkManager.getInstance(context)
 
-            for (notification_delay in NOTIFICATIONS_DELAY) {
-                val instanceWorkManager = WorkManager.getInstance(context)
-
-                val notificationWork = OneTimeWorkRequest.Builder(DefaultBrowserNotificationWorker::class.java)
-                    .setInitialDelay(notification_delay, TimeUnit.MILLISECONDS)
-                    .build()
-
-                instanceWorkManager.beginUniqueWork(
-                    NOTIFICATION_WORK_NAME+notification_delay,
-                    ExistingWorkPolicy.KEEP,
-                    notificationWork
-                ).enqueue()
+            if (context.settings().searchWidgetInstalled) {
+                instanceWorkManager.cancelUniqueWork(NOTIFICATION_WORK_NAME)
+                return
             }
+
+            val notificationWork = OneTimeWorkRequest.Builder(WidgetNotificationWorker::class.java)
+                .setInitialDelay(NOTIFICATION_DELAY, TimeUnit.MILLISECONDS)
+                .build()
+
+            instanceWorkManager.beginUniqueWork(
+                NOTIFICATION_WORK_NAME,
+                ExistingWorkPolicy.KEEP,
+                notificationWork
+            ).enqueue()
+
         }
     }
 }

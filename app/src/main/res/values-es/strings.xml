@@ -1779,6 +1779,9 @@
     <string name="onboarding_companion_shortcut">Aquí encontrarás tus accesos directos y los sitios más visitados. Puedes eliminar un acceso directo manteniendo presionado el ícono y agregar uno a través del menú cuando navegas por un sitio</string>
     <string name="onboarding_companion_settings">Puedes configurar el diseño de la página de inicio de KARMA en el menú personalizar la página de inicio presente en el menú de la aplicación</string>
     <string name="home_screen_top_sites_heading">Sitios destacados</string>
-
+    <string name="karma_notification_default_browser_title">¡Ayúdanos a proteger la biodiversidad! 🌎</string>
+    <string name="karma_notification_default_browser_text">Configura %1$s como motor de búsqueda predeterminado para maximizar tu impacto 💪 🦁</string>
+    <string name="karma_notification_widget_title">¿Has instalado el widget KARMA? 🤓 📲</string>
+    <string name="karma_notification_widget_text">El widget te permite buscar directamente desde su pantalla de inicio 🦊 🌱</string>
 
 </resources>
