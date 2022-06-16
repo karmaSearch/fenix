@@ -135,6 +135,10 @@ android {
             applicationIdSuffix ".app"
             def deepLinkSchemeValue = "karma"
             buildConfigField "String", "DEEP_LINK_SCHEME", "\"$deepLinkSchemeValue\""
+            manifestPlaceholders = [
+                    "sharedUserId": "com.karmasearch.app.sharedID",
+                    "deepLinkScheme": deepLinkSchemeValue
+            ]
         }
     }
 
