@@ -1672,13 +1672,13 @@
     <string moz:removedIn="98" name="top_sites_toggle_top_recent_sites_3" tools:ignore="UnusedResources">Sitios frecuentes más visitados</string>
 
     <!-- Title text displayed in the rename top site dialog. -->
-	<string name="top_sites_rename_dialog_title">Nombre</string>
-	<!-- Hint for renaming title of a top site -->
-	<string name="top_site_name_hint">Nombre del sitio principal</string>
-	<!-- Button caption to confirm the renaming of the top site. -->
-	<string name="top_sites_rename_dialog_ok">Aceptar</string>
-	<!-- Dialog button text for canceling the rename top site prompt. -->
-	<string name="top_sites_rename_dialog_cancel">Cancelar</string>
+    <string name="top_sites_rename_dialog_title">Nombre</string>
+    <!-- Hint for renaming title of a top site -->
+    <string name="top_site_name_hint">Nombre del sitio principal</string>
+    <!-- Button caption to confirm the renaming of the top site. -->
+    <string name="top_sites_rename_dialog_ok">Aceptar</string>
+    <!-- Dialog button text for canceling the rename top site prompt. -->
+    <string name="top_sites_rename_dialog_cancel">Cancelar</string>
 
     <!-- Inactive tabs in the tabs tray -->
     <!-- Title text displayed in the tabs tray when a tab has been unused for 14 days. -->
@@ -1774,9 +1774,9 @@
     <string name="add_widget_title">¡Instala el widget KARMA para buscar directamente desde la página de inicio!</string>
     <string name="add_a_widget">Agregar un widget</string>
     <string name="add_widget_later">Ahora no</string>
-    <string name="onboarding_companion_searchbar">Haz tus busquedas aqui y protege la biodiversidad! Cuando seleccionas la barra de búsqueda, el ícono del micrófono te permite activar la búsqueda por voz</string>
+    <string name="onboarding_companion_searchbar">¡Haz tus busquedas aqui y protege la biodiversidad!</string>
     <string name="onboarding_companion_learn_and_act">Los contenidos del “Learn &amp; Act” te brindan informaciones esenciales y te permiten tomar acciones concretas en torno a la salvaguardia de la biodiversidad y la protección del bienestar animal.</string>
-    <string name="onboarding_companion_shortcut">Aquí encontrarás tus accesos directos y los sitios más visitados. Puedes eliminar un acceso directo manteniendo presionado el ícono y agregar uno a través del menú cuando navegas por un sitio</string>
+    <string name="onboarding_companion_shortcut">Aquí encontrarás tus accesos directos y los sitios más visitados. Puedes eliminar un acceso directo manteniendo presionado el ícono</string>
     <string name="onboarding_companion_settings">Puedes configurar el diseño de la página de inicio de KARMA en el menú personalizar la página de inicio presente en el menú de la aplicación</string>
     <string name="home_screen_top_sites_heading">Sitios destacados</string>
     <string name="karma_notification_default_browser_title">¡Ayúdanos a proteger la biodiversidad! 🌎</string>
