@@ -85,10 +85,8 @@ open class DefaultToolbarMenu(
                 webExtIconTintColorResource = primaryTextColor(),
                 addonsManagerMenuItemDrawableRes = R.drawable.ic_addons_extensions
             ),
-            onAddonsManagerTapped = {
-                onItemTapped.invoke(ToolbarMenu.Item.AddonsManager)
-            },
-            appendExtensionSubMenuAtStart = shouldUseBottomToolbar
+            appendExtensionSubMenuAtStart = shouldUseBottomToolbar,
+            showAddonsInMenu = false
         )
     }
 
