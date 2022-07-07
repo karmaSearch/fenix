@@ -1917,7 +1917,7 @@ Cependant, il peut être moins stable. Téléchargez la version bêta de notre n
     <string name="onboarding_default_browser_choose">C’est parti !</string>
     <string name="onboarding_default_browser_notnow">Plus tard</string>
     <string name="add_widget_title">Ajoutez le widget KARMA pour rechercher directement depuis votre page d\'accueil !</string>
-    <string name="add_a_widget">Ajoutez le widget</string>
+    <string name="add_a_widget">OK !</string>
     <string name="add_widget_later">Plus tard</string>
     <string name="onboarding_companion_searchbar">Faites ici vos recherches et protégez le Vivant !</string>
     <string name="onboarding_companion_learn_and_act">Les contenus du “Learn &amp; Act” vous donnent les informations essentielles et vous permettent d’agir concrètement autour de la sauvegarde de la biodiversité et la protection du bien-être animal</string>
@@ -1928,4 +1928,6 @@ Cependant, il peut être moins stable. Téléchargez la version bêta de notre n
     <string name="karma_notification_default_browser_text">Définissez %1$s en tant que moteur de recherche par défaut afin de maximiser votre impact 💪 🦁</string>
     <string name="karma_notification_widget_title">Avez-vous installé le widget KARMA ? 🤓 📲</string>
     <string name="karma_notification_widget_text">Le widget permet d’effectuer une recherche directement de votre écran d’accueil 🦊 🌱</string>
+    <string name="learn_and_act_subtitle">Des ressources pour s’informer et agir</string>
+
 </resources>

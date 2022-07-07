@@ -1772,7 +1772,7 @@
     <string name="onboarding_default_browser_choose">Seleccionar KARMA</string>
     <string name="onboarding_default_browser_notnow">Ahora no</string>
     <string name="add_widget_title">¡Instala el widget KARMA para buscar directamente desde la página de inicio!</string>
-    <string name="add_a_widget">Agregar un widget</string>
+    <string name="add_a_widget">OK !</string>
     <string name="add_widget_later">Ahora no</string>
     <string name="onboarding_companion_searchbar">¡Haz tus busquedas aqui y protege la biodiversidad!</string>
     <string name="onboarding_companion_learn_and_act">Los contenidos del “Learn &amp; Act” te brindan informaciones esenciales y te permiten tomar acciones concretas en torno a la salvaguardia de la biodiversidad y la protección del bienestar animal.</string>
@@ -1783,5 +1783,5 @@
     <string name="karma_notification_default_browser_text">Configura %1$s como motor de búsqueda predeterminado para maximizar tu impacto 💪 🦁</string>
     <string name="karma_notification_widget_title">¿Has instalado el widget KARMA? 🤓 📲</string>
     <string name="karma_notification_widget_text">El widget te permite buscar directamente desde su pantalla de inicio 🦊 🌱</string>
-
+    <string name="learn_and_act_subtitle">Recibe las últimas noticias y actúa</string>
 </resources>

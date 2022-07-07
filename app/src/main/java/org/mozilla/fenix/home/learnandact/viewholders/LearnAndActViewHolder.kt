@@ -17,6 +17,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.booleanResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -83,16 +84,24 @@ fun LearnAndAct(
         }
     }
     Column {
-        Spacer(Modifier.height(5.dp))
-        Text("Learn & Act",
+        Spacer(Modifier.height(8.dp))
+        Text(stringResource(R.string.learn_and_act_title),
             fontSize = 38.sp,
             fontWeight = FontWeight.Normal,
             color = PhotonColors.Green50,
             fontFamily = FontFamily(Font(R.font.amithen)),
+                    modifier = Modifier
+                    .padding(start = 10.dp)
+                        .height(45.dp))
+        Text(stringResource(R.string.learn_and_act_subtitle),
+                fontSize = 15.sp,
+            fontWeight = FontWeight.Normal,
+            fontFamily = FontFamily(Font(R.font.proximanova)),
+            color = Color.LightGray,
             modifier = Modifier
-            .padding(start = 10.dp))
+                .padding(start = 10.dp))
 
-        Spacer(Modifier.height(5.dp))
+        Spacer(Modifier.height(8.dp))
 
         LearnAndActBlocs(learnAndActBlocs ?: emptyList(), onBlockClicked)
 

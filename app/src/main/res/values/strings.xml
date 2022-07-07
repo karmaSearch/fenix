@@ -1822,7 +1822,7 @@
     <string name="onboarding_default_browser_choose">Choose KARMA</string>
     <string name="onboarding_default_browser_notnow">Not now</string>
     <string name="add_widget_title">Add the KARMA widget to search directly from your homepage !</string>
-    <string name="add_a_widget">Add a widget</string>
+    <string name="add_a_widget">OK !</string>
     <string name="add_widget_later">Later</string>
     <string name="onboarding_companion_searchbar">Search the web here and protect biodiversity and animal welfare!</string>
     <string name="onboarding_companion_learn_and_act">With "Learn &amp; Act", we will keep you informed about biodiversity and animal welfare latest news, and you will learn how to take concrete action to protect them</string>
@@ -1833,5 +1833,8 @@
     <string name="karma_notification_default_browser_text">Set %1$s as your default browser to maximize your impact 💪 🦁</string>
     <string name="karma_notification_widget_title">Have you tried the KARMA widget? 🤓 📲</string>
     <string name="karma_notification_widget_text">You can search directly from your homescreen with the KARMA widget 🦊 🌱</string>
+    <string name="learn_and_act_title">Learn &amp; Act</string>
+
+    <string name="learn_and_act_subtitle">Get the latest news and take action!</string>
 
 </resources>

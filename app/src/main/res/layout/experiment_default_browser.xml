@@ -37,7 +37,6 @@
     <Button
         android:id="@+id/set_default_browser"
         style="@style/PositiveButton"
-        android:layout_height="36dp"
         android:background="@drawable/rounded_button_background"
         android:text="@string/preferences_set_as_default_browser"
         app:layout_constraintBottom_toBottomOf="parent"
