@@ -1088,6 +1088,15 @@ class Settings(private val appContext: Context) : PreferencesHolder {
             .apply()
     }
 
+    fun shouldShowNotificationWidget(): Boolean {
+        return !searchWidgetInstalled && !widgetNotificationDisplayed
+    }
+
+    var widgetNotificationDisplayed by booleanPreference(
+        appContext.getPreferenceKey(R.string.pref_key_should_show_widget_notification),
+        default = false
+    )
+
     val searchWidgetInstalled: Boolean
         get() = 0 < preferences.getInt(
             appContext.getPreferenceKey(R.string.pref_key_search_widget_installed),

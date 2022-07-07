@@ -40,6 +40,9 @@ class DefaultBrowserNotificationWorker(
         NotificationManagerCompat.from(applicationContext)
             .notify(NOTIFICATION_TAG, NOTIFICATION_ID, buildNotification())
 
+        // default browser notification should only happen once
+        applicationContext.settings().defaultBrowserNotificationDisplayed = true
+
         return Result.success()
     }
 
@@ -117,6 +120,9 @@ class DefaultBrowserNotificationWorker(
             intent.extras?.containsKey(INTENT_DEFAULT_BROWSER_NOTIFICATION) ?: false
 
         fun setDefaultBrowserNotificationIfNeeded(context: Context) {
+            if (!context.settings().shouldShowDefaultBrowserNotification()) {
+                return
+            }
 
             for (notification_delay in NOTIFICATIONS_DELAY) {
                 val instanceWorkManager = WorkManager.getInstance(context)

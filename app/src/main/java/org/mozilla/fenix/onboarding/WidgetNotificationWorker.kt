@@ -29,6 +29,8 @@ class WidgetNotificationWorker(
         NotificationManagerCompat.from(applicationContext)
             .notify(NOTIFICATION_TAG, NOTIFICATION_ID, buildNotification())
 
+        applicationContext.settings().widgetNotificationDisplayed = true
+
         return Result.success()
     }
 
@@ -103,8 +105,7 @@ class WidgetNotificationWorker(
         fun setWidgetNotificationIfNeeded(context: Context) {
             val instanceWorkManager = WorkManager.getInstance(context)
 
-            if (context.settings().searchWidgetInstalled) {
-                instanceWorkManager.cancelUniqueWork(NOTIFICATION_WORK_NAME)
+            if (context.settings().shouldShowNotificationWidget()) {
                 return
             }
 
