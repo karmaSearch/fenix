@@ -1913,7 +1913,6 @@ Cependant, il peut être moins stable. Téléchargez la version bêta de notre n
     <string name="onboarding_finish">Rechercher avec KARMA</string>
     <string name="onboarding_default_browser_title">Faîtes de KARMA votre navigateur par défaut</string>
     <string name="onboarding_default_browser_subtitle">et financez la protection du vivant en surfant sur le web</string>
-    <string name="onboarding_default_browser_arrow">Sélectionnez KARMA</string>
     <string name="onboarding_default_browser_choose">C’est parti !</string>
     <string name="onboarding_default_browser_notnow">Plus tard</string>
     <string name="add_widget_title">Ajoutez le widget KARMA pour rechercher directement depuis votre page d\'accueil !</string>

@@ -1768,7 +1768,6 @@
     <string name="onboarding_finish">Empezar a navegar</string>
     <string name="onboarding_default_browser_title">¡Configura KARMA como navegador predeterminado!</string>
     <string name="onboarding_default_browser_subtitle">Se abrirán los sitios web en KARMA para que puedas contribuir a proteger la biodiversidad y el bienestar animal</string>
-    <string name="onboarding_default_browser_arrow">Seleccionar KARMA</string>
     <string name="onboarding_default_browser_choose">Seleccionar KARMA</string>
     <string name="onboarding_default_browser_notnow">Ahora no</string>
     <string name="add_widget_title">¡Instala el widget KARMA para buscar directamente desde la página de inicio!</string>

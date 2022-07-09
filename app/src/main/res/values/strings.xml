@@ -1818,7 +1818,6 @@
     <string name="onboarding_finish">Start browsing</string>
     <string name="onboarding_default_browser_title">Set up KARMA as your default browser!</string>
     <string name="onboarding_default_browser_subtitle">Websites will be opened with KARMA so that you can help protect biodiversity and improve animal welfare</string>
-    <string name="onboarding_default_browser_arrow">Select KARMA</string>
     <string name="onboarding_default_browser_choose">Choose KARMA</string>
     <string name="onboarding_default_browser_notnow">Not now</string>
     <string name="add_widget_title">Add the KARMA widget to search directly from your homepage !</string>
