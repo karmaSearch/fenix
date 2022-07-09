@@ -84,7 +84,7 @@ fun LearnAndAct(
         }
     }
     Column {
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(16.dp))
         Text(stringResource(R.string.learn_and_act_title),
             fontSize = 38.sp,
             fontWeight = FontWeight.Normal,
@@ -101,7 +101,7 @@ fun LearnAndAct(
             modifier = Modifier
                 .padding(start = 10.dp))
 
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(10.dp))
 
         LearnAndActBlocs(learnAndActBlocs ?: emptyList(), onBlockClicked)
 

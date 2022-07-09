@@ -47,7 +47,7 @@ class RecentTabsHeaderViewHolder(
     @Composable
     override fun Content() {
         Column {
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             HomeSectionHeader(
                 headerText = stringResource(R.string.recent_tabs_header),
@@ -58,7 +58,7 @@ class RecentTabsHeaderViewHolder(
                 }
             )
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(10.dp))
         }
     }
 

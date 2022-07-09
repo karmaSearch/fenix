@@ -41,7 +41,7 @@ class CollectionHeaderViewHolder(
     @Composable
     override fun Content() {
         Column {
-            Spacer(Modifier.height(56.dp))
+            Spacer(Modifier.height(16.dp))
 
             SectionHeader(
                 text = stringResource(R.string.collections_header),
@@ -50,7 +50,7 @@ class CollectionHeaderViewHolder(
                     .wrapContentHeight(align = Alignment.Top),
             )
 
-            Spacer(Modifier.height(10.dp))
+            Spacer(Modifier.height(0.dp))
         }
     }
 }

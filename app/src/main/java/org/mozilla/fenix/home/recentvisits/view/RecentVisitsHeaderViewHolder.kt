@@ -40,7 +40,7 @@ class RecentVisitsHeaderViewHolder(
     @Composable
     override fun Content() {
         Column {
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             HomeSectionHeader(
                 headerText = stringResource(R.string.history_metadata_header_2),
@@ -48,7 +48,7 @@ class RecentVisitsHeaderViewHolder(
                 onShowAllClick = interactor::onHistoryShowAllClicked,
             )
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(10.dp))
         }
     }
 
