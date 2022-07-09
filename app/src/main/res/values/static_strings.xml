@@ -55,7 +55,7 @@
     <string name="link_text_view_type_announcement" translatable="false">link</string>
 
     <!-- Name of the application for about page -->
-    <string name="daylight_app_name" translatable="false">KARMA Daylight</string>
+    <string name="daylight_app_name" translatable="false">KARMA Search</string>
 
     <!-- Secret debug info strings -->
     <string name="debug_info_region_home" translatable="false">Home region</string>

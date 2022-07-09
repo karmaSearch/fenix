@@ -75,6 +75,9 @@ android {
         } else {
             buildConfigField "boolean", "MOZILLA_ONLINE", "false"
         }
+        //!\ keep update with version.txt
+        buildConfigField "String", "FENIX_VERSION", "\"100.3.1\""
+
     }
 
     def releaseTemplate = {

@@ -6,6 +6,7 @@ package org.mozilla.fenix.settings.about
 
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -50,8 +51,7 @@ class AboutFragment : Fragment(), AboutPageListener {
     ): View {
         _binding = FragmentAboutBinding.inflate(inflater, container, false)
         appName = getString(R.string.app_name)
-        headerAppName =
-            if (Config.channel.isRelease) getString(R.string.daylight_app_name) else appName
+        headerAppName = appName
 
         return binding.root
     }
@@ -108,11 +108,13 @@ class AboutFragment : Fragment(), AboutPageListener {
             val appServicesAbbreviation = getString(R.string.app_services_abbreviation)
             val appServicesVersion = mozilla.components.Build.applicationServicesVersion
 
+            val firefoxVersion = "Fenix:" + BuildConfig.FENIX_VERSION
             String.format(
-                "%s (Build #%s)%s\n%s: %s\n%s: %s\n%s: %s",
+                "%s (Build #%s)%s\n%s\n%s: %s\n%s: %s\n%s: %s",
                 packageInfo.versionName,
                 versionCode,
                 maybeFenixGitHash,
+                firefoxVersion,
                 componentsAbbreviation,
                 componentsVersion,
                 maybeGecko,
