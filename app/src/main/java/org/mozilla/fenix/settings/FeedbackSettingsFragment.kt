@@ -25,7 +25,7 @@ class FeedbackSettingsFragment: PreferenceFragmentCompat() {
 
     override fun onResume() {
         super.onResume()
-        showToolbar(getString(R.string.browser_menu_feedback))
+        showToolbar(getString(R.string.preferences_karma_feedback))
     }
 
     @Suppress("ComplexMethod", "LongMethod")
