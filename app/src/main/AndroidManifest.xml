@@ -243,6 +243,7 @@
             android:exported="false" />
 
         <activity android:name=".widget.VoiceSearchActivity"
+            android:exported="true"
             android:theme="@style/Theme.AppCompat.Translucent"
             android:taskAffinity=""
             android:excludeFromRecents="true"
