@@ -95,7 +95,7 @@ class SearchDialogController(
 
         activity.openToBrowserAndLoad(
             searchTermOrURL = url,
-            newTab = fragmentStore.state.tabId == null,
+            newTab = false,
             from = BrowserDirection.FromSearchDialog,
             engine = searchEngine,
             requestDesktopMode = fromHomeScreen && activity.settings().openNextTabInDesktopMode
