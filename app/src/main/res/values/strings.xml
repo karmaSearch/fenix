@@ -1832,6 +1832,8 @@
     <string name="karma_notification_default_browser_text">Set %1$s as your default browser to maximize your impact 💪 🦁</string>
     <string name="karma_notification_widget_title">Have you tried the KARMA widget? 🤓 📲</string>
     <string name="karma_notification_widget_text">You can search directly from your homescreen with the KARMA widget 🦊 🌱</string>
+    <string name="karma_notification_dock_title">Make sure to help protect biodiversity and animal welfare everyday 💪</string>
+    <string name="karma_notification_dock_text">Click here to discover how to use KARMA instead of Google Chrome💡</string>
     <string name="learn_and_act_title">Learn &amp; Act</string>
 
     <string name="learn_and_act_subtitle">Get the latest news and take action!</string>

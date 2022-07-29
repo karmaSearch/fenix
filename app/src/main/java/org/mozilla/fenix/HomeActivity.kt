@@ -93,6 +93,7 @@ import org.mozilla.fenix.library.history.HistoryFragmentDirections
 import org.mozilla.fenix.library.historymetadata.HistoryMetadataGroupFragmentDirections
 import org.mozilla.fenix.library.recentlyclosed.RecentlyClosedFragmentDirections
 import org.mozilla.fenix.onboarding.DefaultBrowserNotificationWorker
+import org.mozilla.fenix.onboarding.DockNotificationWorker
 import org.mozilla.fenix.onboarding.WidgetNotificationWorker
 import org.mozilla.fenix.perf.MarkersActivityLifecycleCallbacks
 import org.mozilla.fenix.perf.MarkersFragmentLifecycleCallbacks
@@ -169,7 +170,8 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
             OpenBrowserIntentProcessor(this, ::getIntentSessionId),
             OpenSpecificTabIntentProcessor(this),
             DefaultBrowserIntentProcessor(this, components.analytics.metrics),
-            WidgetIntentProcessor(this)
+            WidgetIntentProcessor(this),
+            DockIntentProcessor(this)
 
         )
     }
@@ -360,6 +362,7 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
 
             DefaultBrowserNotificationWorker.setDefaultBrowserNotificationIfNeeded(applicationContext)
             WidgetNotificationWorker.setWidgetNotificationIfNeeded(applicationContext)
+            DockNotificationWorker.setDockNotificationIfNeeded(applicationContext)
 
         }
     }

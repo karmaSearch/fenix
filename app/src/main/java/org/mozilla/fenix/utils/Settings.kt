@@ -74,8 +74,8 @@ class Settings(private val appContext: Context) : PreferencesHolder {
         private const val APP_LAUNCHES_TO_SHOW_DEFAULT_BROWSER_CARD = 3
         private const val APP_LAUNCHES_TO_SHOW_WIDGET_CARD = 4
         private const val INACTIVE_TAB_MINIMUM_TO_SHOW_AUTO_CLOSE_DIALOG = 20
-
-        const val FOUR_HOURS_MS = 60 * 60 * 4 * 1000L
+        const val HOURS_MS = 60 * 60 * 1000L
+        const val FOUR_HOURS_MS = 4 * HOURS_MS
         const val ONE_DAY_MS = 60 * 60 * 24 * 1000L
         const val THREE_DAYS_MS = 3 * ONE_DAY_MS
         const val ONE_WEEK_MS = 60 * 60 * 24 * 7 * 1000L
@@ -1094,6 +1094,11 @@ class Settings(private val appContext: Context) : PreferencesHolder {
 
     var widgetNotificationDisplayed by booleanPreference(
         appContext.getPreferenceKey(R.string.pref_key_should_show_widget_notification),
+        default = false
+    )
+
+    var dockNotificationDisplayed by booleanPreference(
+        appContext.getPreferenceKey(R.string.pref_key_should_show_dock_notification),
         default = false
     )
 

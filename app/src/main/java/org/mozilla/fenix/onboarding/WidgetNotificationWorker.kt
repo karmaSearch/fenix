@@ -97,7 +97,7 @@ class WidgetNotificationWorker(
         private const val INTENT_WIDGET_NOTIFICATION = "org.mozilla.fenix.widget.intent"
         private const val NOTIFICATION_TAG = "org.mozilla.fenix.widget.tag"
         private const val NOTIFICATION_WORK_NAME = "org.mozilla.fenix.widget.work"
-        private const val NOTIFICATION_DELAY = Settings.THREE_DAYS_MS
+        private const val NOTIFICATION_DELAY = Settings.ONE_WEEK_MS
 
         fun isWidgetNotificationIntent(intent: Intent) =
             intent.extras?.containsKey(INTENT_WIDGET_NOTIFICATION) ?: false

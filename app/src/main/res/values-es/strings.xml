@@ -1782,5 +1782,7 @@
     <string name="karma_notification_default_browser_text">Configura %1$s como motor de búsqueda predeterminado para maximizar tu impacto 💪 🦁</string>
     <string name="karma_notification_widget_title">¿Has instalado el widget KARMA? 🤓 📲</string>
     <string name="karma_notification_widget_text">El widget te permite buscar directamente desde su pantalla de inicio 🦊 🌱</string>
+    <string name="karma_notification_dock_title">¿Quieres proteger la biodiversidad y el bienestar animal de manera eficaz? 💪</string>
+    <string name="karma_notification_dock_text">Haz clic aquí para descubrir cómo usar KARMA en lugar de Google Chrome 💡</string>
     <string name="learn_and_act_subtitle">Recibe las últimas noticias y actúa</string>
 </resources>

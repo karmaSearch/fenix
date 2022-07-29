@@ -1927,6 +1927,8 @@ Cependant, il peut être moins stable. Téléchargez la version bêta de notre n
     <string name="karma_notification_default_browser_text">Définissez %1$s en tant que moteur de recherche par défaut afin de maximiser votre impact 💪 🦁</string>
     <string name="karma_notification_widget_title">Avez-vous installé le widget KARMA ? 🤓 📲</string>
     <string name="karma_notification_widget_text">Le widget permet d’effectuer une recherche directement de votre écran d’accueil 🦊 🌱</string>
+    <string name="karma_notification_dock_title">Vous voulez protéger la biodiversité et le bien-être animal efficacement ? 💪</string>
+    <string name="karma_notification_dock_text">Cliquez ici pour découvrir comment utiliser KARMA à la place de Google Chrome 💡</string>
     <string name="learn_and_act_subtitle">Des ressources pour s’informer et agir</string>
 
 </resources>
