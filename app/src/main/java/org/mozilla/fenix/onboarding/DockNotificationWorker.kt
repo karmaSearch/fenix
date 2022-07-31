@@ -53,14 +53,16 @@ class DockNotificationWorker(
         )
 
         with(applicationContext) {
+            val message = applicationContext.getString(R.string.karma_notification_dock_text)
             return NotificationCompat.Builder(this, channelId)
                 .setSmallIcon(R.drawable.ic_status_logo)
                 .setContentTitle(
                     applicationContext.getString(R.string.karma_notification_dock_title)
                 )
                 .setContentText(
-                    applicationContext.getString(R.string.karma_notification_dock_text)
+                    message
                 )
+                .setStyle(NotificationCompat.BigTextStyle().bigText(message))
                 .setBadgeIconType(NotificationCompat.BADGE_ICON_SMALL)
                 .setColor(ContextCompat.getColor(this, R.color.photonGreen50))
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
