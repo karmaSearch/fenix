@@ -236,6 +236,11 @@
                 android:name="com.android.systemui.action_assist_icon"
                 android:resource="@mipmap/ic_launcher" />
 
+            <intent-filter>
+                <action android:name="karma.intent.action.SEARCH" />
+                <category android:name="android.intent.category.DEFAULT" /> />
+            </intent-filter>
+
         </activity>
 
         <activity
@@ -247,7 +252,12 @@
             android:theme="@style/Theme.AppCompat.Translucent"
             android:taskAffinity=""
             android:excludeFromRecents="true"
-            />
+            >
+            <intent-filter>
+                <action android:name="karma.intent.action.VOICESEARCH" />
+                <category android:name="android.intent.category.DEFAULT" /> />
+            </intent-filter>
+        </activity>
 
         <activity
             android:name=".settings.account.AuthCustomTabActivity"

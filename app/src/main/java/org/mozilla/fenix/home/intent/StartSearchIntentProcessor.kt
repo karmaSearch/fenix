@@ -25,6 +25,20 @@ class StartSearchIntentProcessor(
 ) : HomeIntentProcessor {
 
     override fun process(intent: Intent, navController: NavController, out: Intent): Boolean {
+        if (intent.action == SEARCH_ACTION) {
+            val directions = NavGraphDirections.actionGlobalSearchDialog(
+                    sessionId = null,
+                    searchAccessPoint = Event.PerformedSearch.SearchAccessPoint.ACTION
+                )
+
+            val options = navOptions {
+                popUpTo = R.id.homeFragment
+            }
+            navController.nav(null, directions, options)
+
+            return true
+        }
+
         val event = intent.extras?.getString(HomeActivity.OPEN_TO_SEARCH)
         return if (event != null) {
             val source = when (event) {
@@ -65,5 +79,6 @@ class StartSearchIntentProcessor(
         const val STATIC_SHORTCUT_NEW_TAB = "static_shortcut_new_tab"
         const val STATIC_SHORTCUT_NEW_PRIVATE_TAB = "static_shortcut_new_private_tab"
         const val PRIVATE_BROWSING_PINNED_SHORTCUT = "private_browsing_pinned_shortcut"
+        const val SEARCH_ACTION = "karma.intent.action.SEARCH"
     }
 }

@@ -48,7 +48,7 @@ class VoiceSearchActivity : AppCompatActivity() {
             return
         }
 
-        // The intent property is nullable, but the rest of the code below assumes it is not.
+        // The intent property is nullable, but the rest of the speech_processingcode below assumes it is not.
         val intent = intent?.let { Intent(intent) } ?: Intent()
 
         if (intent.isForSpeechProcessing()) {
@@ -107,7 +107,7 @@ class VoiceSearchActivity : AppCompatActivity() {
      * Returns false if the intent is null.
      */
     private fun Intent?.isForSpeechProcessing(): Boolean =
-        this?.getBooleanExtra(SPEECH_PROCESSING, false) == true
+        this?.getBooleanExtra(SPEECH_PROCESSING, false) == true || this?.action == VOICE_SEARCH_ACTION
 
     companion object {
         internal const val SPEECH_REQUEST_CODE = 0
@@ -117,5 +117,6 @@ class VoiceSearchActivity : AppCompatActivity() {
          * In [IntentReceiverActivity] activity, used to store the search terms.
          */
         const val SPEECH_PROCESSING = "speech_processing"
+        const val VOICE_SEARCH_ACTION = "karma.intent.action.VOICESEARCH"
     }
 }
