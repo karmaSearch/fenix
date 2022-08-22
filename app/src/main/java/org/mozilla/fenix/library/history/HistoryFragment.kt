@@ -314,7 +314,7 @@ class HistoryFragment : LibraryPageFragment<History>(), UserInteractionHandler {
 
         (activity as HomeActivity).openToBrowserAndLoad(
             searchTermOrURL = item.url,
-            newTab = false,
+            newTab = true,
             from = BrowserDirection.FromHistory
         )
     }

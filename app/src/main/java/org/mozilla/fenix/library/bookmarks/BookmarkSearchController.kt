@@ -36,7 +36,7 @@ class BookmarkSearchDialogController(
 
         activity.openToBrowserAndLoad(
             searchTermOrURL = url,
-            newTab = false,
+            newTab = true,
             from = BrowserDirection.FromBookmarkSearchDialog,
             flags = flags
         )

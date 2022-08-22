@@ -212,7 +212,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                         requireContext(),
                         SupportUtils.SumoTopic.HELP
                     ),
-                    newTab = false,
+                    newTab = true,
                     from = BrowserDirection.FromSettings
                 )
                 null
@@ -225,7 +225,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     // Opening the play store website.
                     (activity as HomeActivity).openToBrowserAndLoad(
                         searchTermOrURL = SupportUtils.FENIX_PLAY_STORE_URL,
-                        newTab = false,
+                        newTab = true,
                         from = BrowserDirection.FromSettings
                     )
                 }

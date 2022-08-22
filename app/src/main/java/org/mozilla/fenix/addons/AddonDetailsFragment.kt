@@ -48,7 +48,7 @@ class AddonDetailsFragment : Fragment(R.layout.fragment_add_on_details), AddonDe
     override fun openWebsite(addonSiteUrl: Uri) {
         (activity as HomeActivity).openToBrowserAndLoad(
             searchTermOrURL = addonSiteUrl.toString(),
-            newTab = false,
+            newTab = true,
             from = BrowserDirection.FromAddonDetailsFragment
         )
     }

@@ -138,7 +138,7 @@ class RecentlyClosedFragment : LibraryPageFragment<RecoverableTab>(), UserIntera
 
         (activity as HomeActivity).openToBrowserAndLoad(
             searchTermOrURL = url,
-            newTab = false,
+            newTab = true,
             from = BrowserDirection.FromRecentlyClosed
         )
     }

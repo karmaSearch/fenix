@@ -107,7 +107,7 @@ class HttpsOnlyFragment : Fragment() {
                 view.setOnClickListener {
                     (activity as HomeActivity).openToBrowserAndLoad(
                         searchTermOrURL = SUMO_URL,
-                        newTab = false,
+                        newTab = true,
                         from = BrowserDirection.FromHttpsOnlyMode
                     )
                 }

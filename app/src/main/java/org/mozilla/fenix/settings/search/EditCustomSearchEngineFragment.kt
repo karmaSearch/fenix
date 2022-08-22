@@ -69,7 +69,7 @@ class EditCustomSearchEngineFragment : Fragment(R.layout.fragment_add_search_eng
                     requireContext(),
                     SupportUtils.SumoTopic.CUSTOM_SEARCH_ENGINES
                 ),
-                newTab = false,
+                newTab = true,
                 from = BrowserDirection.FromEditCustomSearchEngineFragment
             )
         }

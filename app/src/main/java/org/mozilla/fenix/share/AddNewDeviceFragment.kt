@@ -35,7 +35,7 @@ class AddNewDeviceFragment : Fragment(R.layout.fragment_add_new_device) {
                     requireContext(),
                     SupportUtils.SumoTopic.SEND_TABS
                 ),
-                newTab = false,
+                newTab = true,
                 from = BrowserDirection.FromAddNewDeviceFragment
             )
         }

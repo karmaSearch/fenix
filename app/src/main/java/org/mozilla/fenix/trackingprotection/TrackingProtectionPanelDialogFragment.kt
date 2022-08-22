@@ -155,7 +155,7 @@ class TrackingProtectionPanelDialogFragment : AppCompatDialogFragment(), UserInt
             searchTermOrURL = SupportUtils.getGenericSumoURLForTopic(
                 SupportUtils.SumoTopic.SMARTBLOCK
             ),
-            newTab = false,
+            newTab = true,
             from = BrowserDirection.FromTrackingProtectionDialog
         )
     }

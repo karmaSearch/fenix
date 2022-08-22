@@ -91,7 +91,7 @@ fun Activity.openSetDefaultBrowserOption() {
                     this,
                     SupportUtils.SumoTopic.SET_AS_DEFAULT_BROWSER
                 ),
-                newTab = false,
+                newTab = true,
                 from = BrowserDirection.FromSettings
             )
         }

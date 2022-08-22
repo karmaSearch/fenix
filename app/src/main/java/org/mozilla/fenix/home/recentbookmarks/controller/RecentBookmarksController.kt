@@ -56,7 +56,7 @@ class DefaultRecentBookmarksController(
         dismissSearchDialogIfDisplayed()
         activity.openToBrowserAndLoad(
             searchTermOrURL = bookmark.url!!,
-            newTab = false,
+            newTab = true,
             from = BrowserDirection.FromHome,
             flags = EngineSession.LoadUrlFlags.select(ALLOW_JAVASCRIPT_URL)
         )

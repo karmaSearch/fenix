@@ -103,7 +103,7 @@ class TrackingProtectionExceptionsInteractorTest {
         verify {
             activity.openToBrowserAndLoad(
                 searchTermOrURL = supportUrl,
-                newTab = false,
+                newTab = true,
                 from = BrowserDirection.FromTrackingProtectionExceptions
             )
         }

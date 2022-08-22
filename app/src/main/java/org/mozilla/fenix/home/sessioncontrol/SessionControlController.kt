@@ -253,7 +253,7 @@ class DefaultSessionControlController(
             onFailure = {
                 activity.openToBrowserAndLoad(
                     searchTermOrURL = tab.url,
-                    newTab = false,
+                    newTab = true,
                     from = BrowserDirection.FromHome
                 )
             }
@@ -317,7 +317,7 @@ class DefaultSessionControlController(
             browsingModeManager.mode = BrowsingMode.Private
             openToBrowserAndLoad(
                 searchTermOrURL = topSite.url,
-                newTab = false,
+                newTab = true,
                 from = BrowserDirection.FromHome
             )
         }
@@ -327,7 +327,7 @@ class DefaultSessionControlController(
         dismissSearchDialogIfDisplayed()
         activity.openToBrowserAndLoad(
             searchTermOrURL = SupportUtils.getGenericSumoURLForTopic(PRIVATE_BROWSING_MYTHS),
-            newTab = false,
+            newTab = true,
             from = BrowserDirection.FromHome
         )
     }
@@ -462,7 +462,7 @@ class DefaultSessionControlController(
         metrics.track(Event.TopSiteContilePrivacy)
         activity.openToBrowserAndLoad(
             searchTermOrURL = SupportUtils.getGenericSumoURLForTopic(SupportUtils.SumoTopic.SPONSOR_PRIVACY),
-            newTab = false,
+            newTab = true,
             from = BrowserDirection.FromHome
         )
     }
@@ -517,7 +517,7 @@ class DefaultSessionControlController(
     override fun handleReadPrivacyNoticeClicked() {
         activity.openToBrowserAndLoad(
             searchTermOrURL = SupportUtils.getMozillaPageUrl(SupportUtils.MozillaPage.PRIVATE_NOTICE),
-            newTab = false,
+            newTab = true,
             from = BrowserDirection.FromHome
         )
     }
@@ -579,7 +579,7 @@ class DefaultSessionControlController(
 
         activity.openToBrowserAndLoad(
             searchTermOrURL = clipboardText,
-            newTab = false,
+            newTab = true,
             from = BrowserDirection.FromHome,
             engine = searchEngine
         )

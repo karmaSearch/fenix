@@ -62,7 +62,7 @@ class SpeechProcessingIntentProcessor(
 
         activity.openToBrowserAndLoad(
             searchTermOrURL = text,
-            newTab = false,
+            newTab = true,
             from = BrowserDirection.FromGlobal,
             engine = searchEngine,
             forceSearch = true

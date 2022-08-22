@@ -96,7 +96,7 @@ class HomeDeepLinkIntentProcessor(
                             activity,
                             SupportUtils.SumoTopic.SET_AS_DEFAULT_BROWSER
                         ),
-                        newTab = false,
+                        newTab = true,
                         from = BrowserDirection.FromGlobal,
                         flags = EngineSession.LoadUrlFlags.external()
                     )
@@ -111,7 +111,7 @@ class HomeDeepLinkIntentProcessor(
 
                 activity.openToBrowserAndLoad(
                     url,
-                    newTab = false,
+                    newTab = true,
                     from = BrowserDirection.FromGlobal,
                     flags = EngineSession.LoadUrlFlags.external()
                 )
