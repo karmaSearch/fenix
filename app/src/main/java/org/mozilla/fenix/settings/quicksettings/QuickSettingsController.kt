@@ -98,16 +98,14 @@ interface QuickSettingsController {
  * specific Android runtime permissions.
  * @param displayPermissions callback for when [WebsitePermissionsView] needs to be displayed.
  */
-@Suppress("TooManyFunctions")
+@Suppress("TooManyFunctions", "LongParameterList")
 class DefaultQuickSettingsController(
     private val context: Context,
     private val quickSettingsStore: QuickSettingsFragmentStore,
     private val browserStore: BrowserStore,
     private val ioScope: CoroutineScope,
     private val navController: NavController,
-    @VisibleForTesting
     internal val sessionId: String,
-    @VisibleForTesting
     internal var sitePermissions: SitePermissions?,
     private val settings: Settings,
     private val permissionStorage: PermissionStorage,
@@ -136,8 +134,8 @@ class DefaultQuickSettingsController(
                         WebsitePermissionAction.TogglePermission(
                             featureToggled,
                             featureToggled.getActionLabel(context, newPermissions, settings),
-                            featureToggled.shouldBeEnabled(context, newPermissions, settings)
-                        )
+                            featureToggled.shouldBeEnabled(context, newPermissions, settings),
+                        ),
                     )
                 } else {
                     navigateToManagePhoneFeature(featureToggled)
@@ -151,8 +149,8 @@ class DefaultQuickSettingsController(
             WebsitePermissionAction.TogglePermission(
                 feature,
                 feature.getActionLabel(context, sitePermissions, settings),
-                feature.shouldBeEnabled(context, sitePermissions, settings)
-            )
+                feature.shouldBeEnabled(context, sitePermissions, settings),
+            ),
         )
     }
 
@@ -174,7 +172,7 @@ class DefaultQuickSettingsController(
             newPermission
         }
         quickSettingsStore.dispatch(
-            WebsitePermissionAction.ChangeAutoplay(autoplayValue)
+            WebsitePermissionAction.ChangeAutoplay(autoplayValue),
         )
     }
 
@@ -198,8 +196,8 @@ class DefaultQuickSettingsController(
 
         quickSettingsStore.dispatch(
             TrackingProtectionAction.ToggleTrackingProtectionEnabled(
-                isEnabled
-            )
+                isEnabled,
+            ),
         )
     }
 
@@ -213,7 +211,7 @@ class DefaultQuickSettingsController(
                 url = state.url,
                 trackingProtectionEnabled = state.isTrackingProtectionEnabled,
                 gravity = context.components.settings.toolbarPosition.androidGravity,
-                sitePermissions = sitePermissions
+                sitePermissions = sitePermissions,
             )
         navController.navigate(directions)
     }
@@ -230,7 +228,7 @@ class DefaultQuickSettingsController(
                 isSecured = state.websiteSecurityUiValues == WebsiteSecurityUiValues.SECURE,
                 certificateName = state.certificateName,
                 gravity = context.components.settings.toolbarPosition.androidGravity,
-                sitePermissions = sitePermissions
+                sitePermissions = sitePermissions,
             )
         navController.navigate(directions)
     }

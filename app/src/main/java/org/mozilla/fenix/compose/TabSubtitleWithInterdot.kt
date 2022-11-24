@@ -7,11 +7,14 @@ package org.mozilla.fenix.compose
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.sp
 import org.mozilla.fenix.theme.FirefoxTheme
 import org.mozilla.fenix.theme.Theme
 
@@ -47,20 +50,38 @@ fun TabSubtitleWithInterdot(
 
     Layout(
         content = {
-            TabSubtitle(text = firstText)
-            TabSubtitle(text = " \u00b7 ")
-            TabSubtitle(text = secondText)
-        }
+            Text(
+                text = firstText,
+                color = FirefoxTheme.colors.textSecondary,
+                fontSize = 12.sp,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1,
+            )
+            Text(
+                text = " \u00b7 ",
+                color = FirefoxTheme.colors.textSecondary,
+                fontSize = 12.sp,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1,
+            )
+            Text(
+                text = secondText,
+                color = FirefoxTheme.colors.textSecondary,
+                fontSize = 12.sp,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1,
+            )
+        },
     ) { items, constraints ->
 
         // We need to measure from the end to start to ensure the secondItem will always be on screen
         // and depending on secondItem's width and interdot's width the firstItem is automatically resized.
         val secondItem = items[2].measure(constraints)
         val interdot = items[1].measure(
-            constraints.copy(maxWidth = constraints.maxWidth - secondItem.width)
+            constraints.copy(maxWidth = constraints.maxWidth - secondItem.width),
         )
         val firstItem = items[0].measure(
-            constraints.copy(maxWidth = constraints.maxWidth - secondItem.width - interdot.width)
+            constraints.copy(maxWidth = constraints.maxWidth - secondItem.width - interdot.width),
         )
 
         layout(constraints.maxWidth, constraints.maxHeight) {
@@ -70,7 +91,7 @@ fun TabSubtitleWithInterdot(
                     constraints.maxWidth,
                     intArrayOf(firstItem.width, interdot.width, secondItem.width),
                     currentLayoutDirection,
-                    itemsPositions
+                    itemsPositions,
                 )
             }
 
@@ -85,7 +106,7 @@ fun TabSubtitleWithInterdot(
 @Composable
 @Preview
 private fun TabSubtitleWithInterdotPreview() {
-    FirefoxTheme(theme = Theme.getTheme(isPrivate = false)) {
+    FirefoxTheme(theme = Theme.getTheme()) {
         Box(Modifier.background(FirefoxTheme.colors.layer2)) {
             TabSubtitleWithInterdot(
                 firstText = "firstText",

@@ -11,8 +11,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.verify
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.advanceUntilIdle
 import mozilla.components.browser.state.action.TabListAction
 import mozilla.components.browser.state.state.createTab
 import mozilla.components.browser.state.store.BrowserStore
@@ -20,7 +19,8 @@ import mozilla.components.feature.tab.collections.TabCollection
 import mozilla.components.service.glean.testing.GleanTestRule
 import mozilla.components.support.test.ext.joinBlocking
 import mozilla.components.support.test.robolectric.testContext
-import org.junit.After
+import mozilla.components.support.test.rule.MainCoroutineRule
+import mozilla.components.support.test.rule.runTestOnMain
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
@@ -39,13 +39,19 @@ class DefaultCollectionCreationControllerTest {
     @get:Rule
     val gleanTestRule = GleanTestRule(testContext)
 
-    private val testCoroutineScope = TestCoroutineScope()
+    @get:Rule
+    val coroutinesTestRule = MainCoroutineRule()
+    private val scope = coroutinesTestRule.scope
+
     private lateinit var state: CollectionCreationState
     private lateinit var controller: DefaultCollectionCreationController
     private var dismissed = false
 
-    @MockK(relaxed = true) private lateinit var store: CollectionCreationStore
-    @MockK(relaxUnitFun = true) private lateinit var tabCollectionStorage: TabCollectionStorage
+    @MockK(relaxed = true)
+    private lateinit var store: CollectionCreationStore
+
+    @MockK(relaxUnitFun = true)
+    private lateinit var tabCollectionStorage: TabCollectionStorage
     private lateinit var browserStore: BrowserStore
 
     @Before
@@ -54,7 +60,7 @@ class DefaultCollectionCreationControllerTest {
 
         state = CollectionCreationState(
             tabCollections = emptyList(),
-            tabs = emptyList()
+            tabs = emptyList(),
         )
         every { store.state } answers { state }
 
@@ -68,13 +74,8 @@ class DefaultCollectionCreationControllerTest {
                 dismissed = true
             },
             tabCollectionStorage,
-            testCoroutineScope
+            scope,
         )
-    }
-
-    @After
-    fun cleanUp() {
-        testCoroutineScope.cleanupTestCoroutines()
     }
 
     @Test
@@ -83,7 +84,7 @@ class DefaultCollectionCreationControllerTest {
         val tab2 = createTab("https://www.mozilla.org", id = "session-2")
 
         browserStore.dispatch(
-            TabListAction.AddMultipleTabsAction(listOf(tab1, tab2))
+            TabListAction.AddMultipleTabsAction(listOf(tab1, tab2)),
         ).joinBlocking()
 
         coEvery { tabCollectionStorage.addTabsToCollection(any(), any()) } returns 1L
@@ -91,7 +92,7 @@ class DefaultCollectionCreationControllerTest {
 
         val tabs = listOf(
             Tab("session-1", "", "", ""),
-            Tab("null-session", "", "", "")
+            Tab("null-session", "", "", ""),
         )
 
         controller.saveCollectionName(tabs, "name")
@@ -99,8 +100,8 @@ class DefaultCollectionCreationControllerTest {
         assertTrue(dismissed)
         coVerify { tabCollectionStorage.createCollection("name", listOf(tab1)) }
 
-        assertTrue(Collections.saved.testHasValue())
-        val recordedEvents = Collections.saved.testGetValue()
+        assertNotNull(Collections.saved.testGetValue())
+        val recordedEvents = Collections.saved.testGetValue()!!
         assertEquals(1, recordedEvents.size)
         val eventExtra = recordedEvents.single().extra
         assertNotNull(eventExtra)
@@ -146,7 +147,7 @@ class DefaultCollectionCreationControllerTest {
     }
 
     @Test
-    fun `GIVEN collection WHEN renameCollection is called THEN collection should be renamed`() = testCoroutineScope.runBlockingTest {
+    fun `GIVEN collection WHEN renameCollection is called THEN collection should be renamed`() = runTestOnMain {
         val collection = mockk<TabCollection>()
 
         controller.renameCollection(collection, "name")
@@ -154,8 +155,8 @@ class DefaultCollectionCreationControllerTest {
 
         assertTrue(dismissed)
 
-        assertTrue(Collections.renamed.testHasValue())
-        val recordedEvents = Collections.renamed.testGetValue()
+        assertNotNull(Collections.renamed.testGetValue())
+        val recordedEvents = Collections.renamed.testGetValue()!!
         assertEquals(1, recordedEvents.size)
         assertNull(recordedEvents.single().extra)
 
@@ -190,11 +191,11 @@ class DefaultCollectionCreationControllerTest {
         val tab1 = createTab("https://www.mozilla.org", id = "session-1")
         val tab2 = createTab("https://www.mozilla.org", id = "session-2")
         browserStore.dispatch(
-            TabListAction.AddMultipleTabsAction(listOf(tab1, tab2))
+            TabListAction.AddMultipleTabsAction(listOf(tab1, tab2)),
         ).joinBlocking()
 
         val tabs = listOf(
-            Tab("session-1", "", "", "")
+            Tab("session-1", "", "", ""),
         )
         val collection = mockk<TabCollection>()
         coEvery { tabCollectionStorage.addTabsToCollection(any(), any()) } returns 1L
@@ -205,8 +206,8 @@ class DefaultCollectionCreationControllerTest {
         assertTrue(dismissed)
         coVerify { tabCollectionStorage.addTabsToCollection(collection, listOf(tab1)) }
 
-        assertTrue(Collections.tabsAdded.testHasValue())
-        val recordedEvents = Collections.tabsAdded.testGetValue()
+        assertNotNull(Collections.tabsAdded.testGetValue())
+        val recordedEvents = Collections.tabsAdded.testGetValue()!!
         assertEquals(1, recordedEvents.size)
         val eventExtra = recordedEvents.single().extra
         assertNotNull(eventExtra)
@@ -283,8 +284,8 @@ class DefaultCollectionCreationControllerTest {
                 },
                 mockk {
                     every { title } returns "Random Collection"
-                }
-            )
+                },
+            ),
         )
 
         controller.saveTabsToCollection(ArrayList())

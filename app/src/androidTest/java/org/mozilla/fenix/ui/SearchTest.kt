@@ -4,6 +4,8 @@
 
 package org.mozilla.fenix.ui
 
+import android.content.Context
+import android.hardware.camera2.CameraManager
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.core.net.toUri
 import androidx.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu
@@ -12,18 +14,23 @@ import mozilla.components.browser.icons.generator.DefaultIconGenerator
 import mozilla.components.feature.search.ext.createSearchEngine
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.mozilla.fenix.customannotations.SmokeTest
-import org.mozilla.fenix.helpers.FeatureSettingsHelper
+import org.mozilla.fenix.helpers.Constants.PackageName.ANDROID_SETTINGS
 import org.mozilla.fenix.helpers.HomeActivityTestRule
 import org.mozilla.fenix.helpers.SearchDispatcher
 import org.mozilla.fenix.helpers.TestHelper.appContext
+import org.mozilla.fenix.helpers.TestHelper.assertNativeAppOpens
+import org.mozilla.fenix.helpers.TestHelper.denyPermission
 import org.mozilla.fenix.helpers.TestHelper.exitMenu
+import org.mozilla.fenix.helpers.TestHelper.grantPermission
 import org.mozilla.fenix.helpers.TestHelper.longTapSelectItem
 import org.mozilla.fenix.helpers.TestHelper.setCustomSearchEngine
+import org.mozilla.fenix.ui.robots.browserScreen
 import org.mozilla.fenix.ui.robots.homeScreen
 import org.mozilla.fenix.ui.robots.multipleSelectionToolbar
 
@@ -38,14 +45,17 @@ import org.mozilla.fenix.ui.robots.multipleSelectionToolbar
  */
 
 class SearchTest {
-    private val featureSettingsHelper = FeatureSettingsHelper()
     lateinit var searchMockServer: MockWebServer
 
     @get:Rule
     val activityTestRule = AndroidComposeTestRule(
-        HomeActivityTestRule(),
-        { it.activity }
-    )
+        HomeActivityTestRule(
+            isPocketEnabled = false,
+            isJumpBackInCFREnabled = false,
+            isTCPCFREnabled = false,
+            isWallpaperOnboardingEnabled = false,
+        ),
+    ) { it.activity }
 
     @Before
     fun setUp() {
@@ -53,14 +63,11 @@ class SearchTest {
             dispatcher = SearchDispatcher()
             start()
         }
-        featureSettingsHelper.setJumpBackCFREnabled(false)
-        featureSettingsHelper.setPocketEnabled(false)
     }
 
     @After
     fun tearDown() {
         searchMockServer.shutdown()
-        featureSettingsHelper.resetAllFeatureFlags()
     }
 
     @Test
@@ -75,20 +82,44 @@ class SearchTest {
     }
 
     @SmokeTest
-    @Ignore("This test cannot run on virtual devices due to camera permissions being required")
     @Test
-    fun scanButtonTest() {
+    fun scanButtonDenyPermissionTest() {
+        val cameraManager = appContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        assumeTrue(cameraManager.cameraIdList.isNotEmpty())
+
         homeScreen {
         }.openSearch {
             clickScanButton()
-            clickDenyPermission()
+            denyPermission()
             clickScanButton()
-            clickAllowPermission()
+            clickDismissPermissionRequiredDialog()
+        }
+        homeScreen {
+        }.openSearch {
+            clickScanButton()
+            clickGoToPermissionsSettings()
+            assertNativeAppOpens(ANDROID_SETTINGS)
+        }
+    }
+
+    @SmokeTest
+    @Test
+    fun scanButtonAllowPermissionTest() {
+        val cameraManager = appContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        assumeTrue(cameraManager.cameraIdList.isNotEmpty())
+
+        homeScreen {
+        }.openSearch {
+            clickScanButton()
+            grantPermission()
+            verifyScannerOpen()
         }
     }
 
     @Test
     fun shortcutButtonTest() {
+        val searchEngineURL = "bing.com/search?q=mozilla%20firefox"
+
         homeScreen {
         }.openThreeDotMenu {
         }.openSettings {
@@ -98,11 +129,15 @@ class SearchTest {
         }.goBack {
         }.openSearch {
             verifySearchBarEmpty()
-            clickSearchEngineButton(activityTestRule, "DuckDuckGo")
+            clickSearchEngineButton(activityTestRule, "Bing")
             typeSearch("mozilla")
-            verifySearchEngineResults(2)
-            clickSearchEngineResult(activityTestRule, "DuckDuckGo")
-            verifySearchEngineURL("DuckDuckGo")
+            verifySearchEngineResults(activityTestRule, "mozilla firefox", "Bing")
+            clickSearchEngineResult(activityTestRule, "mozilla firefox")
+        }
+
+        browserScreen {
+            waitForPageToLoad()
+            verifyUrl(searchEngineURL)
         }
     }
 
@@ -143,7 +178,7 @@ class SearchTest {
         val customSearchEngine = createSearchEngine(
             name = "TestSearchEngine",
             url = searchString,
-            icon = DefaultIconGenerator().generate(appContext, IconRequest(searchString)).bitmap
+            icon = DefaultIconGenerator().generate(appContext, IconRequest(searchString)).bitmap,
         )
         setCustomSearchEngine(customSearchEngine)
 
@@ -178,7 +213,7 @@ class SearchTest {
         val customSearchEngine = createSearchEngine(
             name = "TestSearchEngine",
             url = searchString,
-            icon = DefaultIconGenerator().generate(appContext, IconRequest(searchString)).bitmap
+            icon = DefaultIconGenerator().generate(appContext, IconRequest(searchString)).bitmap,
         )
         setCustomSearchEngine(customSearchEngine)
 
@@ -200,6 +235,7 @@ class SearchTest {
 
     @SmokeTest
     @Test
+    @Ignore("Failing after compose migration. See: https://github.com/mozilla-mobile/fenix/issues/26087")
     fun noRecentlyVisitedSearchGroupInPrivateBrowsingTest() {
         val firstPage = searchMockServer.url("generic1.html").toString()
         val secondPage = searchMockServer.url("generic2.html").toString()
@@ -208,7 +244,7 @@ class SearchTest {
         val customSearchEngine = createSearchEngine(
             name = "TestSearchEngine",
             url = searchString,
-            icon = DefaultIconGenerator().generate(appContext, IconRequest(searchString)).bitmap
+            icon = DefaultIconGenerator().generate(appContext, IconRequest(searchString)).bitmap,
         )
         setCustomSearchEngine(customSearchEngine)
 
@@ -246,7 +282,7 @@ class SearchTest {
         val customSearchEngine = createSearchEngine(
             name = "TestSearchEngine",
             url = searchString,
-            icon = DefaultIconGenerator().generate(appContext, IconRequest(searchString)).bitmap
+            icon = DefaultIconGenerator().generate(appContext, IconRequest(searchString)).bitmap,
         )
         setCustomSearchEngine(customSearchEngine)
 

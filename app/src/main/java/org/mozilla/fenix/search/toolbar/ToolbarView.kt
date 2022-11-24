@@ -10,11 +10,8 @@ import android.graphics.drawable.BitmapDrawable
 import androidx.annotation.VisibleForTesting
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
-import mozilla.components.browser.domains.autocomplete.ShippedDomainsProvider
+import mozilla.components.browser.state.search.SearchEngine
 import mozilla.components.browser.toolbar.BrowserToolbar
-import mozilla.components.concept.engine.Engine
-import mozilla.components.concept.storage.HistoryStorage
-import mozilla.components.feature.toolbar.ToolbarAutocompleteFeature
 import mozilla.components.support.ktx.android.content.getColorFromAttr
 import mozilla.components.support.ktx.android.content.res.resolveAttribute
 import mozilla.components.support.ktx.android.view.hideKeyboard
@@ -24,14 +21,15 @@ import org.mozilla.fenix.utils.Settings
 
 /**
  * Interface for the Toolbar Interactor. This interface is implemented by objects that want
- * to respond to user interaction on the [ToolbarView]
+ * to respond to user interaction on the [ToolbarView].
  */
 interface ToolbarInteractor {
 
     /**
      * Called when a user hits the return key while [ToolbarView] has focus.
-     * @param url the text inside the [ToolbarView] when committed
-     * @param fromHomeScreen true if the toolbar has been opened from home screen
+     *
+     * @param url The text inside the [ToolbarView] when committed.
+     * @param fromHomeScreen True if the toolbar has been opened from home screen.
      */
     fun onUrlCommitted(url: String, fromHomeScreen: Boolean = false)
 
@@ -42,9 +40,17 @@ interface ToolbarInteractor {
 
     /**
      * Called whenever the text inside the [ToolbarView] changes
-     * @param text the current text displayed by [ToolbarView]
+     *
+     * @param text The current text displayed by [ToolbarView].
      */
     fun onTextChanged(text: String)
+
+    /**
+     * Called when an user taps on a search selector menu item.
+     *
+     * @param item The [SearchSelectorMenu.Item] that was tapped.
+     */
+    fun onMenuItemTapped(item: SearchSelectorMenu.Item)
 }
 
 /**
@@ -55,11 +61,9 @@ class ToolbarView(
     private val context: Context,
     private val settings: Settings,
     private val interactor: ToolbarInteractor,
-    private val historyStorage: HistoryStorage?,
     private val isPrivate: Boolean,
     val view: BrowserToolbar,
-    engine: Engine,
-    fromHomeFragment: Boolean
+    fromHomeFragment: Boolean,
 ) {
 
     @VisibleForTesting
@@ -79,7 +83,8 @@ class ToolbarView(
             }
 
             background = AppCompatResources.getDrawable(
-                context, context.theme.resolveAttribute(R.attr.layer1)
+                context,
+                context.theme.resolveAttribute(R.attr.layer1),
             )
 
             edit.hint = context.getString(R.string.search_hint)
@@ -89,41 +94,31 @@ class ToolbarView(
                 hint = context.getColorFromAttr(R.attr.textSecondary),
                 suggestionBackground = ContextCompat.getColor(
                     context,
-                    R.color.suggestion_highlight_color
+                    R.color.suggestion_highlight_color,
                 ),
                 clear = context.getColorFromAttr(R.attr.insetTextColor)
             )
 
             edit.setUrlBackground(
-                AppCompatResources.getDrawable(context, R.drawable.search_url_background)
+                AppCompatResources.getDrawable(context, R.drawable.search_url_background),
             )
 
             private = isPrivate
 
-            setOnEditListener(object : mozilla.components.concept.toolbar.Toolbar.OnEditListener {
-                override fun onCancelEditing(): Boolean {
-                    interactor.onEditingCanceled()
-                    // We need to return false to not show display mode
-                    return false
-                }
+            setOnEditListener(
+                object : mozilla.components.concept.toolbar.Toolbar.OnEditListener {
+                    override fun onCancelEditing(): Boolean {
+                        interactor.onEditingCanceled()
+                        // We need to return false to not show display mode
+                        return false
+                    }
 
-                override fun onTextChanged(text: String) {
-                    url = text
-                    interactor.onTextChanged(text)
-                }
-            })
-        }
-
-        val engineForSpeculativeConnects = if (!isPrivate) engine else null
-
-        if (settings.shouldAutocompleteInAwesomebar) {
-            ToolbarAutocompleteFeature(
-                view,
-                engineForSpeculativeConnects
-            ).apply {
-                addDomainProvider(ShippedDomainsProvider().also { it.initialize(view.context) })
-                historyStorage?.also(::addHistoryStorageProvider)
-            }
+                    override fun onTextChanged(text: String) {
+                        url = text
+                        interactor.onTextChanged(text)
+                    }
+                },
+            )
         }
     }
 
@@ -152,6 +147,13 @@ class ToolbarView(
 
         val searchEngine = searchState.searchEngineSource.searchEngine
 
+        when (searchEngine?.type) {
+            SearchEngine.Type.APPLICATION ->
+                view.edit.hint = context.getString(R.string.application_search_hint)
+            else ->
+                view.edit.hint = context.getString(R.string.search_hint)
+        }
+
         if (!settings.showUnifiedSearchFeature && searchEngine != null) {
             val iconSize =
                 context.resources.getDimensionPixelSize(R.dimen.preference_icon_drawable_size)
@@ -160,7 +162,7 @@ class ToolbarView(
                 searchEngine.icon,
                 iconSize,
                 iconSize,
-                true
+                true,
             )
 
             val icon = BitmapDrawable(context.resources, scaledIcon)

@@ -9,7 +9,7 @@ transforms:
     - taskgraph.transforms.job:transforms
     - taskgraph.transforms.task:transforms
 
-job-defaults:
+task-defaults:
     attributes:
         build-type: debug
         code-review: true
@@ -44,7 +44,7 @@ job-defaults:
                          "type": "mrkdwn",
                          "text": "*Task*: <https://firefox-ci-tc.services.mozilla.com/tasks/${status.taskId}|Taskcluster>"
                     }
-                  },                  
+                  },
                   {
                     "type": "section",
                     "text": {
@@ -74,7 +74,7 @@ job-defaults:
                 ]
     run:
         commands:
-            - [wget, {artifact-reference: '<signing/public/build/x86/target.apk>'}, '-O', app.apk]
+            - [wget, {artifact-reference: '<signing/public/build/arm64-v8a/target.apk>'}, '-O', app.apk]
             - [wget, {artifact-reference: '<signing-android-test/public/build/noarch/target.apk>'}, '-O', android-test.apk]
         secrets:
             - name: project/mobile/fenix/firebase
@@ -97,19 +97,20 @@ job-defaults:
             - name: public
               path: /builds/worker/artifacts
               type: directory
+        retry-exit-status: [20]
     worker-type: b-android
 
-jobs:
-    x86-debug:
+tasks:
+    arm-debug:
         description: Test Fenix
         run-on-tasks-for: [github-pull-request, github-push]
         run-on-git-branches: ["^((?!releases[_/]).+)$"]
         run:
             commands:
-                - [automation/taskcluster/androidTest/ui-test.sh, x86, app.apk, android-test.apk, '-1']
+                - [automation/taskcluster/androidTest/ui-test.sh, arm64-v8a, app.apk, android-test.apk, '50']
         treeherder:
-            symbol: debug(ui-test-x86)
-    screenshots-x86:
+            symbol: debug(ui-test-arm)
+    screenshots-arm:
         attributes:
             screenshots: true
         description: Run UI screenshots tests to keep them up to date
@@ -117,10 +118,10 @@ jobs:
         run-on-git-branches: [main]
         run:
             commands:
-                - [automation/taskcluster/androidTest/ui-test.sh, x86-screenshots-tests, app.apk, android-test.apk, '-1']
+                - [automation/taskcluster/androidTest/ui-test.sh, arm-screenshots-tests, app.apk, android-test.apk, '1']
         treeherder:
-            symbol: debug(screenshots-x86)
-    x86-beta:
+            symbol: debug(screenshots-arm)
+    arm-beta:
         attributes:
             build-type: beta-firebase
         description: Test Fenix
@@ -131,10 +132,10 @@ jobs:
             signing-android-test: signing-android-test-beta
         run:
             commands:
-                - [automation/taskcluster/androidTest/ui-test.sh, x86-beta-tests, app.apk, android-test.apk, '50']
+                - [automation/taskcluster/androidTest/ui-test.sh, arm-beta-tests, app.apk, android-test.apk, '2']
         treeherder:
-            symbol: beta(ui-test-x86-beta)
-    x86-nightly:
+            symbol: beta(ui-test-arm-beta)
+    arm-nightly:
         attributes:
             build-type: nightly-firebase
         description: Test Fenix
@@ -144,6 +145,17 @@ jobs:
             signing-android-test: signing-android-test-nightly
         run:
             commands:
-                - [automation/taskcluster/androidTest/ui-test.sh, x86-start-test, app.apk, android-test.apk, '-1']
+                - [automation/taskcluster/androidTest/ui-test.sh, arm-start-test, app.apk, android-test.apk, '2']
         treeherder:
-            symbol: nightly(ui-test-x86-nightly)
+            symbol: nightly(ui-test-arm-nightly)
+    legacy-arm:
+        attributes:
+            legacy: true
+        description: Run select UI tests on older Android API on cron
+        run-on-tasks-for: []
+        run-on-git-branches: [main]
+        run:
+            commands:
+                - [automation/taskcluster/androidTest/ui-test.sh, arm-legacy-api-tests, app.apk, android-test.apk, '2']
+        treeherder:
+            symbol: debug(legacy-arm)

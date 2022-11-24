@@ -10,15 +10,13 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
 import mozilla.components.concept.storage.EncryptedLogin
 import mozilla.components.concept.storage.Login
 import mozilla.components.concept.storage.LoginEntry
 import mozilla.components.service.sync.logins.InvalidRecordException
 import mozilla.components.service.sync.logins.SyncableLoginsStorage
 import mozilla.components.support.test.rule.MainCoroutineRule
-import org.junit.After
+import mozilla.components.support.test.rule.runTestOnMain
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -34,7 +32,7 @@ class SavedLoginsStorageControllerTest {
     @get:Rule
     val coroutinesTestRule = MainCoroutineRule()
     private val ioDispatcher = coroutinesTestRule.testDispatcher
-    private val scope = TestCoroutineScope(ioDispatcher)
+    private val scope = coroutinesTestRule.scope
 
     private val passwordsStorage: SyncableLoginsStorage = mockk(relaxed = true)
     private lateinit var controller: SavedLoginsStorageController
@@ -55,17 +53,12 @@ class SavedLoginsStorageControllerTest {
             lifecycleScope = scope,
             navController = navController,
             loginsFragmentStore = loginsFragmentStore,
-            ioDispatcher = ioDispatcher
+            ioDispatcher = ioDispatcher,
         )
     }
 
-    @After
-    fun cleanUp() {
-        scope.cleanupTestCoroutines()
-    }
-
     @Test
-    fun `WHEN a login is deleted, THEN navigate back to the previous page`() = scope.runBlockingTest {
+    fun `WHEN a login is deleted, THEN navigate back to the previous page`() = runTestOnMain {
         val loginId = "id"
         coEvery { passwordsStorage.delete(any()) } returns true
         controller.delete(loginId)
@@ -77,14 +70,14 @@ class SavedLoginsStorageControllerTest {
     }
 
     @Test
-    fun `WHEN fetching the login list, THEN update the state in the store`() = scope.runBlockingTest {
+    fun `WHEN fetching the login list, THEN update the state in the store`() = runTestOnMain {
         val login = Login(
             guid = "id",
             origin = "https://www.test.co.gov.org",
             username = "user123",
             password = "securePassword1",
             httpRealm = "httpRealm",
-            formActionOrigin = ""
+            formActionOrigin = "",
         )
         coEvery { passwordsStorage.get("id") } returns login
 
@@ -96,21 +89,21 @@ class SavedLoginsStorageControllerTest {
             passwordsStorage.get("id")
             loginsFragmentStore.dispatch(
                 LoginsAction.UpdateCurrentLogin(
-                    expectedLogin
-                )
+                    expectedLogin,
+                ),
             )
         }
     }
 
     @Test
-    fun `WHEN saving an update to an item, THEN navigate to login detail view`() = scope.runBlockingTest {
+    fun `WHEN saving an update to an item, THEN navigate to login detail view`() = runTestOnMain {
         val oldLogin = Login(
             guid = "id",
             origin = "https://www.test.co.gov.org",
             username = "user123",
             password = "securePassword1",
             httpRealm = "httpRealm",
-            formActionOrigin = ""
+            formActionOrigin = "",
         )
         val oldLoginEncrypted = EncryptedLogin(
             guid = "id",
@@ -125,7 +118,7 @@ class SavedLoginsStorageControllerTest {
             username = "newUsername",
             password = "newPassword",
             httpRealm = "httpRealm",
-            formActionOrigin = ""
+            formActionOrigin = "",
         )
 
         coEvery { passwordsStorage.get(any()) } returns oldLogin
@@ -136,7 +129,7 @@ class SavedLoginsStorageControllerTest {
 
         val directions =
             EditLoginFragmentDirections.actionEditLoginFragmentToLoginDetailFragment(
-                oldLogin.guid
+                oldLogin.guid,
             )
 
         val expectedNewList = listOf(newLogin.mapToSavedLogin())
@@ -146,15 +139,15 @@ class SavedLoginsStorageControllerTest {
             passwordsStorage.update(newLogin.guid, newLogin.toEntry())
             loginsFragmentStore.dispatch(
                 LoginsAction.UpdateLoginsList(
-                    expectedNewList
-                )
+                    expectedNewList,
+                ),
             )
             navController.navigate(directionsEq(directions))
         }
     }
 
     @Test
-    fun `WHEN login dupe is found for save, THEN update duplicate in the store`() = scope.runBlockingTest {
+    fun `WHEN login dupe is found for save, THEN update duplicate in the store`() = runTestOnMain {
         val login = Login(
             guid = "id",
             origin = "https://www.test.co.gov.org",
@@ -189,17 +182,17 @@ class SavedLoginsStorageControllerTest {
                     httpRealm = login.httpRealm,
                     formActionOrigin = login.formActionOrigin,
                     username = login2.username,
-                    password = login.password
-                )
+                    password = login.password,
+                ),
             )
             loginsFragmentStore.dispatch(
-                LoginsAction.DuplicateLogin(login2.mapToSavedLogin())
+                LoginsAction.DuplicateLogin(login2.mapToSavedLogin()),
             )
         }
     }
 
     @Test
-    fun `WHEN login dupe is not found for save, THEN update duplicate in the store`() = scope.runBlockingTest {
+    fun `WHEN login dupe is not found for save, THEN update duplicate in the store`() = runTestOnMain {
         val login = Login(
             guid = "id",
             origin = "https://www.test.co.gov.org",
@@ -225,17 +218,17 @@ class SavedLoginsStorageControllerTest {
                     httpRealm = login.httpRealm,
                     formActionOrigin = login.formActionOrigin,
                     username = "new-username",
-                    password = login.password
-                )
+                    password = login.password,
+                ),
             )
             loginsFragmentStore.dispatch(
-                LoginsAction.DuplicateLogin(null)
+                LoginsAction.DuplicateLogin(null),
             )
         }
     }
 
     @Test
-    fun `WHEN login dupe is found for add, THEN update duplicate in the store`() = scope.runBlockingTest {
+    fun `WHEN login dupe is found for add, THEN update duplicate in the store`() = runTestOnMain {
         val login = Login(
             guid = "id",
             origin = "https://www.test.co.gov.org",
@@ -260,16 +253,16 @@ class SavedLoginsStorageControllerTest {
                     formActionOrigin = null,
                     username = login.username,
                     password = "new-password",
-                )
+                ),
             )
             loginsFragmentStore.dispatch(
-                LoginsAction.DuplicateLogin(login.mapToSavedLogin())
+                LoginsAction.DuplicateLogin(login.mapToSavedLogin()),
             )
         }
     }
 
     @Test
-    fun `WHEN login dupe is not found for add, THEN update duplicate in the store`() = scope.runBlockingTest {
+    fun `WHEN login dupe is not found for add, THEN update duplicate in the store`() = runTestOnMain {
         coEvery {
             passwordsStorage.findLoginToUpdate(any())
         } returns null
@@ -286,16 +279,16 @@ class SavedLoginsStorageControllerTest {
                     formActionOrigin = null,
                     username = "username",
                     password = "password",
-                )
+                ),
             )
             loginsFragmentStore.dispatch(
-                LoginsAction.DuplicateLogin(null)
+                LoginsAction.DuplicateLogin(null),
             )
         }
     }
 
     @Test
-    fun `WHEN findLoginToUpdate throws THEN update duplicate in the store`() = scope.runBlockingTest {
+    fun `WHEN findLoginToUpdate throws THEN update duplicate in the store`() = runTestOnMain {
         coEvery {
             passwordsStorage.findLoginToUpdate(any())
         } throws InvalidRecordException("InvalidOrigin")
@@ -312,16 +305,16 @@ class SavedLoginsStorageControllerTest {
                     formActionOrigin = null,
                     username = "username",
                     password = "password",
-                )
+                ),
             )
             loginsFragmentStore.dispatch(
-                LoginsAction.DuplicateLogin(null)
+                LoginsAction.DuplicateLogin(null),
             )
         }
     }
 
     @Test
-    fun `WHEN dupe checking THEN always use a non-blank password`() = scope.runBlockingTest {
+    fun `WHEN dupe checking THEN always use a non-blank password`() = runTestOnMain {
         // If the user hasn't entered a password yet, we should use a dummy
         // password to send a valid login entry to findLoginToUpdate()
 
@@ -341,7 +334,7 @@ class SavedLoginsStorageControllerTest {
                     formActionOrigin = null,
                     username = "username",
                     password = "password",
-                )
+                ),
             )
         }
     }

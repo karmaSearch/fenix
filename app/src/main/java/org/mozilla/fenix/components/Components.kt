@@ -4,6 +4,7 @@
 
 package org.mozilla.fenix.components
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import android.content.Intent
@@ -22,18 +23,21 @@ import mozilla.components.support.base.worker.Frequency
 import mozilla.components.support.locale.LocaleManager
 import org.mozilla.fenix.BuildConfig
 import org.mozilla.fenix.Config
+import org.mozilla.fenix.FeatureFlags
 import org.mozilla.fenix.HomeActivity
 import org.mozilla.fenix.R
 import org.mozilla.fenix.autofill.AutofillConfirmActivity
 import org.mozilla.fenix.autofill.AutofillSearchActivity
 import org.mozilla.fenix.autofill.AutofillUnlockActivity
 import org.mozilla.fenix.components.appstate.AppState
+import org.mozilla.fenix.components.metrics.MetricsMiddleware
 import org.mozilla.fenix.datastore.pocketStoriesSelectedCategoriesDataStore
 import org.mozilla.fenix.ext.asRecentTabs
 import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.ext.filterState
 import org.mozilla.fenix.ext.settings
 import org.mozilla.fenix.ext.sort
+import org.mozilla.fenix.gleanplumb.state.MessagingMiddleware
 import org.mozilla.fenix.home.PocketUpdatesMiddleware
 import org.mozilla.fenix.home.blocklist.BlocklistHandler
 import org.mozilla.fenix.home.blocklist.BlocklistMiddleware
@@ -44,8 +48,6 @@ import org.mozilla.fenix.perf.StrictModeManager
 import org.mozilla.fenix.perf.lazyMonitored
 import org.mozilla.fenix.utils.ClipboardHandler
 import org.mozilla.fenix.utils.Settings
-import org.mozilla.fenix.wallpapers.WallpaperDownloader
-import org.mozilla.fenix.wallpapers.WallpaperFileManager
 import org.mozilla.fenix.wallpapers.WallpaperManager
 import org.mozilla.fenix.wifi.WifiConnectionMonitor
 import java.util.concurrent.TimeUnit
@@ -70,11 +72,12 @@ class Components(private val context: Context) {
             core.lazyPasswordsStorage,
             core.lazyRemoteTabsStorage,
             core.lazyAutofillStorage,
-            strictMode
+            strictMode,
         )
     }
     val services by lazyMonitored { Services(context, backgroundServices.accountManager) }
     val core by lazyMonitored { Core(context, analytics.crashReporter, strictMode) }
+
     @Suppress("Deprecation")
     val useCases by lazyMonitored {
         UseCases(
@@ -84,7 +87,10 @@ class Components(private val context: Context) {
             core.webAppShortcutManager,
             core.topSitesStorage,
             core.bookmarksStorage,
-            core.historyStorage
+            core.historyStorage,
+            appStore,
+            core.client,
+            strictMode,
         )
     }
 
@@ -96,20 +102,19 @@ class Components(private val context: Context) {
             useCases.tabsUseCases,
             useCases.customTabsUseCases,
             useCases.searchUseCases,
-            core.relationChecker,
-            core.customTabsStore,
-            core.webAppManifestStorage
+            core.webAppManifestStorage,
+            core.engine,
         )
     }
 
     val addonCollectionProvider by lazyMonitored {
-        // Check if we have a customized (overridden) AMO collection (only supported in Nightly)
-        if (Config.channel.isNightlyOrDebug && context.settings().amoCollectionOverrideConfigured()) {
+        // Check if we have a customized (overridden) AMO collection (supported in Nightly & Beta)
+        if (FeatureFlags.customExtensionCollectionFeature && context.settings().amoCollectionOverrideConfigured()) {
             AddonCollectionProvider(
                 context,
                 core.client,
                 collectionUser = context.settings().overrideAmoUser,
-                collectionName = context.settings().overrideAmoCollection
+                collectionName = context.settings().overrideAmoCollection,
             )
         }
         // Use build config otherwise
@@ -122,7 +127,7 @@ class Components(private val context: Context) {
                 serverURL = BuildConfig.AMO_SERVER_URL,
                 collectionUser = BuildConfig.AMO_COLLECTION_USER,
                 collectionName = BuildConfig.AMO_COLLECTION_NAME,
-                maxCacheAgeInMinutes = AMO_COLLECTION_MAX_CACHE_AGE
+                maxCacheAgeInMinutes = AMO_COLLECTION_MAX_CACHE_AGE,
             )
         }
         // Fall back to defaults
@@ -139,12 +144,13 @@ class Components(private val context: Context) {
     @Suppress("MagicNumber")
     val supportedAddonsChecker by lazyMonitored {
         DefaultSupportedAddonsChecker(
-            context, Frequency(12, TimeUnit.HOURS),
+            context,
+            Frequency(12, TimeUnit.HOURS),
             onNotificationClickIntent = Intent(context, HomeActivity::class.java).apply {
                 action = Intent.ACTION_VIEW
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 data = "${BuildConfig.DEEP_LINK_SCHEME}://settings_addon_manager".toUri()
-            }
+            },
         )
     }
 
@@ -161,16 +167,9 @@ class Components(private val context: Context) {
     val strictMode by lazyMonitored { StrictModeManager(Config, this) }
 
     val wallpaperManager by lazyMonitored {
-        val currentLocale = strictMode.resetAfter(StrictMode.allowThreadDiskReads()) {
-            LocaleManager.getCurrentLocale(context)?.toLanguageTag()
-                ?: LocaleManager.getSystemDefault().toLanguageTag()
-        }
         strictMode.resetAfter(StrictMode.allowThreadDiskReads()) {
             WallpaperManager(
-                settings,
-                WallpaperDownloader(context, core.client),
-                WallpaperFileManager(context.filesDir),
-                currentLocale
+                appStore,
             )
         }
     }
@@ -180,10 +179,11 @@ class Components(private val context: Context) {
     val reviewPromptController by lazyMonitored {
         ReviewPromptController(
             manager = ReviewManagerFactory.create(context),
-            reviewSettings = FenixReviewSettings(settings)
+            reviewSettings = FenixReviewSettings(settings),
         )
     }
 
+    @delegate:SuppressLint("NewApi")
     val autofillConfiguration by lazyMonitored {
         AutofillConfiguration(
             storage = core.passwordsStorage,
@@ -192,7 +192,7 @@ class Components(private val context: Context) {
             confirmActivity = AutofillConfirmActivity::class.java,
             searchActivity = AutofillSearchActivity::class.java,
             applicationName = context.getString(R.string.app_name),
-            httpClient = core.client
+            httpClient = core.client,
         )
     }
 
@@ -218,15 +218,17 @@ class Components(private val context: Context) {
                 } else {
                     emptyList()
                 },
-                recentHistory = emptyList()
+                recentHistory = emptyList(),
             ).run { filterState(blocklistHandler) },
             middlewares = listOf(
                 BlocklistMiddleware(blocklistHandler),
                 PocketUpdatesMiddleware(
                     core.pocketStoriesService,
-                    context.pocketStoriesSelectedCategoriesDataStore
-                )
-            )
+                    context.pocketStoriesSelectedCategoriesDataStore,
+                ),
+                MessagingMiddleware(messagingStorage = analytics.messagingStorage),
+                MetricsMiddleware(metrics = analytics.metrics),
+            ),
         )
     }
 }

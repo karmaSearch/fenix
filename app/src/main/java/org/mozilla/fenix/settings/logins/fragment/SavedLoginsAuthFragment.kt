@@ -24,9 +24,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import mozilla.components.feature.autofill.preference.AutofillPreference
 import mozilla.components.service.fxa.SyncEngine
+import mozilla.components.service.glean.private.NoExtras
 import mozilla.components.support.base.feature.ViewBoundFeatureWrapper
+import org.mozilla.fenix.GleanMetrics.Logins
 import org.mozilla.fenix.R
-import org.mozilla.fenix.components.metrics.Event
 import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.ext.requireComponents
 import org.mozilla.fenix.ext.runIfFragmentIsAttached
@@ -75,10 +76,10 @@ class SavedLoginsAuthFragment : PreferenceFragmentCompat() {
                 context = requireContext(),
                 fragment = this,
                 onAuthFailure = { togglePrefsEnabledWhileAuthenticating(true) },
-                onAuthSuccess = ::navigateToSavedLogins
+                onAuthSuccess = ::navigateToSavedLogins,
             ),
             owner = this,
-            view = view
+            view = view,
         )
     }
 
@@ -92,7 +93,7 @@ class SavedLoginsAuthFragment : PreferenceFragmentCompat() {
                     R.string.preferences_passwords_save_logins_ask_to_save
                 } else {
                     R.string.preferences_passwords_save_logins_never_save
-                }
+                },
             )
             setOnPreferenceClickListener {
                 navigateToSaveLoginSettingFragment()
@@ -114,11 +115,11 @@ class SavedLoginsAuthFragment : PreferenceFragmentCompat() {
         requirePreference<SwitchPreference>(R.string.pref_key_autofill_logins).apply {
             title = context.getString(
                 R.string.preferences_passwords_autofill2,
-                getString(R.string.app_name)
+                getString(R.string.app_name),
             )
             summary = context.getString(
                 R.string.preferences_passwords_autofill_description,
-                getString(R.string.app_name)
+                getString(R.string.app_name),
             )
             isChecked = context.settings().shouldAutofillLogins
             onPreferenceChangeListener = object : SharedPreferenceUpdater() {
@@ -134,6 +135,27 @@ class SavedLoginsAuthFragment : PreferenceFragmentCompat() {
             verifyCredentialsOrShowSetupWarning(it.context)
             true
         }
+
+        SyncPreferenceView(
+            syncPreference = requirePreference(R.string.pref_key_sync_logins),
+            lifecycleOwner = viewLifecycleOwner,
+            accountManager = requireComponents.backgroundServices.accountManager,
+            syncEngine = SyncEngine.Passwords,
+            loggedOffTitle = requireContext()
+                .getString(R.string.preferences_passwords_sync_logins_across_devices),
+            loggedInTitle = requireContext()
+                .getString(R.string.preferences_passwords_sync_logins),
+            onSignInToSyncClicked = {
+                val directions =
+                    SavedLoginsAuthFragmentDirections.actionSavedLoginsAuthFragmentToTurnOnSyncFragment()
+                findNavController().navigate(directions)
+            },
+            onReconnectClicked = {
+                val directions =
+                    SavedLoginsAuthFragmentDirections.actionGlobalAccountProblemFragment()
+                findNavController().navigate(directions)
+            },
+        )
 
         togglePrefsEnabledWhileAuthenticating(true)
     }
@@ -165,7 +187,7 @@ class SavedLoginsAuthFragment : PreferenceFragmentCompat() {
         AlertDialog.Builder(context).apply {
             setTitle(getString(R.string.logins_warning_dialog_title))
             setMessage(
-                getString(R.string.logins_warning_dialog_message)
+                getString(R.string.logins_warning_dialog_message),
             )
 
             setNegativeButton(getString(R.string.logins_warning_dialog_later)) { _: DialogInterface, _ ->
@@ -186,7 +208,7 @@ class SavedLoginsAuthFragment : PreferenceFragmentCompat() {
     private fun showPinVerification(manager: KeyguardManager) {
         val intent = manager.createConfirmDeviceCredentialIntent(
             getString(R.string.logins_biometric_prompt_message_pin),
-            getString(R.string.logins_biometric_prompt_message)
+            getString(R.string.logins_biometric_prompt_message),
         )
         startActivityForResult(intent, PIN_REQUEST)
     }
@@ -201,7 +223,7 @@ class SavedLoginsAuthFragment : PreferenceFragmentCompat() {
      * Called when authentication succeeds.
      */
     private fun navigateToSavedLoginsFragment() {
-        context?.components?.analytics?.metrics?.track(Event.OpenLogins)
+        Logins.openLogins.record(NoExtras())
         val directions =
             SavedLoginsAuthFragmentDirections.actionSavedLoginsAuthFragmentToLoginsListFragment()
         findNavController().navigate(directions)

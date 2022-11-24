@@ -10,21 +10,22 @@ import mozilla.components.browser.state.action.DebugAction
 import mozilla.components.browser.state.action.LastAccessAction
 import mozilla.components.browser.state.selector.findTab
 import mozilla.components.browser.state.selector.getNormalOrPrivateTabs
+import mozilla.components.browser.state.state.SessionState
 import mozilla.components.browser.state.state.TabSessionState
 import mozilla.components.browser.state.store.BrowserStore
 import mozilla.components.concept.base.profiler.Profiler
+import mozilla.components.concept.engine.mediasession.MediaSession.PlaybackState
 import mozilla.components.feature.tabs.TabsUseCases
 import mozilla.components.lib.state.DelicateAction
 import mozilla.telemetry.glean.private.NoExtras
+import org.mozilla.fenix.GleanMetrics.Tab
 import org.mozilla.fenix.GleanMetrics.TabsTray
 import org.mozilla.fenix.R
 import org.mozilla.fenix.browser.browsingmode.BrowsingMode
 import org.mozilla.fenix.browser.browsingmode.BrowsingModeManager
 import org.mozilla.fenix.components.metrics.Event
-import org.mozilla.fenix.components.metrics.MetricController
-import org.mozilla.fenix.home.HomeFragment
 import org.mozilla.fenix.ext.DEFAULT_ACTIVE_DAYS
-import org.mozilla.fenix.ext.potentialInactiveTabs
+import org.mozilla.fenix.home.HomeFragment
 import org.mozilla.fenix.tabstray.ext.isActiveDownload
 import java.util.concurrent.TimeUnit
 
@@ -97,16 +98,16 @@ interface TabsTrayController {
      */
     fun forceTabsAsInactive(
         tabs: Collection<TabSessionState>,
-        numOfDays: Long = DEFAULT_ACTIVE_DAYS + 1
+        numOfDays: Long = DEFAULT_ACTIVE_DAYS + 1,
     )
 
     /**
-     * Deletes all inactive tabs.
+     * Handles when a tab item is click either to play/pause.
      */
-    fun handleDeleteAllInactiveTabs()
+    fun handleMediaClicked(tab: SessionState)
 }
 
-@Suppress("TooManyFunctions")
+@Suppress("TooManyFunctions", "LongParameterList")
 class DefaultTabsTrayController(
     private val trayStore: TabsTrayStore,
     private val browserStore: BrowserStore,
@@ -115,12 +116,10 @@ class DefaultTabsTrayController(
     private val navigateToHomeAndDeleteSession: (String) -> Unit,
     private val profiler: Profiler?,
     private val navigationInteractor: NavigationInteractor,
-    private val metrics: MetricController,
     private val tabsUseCases: TabsUseCases,
     private val selectTabPosition: (Int, Boolean) -> Unit,
     private val dismissTray: () -> Unit,
     private val showUndoSnackbarForTab: (Boolean) -> Unit,
-    @VisibleForTesting
     internal val showCancelledDownloadWarning: (downloadCount: Int, tabId: String?, source: String?) -> Unit,
 
 ) : TabsTrayController {
@@ -129,12 +128,12 @@ class DefaultTabsTrayController(
         val startTime = profiler?.getProfilerTime()
         browsingModeManager.mode = BrowsingMode.fromBoolean(isPrivate)
         navController.navigate(
-            TabsTrayFragmentDirections.actionGlobalHome(focusOnAddressBar = true)
+            TabsTrayFragmentDirections.actionGlobalHome(focusOnAddressBar = true),
         )
         navigationInteractor.onTabTrayDismissed()
         profiler?.addMarker(
             "DefaultTabTrayController.onNewTabTapped",
-            startTime
+            startTime,
         )
         sendNewTabEvent(isPrivate)
     }
@@ -209,7 +208,7 @@ class DefaultTabsTrayController(
         // If user closes all the tabs from selected tabs page dismiss tray and navigate home.
         if (tabs.size == browserStore.state.getNormalOrPrivateTabs(isPrivate).size) {
             dismissTabsTrayAndNavigateHome(
-                if (isPrivate) HomeFragment.ALL_PRIVATE_TABS else HomeFragment.ALL_NORMAL_TABS
+                if (isPrivate) HomeFragment.ALL_PRIVATE_TABS else HomeFragment.ALL_NORMAL_TABS,
             )
         } else {
             tabs.map { it.id }.let {
@@ -229,7 +228,7 @@ class DefaultTabsTrayController(
     override fun handleTabsMove(
         tabId: String,
         targetId: String?,
-        placeAfter: Boolean
+        placeAfter: Boolean,
     ) {
         if (targetId != null && tabId != targetId) {
             tabsUseCases.moveTabs(listOf(tabId), targetId, placeAfter)
@@ -277,11 +276,20 @@ class DefaultTabsTrayController(
         navigateToHomeAndDeleteSession(sessionId)
     }
 
-    override fun handleDeleteAllInactiveTabs() {
-        TabsTray.closeAllInactiveTabs.record(NoExtras())
-        browserStore.state.potentialInactiveTabs.map { it.id }.let {
-            tabsUseCases.removeTabs(it)
+    override fun handleMediaClicked(tab: SessionState) {
+        when (tab.mediaSessionState?.playbackState) {
+            PlaybackState.PLAYING -> {
+                Tab.mediaPause.record(NoExtras())
+                tab.mediaSessionState?.controller?.pause()
+            }
+
+            PlaybackState.PAUSED -> {
+                Tab.mediaPlay.record(NoExtras())
+                tab.mediaSessionState?.controller?.play()
+            }
+            else -> throw AssertionError(
+                "Play/Pause button clicked without play/pause state.",
+            )
         }
-        showUndoSnackbarForTab(false)
     }
 }

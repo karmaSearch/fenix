@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import org.mozilla.fenix.NavGraphDirections
 import org.mozilla.fenix.databinding.FragmentDefaultBrowserBinding
 import org.mozilla.fenix.ext.openSetDefaultBrowserOption
 import org.mozilla.fenix.ext.settings
@@ -30,7 +31,8 @@ class DefaultBrowserFragment: Fragment() {
             context?.settings()?.let { settings ->
                 settings.hasShownDefaultBrowserDialog = true
             }
-            findNavController().navigateUp()
+            val directions = NavGraphDirections.actionGlobalHome()
+            findNavController().navigate(directions)
         }
 
         return view

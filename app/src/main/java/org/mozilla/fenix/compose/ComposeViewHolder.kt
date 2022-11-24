@@ -11,8 +11,9 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import androidx.savedstate.SavedStateRegistryOwner
-import androidx.savedstate.ViewTreeSavedStateRegistryOwner
+import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import org.mozilla.fenix.theme.FirefoxTheme
+import org.mozilla.fenix.theme.Theme
 
 /**
  * [RecyclerView.ViewHolder] used for Jetpack Compose UI content .
@@ -22,7 +23,7 @@ import org.mozilla.fenix.theme.FirefoxTheme
  */
 abstract class ComposeViewHolder(
     val composeView: ComposeView,
-    viewLifecycleOwner: LifecycleOwner
+    viewLifecycleOwner: LifecycleOwner,
 ) : RecyclerView.ViewHolder(composeView) {
 
     /**
@@ -31,20 +32,24 @@ abstract class ComposeViewHolder(
     @Composable
     abstract fun Content()
 
+    /**
+     * Optional override used to disable private browsing theming and only obey dark/light theming.
+     */
+    open val allowPrivateTheme: Boolean = true
+
     init {
         composeView.setViewCompositionStrategy(
-            ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
+            ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed,
         )
         composeView.setContent {
-            FirefoxTheme {
+            FirefoxTheme(theme = Theme.getTheme(allowPrivateTheme = allowPrivateTheme)) {
                 Content()
             }
         }
 
         ViewTreeLifecycleOwner.set(composeView, viewLifecycleOwner)
-        ViewTreeSavedStateRegistryOwner.set(
-            composeView,
-            viewLifecycleOwner as SavedStateRegistryOwner
+        composeView.setViewTreeSavedStateRegistryOwner(
+            viewLifecycleOwner as SavedStateRegistryOwner,
         )
     }
 }

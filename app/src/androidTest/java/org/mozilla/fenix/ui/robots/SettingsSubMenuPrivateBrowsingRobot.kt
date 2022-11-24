@@ -14,10 +14,8 @@ import androidx.test.espresso.matcher.ViewMatchers.withContentDescription
 import androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.By.text
-import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiSelector
 import androidx.test.uiautomator.Until
 import org.hamcrest.CoreMatchers
@@ -26,6 +24,7 @@ import org.junit.Assert.assertTrue
 import org.mozilla.fenix.R
 import org.mozilla.fenix.helpers.TestAssetHelper.waitingTime
 import org.mozilla.fenix.helpers.TestHelper.appName
+import org.mozilla.fenix.helpers.TestHelper.mDevice
 import org.mozilla.fenix.helpers.click
 import org.mozilla.fenix.helpers.isEnabled
 
@@ -54,7 +53,7 @@ class SettingsSubMenuPrivateBrowsingRobot {
     fun cancelPrivateShortcutAddition() {
         mDevice.wait(
             Until.findObject(text("Add private browsing shortcut")),
-            waitingTime
+            waitingTime,
         )
         addPrivateBrowsingShortcutButton().click()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -66,7 +65,7 @@ class SettingsSubMenuPrivateBrowsingRobot {
     fun addPrivateShortcutToHomescreen() {
         mDevice.wait(
             Until.findObject(text("Add private browsing shortcut")),
-            waitingTime
+            waitingTime,
         )
         addPrivateBrowsingShortcutButton().click()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -76,8 +75,6 @@ class SettingsSubMenuPrivateBrowsingRobot {
     }
 
     class Transition {
-        val mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-
         fun goBack(interact: SettingsRobot.() -> Unit): SettingsRobot.Transition {
             goBackButton().perform(ViewActions.click())
 
@@ -98,8 +95,8 @@ private fun assertNavigationToolBarHeader() {
     onView(
         CoreMatchers.allOf(
             withId(R.id.navigationToolbar),
-            withChild(withText(R.string.preferences_private_browsing_options))
-        )
+            withChild(withText(R.string.preferences_private_browsing_options)),
+        ),
     )
         .check((matches(withEffectiveVisibility(Visibility.VISIBLE))))
 }
@@ -125,7 +122,7 @@ private fun privateBrowsingShortcutIcon() = mDevice.findObject(text("Private $ap
 private fun assertAddPrivateBrowsingShortcutButton() {
     mDevice.wait(
         Until.findObject(text("Add private browsing shortcut")),
-        waitingTime
+        waitingTime,
     )
     addPrivateBrowsingShortcutButton()
         .check(matches(withEffectiveVisibility(Visibility.VISIBLE)))

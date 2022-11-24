@@ -10,8 +10,6 @@ import io.mockk.spyk
 import io.mockk.verify
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.GlobalScope.coroutineContext
-import kotlinx.coroutines.test.runBlockingTest
 import mozilla.components.browser.icons.BrowserIcons
 import mozilla.components.browser.state.action.EngineAction
 import mozilla.components.browser.state.action.RecentlyClosedAction
@@ -21,6 +19,7 @@ import mozilla.components.concept.storage.HistoryStorage
 import mozilla.components.feature.downloads.DownloadsUseCases
 import mozilla.components.feature.tabs.TabsUseCases
 import mozilla.components.support.test.rule.MainCoroutineRule
+import mozilla.components.support.test.rule.runTestOnMain
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -52,13 +51,12 @@ class DefaultDeleteBrowsingDataControllerTest {
             permissionStorage = permissionStorage,
             iconsStorage = iconsStorage,
             engine = engine,
-            coroutineContext = coroutineContext
+            coroutineContext = coroutinesTestRule.testDispatcher,
         )
     }
 
     @Test
-    fun deleteTabs() = runBlockingTest {
-
+    fun deleteTabs() = runTestOnMain {
         controller.deleteTabs()
 
         verify {
@@ -67,7 +65,7 @@ class DefaultDeleteBrowsingDataControllerTest {
     }
 
     @Test
-    fun deleteBrowsingData() = runBlockingTest {
+    fun deleteBrowsingData() = runTestOnMain {
         controller = spyk(controller)
         controller.deleteBrowsingData()
 
@@ -81,22 +79,21 @@ class DefaultDeleteBrowsingDataControllerTest {
     }
 
     @Test
-    fun deleteCookies() = runBlockingTest {
+    fun deleteCookies() = runTestOnMain {
         controller.deleteCookies()
 
         verify {
             engine.clearData(
                 Engine.BrowsingData.select(
                     Engine.BrowsingData.COOKIES,
-                    Engine.BrowsingData.AUTH_SESSIONS
-                )
+                    Engine.BrowsingData.AUTH_SESSIONS,
+                ),
             )
         }
     }
 
     @Test
-    fun deleteCachedFiles() = runBlockingTest {
-
+    fun deleteCachedFiles() = runTestOnMain {
         controller.deleteCachedFiles()
 
         verify {
@@ -105,7 +102,7 @@ class DefaultDeleteBrowsingDataControllerTest {
     }
 
     @Test
-    fun deleteSitePermissions() = runBlockingTest {
+    fun deleteSitePermissions() = runTestOnMain {
         controller.deleteSitePermissions()
 
         coVerify {
@@ -115,8 +112,7 @@ class DefaultDeleteBrowsingDataControllerTest {
     }
 
     @Test
-    fun deleteDownloads() = runBlockingTest {
-
+    fun deleteDownloads() = runTestOnMain {
         controller.deleteDownloads()
 
         verify {

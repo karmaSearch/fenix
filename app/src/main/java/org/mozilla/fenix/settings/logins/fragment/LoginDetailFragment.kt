@@ -15,23 +15,25 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.MenuProvider
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.snackbar.Snackbar
 import mozilla.components.lib.state.ext.consumeFrom
+import mozilla.components.service.glean.private.NoExtras
 import org.mozilla.fenix.BrowserDirection
+import org.mozilla.fenix.GleanMetrics.Logins
 import org.mozilla.fenix.HomeActivity
 import org.mozilla.fenix.R
 import org.mozilla.fenix.SecureFragment
 import org.mozilla.fenix.components.FenixSnackbar
 import org.mozilla.fenix.components.StoreProvider
-import org.mozilla.fenix.components.metrics.Event
 import org.mozilla.fenix.databinding.FragmentLoginDetailBinding
 import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.ext.increaseTapArea
 import org.mozilla.fenix.ext.redirectToReAuth
-import org.mozilla.fenix.ext.requireComponents
 import org.mozilla.fenix.ext.settings
 import org.mozilla.fenix.ext.showToolbar
 import org.mozilla.fenix.ext.simplifiedUrl
@@ -47,7 +49,7 @@ import org.mozilla.fenix.settings.logins.view.LoginDetailsBindingDelegate
  * Displays saved login information for a single website.
  */
 @Suppress("TooManyFunctions", "ForbiddenComment")
-class LoginDetailFragment : SecureFragment(R.layout.fragment_login_detail) {
+class LoginDetailFragment : SecureFragment(R.layout.fragment_login_detail), MenuProvider {
 
     private val args by navArgs<LoginDetailFragmentArgs>()
     private var login: SavedLogin? = null
@@ -63,13 +65,13 @@ class LoginDetailFragment : SecureFragment(R.layout.fragment_login_detail) {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         val view = inflater.inflate(R.layout.fragment_login_detail, container, false)
         _binding = FragmentLoginDetailBinding.bind(view)
         savedLoginsStore = StoreProvider.get(this) {
             LoginsFragmentStore(
-                createInitialLoginsListState(requireContext().settings())
+                createInitialLoginsListState(requireContext().settings()),
             )
         }
         loginDetailsBindingDelegate = LoginDetailsBindingDelegate(binding)
@@ -79,14 +81,15 @@ class LoginDetailFragment : SecureFragment(R.layout.fragment_login_detail) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        requireActivity().addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         interactor = LoginDetailInteractor(
             SavedLoginsStorageController(
                 passwordsStorage = requireContext().components.core.passwordsStorage,
                 lifecycleScope = lifecycleScope,
                 navController = findNavController(),
-                loginsFragmentStore = savedLoginsStore
-            )
+                loginsFragmentStore = savedLoginsStore,
+            ),
         )
         interactor.onFetchLoginList(args.savedLoginId)
 
@@ -96,16 +99,11 @@ class LoginDetailFragment : SecureFragment(R.layout.fragment_login_detail) {
             setUpCopyButtons()
             showToolbar(
                 savedLoginsStore.state.currentItem?.origin?.simplifiedUrl()
-                    ?: ""
+                    ?: "",
             )
             setUpPasswordReveal()
         }
         togglePasswordReveal(binding.passwordText, binding.revealPasswordButton)
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
     }
 
     /**
@@ -119,7 +117,7 @@ class LoginDetailFragment : SecureFragment(R.layout.fragment_login_detail) {
         redirectToReAuth(
             listOf(R.id.editLoginFragment, R.id.savedLoginsFragment),
             findNavController().currentDestination?.id,
-            R.id.loginDetailFragment
+            R.id.loginDetailFragment,
         )
         super.onPause()
     }
@@ -148,21 +146,21 @@ class LoginDetailFragment : SecureFragment(R.layout.fragment_login_detail) {
 
         binding.usernameText.text = login?.username
         binding.copyUsername.setOnClickListener(
-            CopyButtonListener(login?.username, R.string.logins_username_copied)
+            CopyButtonListener(login?.username, R.string.logins_username_copied),
         )
 
         binding.passwordText.text = login?.password
         binding.copyPassword.setOnClickListener(
-            CopyButtonListener(login?.password, R.string.logins_password_copied)
+            CopyButtonListener(login?.password, R.string.logins_password_copied),
         )
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+    override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.login_options_menu, menu)
         this.menu = menu
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
+    override fun onMenuItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         R.id.delete_login_button -> {
             displayDeleteLoginDialog()
             true
@@ -178,15 +176,15 @@ class LoginDetailFragment : SecureFragment(R.layout.fragment_login_detail) {
         (activity as HomeActivity).openToBrowserAndLoad(
             address,
             newTab = true,
-            from = BrowserDirection.FromLoginDetailFragment
+            from = BrowserDirection.FromLoginDetailFragment,
         )
     }
 
     private fun editLogin() {
-        requireComponents.analytics.metrics.track(Event.EditLogin)
+        Logins.openLoginEditor.record(NoExtras())
         val directions =
             LoginDetailFragmentDirections.actionLoginDetailFragmentToEditLoginFragment(
-                login!!
+                login!!,
             )
         findNavController().navigate(directions)
     }
@@ -199,7 +197,7 @@ class LoginDetailFragment : SecureFragment(R.layout.fragment_login_detail) {
                     dialog.cancel()
                 }
                 setPositiveButton(R.string.dialog_delete_positive) { dialog: DialogInterface, _ ->
-                    requireComponents.analytics.metrics.track(Event.DeleteLogin)
+                    Logins.deleteSavedLogin.record(NoExtras())
                     interactor.onDeleteLogin(args.savedLoginId)
                     dialog.dismiss()
                 }
@@ -215,13 +213,13 @@ class LoginDetailFragment : SecureFragment(R.layout.fragment_login_detail) {
      */
     private inner class CopyButtonListener(
         private val value: String?,
-        @StringRes private val snackbarText: Int
+        @StringRes private val snackbarText: Int,
     ) : View.OnClickListener {
         override fun onClick(view: View) {
             val clipboard = view.context.components.clipboardHandler
             clipboard.text = value
             showCopiedSnackbar(view.context.getString(snackbarText))
-            view.context.components.analytics.metrics.track(Event.CopyLogin)
+            Logins.copyLogin.record(NoExtras())
         }
 
         private fun showCopiedSnackbar(copiedItem: String) {
@@ -229,7 +227,7 @@ class LoginDetailFragment : SecureFragment(R.layout.fragment_login_detail) {
                 FenixSnackbar.make(
                     view = it,
                     duration = Snackbar.LENGTH_SHORT,
-                    isDisplayedWithBrowserToolbar = false
+                    isDisplayedWithBrowserToolbar = false,
                 ).setText(copiedItem).show()
             }
         }

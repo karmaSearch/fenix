@@ -15,7 +15,7 @@ internal class TabDiffUtil(
     private val oldSelected: Set<Tab>,
     private val newSelected: Set<Tab>,
     private val oldHideCheckboxes: Boolean,
-    private val newHideCheckboxes: Boolean
+    private val newHideCheckboxes: Boolean,
 ) : DiffUtil.Callback() {
 
     /**
@@ -38,9 +38,8 @@ internal class TabDiffUtil(
      * Returns a change payload indication if the item is now/no longer selected.
      */
     override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
-        val shouldBeChecked = newItemSelected(newItemPosition) && !oldItemSelected(oldItemPosition)
-        val shouldBeUnchecked = !newItemSelected(newItemPosition) && oldItemSelected(oldItemPosition)
-        return CheckChanged(shouldBeChecked, shouldBeUnchecked, newHideCheckboxes)
+        val shouldBeChecked = newItemSelected(newItemPosition)
+        return CheckChanged(shouldBeChecked, newHideCheckboxes)
     }
 
     override fun getOldListSize(): Int = old.size
@@ -51,12 +50,10 @@ internal class TabDiffUtil(
 }
 
 /**
- * @property shouldBeChecked Item was previously unchecked and should be checked.
- * @property shouldBeUnchecked Item was previously checked and should be unchecked.
+ * @property shouldBeChecked Item should be checked.
  * @property shouldHideCheckBox Checkbox should be visible.
  */
 data class CheckChanged(
     val shouldBeChecked: Boolean,
-    val shouldBeUnchecked: Boolean,
-    val shouldHideCheckBox: Boolean
+    val shouldHideCheckBox: Boolean,
 )

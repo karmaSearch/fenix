@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.ExperimentalUnitApi
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import karma.service.learnandact.LearnAndAct
 import mozilla.components.lib.state.ext.observeAsComposableState
@@ -38,43 +39,36 @@ import mozilla.components.ui.colors.PhotonColors
 import org.mozilla.fenix.R
 import org.mozilla.fenix.components.AppStore
 import org.mozilla.fenix.components.components
+import org.mozilla.fenix.compose.ComposeViewHolder
 import org.mozilla.fenix.home.learnandact.LearnAndActInteractor
 import org.mozilla.fenix.theme.FirefoxTheme
 import org.mozilla.fenix.utils.view.ViewHolder
 
 class LearnAndActViewHolder(
-    val composeView: ComposeView,
-    val store: AppStore,
+    composeView: ComposeView,
+    viewLifecycleOwner: LifecycleOwner,
     val interactor: LearnAndActInteractor
-) : ViewHolder(composeView) {
+) : ComposeViewHolder(composeView, viewLifecycleOwner)  {
     companion object {
         val LAYOUT_ID = View.generateViewId()
     }
 
-    init {
-        composeView.setViewCompositionStrategy(
-            ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
+    @Composable
+    override fun Content() {
+        LearnAndAct(
+            interactor::onBlockShown,
+            interactor::onBlockClicked
         )
-        composeView.setContent {
-            FirefoxTheme {
-                LearnAndAct(
-                    store,
-                    interactor::onBlockShown,
-                    interactor::onBlockClicked
-                )
-            }
-        }
     }
 }
 
 @Composable
 @Suppress("LongParameterList")
 fun LearnAndAct(
-    store: AppStore,
     onBlockShown: (List<LearnAndAct>) -> Unit,
     onBlockClicked: (LearnAndAct) -> Unit
 ) {
-    val learnAndActBlocs = store
+    val learnAndActBlocs = components.appStore
         .observeAsComposableState { state -> state.learnAndAct }.value
     LaunchedEffect(learnAndActBlocs) {
         // We should report back when a certain story is actually being displayed.

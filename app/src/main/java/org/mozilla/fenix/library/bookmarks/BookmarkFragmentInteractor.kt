@@ -9,7 +9,6 @@ import mozilla.components.concept.storage.BookmarkNodeType
 import mozilla.telemetry.glean.private.NoExtras
 import org.mozilla.fenix.GleanMetrics.BookmarksManagement
 import org.mozilla.fenix.browser.browsingmode.BrowsingMode
-import org.mozilla.fenix.components.metrics.MetricController
 import org.mozilla.fenix.utils.Do
 
 /**
@@ -19,12 +18,10 @@ import org.mozilla.fenix.utils.Do
  * @property bookmarkStore bookmarks state
  * @property viewModel view state
  * @property bookmarksController view controller
- * @property metrics telemetry controller
  */
 @SuppressWarnings("TooManyFunctions")
 class BookmarkFragmentInteractor(
     private val bookmarksController: BookmarkController,
-    private val metrics: MetricController
 ) : BookmarkViewInteractor {
 
     override fun onBookmarksChanged(node: BookmarkNode) {
@@ -44,6 +41,7 @@ class BookmarkFragmentInteractor(
     }
 
     override fun onSearch() {
+        BookmarksManagement.searchIconTapped.record(NoExtras())
         bookmarksController.handleSearch()
     }
 
@@ -88,7 +86,8 @@ class BookmarkFragmentInteractor(
         }
         val eventType = when (nodes.singleOrNull()?.type) {
             BookmarkNodeType.ITEM,
-            BookmarkNodeType.SEPARATOR -> BookmarkRemoveType.SINGLE
+            BookmarkNodeType.SEPARATOR,
+            -> BookmarkRemoveType.SINGLE
             BookmarkNodeType.FOLDER -> BookmarkRemoveType.FOLDER
             null -> BookmarkRemoveType.MULTIPLE
         }

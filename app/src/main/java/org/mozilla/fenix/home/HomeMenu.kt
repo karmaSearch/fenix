@@ -5,14 +5,25 @@
 package org.mozilla.fenix.home
 
 import android.content.Context
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import mozilla.components.browser.menu.BrowserMenuBuilder
 import mozilla.components.browser.menu.BrowserMenuHighlight
 import mozilla.components.browser.menu.BrowserMenuItem
 import mozilla.components.browser.menu.ext.getHighlight
 import mozilla.components.browser.menu.item.BrowserMenuDivider
+import mozilla.components.browser.menu.item.BrowserMenuHighlightableItem
 import mozilla.components.browser.menu.item.BrowserMenuImageSwitch
 import mozilla.components.browser.menu.item.BrowserMenuImageText
-import org.mozilla.fenix.FeatureFlags
+import mozilla.components.browser.menu.item.SimpleBrowserMenuItem
+import mozilla.components.concept.sync.AccountObserver
+import mozilla.components.concept.sync.AuthType
+import mozilla.components.concept.sync.OAuthAccount
+import mozilla.components.support.ktx.android.content.getColorFromAttr
+import org.mozilla.fenix.Config
 import org.mozilla.fenix.R
 import org.mozilla.fenix.components.accounts.AccountState
 import org.mozilla.fenix.components.accounts.FenixAccountManager
@@ -24,10 +35,11 @@ import org.mozilla.fenix.utils.BrowsersCache
 
 @Suppress("LargeClass", "LongMethod")
 class HomeMenu(
+    private val lifecycleOwner: LifecycleOwner,
     private val context: Context,
     private val onItemTapped: (Item) -> Unit = {},
     private val onMenuBuilderChanged: (BrowserMenuBuilder) -> Unit = {},
-    private val onHighlightPresent: (BrowserMenuHighlight) -> Unit = {}
+    private val onHighlightPresent: (BrowserMenuHighlight) -> Unit = {},
 ) {
     sealed class Item {
         object NewTab : Item()
@@ -36,7 +48,13 @@ class HomeMenu(
         object Bookmarks : Item()
         object History : Item()
         object Downloads : Item()
+        object Extensions : Item()
         data class SyncAccount(val accountState: AccountState) : Item()
+
+        /**
+         * A button item to open up the settings page of FxA, shown up in mozilla online builds.
+         */
+        object ManageAccountAndDevices : Item()
         object WhatsNew : Item()
         object Help : Item()
         object CustomizeHome : Item()
@@ -49,21 +67,66 @@ class HomeMenu(
     }
 
     private val primaryTextColor = ThemeManager.resolveAttribute(R.attr.textPrimary, context)
+    private val syncDisconnectedColor =
+        ThemeManager.resolveAttribute(R.attr.syncDisconnected, context)
+    private val syncDisconnectedBackgroundColor =
+        context.getColorFromAttr(R.attr.syncDisconnectedBackground)
+
+    private val accountManager = FenixAccountManager(context)
+
+    // 'Reconnect' and 'Quit' items aren't needed most of the time, so we'll only create the if necessary.
+    private val reconnectToSyncItem by lazy {
+        BrowserMenuHighlightableItem(
+            context.getString(R.string.sync_reconnect),
+            R.drawable.ic_sync_disconnected,
+            iconTintColorResource = syncDisconnectedColor,
+            textColorResource = primaryTextColor,
+            highlight = BrowserMenuHighlight.HighPriority(
+                backgroundTint = syncDisconnectedBackgroundColor,
+                canPropagate = false,
+            ),
+            isHighlighted = { true },
+        ) {
+            onItemTapped.invoke(Item.ReconnectSync)
+        }
+    }
 
     private val quitItem by lazy {
         BrowserMenuImageText(
             context.getString(R.string.delete_browsing_data_on_quit_action),
             R.drawable.mozac_ic_quit,
-            primaryTextColor
+            primaryTextColor,
         ) {
             onItemTapped.invoke(Item.Quit)
+        }
+    }
+
+    private fun syncSignInMenuItem(): BrowserMenuImageText? {
+        val syncItemTitle =
+            if (context.components.backgroundServices.accountManagerAvailableQueue.isReady()) {
+                accountManager.accountProfileEmail ?: context.getString(R.string.sync_menu_sync_and_save_data)
+            } else {
+                null
+            }
+
+        return when (syncItemTitle) {
+            null -> null
+            else -> {
+                BrowserMenuImageText(
+                    syncItemTitle,
+                    R.drawable.ic_signed_out,
+                    primaryTextColor,
+                ) {
+                    onItemTapped.invoke(Item.SyncAccount(accountManager.accountState))
+                }
+            }
         }
     }
 
     val desktopItem = BrowserMenuImageSwitch(
         imageResource = R.drawable.ic_desktop,
         label = context.getString(R.string.browser_menu_desktop_site),
-        initialState = { context.settings().openNextTabInDesktopMode }
+        initialState = { context.settings().openNextTabInDesktopMode },
     ) { checked ->
         onItemTapped.invoke(Item.DesktopMode(checked))
     }
@@ -99,7 +162,7 @@ class HomeMenu(
         val historyItem = BrowserMenuImageText(
             context.getString(R.string.library_history),
             R.drawable.ic_history,
-            primaryTextColor
+            primaryTextColor,
         ) {
             onItemTapped.invoke(Item.History)
         }
@@ -107,15 +170,22 @@ class HomeMenu(
         val downloadsItem = BrowserMenuImageText(
             context.getString(R.string.library_downloads),
             R.drawable.ic_download,
-            primaryTextColor
+            primaryTextColor,
         ) {
             onItemTapped.invoke(Item.Downloads)
+        }
+
+        val manageAccountAndDevicesItem = SimpleBrowserMenuItem(
+            context.getString(R.string.browser_menu_manage_account_and_devices),
+            textColorResource = primaryTextColor,
+        ) {
+            onItemTapped.invoke(Item.ManageAccountAndDevices)
         }
 
         val customizeHomeItem = BrowserMenuImageText(
             context.getString(R.string.browser_menu_customize_home_1),
             R.drawable.ic_customize,
-            primaryTextColor
+            primaryTextColor,
         ) {
             onItemTapped.invoke(Item.CustomizeHome)
         }
@@ -125,10 +195,21 @@ class HomeMenu(
         val settingsItem = BrowserMenuImageText(
             nimbusValidation.settingsTitle,
             R.drawable.mozac_ic_settings,
-            primaryTextColor
+            primaryTextColor,
         ) {
             onItemTapped.invoke(Item.Settings)
         }
+
+        // Only query account manager if it has been initialized.
+        // We don't want to cause its initialization just for this check.
+        val accountAuthItem =
+            if (context.components.backgroundServices.accountManagerAvailableQueue.isReady() &&
+                context.components.backgroundServices.accountManager.accountNeedsReauth()
+            ) {
+                reconnectToSyncItem
+            } else {
+                null
+            }
 
         val feedbackHomeItem = BrowserMenuImageText(
             context.getString(R.string.browser_menu_feedback),
@@ -146,6 +227,10 @@ class HomeMenu(
             bookmarksItem,
             historyItem,
             downloadsItem,
+            syncSignInMenuItem(),
+            accountAuthItem,
+            if (Config.channel.isMozillaOnline) manageAccountAndDevicesItem else null,
+            BrowserMenuDivider(),
             desktopItem,
             BrowserMenuDivider(),
             customizeHomeItem,
@@ -165,13 +250,54 @@ class HomeMenu(
         // Report initial state.
         onMenuBuilderChanged(BrowserMenuBuilder(menuItems))
 
+        // Observe account state changes, and update menu item builder with a new set of items.
+        context.components.backgroundServices.accountManagerAvailableQueue.runIfReadyOrQueue {
+            // This task isn't relevant if our parent fragment isn't around anymore.
+            if (lifecycleOwner.lifecycle.currentState == Lifecycle.State.DESTROYED) {
+                return@runIfReadyOrQueue
+            }
+            context.components.backgroundServices.accountManager.register(
+                object : AccountObserver {
+                    override fun onAuthenticationProblems() {
+                        lifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
+                            onMenuBuilderChanged(
+                                BrowserMenuBuilder(
+                                    menuItems,
+                                ),
+                            )
+                        }
+                    }
+
+                    override fun onAuthenticated(account: OAuthAccount, authType: AuthType) {
+                        lifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
+                            onMenuBuilderChanged(
+                                BrowserMenuBuilder(
+                                    menuItems,
+                                ),
+                            )
+                        }
+                    }
+
+                    override fun onLoggedOut() {
+                        lifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
+                            onMenuBuilderChanged(
+                                BrowserMenuBuilder(
+                                    menuItems,
+                                ),
+                            )
+                        }
+                    }
+                },
+                lifecycleOwner,
+            )
+        }
     }
 
     private fun getSetDefaultBrowserItem(): BrowserMenuImageText? {
-        val browsers = BrowsersCache.all(context)
+            val browsers = BrowsersCache.all(context)
 
-        return if (!browsers.isKARMADefaultBrowser) {
-            return BrowserMenuImageText(
+            return if (!browsers.isKARMADefaultBrowser) {
+                return BrowserMenuImageText(
                 label = context.getString(R.string.preferences_set_as_default_browser),
                 imageResource = R.drawable.ic_globe
             ) {
@@ -180,5 +306,6 @@ class HomeMenu(
         } else {
             null
         }
+    
     }
 }

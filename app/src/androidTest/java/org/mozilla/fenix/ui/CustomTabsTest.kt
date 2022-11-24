@@ -1,8 +1,11 @@
+@file:Suppress("DEPRECATION")
+
 package org.mozilla.fenix.ui
 
 import androidx.core.net.toUri
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
-import androidx.test.rule.GrantPermissionRule
+import androidx.test.uiautomator.UiDevice
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
 import org.junit.Before
@@ -11,22 +14,27 @@ import org.junit.Test
 import org.mozilla.fenix.IntentReceiverActivity
 import org.mozilla.fenix.customannotations.SmokeTest
 import org.mozilla.fenix.helpers.AndroidAssetDispatcher
+import org.mozilla.fenix.helpers.FeatureSettingsHelperDelegate
 import org.mozilla.fenix.helpers.HomeActivityIntentTestRule
 import org.mozilla.fenix.helpers.TestAssetHelper
 import org.mozilla.fenix.helpers.TestHelper.createCustomTabIntent
 import org.mozilla.fenix.helpers.TestHelper.openAppFromExternalLink
 import org.mozilla.fenix.ui.robots.browserScreen
 import org.mozilla.fenix.ui.robots.customTabScreen
-import org.mozilla.fenix.ui.robots.mDevice
 import org.mozilla.fenix.ui.robots.navigationToolbar
 import org.mozilla.fenix.ui.robots.notificationShade
 import org.mozilla.fenix.ui.robots.openEditURLView
 import org.mozilla.fenix.ui.robots.searchScreen
 
 class CustomTabsTest {
+    private lateinit var mDevice: UiDevice
     private lateinit var mockWebServer: MockWebServer
     private val customMenuItem = "TestMenuItem"
-    private val externalLinksPWAPage = "https://mozilla-mobile.github.io/testapp/externalLinks.html"
+
+    /* Updated externalLinks.html to v2.0,
+       changed the hypertext reference to mozilla-mobile.github.io/testapp/downloads for "External link"
+     */
+    private val externalLinksPWAPage = "https://mozilla-mobile.github.io/testapp/v2.0/externalLinks.html"
     private val loginPage = "https://mozilla-mobile.github.io/testapp/loginForm"
 
     @get:Rule
@@ -34,55 +42,60 @@ class CustomTabsTest {
 
     @get: Rule
     val intentReceiverActivityTestRule = ActivityTestRule(
-        IntentReceiverActivity::class.java, true, false
+        IntentReceiverActivity::class.java,
+        true,
+        false,
     )
 
-    @get:Rule
-    var mGrantPermissions = GrantPermissionRule.grant(
-        android.Manifest.permission.WRITE_EXTERNAL_STORAGE
-    )
+    private val featureSettingsHelper = FeatureSettingsHelperDelegate()
 
     @Before
     fun setUp() {
+        mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         mockWebServer = MockWebServer().apply {
             dispatcher = AndroidAssetDispatcher()
             start()
         }
+
+        featureSettingsHelper.apply {
+            isTCPCFREnabled = false
+        }.applyFlagUpdates()
     }
 
     @After
     fun tearDown() {
         mockWebServer.shutdown()
+        featureSettingsHelper.resetAllFeatureFlags()
     }
 
     @SmokeTest
     @Test
     fun customTabsOpenExternalLinkTest() {
+        val externalLinkURL = "https://mozilla-mobile.github.io/testapp/downloads"
 
         intentReceiverActivityTestRule.launchActivity(
             createCustomTabIntent(
                 externalLinksPWAPage.toUri().toString(),
-                customMenuItem
-            )
+                customMenuItem,
+            ),
         )
 
         customTabScreen {
             waitForPageToLoad()
             clickLinkMatchingText("External link")
             waitForPageToLoad()
-            verifyCustomTabToolbarTitle("Google")
+            verifyCustomTabToolbarTitle(externalLinkURL)
         }
     }
 
     @SmokeTest
     @Test
     fun customTabsSaveLoginTest() {
-
         intentReceiverActivityTestRule.launchActivity(
             createCustomTabIntent(
                 loginPage.toUri().toString(),
-                customMenuItem
-            )
+                customMenuItem,
+            ),
         )
 
         customTabScreen {
@@ -116,8 +129,8 @@ class CustomTabsTest {
         intentReceiverActivityTestRule.launchActivity(
             createCustomTabIntent(
                 customTabPage.url.toString(),
-                customMenuItem
-            )
+                customMenuItem,
+            ),
         )
 
         customTabScreen {
@@ -146,8 +159,8 @@ class CustomTabsTest {
         intentReceiverActivityTestRule.launchActivity(
             createCustomTabIntent(
                 customTabPage.url.toString(),
-                customMenuItem
-            )
+                customMenuItem,
+            ),
         )
 
         customTabScreen {
@@ -170,8 +183,8 @@ class CustomTabsTest {
         intentReceiverActivityTestRule.launchActivity(
             createCustomTabIntent(
                 customTabPage.toUri().toString(),
-                customMenuItem
-            )
+                customMenuItem,
+            ),
         )
 
         customTabScreen {

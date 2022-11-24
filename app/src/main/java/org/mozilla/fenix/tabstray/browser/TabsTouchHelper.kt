@@ -17,7 +17,6 @@ import mozilla.components.support.ktx.android.content.getColorFromAttr
 import mozilla.components.support.ktx.android.content.getDrawableWithTint
 import mozilla.components.support.ktx.android.util.dpToPx
 import org.mozilla.fenix.R
-import org.mozilla.fenix.home.sessioncontrol.SwipeToDeleteCallback
 
 /**
  * A callback for consumers to know when a [RecyclerView.ViewHolder] is about to be touched.
@@ -54,12 +53,12 @@ class TouchCallback(
     private val onViewHolderTouched: OnViewHolderTouched,
     private val onViewHolderDraw: OnViewHolderToDraw,
     featureNameHolder: FeatureNameHolder,
-    onRemove: (TabSessionState) -> Unit = { delegate.onTabClosed(it, featureNameHolder.featureName) }
+    onRemove: (TabSessionState) -> Unit = { delegate.onTabClosed(it, featureNameHolder.featureName) },
 ) : TabTouchCallback(onRemove) {
 
     override fun getMovementFlags(
         recyclerView: RecyclerView,
-        viewHolder: RecyclerView.ViewHolder
+        viewHolder: RecyclerView.ViewHolder,
     ): Int {
         if (!onViewHolderTouched.invoke(viewHolder)) {
             return ItemTouchHelper.Callback.makeFlag(ACTION_STATE_IDLE, 0)
@@ -75,7 +74,7 @@ class TouchCallback(
         dX: Float,
         dY: Float,
         actionState: Int,
-        isCurrentlyActive: Boolean
+        isCurrentlyActive: Boolean,
     ) {
         super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
 
@@ -85,17 +84,17 @@ class TouchCallback(
 
         val icon = recyclerView.context.getDrawableWithTint(
             R.drawable.ic_delete,
-            recyclerView.context.getColorFromAttr(R.attr.textWarning)
+            recyclerView.context.getColorFromAttr(R.attr.textWarning),
         )!!
         val background = AppCompatResources.getDrawable(
             recyclerView.context,
-            R.drawable.swipe_delete_background
+            R.drawable.swipe_delete_background,
         )!!
         val itemView = viewHolder.itemView
         val iconLeft: Int
         val iconRight: Int
         val margin =
-            SwipeToDeleteCallback.MARGIN.dpToPx(recyclerView.resources.displayMetrics)
+            MARGIN.dpToPx(recyclerView.resources.displayMetrics)
         val iconWidth = icon.intrinsicWidth
         val iconHeight = icon.intrinsicHeight
         val cellHeight = itemView.bottom - itemView.top
@@ -107,9 +106,10 @@ class TouchCallback(
                 iconLeft = itemView.left + margin
                 iconRight = itemView.left + margin + iconWidth
                 background.setBounds(
-                    itemView.left, itemView.top,
-                    (itemView.left + dX).toInt() + SwipeToDeleteCallback.BACKGROUND_CORNER_OFFSET,
-                    itemView.bottom
+                    itemView.left,
+                    itemView.top,
+                    (itemView.left + dX).toInt() + BACKGROUND_CORNER_OFFSET,
+                    itemView.bottom,
                 )
                 icon.setBounds(iconLeft, iconTop, iconRight, iconBottom)
                 draw(background, icon, c)
@@ -118,8 +118,10 @@ class TouchCallback(
                 iconLeft = itemView.right - margin - iconWidth
                 iconRight = itemView.right - margin
                 background.setBounds(
-                    (itemView.right + dX).toInt() - SwipeToDeleteCallback.BACKGROUND_CORNER_OFFSET,
-                    itemView.top, itemView.right, itemView.bottom
+                    (itemView.right + dX).toInt() - BACKGROUND_CORNER_OFFSET,
+                    itemView.top,
+                    itemView.right,
+                    itemView.bottom,
                 )
                 icon.setBounds(iconLeft, iconTop, iconRight, iconBottom)
                 draw(background, icon, c)
@@ -134,9 +136,14 @@ class TouchCallback(
     private fun draw(
         background: Drawable,
         icon: Drawable,
-        c: Canvas
+        c: Canvas,
     ) {
         background.draw(c)
         icon.draw(c)
+    }
+
+    companion object {
+        const val BACKGROUND_CORNER_OFFSET = 40
+        const val MARGIN = 32
     }
 }

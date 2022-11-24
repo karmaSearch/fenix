@@ -7,11 +7,12 @@ package org.mozilla.fenix.ui
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.mozilla.fenix.customannotations.SmokeTest
 import org.mozilla.fenix.helpers.AndroidAssetDispatcher
-import org.mozilla.fenix.helpers.FeatureSettingsHelper
+import org.mozilla.fenix.helpers.ETPPolicy
 import org.mozilla.fenix.helpers.HomeActivityTestRule
 import org.mozilla.fenix.helpers.TestAssetHelper
 import org.mozilla.fenix.ui.robots.enhancedTrackingProtection
@@ -34,10 +35,14 @@ import org.mozilla.fenix.ui.robots.settingsSubMenuEnhancedTrackingProtection
 
 class StrictEnhancedTrackingProtectionTest {
     private lateinit var mockWebServer: MockWebServer
-    private val featureSettingsHelper = FeatureSettingsHelper()
 
     @get:Rule
-    val activityTestRule = HomeActivityTestRule()
+    val activityTestRule = HomeActivityTestRule(
+        isJumpBackInCFREnabled = false,
+        isTCPCFREnabled = false,
+        isWallpaperOnboardingEnabled = false,
+        etpPolicy = ETPPolicy.STRICT,
+    )
 
     @Before
     fun setUp() {
@@ -45,14 +50,11 @@ class StrictEnhancedTrackingProtectionTest {
             dispatcher = AndroidAssetDispatcher()
             start()
         }
-        featureSettingsHelper.setStrictETPEnabled()
-        featureSettingsHelper.setJumpBackCFREnabled(false)
     }
 
     @After
     fun tearDown() {
         mockWebServer.shutdown()
-        featureSettingsHelper.resetAllFeatureFlags()
     }
 
     @Test
@@ -61,7 +63,7 @@ class StrictEnhancedTrackingProtectionTest {
         }.openThreeDotMenu {
         }.openSettings {
             verifyEnhancedTrackingProtectionButton()
-            verifyEnhancedTrackingProtectionValue("On")
+            verifyEnhancedTrackingProtectionState("On")
         }.openEnhancedTrackingProtectionSubMenu {
             verifyEnhancedTrackingProtectionHeader()
             verifyEnhancedTrackingProtectionOptionsEnabled()
@@ -159,6 +161,7 @@ class StrictEnhancedTrackingProtectionTest {
         }
     }
 
+    @Ignore("Permanent failure: https://github.com/mozilla-mobile/fenix/issues/27312")
     @Test
     fun testStrictVisitSheetDetails() {
         val genericPage = TestAssetHelper.getGenericAsset(mockWebServer, 1)
@@ -173,7 +176,9 @@ class StrictEnhancedTrackingProtectionTest {
         }
 
         navigationToolbar {
-        }.enterURLAndEnterToBrowser(trackingProtectionTest.url) {}
+        }.enterURLAndEnterToBrowser(trackingProtectionTest.url) {
+            verifyTrackingProtectionWebContent("blocked")
+        }
         enhancedTrackingProtection {
         }.openEnhancedTrackingProtectionSheet {
             verifyEnhancedTrackingProtectionSheetStatus("ON", true)

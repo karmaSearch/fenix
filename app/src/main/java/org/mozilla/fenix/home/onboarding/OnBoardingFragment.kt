@@ -10,6 +10,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import org.mozilla.fenix.NavGraphDirections
 import org.mozilla.fenix.databinding.FragmentOnBoardingBinding
 
 import org.mozilla.fenix.ext.settings
@@ -50,7 +51,8 @@ class OnBoardingFragment: Fragment() {
                         currentPage += 1
                         binding.onboardingPager.currentItem = currentPage
                     } else {
-                        findNavController().navigateUp()
+                        val directions = NavGraphDirections.actionStartupDefaultbrowser()
+                        findNavController().navigate(directions)
                     }
                 }
             }
@@ -67,7 +69,8 @@ class OnBoardingFragment: Fragment() {
         TabLayoutMediator(pageIndicator, binding.onboardingPager) { _, _ ->}.attach()
 
         binding.onboardingSkip.setOnClickListener {
-            findNavController().navigateUp()
+            val directions = NavGraphDirections.actionGlobalHome()
+            findNavController().navigate(directions)
         }
         return view
     }

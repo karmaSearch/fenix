@@ -10,6 +10,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatDialogFragment
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.core.view.isVisible
+import androidx.fragment.app.clearFragmentResult
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory
@@ -21,11 +24,13 @@ import mozilla.components.browser.state.selector.findTabOrCustomTab
 import mozilla.components.concept.engine.prompt.PromptRequest
 import mozilla.components.feature.accounts.push.SendTabUseCases
 import mozilla.components.feature.share.RecentAppsStorage
+import org.mozilla.fenix.FeatureFlags
 import org.mozilla.fenix.R
 import org.mozilla.fenix.components.FenixSnackbar
 import org.mozilla.fenix.databinding.FragmentShareBinding
 import org.mozilla.fenix.ext.getRootView
 import org.mozilla.fenix.ext.requireComponents
+import org.mozilla.fenix.theme.FirefoxTheme
 
 class ShareFragment : AppCompatDialogFragment() {
 
@@ -56,12 +61,12 @@ class ShareFragment : AppCompatDialogFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         val binding = FragmentShareBinding.inflate(
             inflater,
             container,
-            false
+            false,
         )
         val shareData = args.data.toList()
 
@@ -74,12 +79,13 @@ class ShareFragment : AppCompatDialogFragment() {
                 shareData = shareData,
                 snackbar = FenixSnackbar.make(
                     view = requireActivity().getRootView()!!,
-                    isDisplayedWithBrowserToolbar = true
+                    isDisplayedWithBrowserToolbar = true,
                 ),
                 navController = findNavController(),
                 sendTabUseCases = SendTabUseCases(accountManager),
+                saveToPdfUseCase = requireComponents.useCases.sessionUseCases.saveToPdf,
                 recentAppsStorage = RecentAppsStorage(requireContext()),
-                viewLifecycleScope = viewLifecycleOwner.lifecycleScope
+                viewLifecycleScope = viewLifecycleOwner.lifecycleScope,
             ) { result ->
                 consumePrompt {
                     when (result) {
@@ -89,7 +95,7 @@ class ShareFragment : AppCompatDialogFragment() {
                     }
                 }
                 super.dismiss()
-            }
+            },
         )
 
         binding.shareWrapper.setOnClickListener { shareInteractor.onShareClosed() }
@@ -107,6 +113,20 @@ class ShareFragment : AppCompatDialogFragment() {
         }
         shareToAppsView = ShareToAppsView(binding.appsShareLayout, shareInteractor)
 
+        if (FeatureFlags.saveToPDF) {
+            binding.dividerLineAppsShareAndPdfSection.isVisible = true
+            binding.savePdf.apply {
+                isVisible = true
+                setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+                setContent {
+                    FirefoxTheme {
+                        SaveToPDFItem {
+                            shareInteractor.onSaveToPDF(tabId = args.sessionId)
+                        }
+                    }
+                }
+            }
+        }
         return binding.root
     }
 
@@ -123,6 +143,8 @@ class ShareFragment : AppCompatDialogFragment() {
 
     override fun onDestroy() {
         setFragmentResult(RESULT_KEY, Bundle())
+        // Clear the stored result in case there is no listener with the same key set.
+        clearFragmentResult(RESULT_KEY)
 
         super.onDestroy()
     }
@@ -132,7 +154,7 @@ class ShareFragment : AppCompatDialogFragment() {
      * prompt request, call [consume] then clean up the prompt.
      */
     private fun consumePrompt(
-        consume: PromptRequest.Share.() -> Unit
+        consume: PromptRequest.Share.() -> Unit,
     ) {
         val browserStore = requireComponents.core.store
         args.sessionId

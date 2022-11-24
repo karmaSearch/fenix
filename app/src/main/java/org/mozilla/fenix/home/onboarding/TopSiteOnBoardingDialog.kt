@@ -35,7 +35,7 @@ class TopSiteOnBoardingDialog(val recyclerView: RecyclerView) {
         for (index in 0..count) {
             val viewHolder = recyclerView.findViewHolderForAdapterPosition(index)
             if (viewHolder is TopSitePagerViewHolder) {
-                return viewHolder.containerView
+                return viewHolder.itemView
             }
         }
         return null

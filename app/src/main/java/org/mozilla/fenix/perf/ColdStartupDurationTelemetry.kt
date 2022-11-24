@@ -30,7 +30,7 @@ class ColdStartupDurationTelemetry {
         visualCompletenessQueue: VisualCompletenessQueue,
         startupStateProvider: StartupStateProvider,
         safeIntent: SafeIntent,
-        rootContainer: View
+        rootContainer: View,
     ) {
         // Optimization: it might be expensive to post runnables so we can short-circuit
         // with a subset of the later logic.
@@ -66,7 +66,7 @@ class ColdStartupDurationTelemetry {
 
         val startNanos = StartupTimeline.frameworkStartMeasurement.applicationInitNanos
         val durationMillis = TimeUnit.NANOSECONDS.toMillis(firstFrameNanos - startNanos)
-        metric.accumulateSamples(longArrayOf(durationMillis))
+        metric.accumulateSamples(listOf(durationMillis))
         logger.info("COLD $typeForLog Application.<init> to first frame: $durationMillis ms")
     }
 }

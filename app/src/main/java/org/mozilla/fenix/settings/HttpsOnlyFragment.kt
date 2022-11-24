@@ -23,10 +23,6 @@ import org.mozilla.fenix.databinding.SettingsHttpsOnlyBinding
 import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.ext.settings
 
-// To be replaced with a SUMO link when available. This is the desktop link.
-// See https://bugzilla.mozilla.org/show_bug.cgi?id=1758066.
-private const val SUMO_URL = "https://support.mozilla.org/en-US/kb/https-only-prefs"
-
 /**
  * Lets the user customize HTTPS-only mode.
  */
@@ -34,7 +30,7 @@ class HttpsOnlyFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         val binding = SettingsHttpsOnlyBinding.inflate(inflater)
 
@@ -85,11 +81,11 @@ class HttpsOnlyFragment : Fragment() {
 
     private fun combineTextWithLink(
         text: String,
-        linkTitle: String
+        linkTitle: String,
     ): SpannableStringBuilder {
         val rawTextWithLink = HtmlCompat.fromHtml(
             "$text <a href=\"\">$linkTitle</a>",
-            HtmlCompat.FROM_HTML_MODE_COMPACT
+            HtmlCompat.FROM_HTML_MODE_COMPACT,
         )
 
         return SpannableStringBuilder(rawTextWithLink)
@@ -106,9 +102,11 @@ class HttpsOnlyFragment : Fragment() {
             override fun onClick(view: View) {
                 view.setOnClickListener {
                     (activity as HomeActivity).openToBrowserAndLoad(
-                        searchTermOrURL = SUMO_URL,
+                        searchTermOrURL = SupportUtils.getGenericSumoURLForTopic(
+                            SupportUtils.SumoTopic.HTTPS_ONLY_MODE,
+                        ),
                         newTab = true,
-                        from = BrowserDirection.FromHttpsOnlyMode
+                        from = BrowserDirection.FromHttpsOnlyMode,
                     )
                 }
             }

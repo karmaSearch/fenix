@@ -5,24 +5,27 @@
 package org.mozilla.fenix.perf
 
 import androidx.lifecycle.Lifecycle
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.spyk
 import io.mockk.verify
+import kotlinx.coroutines.test.advanceUntilIdle
 import mozilla.components.support.ktx.kotlin.crossProduct
 import mozilla.components.support.test.robolectric.testContext
+import mozilla.components.support.test.rule.MainCoroutineRule
+import mozilla.components.support.test.rule.runTestOnMain
 import mozilla.telemetry.glean.testing.GleanTestRule
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mozilla.fenix.GleanMetrics.PerfStartup
 import org.mozilla.fenix.HomeActivity
-import org.mozilla.fenix.helpers.FenixRobolectricTestRunner
 import org.mozilla.fenix.perf.StartupPathProvider.StartupPath
 import org.mozilla.fenix.perf.StartupStateProvider.StartupState
 
@@ -35,15 +38,20 @@ private val validTelemetryLabels = run {
 
 private val activityClass = HomeActivity::class.java
 
-@RunWith(FenixRobolectricTestRunner::class)
+@RunWith(AndroidJUnit4::class)
 class StartupTypeTelemetryTest {
+
+    @get:Rule
+    val coroutinesTestRule = MainCoroutineRule()
 
     @get:Rule
     val gleanTestRule = GleanTestRule(testContext)
 
     private lateinit var telemetry: StartupTypeTelemetry
     private lateinit var callbacks: StartupTypeTelemetry.StartupTypeLifecycleObserver
+
     @MockK private lateinit var stateProvider: StartupStateProvider
+
     @MockK private lateinit var pathProvider: StartupPathProvider
 
     @Before
@@ -62,9 +70,9 @@ class StartupTypeTelemetryTest {
     }
 
     @Test
-    fun `GIVEN all possible path and state combinations WHEN record telemetry THEN the labels are incremented the appropriate number of times`() {
+    fun `GIVEN all possible path and state combinations WHEN record telemetry THEN the labels are incremented the appropriate number of times`() = runTestOnMain {
         val allPossibleInputArgs = StartupState.values().toList().crossProduct(
-            StartupPath.values().toList()
+            StartupPath.values().toList(),
         ) { state, path ->
             Pair(state, path)
         }
@@ -73,7 +81,8 @@ class StartupTypeTelemetryTest {
             every { stateProvider.getStartupStateForStartedActivity(activityClass) } returns state
             every { pathProvider.startupPathForActivity } returns path
 
-            telemetry.record()
+            telemetry.record(coroutinesTestRule.testDispatcher)
+            advanceUntilIdle()
         }
 
         validTelemetryLabels.forEach { label ->
@@ -83,15 +92,16 @@ class StartupTypeTelemetryTest {
         }
 
         // All invalid labels go to a single bucket: let's verify it has no value.
-        assertFalse(PerfStartup.startupType["__other__"].testHasValue())
+        assertNull(PerfStartup.startupType["__other__"].testGetValue())
     }
 
     @Test
-    fun `WHEN record is called THEN telemetry is recorded with the appropriate label`() {
+    fun `WHEN record is called THEN telemetry is recorded with the appropriate label`() = runTestOnMain {
         every { stateProvider.getStartupStateForStartedActivity(activityClass) } returns StartupState.COLD
         every { pathProvider.startupPathForActivity } returns StartupPath.MAIN
 
-        telemetry.record()
+        telemetry.record(coroutinesTestRule.testDispatcher)
+        advanceUntilIdle()
 
         assertEquals(1, PerfStartup.startupType["cold_main"].testGetValue())
     }
@@ -99,33 +109,33 @@ class StartupTypeTelemetryTest {
     @Test
     fun `GIVEN the activity is launched WHEN onResume is called THEN we record the telemetry`() {
         launchApp()
-        verify(exactly = 1) { telemetry.record() }
+        verify(exactly = 1) { telemetry.record(any()) }
     }
 
     @Test
     fun `GIVEN the activity is launched WHEN the activity is paused and resumed THEN record is not called`() {
         // This part of the test duplicates another test but it's needed to initialize the state of this test.
         launchApp()
-        verify(exactly = 1) { telemetry.record() }
+        verify(exactly = 1) { telemetry.record(any()) }
 
         callbacks.onPause(mockk())
         callbacks.onResume(mockk())
 
-        verify(exactly = 1) { telemetry.record() } // i.e. this shouldn't be called again.
+        verify(exactly = 1) { telemetry.record(any()) } // i.e. this shouldn't be called again.
     }
 
     @Test
     fun `GIVEN the activity is launched WHEN the activity is stopped and resumed THEN record is called again`() {
         // This part of the test duplicates another test but it's needed to initialize the state of this test.
         launchApp()
-        verify(exactly = 1) { telemetry.record() }
+        verify(exactly = 1) { telemetry.record(any()) }
 
         callbacks.onPause(mockk())
         callbacks.onStop(mockk())
         callbacks.onStart(mockk())
         callbacks.onResume(mockk())
 
-        verify(exactly = 2) { telemetry.record() } // i.e. this should be called again.
+        verify(exactly = 2) { telemetry.record(any()) } // i.e. this should be called again.
     }
 
     private fun launchApp() {

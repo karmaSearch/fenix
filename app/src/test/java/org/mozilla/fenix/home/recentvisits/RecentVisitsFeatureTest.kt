@@ -10,9 +10,8 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.spyk
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.advanceUntilIdle
 import mozilla.components.browser.storage.sync.PlacesHistoryStorage
 import mozilla.components.concept.storage.DocumentType
 import mozilla.components.concept.storage.HistoryHighlight
@@ -23,6 +22,7 @@ import mozilla.components.concept.storage.HistoryMetadataStorage
 import mozilla.components.support.test.libstate.ext.waitUntilIdle
 import mozilla.components.support.test.middleware.CaptureActionsMiddleware
 import mozilla.components.support.test.rule.MainCoroutineRule
+import mozilla.components.support.test.rule.runTestOnMain
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -49,6 +49,7 @@ class RecentVisitsFeatureTest {
     @get:Rule
     val coroutinesTestRule = MainCoroutineRule()
     private val testDispatcher = coroutinesTestRule.testDispatcher
+    private val scope = coroutinesTestRule.scope
 
     @Before
     fun setup() {
@@ -58,7 +59,7 @@ class RecentVisitsFeatureTest {
 
     @Test
     fun `GIVEN no recent visits WHEN feature starts THEN fetch history metadata and highlights then notify store`() =
-        testDispatcher.runBlockingTest {
+        runTestOnMain {
             val historyEntry = HistoryMetadata(
                 key = HistoryMetadataKey("http://www.mozilla.com", "mozilla", null),
                 title = "mozilla",
@@ -66,17 +67,17 @@ class RecentVisitsFeatureTest {
                 updatedAt = System.currentTimeMillis(),
                 totalViewTime = 10,
                 documentType = DocumentType.Regular,
-                previewImageUrl = null
+                previewImageUrl = null,
             )
             val recentHistoryGroup = RecentHistoryGroup(
                 title = "mozilla",
-                historyMetadata = listOf(historyEntry)
+                historyMetadata = listOf(historyEntry),
             )
             val highlightEntry = HistoryHighlight(1.0, 1, "https://firefox.com", "firefox", null)
             val recentHistoryHighlight = RecentHistoryHighlight("firefox", "https://firefox.com")
             coEvery { historyMetadataStorage.getHistoryMetadataSince(any()) }.coAnswers {
                 listOf(
-                    historyEntry
+                    historyEntry,
                 )
             }
             coEvery { historyHightlightsStorage.getHistoryHighlights(any(), any()) }.coAnswers {
@@ -92,7 +93,7 @@ class RecentVisitsFeatureTest {
 
     @Test
     fun `WHEN asking for history highlights THEN use a specific query`() {
-        testDispatcher.runBlockingTest {
+        runTestOnMain {
             val highlightWeights = slot<HistoryHighlightWeights>()
             val highlightsAskedForNumber = slot<Int>()
 
@@ -101,7 +102,7 @@ class RecentVisitsFeatureTest {
             coVerify {
                 historyHightlightsStorage.getHistoryHighlights(
                     capture(highlightWeights),
-                    capture(highlightsAskedForNumber)
+                    capture(highlightsAskedForNumber),
                 )
             }
 
@@ -113,7 +114,7 @@ class RecentVisitsFeatureTest {
 
     @Test
     fun `GIVEN groups containing history metadata items with the same url WHEN they are added to store THEN entries are deduped`() =
-        testDispatcher.runBlockingTest {
+        runTestOnMain {
             val historyEntry1 = HistoryMetadata(
                 key = HistoryMetadataKey("http://www.mozilla.com", "mozilla", null),
                 title = "mozilla",
@@ -121,7 +122,7 @@ class RecentVisitsFeatureTest {
                 updatedAt = 1,
                 totalViewTime = 10,
                 documentType = DocumentType.Regular,
-                previewImageUrl = null
+                previewImageUrl = null,
             )
 
             val historyEntry2 = HistoryMetadata(
@@ -131,7 +132,7 @@ class RecentVisitsFeatureTest {
                 updatedAt = 2,
                 totalViewTime = 20,
                 documentType = DocumentType.Regular,
-                previewImageUrl = "http://firefox.com/image1"
+                previewImageUrl = "http://firefox.com/image1",
             )
 
             val historyEntry3 = HistoryMetadata(
@@ -141,7 +142,7 @@ class RecentVisitsFeatureTest {
                 updatedAt = 3,
                 totalViewTime = 30,
                 documentType = DocumentType.Regular,
-                previewImageUrl = null
+                previewImageUrl = null,
             )
 
             val expectedHistoryGroup = RecentHistoryGroup(
@@ -150,15 +151,17 @@ class RecentVisitsFeatureTest {
                     // Expected total view time to be summed up for deduped entries
                     historyEntry1.copy(
                         totalViewTime = historyEntry1.totalViewTime + historyEntry3.totalViewTime,
-                        updatedAt = historyEntry3.updatedAt
+                        updatedAt = historyEntry3.updatedAt,
                     ),
-                    historyEntry2
-                )
+                    historyEntry2,
+                ),
             )
 
             coEvery { historyMetadataStorage.getHistoryMetadataSince(any()) }.coAnswers {
                 listOf(
-                    historyEntry1, historyEntry2, historyEntry3
+                    historyEntry1,
+                    historyEntry2,
+                    historyEntry3,
                 )
             }
 
@@ -171,7 +174,7 @@ class RecentVisitsFeatureTest {
 
     @Test
     fun `GIVEN different groups containing history metadata items with the same url WHEN they are added to store THEN entries are not deduped`() =
-        testDispatcher.runBlockingTest {
+        runTestOnMain {
             val now = System.currentTimeMillis()
             val historyEntry1 = HistoryMetadata(
                 key = HistoryMetadataKey("http://www.mozilla.com", "mozilla", null),
@@ -180,7 +183,7 @@ class RecentVisitsFeatureTest {
                 updatedAt = now + 3,
                 totalViewTime = 10,
                 documentType = DocumentType.Regular,
-                previewImageUrl = null
+                previewImageUrl = null,
             )
 
             val historyEntry2 = HistoryMetadata(
@@ -190,7 +193,7 @@ class RecentVisitsFeatureTest {
                 updatedAt = now + 2,
                 totalViewTime = 20,
                 documentType = DocumentType.Regular,
-                previewImageUrl = null
+                previewImageUrl = null,
             )
 
             val historyEntry3 = HistoryMetadata(
@@ -200,22 +203,24 @@ class RecentVisitsFeatureTest {
                 updatedAt = now + 1,
                 totalViewTime = 30,
                 documentType = DocumentType.Regular,
-                previewImageUrl = null
+                previewImageUrl = null,
             )
 
             val expectedHistoryGroup1 = RecentHistoryGroup(
                 title = "mozilla",
-                historyMetadata = listOf(historyEntry1, historyEntry2)
+                historyMetadata = listOf(historyEntry1, historyEntry2),
             )
 
             val expectedHistoryGroup2 = RecentHistoryGroup(
                 title = "firefox",
-                historyMetadata = listOf(historyEntry3)
+                historyMetadata = listOf(historyEntry3),
             )
 
             coEvery { historyMetadataStorage.getHistoryMetadataSince(any()) }.coAnswers {
                 listOf(
-                    historyEntry1, historyEntry2, historyEntry3
+                    historyEntry1,
+                    historyEntry2,
+                    historyEntry3,
                 )
             }
 
@@ -228,7 +233,7 @@ class RecentVisitsFeatureTest {
 
     @Test
     fun `GIVEN history groups WHEN they are added to store THEN they are sorted descending by last updated timestamp`() =
-        testDispatcher.runBlockingTest {
+        runTestOnMain {
             val now = System.currentTimeMillis()
             val historyEntry1 = HistoryMetadata(
                 key = HistoryMetadataKey("http://www.mozilla.com", "mozilla", null),
@@ -237,7 +242,7 @@ class RecentVisitsFeatureTest {
                 updatedAt = now + 1,
                 totalViewTime = 10,
                 documentType = DocumentType.Regular,
-                previewImageUrl = null
+                previewImageUrl = null,
             )
 
             val historyEntry2 = HistoryMetadata(
@@ -247,7 +252,7 @@ class RecentVisitsFeatureTest {
                 updatedAt = now + 2,
                 totalViewTime = 20,
                 documentType = DocumentType.Regular,
-                previewImageUrl = null
+                previewImageUrl = null,
             )
 
             val historyEntry3 = HistoryMetadata(
@@ -257,22 +262,24 @@ class RecentVisitsFeatureTest {
                 updatedAt = now + 3,
                 totalViewTime = 30,
                 documentType = DocumentType.Regular,
-                previewImageUrl = null
+                previewImageUrl = null,
             )
 
             val expectedHistoryGroup1 = RecentHistoryGroup(
                 title = "mozilla",
-                historyMetadata = listOf(historyEntry1, historyEntry2)
+                historyMetadata = listOf(historyEntry1, historyEntry2),
             )
 
             val expectedHistoryGroup2 = RecentHistoryGroup(
                 title = "firefox",
-                historyMetadata = listOf(historyEntry3)
+                historyMetadata = listOf(historyEntry3),
             )
 
             coEvery { historyMetadataStorage.getHistoryMetadataSince(any()) }.coAnswers {
                 listOf(
-                    historyEntry1, historyEntry2, historyEntry3
+                    historyEntry1,
+                    historyEntry2,
+                    historyEntry3,
                 )
             }
 
@@ -285,7 +292,7 @@ class RecentVisitsFeatureTest {
 
     @Test
     fun `GIVEN multiple groups exist but no highlights WHEN they are added to store THEN only MAX_RESULTS_TOTAL are sent`() =
-        testDispatcher.runBlockingTest {
+        runTestOnMain {
             val visitsFromSearch = getSearchFromHistoryMetadataItems(10)
             val expectedRecentHistoryGroups = visitsFromSearch
                 // Expect to only have the last accessed 9 groups.
@@ -299,14 +306,14 @@ class RecentVisitsFeatureTest {
                 assertEquals(
                     // The 9 most recent groups.
                     expectedRecentHistoryGroups,
-                    it.recentHistory
+                    it.recentHistory,
                 )
             }
         }
 
     @Test
     fun `GIVEN multiple highlights exist but no history groups WHEN they are added to store THEN only MAX_RESULTS_TOTAL are sent`() =
-        testDispatcher.runBlockingTest {
+        runTestOnMain {
             val highlights = getHistoryHighlightsItems(10)
             val expectedRecentHighlights = highlights
                 // Expect to only have 9 highlights
@@ -319,14 +326,14 @@ class RecentVisitsFeatureTest {
             middleware.assertLastAction(AppAction.RecentHistoryChange::class) {
                 assertEquals(
                     expectedRecentHighlights,
-                    it.recentHistory
+                    it.recentHistory,
                 )
             }
         }
 
     @Test
     fun `GIVEN multiple history highlights and history groups WHEN they are added to store THEN only last accessed are added`() =
-        testDispatcher.runBlockingTest {
+        runTestOnMain {
             val visitsFromSearch = getSearchFromHistoryMetadataItems(10)
             val directVisits = getDirectVisitsHistoryMetadataItems(10)
             val expectedRecentHistoryGroups = visitsFromSearch
@@ -366,7 +373,7 @@ class RecentVisitsFeatureTest {
         val expectedItems = listOf(
             expectedRecentHistoryHighlights.first(),
             expectedRecentHistoryGroups.first(),
-            expectedRecentHistoryHighlights[1]
+            expectedRecentHistoryHighlights[1],
         ) + expectedRecentHistoryGroups.subList(1, expectedRecentHistoryGroups.size)
         coEvery { historyMetadataStorage.getHistoryMetadataSince(any()) }.coAnswers {
             visitsFromSearch + directDistinctVisits + directDupeVisits
@@ -414,7 +421,7 @@ class RecentVisitsFeatureTest {
 
         val result = feature.getCombinedHistory(
             (directVisits + directDupeVisits).toHistoryHighlightsInternal(),
-            visitsFromSearch.toHistoryGroupsInternal()
+            visitsFromSearch.toHistoryGroupsInternal(),
         )
 
         assertEquals(expected, result)
@@ -433,7 +440,7 @@ class RecentVisitsFeatureTest {
 
         val result = feature.getCombinedHistory(
             directVisits.toHistoryHighlightsInternal(),
-            visitsFromSearch.toHistoryGroupsInternal()
+            visitsFromSearch.toHistoryGroupsInternal(),
         )
 
         assertEquals(expected, result)
@@ -449,7 +456,7 @@ class RecentVisitsFeatureTest {
 
         val result = feature.getCombinedHistory(
             directVisits.toHistoryHighlightsInternal(),
-            visitsFromSearch.toHistoryGroupsInternal()
+            visitsFromSearch.toHistoryGroupsInternal(),
         )
 
         assertEquals(expected, result)
@@ -465,7 +472,7 @@ class RecentVisitsFeatureTest {
 
         val result = feature.getCombinedHistory(
             directVisits.toHistoryHighlightsInternal(),
-            visitsFromSearch.toHistoryGroupsInternal()
+            visitsFromSearch.toHistoryGroupsInternal(),
         )
 
         assertEquals(expected, result)
@@ -479,12 +486,12 @@ class RecentVisitsFeatureTest {
 
         val result = feature.getHistoryHighlights(
             directVisits.toHistoryHighlights(),
-            visitsFromSearch + directVisits
+            visitsFromSearch + directVisits,
         )
 
         assertEquals(
             directVisits.toHistoryHighlightsInternal(),
-            result
+            result,
         )
     }
 
@@ -500,12 +507,12 @@ class RecentVisitsFeatureTest {
 
         val result = feature.getHistoryHighlights(
             directVisits.toHistoryHighlights(),
-            visitsFromSearch + directVisits.takeLast(5)
+            visitsFromSearch + directVisits.takeLast(5),
         )
 
         assertEquals(
             highlightsWithUnknownAccessTime + highlightsWithInferredAccessTime,
-            result
+            result,
         )
     }
 
@@ -520,14 +527,14 @@ class RecentVisitsFeatureTest {
 
         val result = feature.getHistoryHighlights(
             directVisits.toHistoryHighlights(),
-            visitsFromSearch + directVisits + newerDirectVisits
+            visitsFromSearch + directVisits + newerDirectVisits,
         )
 
         assertEquals(
             directVisits.mapIndexed { index, item ->
                 item.toHistoryHighlightInternal(item.updatedAt * ((index % 2) + 1))
             },
-            result
+            result,
         )
     }
 
@@ -567,9 +574,9 @@ class RecentVisitsFeatureTest {
         assertEquals(newerVisitsFromSearch.map { it.key.searchTerm }, result.map { it.groupName })
         assertEquals(
             newerVisitsFromSearch.map {
-                listOf(it.copy(totalViewTime = it.totalViewTime * 2,))
+                listOf(it.copy(totalViewTime = it.totalViewTime * 2))
             },
-            result.map { it.groupItems }
+            result.map { it.groupItems },
         )
     }
 
@@ -586,7 +593,7 @@ class RecentVisitsFeatureTest {
 
         val result = feature.getSortedHistory(
             directVisits.toHistoryHighlightsInternal(),
-            visitsFromSearch.toHistoryGroupsInternal()
+            visitsFromSearch.toHistoryGroupsInternal(),
         )
 
         assertEquals(expected, result)
@@ -607,7 +614,7 @@ class RecentVisitsFeatureTest {
 
         val result = feature.getSortedHistory(
             directVisits.toHistoryHighlightsInternal(),
-            visitsFromSearch.toHistoryGroupsInternal()
+            visitsFromSearch.toHistoryGroupsInternal(),
         ).filterIsInstance<RecentHistoryHighlight>()
 
         assertEquals(10, result.size)
@@ -644,16 +651,16 @@ class RecentVisitsFeatureTest {
             appStore,
             historyMetadataStorage,
             lazy { historyHightlightsStorage },
-            CoroutineScope(testDispatcher),
+            scope,
             testDispatcher,
-            false
+            false,
         )
 
         assertEquals(emptyList<RecentHistoryGroup>(), appStore.state.recentHistory)
 
         feature.start()
 
-        testDispatcher.advanceUntilIdle()
+        scope.advanceUntilIdle()
         appStore.waitUntilIdle()
 
         coVerify {
@@ -678,13 +685,13 @@ private fun getSearchFromHistoryMetadataItems(count: Int): List<HistoryMetadata>
             updatedAt = 1,
             totalViewTime = 1,
             documentType = DocumentType.Regular,
-            previewImageUrl = null
+            previewImageUrl = null,
         )
         mutableListOf(historyEntry1) + (2..count).map {
             historyEntry1.copy(
                 key = HistoryMetadataKey("https://searchurl$it.test", "searchTerm$it", null),
                 title = "test$it",
-                updatedAt = it.toLong()
+                updatedAt = it.toLong(),
             )
         }
     } else {
@@ -708,13 +715,13 @@ private fun getDirectVisitsHistoryMetadataItems(count: Int): List<HistoryMetadat
             updatedAt = 1,
             totalViewTime = 1,
             documentType = DocumentType.Regular,
-            previewImageUrl = null
+            previewImageUrl = null,
         )
         mutableListOf(historyEntry1) + (2..count).map {
             historyEntry1.copy(
                 key = HistoryMetadataKey("https://url$it.test", null),
                 title = "test$it",
-                updatedAt = it.toLong()
+                updatedAt = it.toLong(),
             )
         }
     } else {
@@ -733,7 +740,7 @@ private fun getHistoryHighlightsItems(count: Int): List<HistoryHighlight> =
             placeId = it,
             url = "https://url$it.test",
             title = "test$it",
-            previewImageUrl = "https://previewImage$it.test"
+            previewImageUrl = "https://previewImage$it.test",
         )
     }
 
@@ -742,12 +749,12 @@ private fun HistoryMetadata.toHistoryHighlight(): HistoryHighlight = HistoryHigh
     placeId = 2,
     title = title,
     url = key.url,
-    previewImageUrl = null
+    previewImageUrl = null,
 )
 
 private fun HistoryMetadata.toRecentHistoryGroup(): RecentHistoryGroup = RecentHistoryGroup(
     title = key.searchTerm!!,
-    historyMetadata = listOf(this)
+    historyMetadata = listOf(this),
 )
 
 private fun List<HistoryMetadata>.toIndividualRecentHistoryGroups(): List<RecentHistoryGroup> =
@@ -757,7 +764,7 @@ private fun List<HistoryMetadata>.toIndividualRecentHistoryGroups(): List<Recent
 private fun HistoryMetadata.toRecentHistoryHighlight(): RecentHistoryHighlight =
     RecentHistoryHighlight(
         title = if (title.isNullOrBlank()) key.url else title!!,
-        url = key.url
+        url = key.url,
     )
 
 private fun List<HistoryMetadata>.toRecentHistoryHighlights(): List<RecentHistoryHighlight> =
@@ -768,7 +775,7 @@ private fun List<HistoryHighlight>.toRecentHistoryHighlights(): List<RecentHisto
     map {
         RecentHistoryHighlight(
             title = it.title!!,
-            url = it.url
+            url = it.url,
         )
     }
 
@@ -777,7 +784,7 @@ private fun List<HistoryMetadata>.toHistoryHighlights() = map { it.toHistoryHigh
 private fun HistoryMetadata.toHistoryHighlightInternal(lastAccessTime: Long) =
     HistoryHighlightInternal(
         historyHighlight = this.toHistoryHighlight(),
-        lastAccessedTime = lastAccessTime
+        lastAccessedTime = lastAccessTime,
     )
 
 private fun List<HistoryMetadata>.toHistoryHighlightsInternal() = mapIndexed { index, item ->
@@ -786,7 +793,7 @@ private fun List<HistoryMetadata>.toHistoryHighlightsInternal() = mapIndexed { i
 
 private fun HistoryMetadata.toHistoryGroupInternal() = HistoryGroupInternal(
     groupName = key.searchTerm!!,
-    groupItems = listOf(this)
+    groupItems = listOf(this),
 )
 
 private fun List<HistoryMetadata>.toHistoryGroupsInternal() = map { it.toHistoryGroupInternal() }

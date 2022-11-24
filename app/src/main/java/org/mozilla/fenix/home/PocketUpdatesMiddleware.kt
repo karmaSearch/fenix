@@ -14,8 +14,10 @@ import mozilla.components.lib.state.Action
 import mozilla.components.lib.state.Middleware
 import mozilla.components.lib.state.MiddlewareContext
 import mozilla.components.lib.state.Store
-import mozilla.components.service.pocket.PocketRecommendedStory
 import mozilla.components.service.pocket.PocketStoriesService
+import mozilla.components.service.pocket.PocketStory
+import mozilla.components.service.pocket.PocketStory.PocketRecommendedStory
+import mozilla.components.service.pocket.PocketStory.PocketSponsoredStory
 import org.mozilla.fenix.components.AppStore
 import org.mozilla.fenix.components.appstate.AppAction
 import org.mozilla.fenix.components.appstate.AppState
@@ -40,7 +42,7 @@ class PocketUpdatesMiddleware(
     override fun invoke(
         context: MiddlewareContext<AppState, AppAction>,
         next: (AppAction) -> Unit,
-        action: AppAction
+        action: AppAction,
     ) {
         // Pre process actions
         when (action) {
@@ -52,7 +54,7 @@ class PocketUpdatesMiddleware(
                     coroutineScope = coroutineScope,
                     currentCategories = action.storiesCategories,
                     store = context.store,
-                    selectedPocketCategoriesDataStore = selectedPocketCategoriesDataStore
+                    selectedPocketCategoriesDataStore = selectedPocketCategoriesDataStore,
                 )
             }
             else -> {
@@ -65,20 +67,19 @@ class PocketUpdatesMiddleware(
         // Post process actions
         when (action) {
             is AppAction.PocketStoriesShown -> {
-                persistStories(
+                persistStoriesImpressions(
                     coroutineScope = coroutineScope,
                     pocketStoriesService = pocketStoriesService,
-                    updatedStories = action.storiesShown.map {
-                        it.copy(timesShown = it.timesShown.inc())
-                    }
+                    updatedStories = action.storiesShown,
                 )
             }
             is AppAction.SelectPocketStoriesCategory,
-            is AppAction.DeselectPocketStoriesCategory -> {
+            is AppAction.DeselectPocketStoriesCategory,
+            -> {
                 persistSelectedCategories(
                     coroutineScope = coroutineScope,
                     currentCategoriesSelections = context.state.pocketStoriesCategoriesSelections,
-                    selectedPocketCategoriesDataStore = selectedPocketCategoriesDataStore
+                    selectedPocketCategoriesDataStore = selectedPocketCategoriesDataStore,
                 )
             }
             else -> {
@@ -96,14 +97,22 @@ class PocketUpdatesMiddleware(
  * @param updatedStories the list of stories to persist.
  */
 @VisibleForTesting
-internal fun persistStories(
+internal fun persistStoriesImpressions(
     coroutineScope: CoroutineScope,
     pocketStoriesService: PocketStoriesService,
-    updatedStories: List<PocketRecommendedStory>
+    updatedStories: List<PocketStory>,
 ) {
     coroutineScope.launch {
         pocketStoriesService.updateStoriesTimesShown(
-            updatedStories
+            updatedStories.filterIsInstance<PocketRecommendedStory>()
+                .map {
+                    it.copy(timesShown = it.timesShown.inc())
+                },
+        )
+
+        pocketStoriesService.recordStoriesImpressions(
+            updatedStories.filterIsInstance<PocketSponsoredStory>()
+                .map { it.id },
         )
     }
 }
@@ -119,7 +128,7 @@ internal fun persistStories(
 internal fun persistSelectedCategories(
     coroutineScope: CoroutineScope,
     currentCategoriesSelections: List<PocketRecommendedStoriesSelectedCategory>,
-    selectedPocketCategoriesDataStore: DataStore<SelectedPocketStoriesCategories>
+    selectedPocketCategoriesDataStore: DataStore<SelectedPocketStoriesCategories>,
 ) {
     val selectedCategories = currentCategoriesSelections
         .map {
@@ -152,7 +161,7 @@ internal fun restoreSelectedCategories(
     coroutineScope: CoroutineScope,
     currentCategories: List<PocketRecommendedStoriesCategory>,
     store: Store<AppState, AppAction>,
-    selectedPocketCategoriesDataStore: DataStore<SelectedPocketStoriesCategories>
+    selectedPocketCategoriesDataStore: DataStore<SelectedPocketStoriesCategories>,
 ) {
     coroutineScope.launch {
         store.dispatch(
@@ -162,10 +171,10 @@ internal fun restoreSelectedCategories(
                     .valuesList.map {
                         PocketRecommendedStoriesSelectedCategory(
                             name = it.name,
-                            selectionTimestamp = it.selectionTimestamp
+                            selectionTimestamp = it.selectionTimestamp,
                         )
-                    }
-            )
+                    },
+            ),
         )
     }
 }

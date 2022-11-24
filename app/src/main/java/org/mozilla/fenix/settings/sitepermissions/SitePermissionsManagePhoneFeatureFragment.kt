@@ -24,11 +24,10 @@ import androidx.navigation.fragment.navArgs
 import mozilla.components.feature.sitepermissions.SitePermissionsRules
 import mozilla.components.feature.sitepermissions.SitePermissionsRules.Action.ALLOWED
 import mozilla.components.feature.sitepermissions.SitePermissionsRules.Action.BLOCKED
+import org.mozilla.fenix.GleanMetrics.Autoplay
 import org.mozilla.fenix.R
-import org.mozilla.fenix.components.metrics.Event
 import org.mozilla.fenix.databinding.FragmentManageSitePermissionsFeaturePhoneBinding
 import org.mozilla.fenix.ext.components
-import org.mozilla.fenix.ext.requireComponents
 import org.mozilla.fenix.ext.settings
 import org.mozilla.fenix.ext.showToolbar
 import org.mozilla.fenix.settings.PhoneFeature
@@ -43,6 +42,13 @@ const val AUTOPLAY_BLOCK_AUDIBLE = 1
 const val AUTOPLAY_ALLOW_ON_WIFI = 2
 const val AUTOPLAY_ALLOW_ALL = 3
 
+/**
+ * Possible values for autoplay setting changed extra key.
+ */
+enum class AutoplaySettingMetricsExtraKey {
+    BLOCK_CELLULAR, BLOCK_AUDIO, BLOCK_ALL, ALLOW_ALL
+}
+
 @SuppressWarnings("TooManyFunctions")
 class SitePermissionsManagePhoneFeatureFragment : Fragment() {
 
@@ -55,7 +61,7 @@ class SitePermissionsManagePhoneFeatureFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentManageSitePermissionsFeaturePhoneBinding.inflate(inflater, container, false)
 
@@ -91,7 +97,7 @@ class SitePermissionsManagePhoneFeatureFragment : Fragment() {
             } else {
                 text = getCombinedLabel(
                     getString(R.string.preference_option_phone_feature_ask_to_allow),
-                    getString(R.string.phone_feature_recommended)
+                    getString(R.string.phone_feature_recommended),
                 )
                 setOnClickListener {
                     saveActionInSettings(SitePermissionsRules.Action.ASK_TO_ALLOW)
@@ -107,7 +113,7 @@ class SitePermissionsManagePhoneFeatureFragment : Fragment() {
             if (args.phoneFeature == AUTOPLAY_AUDIBLE) {
                 text = getCombinedLabel(
                     getString(R.string.preference_option_autoplay_allowed_wifi_only2),
-                    getString(R.string.preference_option_autoplay_allowed_wifi_subtext)
+                    getString(R.string.preference_option_autoplay_allowed_wifi_subtext),
                 )
                 setOnClickListener {
                     saveActionInSettings(AUTOPLAY_ALLOW_ON_WIFI)
@@ -129,7 +135,7 @@ class SitePermissionsManagePhoneFeatureFragment : Fragment() {
                 visibility = View.VISIBLE
                 text = getCombinedLabel(
                     getString(R.string.preference_option_autoplay_block_audio2),
-                    getString(R.string.phone_feature_recommended)
+                    getString(R.string.phone_feature_recommended),
                 )
                 setOnClickListener {
                     saveActionInSettings(AUTOPLAY_BLOCK_AUDIBLE)
@@ -190,29 +196,27 @@ class SitePermissionsManagePhoneFeatureFragment : Fragment() {
      */
     private fun saveActionInSettings(autoplaySetting: Int) {
         settings.setAutoplayUserSetting(autoplaySetting)
-        val setting: Event.AutoPlaySettingChanged.AutoplaySetting
 
         val (audible, inaudible) = when (autoplaySetting) {
             AUTOPLAY_ALLOW_ALL -> {
-                setting = Event.AutoPlaySettingChanged.AutoplaySetting.ALLOW_ALL
                 ALLOWED to ALLOWED
             }
             AUTOPLAY_ALLOW_ON_WIFI -> {
-                setting = Event.AutoPlaySettingChanged.AutoplaySetting.BLOCK_CELLULAR
                 BLOCKED to BLOCKED
             }
             AUTOPLAY_BLOCK_AUDIBLE -> {
-                setting = Event.AutoPlaySettingChanged.AutoplaySetting.BLOCK_AUDIO
                 BLOCKED to ALLOWED
             }
             AUTOPLAY_BLOCK_ALL -> {
-                setting = Event.AutoPlaySettingChanged.AutoplaySetting.BLOCK_ALL
                 BLOCKED to BLOCKED
             }
             else -> return
         }
 
-        requireComponents.analytics.metrics.track(Event.AutoPlaySettingChanged(setting))
+        autoplaySetting.toAutoplayMetricsExtraKey()?.let { extraKey ->
+            Autoplay.settingChanged.record(Autoplay.SettingChangedExtra(extraKey))
+        }
+
         settings.setSitePermissionsPhoneFeatureAction(AUTOPLAY_AUDIBLE, audible)
         settings.setSitePermissionsPhoneFeatureAction(AUTOPLAY_INAUDIBLE, inaudible)
         context?.components?.useCases?.sessionUseCases?.reload?.invoke()
@@ -246,20 +250,21 @@ class SitePermissionsManagePhoneFeatureFragment : Fragment() {
         val recommendedSpannable = SpannableString(subText)
         val subTextColor = ContextCompat.getColor(
             requireContext(),
-            ThemeManager.resolveAttribute(R.attr.textSecondary, requireContext())
+            ThemeManager.resolveAttribute(R.attr.textSecondary, requireContext()),
         )
 
         recommendedSpannable.setSpan(
             ForegroundColorSpan(subTextColor),
             0,
             recommendedSpannable.length,
-            SPAN_EXCLUSIVE_INCLUSIVE
+            SPAN_EXCLUSIVE_INCLUSIVE,
         )
 
         recommendedSpannable.setSpan(
-            AbsoluteSizeSpan(subTextSize), 0,
+            AbsoluteSizeSpan(subTextSize),
+            0,
             recommendedSpannable.length,
-            SPAN_EXCLUSIVE_INCLUSIVE
+            SPAN_EXCLUSIVE_INCLUSIVE,
         )
 
         return with(SpannableStringBuilder()) {
@@ -267,6 +272,19 @@ class SitePermissionsManagePhoneFeatureFragment : Fragment() {
             append("\n")
             append(recommendedSpannable)
             this
+        }
+    }
+
+    /**
+     * Returns a [AutoplaySettingMetricsExtraKey] from an AUTOPLAY setting value.
+     */
+    private fun Int.toAutoplayMetricsExtraKey(): String? {
+        return when (this) {
+            AUTOPLAY_BLOCK_ALL -> AutoplaySettingMetricsExtraKey.BLOCK_ALL.name.lowercase()
+            AUTOPLAY_BLOCK_AUDIBLE -> AutoplaySettingMetricsExtraKey.BLOCK_AUDIO.name.lowercase()
+            AUTOPLAY_ALLOW_ON_WIFI -> AutoplaySettingMetricsExtraKey.BLOCK_CELLULAR.name.lowercase()
+            AUTOPLAY_ALLOW_ALL -> AutoplaySettingMetricsExtraKey.ALLOW_ALL.name.lowercase()
+            else -> null
         }
     }
 }

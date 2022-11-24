@@ -19,7 +19,6 @@ import mozilla.components.concept.engine.permission.SitePermissions.AutoplayStat
 import mozilla.components.feature.sitepermissions.SitePermissionsRules
 import mozilla.components.feature.sitepermissions.SitePermissionsRules.AutoplayAction
 import mozilla.components.feature.sitepermissions.SitePermissionsRules.Action
-import mozilla.components.support.test.mock
 import mozilla.components.support.test.robolectric.testContext
 import org.junit.Assert.assertTrue
 import org.junit.Assert.assertFalse
@@ -135,13 +134,13 @@ class SitePermissionsManageExceptionsPhoneFeatureFragmentTest {
     fun `GIVEN a AllowAll value with autoplayAudible and autoplayInaudible rules are ALLOWED WHEN isSelected is called THEN isSelected will be true`() {
         val rules = getRules().copy(
             autoplayAudible = AutoplayAction.ALLOWED,
-            autoplayInaudible = AutoplayAction.ALLOWED
+            autoplayInaudible = AutoplayAction.ALLOWED,
         )
 
         val value = AutoplayValue.AllowAll(
             label = "label",
             rules = rules,
-            sitePermission = null
+            sitePermission = null,
         )
 
         assertTrue(value.isSelected())
@@ -151,13 +150,13 @@ class SitePermissionsManageExceptionsPhoneFeatureFragmentTest {
     fun `GIVEN a AllowAll value with autoplayAudible ALLOWED and autoplayInaudible BLOCKED rules WHEN isSelected is called THEN isSelected will be false`() {
         val rules = getRules().copy(
             autoplayInaudible = AutoplayAction.ALLOWED,
-            autoplayAudible = AutoplayAction.BLOCKED
+            autoplayAudible = AutoplayAction.BLOCKED,
         )
 
         val value = AutoplayValue.AllowAll(
             label = "label",
             rules = rules,
-            sitePermission = null
+            sitePermission = null,
         )
 
         assertFalse(value.isSelected())
@@ -167,7 +166,7 @@ class SitePermissionsManageExceptionsPhoneFeatureFragmentTest {
     fun `GIVEN a AllowAll value with sitePermission autoplayAudible and autoplayInaudible are ALLOWED WHEN isSelected is called THEN isSelected will be true`() {
         val rules = getRules().copy(
             autoplayInaudible = AutoplayAction.ALLOWED,
-            autoplayAudible = AutoplayAction.BLOCKED
+            autoplayAudible = AutoplayAction.BLOCKED,
         )
 
         val value = AutoplayValue.AllowAll(
@@ -177,8 +176,8 @@ class SitePermissionsManageExceptionsPhoneFeatureFragmentTest {
                 origin = "",
                 savedAt = 0L,
                 autoplayAudible = AutoplayStatus.ALLOWED,
-                autoplayInaudible = AutoplayStatus.ALLOWED
-            )
+                autoplayInaudible = AutoplayStatus.ALLOWED,
+            ),
         )
 
         assertTrue(value.isSelected())
@@ -188,7 +187,7 @@ class SitePermissionsManageExceptionsPhoneFeatureFragmentTest {
     fun `GIVEN a AllowAll value with sitePermission autoplayAudible and autoplayInaudible are BLOCKED WHEN isSelected is called THEN isSelected will be false`() {
         val rules = getRules().copy(
             autoplayInaudible = AutoplayAction.ALLOWED,
-            autoplayAudible = AutoplayAction.BLOCKED
+            autoplayAudible = AutoplayAction.BLOCKED,
         )
 
         val value = AutoplayValue.AllowAll(
@@ -198,8 +197,8 @@ class SitePermissionsManageExceptionsPhoneFeatureFragmentTest {
                 origin = "",
                 savedAt = 0L,
                 autoplayAudible = AutoplayStatus.BLOCKED,
-                autoplayInaudible = AutoplayStatus.BLOCKED
-            )
+                autoplayInaudible = AutoplayStatus.BLOCKED,
+            ),
         )
 
         assertFalse(value.isSelected())
@@ -209,13 +208,13 @@ class SitePermissionsManageExceptionsPhoneFeatureFragmentTest {
     fun `GIVEN a BlockAll value with autoplayAudible and autoplayInaudible rules are BLOCKED WHEN isSelected is called THEN isSelected will be true`() {
         val rules = getRules().copy(
             autoplayAudible = AutoplayAction.BLOCKED,
-            autoplayInaudible = AutoplayAction.BLOCKED
+            autoplayInaudible = AutoplayAction.BLOCKED,
         )
 
         val value = AutoplayValue.BlockAll(
             label = "label",
             rules = rules,
-            sitePermission = null
+            sitePermission = null,
         )
 
         assertTrue(value.isSelected())
@@ -225,13 +224,13 @@ class SitePermissionsManageExceptionsPhoneFeatureFragmentTest {
     fun `GIVEN a BlockAll value with autoplayInaudible BLOCKED and autoplayAudible ALLOWED rules WHEN isSelected is called THEN isSelected will be false`() {
         val rules = getRules().copy(
             autoplayInaudible = AutoplayAction.BLOCKED,
-            autoplayAudible = AutoplayAction.ALLOWED
+            autoplayAudible = AutoplayAction.ALLOWED,
         )
 
         val value = AutoplayValue.BlockAll(
             label = "label",
             rules = rules,
-            sitePermission = null
+            sitePermission = null,
         )
 
         assertFalse(value.isSelected())
@@ -241,7 +240,7 @@ class SitePermissionsManageExceptionsPhoneFeatureFragmentTest {
     fun `GIVEN a BlockAll value with sitePermission autoplayAudible and autoplayInaudible are BLOCKED WHEN isSelected THEN isSelected will be true`() {
         val rules = getRules().copy(
             autoplayInaudible = AutoplayAction.BLOCKED,
-            autoplayAudible = AutoplayAction.ALLOWED
+            autoplayAudible = AutoplayAction.ALLOWED,
         )
 
         val value = AutoplayValue.BlockAll(
@@ -251,8 +250,8 @@ class SitePermissionsManageExceptionsPhoneFeatureFragmentTest {
                 origin = "",
                 savedAt = 0L,
                 autoplayAudible = AutoplayStatus.BLOCKED,
-                autoplayInaudible = AutoplayStatus.BLOCKED
-            )
+                autoplayInaudible = AutoplayStatus.BLOCKED,
+            ),
         )
 
         assertTrue(value.isSelected())
@@ -262,7 +261,7 @@ class SitePermissionsManageExceptionsPhoneFeatureFragmentTest {
     fun `GIVEN a BlockAll value with sitePermission autoplayAudible ALLOWED and autoplayInaudible BLOCKED WHEN isSelected is called THEN isSelected will be false`() {
         val rules = getRules().copy(
             autoplayInaudible = AutoplayAction.BLOCKED,
-            autoplayAudible = AutoplayAction.ALLOWED
+            autoplayAudible = AutoplayAction.ALLOWED,
         )
 
         val value = AutoplayValue.BlockAll(
@@ -272,8 +271,8 @@ class SitePermissionsManageExceptionsPhoneFeatureFragmentTest {
                 origin = "",
                 savedAt = 0L,
                 autoplayAudible = AutoplayStatus.ALLOWED,
-                autoplayInaudible = AutoplayStatus.BLOCKED
-            )
+                autoplayInaudible = AutoplayStatus.BLOCKED,
+            ),
         )
 
         assertFalse(value.isSelected())
@@ -283,13 +282,13 @@ class SitePermissionsManageExceptionsPhoneFeatureFragmentTest {
     fun `GIVEN a BlockAudible value with autoplayAudible BLOCKED and autoplayInaudible ALLOWED rules WHEN isSelected is called THEN isSelected will be true`() {
         val rules = getRules().copy(
             autoplayAudible = AutoplayAction.BLOCKED,
-            autoplayInaudible = AutoplayAction.ALLOWED
+            autoplayInaudible = AutoplayAction.ALLOWED,
         )
 
         val value = AutoplayValue.BlockAudible(
             label = "label",
             rules = rules,
-            sitePermission = null
+            sitePermission = null,
         )
 
         assertTrue(value.isSelected())
@@ -299,13 +298,13 @@ class SitePermissionsManageExceptionsPhoneFeatureFragmentTest {
     fun `GIVEN a BlockAudible value with autoplayInaudible and autoplayAudible BLOCKED rules WHEN isSelected is called THEN isSelected will be false`() {
         val rules = getRules().copy(
             autoplayInaudible = AutoplayAction.BLOCKED,
-            autoplayAudible = AutoplayAction.BLOCKED
+            autoplayAudible = AutoplayAction.BLOCKED,
         )
 
         val value = AutoplayValue.BlockAudible(
             label = "label",
             rules = rules,
-            sitePermission = null
+            sitePermission = null,
         )
 
         assertFalse(value.isSelected())
@@ -315,7 +314,7 @@ class SitePermissionsManageExceptionsPhoneFeatureFragmentTest {
     fun `GIVEN a BlockAudible with sitePermission autoplayAudible BLOCKED and autoplayInaudible ALLOWED WHEN isSelected is called THEN isSelected will be true`() {
         val rules = getRules().copy(
             autoplayInaudible = AutoplayAction.BLOCKED,
-            autoplayAudible = AutoplayAction.ALLOWED
+            autoplayAudible = AutoplayAction.ALLOWED,
         )
 
         val value = AutoplayValue.BlockAudible(
@@ -325,8 +324,8 @@ class SitePermissionsManageExceptionsPhoneFeatureFragmentTest {
                 origin = "",
                 savedAt = 0L,
                 autoplayAudible = AutoplayStatus.BLOCKED,
-                autoplayInaudible = AutoplayStatus.ALLOWED
-            )
+                autoplayInaudible = AutoplayStatus.ALLOWED,
+            ),
         )
 
         assertTrue(value.isSelected())
@@ -336,7 +335,7 @@ class SitePermissionsManageExceptionsPhoneFeatureFragmentTest {
     fun `GIVEN a BlockAudible with sitePermission autoplayAudible ALLOWED and autoplayInaudible BLOCKED WHEN isSelected is called THEN isSelected will be false`() {
         val rules = getRules().copy(
             autoplayInaudible = AutoplayAction.BLOCKED,
-            autoplayAudible = AutoplayAction.ALLOWED
+            autoplayAudible = AutoplayAction.ALLOWED,
         )
 
         val value = AutoplayValue.BlockAudible(
@@ -346,8 +345,8 @@ class SitePermissionsManageExceptionsPhoneFeatureFragmentTest {
                 origin = "",
                 savedAt = 0L,
                 autoplayAudible = AutoplayStatus.ALLOWED,
-                autoplayInaudible = AutoplayStatus.BLOCKED
-            )
+                autoplayInaudible = AutoplayStatus.BLOCKED,
+            ),
         )
 
         assertFalse(value.isSelected())
@@ -357,7 +356,7 @@ class SitePermissionsManageExceptionsPhoneFeatureFragmentTest {
     fun `GIVEN a AllowAll WHEN createSitePermissionsFromCustomRules is called THEN rules will included autoplayAudible and autoplayInaudible ALLOWED`() {
         val rules = getRules().copy(
             autoplayAudible = AutoplayAction.BLOCKED,
-            autoplayInaudible = AutoplayAction.BLOCKED
+            autoplayInaudible = AutoplayAction.BLOCKED,
         )
 
         every { settings.getSitePermissionsCustomSettingsRules() } returns rules
@@ -365,7 +364,7 @@ class SitePermissionsManageExceptionsPhoneFeatureFragmentTest {
         val value = AutoplayValue.AllowAll(
             label = "label",
             rules = rules,
-            sitePermission = null
+            sitePermission = null,
         )
 
         val result = value.createSitePermissionsFromCustomRules("mozilla.org", settings)
@@ -385,7 +384,7 @@ class SitePermissionsManageExceptionsPhoneFeatureFragmentTest {
     fun `GIVEN a BlockAll WHEN createSitePermissionsFromCustomRules is called THEN rules will included autoplayAudible and autoplayInaudible BLOCKED`() {
         val rules = getRules().copy(
             autoplayAudible = AutoplayAction.ALLOWED,
-            autoplayInaudible = AutoplayAction.ALLOWED
+            autoplayInaudible = AutoplayAction.ALLOWED,
         )
 
         every { settings.getSitePermissionsCustomSettingsRules() } returns rules
@@ -393,7 +392,7 @@ class SitePermissionsManageExceptionsPhoneFeatureFragmentTest {
         val value = AutoplayValue.BlockAll(
             label = "label",
             rules = rules,
-            sitePermission = null
+            sitePermission = null,
         )
 
         val result = value.createSitePermissionsFromCustomRules("mozilla.org", settings)
@@ -413,7 +412,7 @@ class SitePermissionsManageExceptionsPhoneFeatureFragmentTest {
     fun `GIVEN a BlockAudible WHEN createSitePermissionsFromCustomRules is called THEN rules will included autoplayAudible BLOCKED and autoplayInaudible ALLOWED`() {
         val rules = getRules().copy(
             autoplayAudible = AutoplayAction.ALLOWED,
-            autoplayInaudible = AutoplayAction.ALLOWED
+            autoplayInaudible = AutoplayAction.ALLOWED,
         )
 
         every { settings.getSitePermissionsCustomSettingsRules() } returns rules
@@ -421,7 +420,7 @@ class SitePermissionsManageExceptionsPhoneFeatureFragmentTest {
         val value = AutoplayValue.BlockAudible(
             label = "label",
             rules = rules,
-            sitePermission = null
+            sitePermission = null,
         )
 
         val result = value.createSitePermissionsFromCustomRules("mozilla.org", settings)
@@ -443,13 +442,13 @@ class SitePermissionsManageExceptionsPhoneFeatureFragmentTest {
             origin = "origin",
             savedAt = 0L,
             autoplayAudible = AutoplayStatus.BLOCKED,
-            autoplayInaudible = AutoplayStatus.BLOCKED
+            autoplayInaudible = AutoplayStatus.BLOCKED,
         )
 
         val value = AutoplayValue.AllowAll(
             label = "label",
-            rules = mock(),
-            sitePermission = null
+            rules = mockk(),
+            sitePermission = null,
         )
 
         val result = value.updateSitePermissions(sitePermissions)
@@ -471,13 +470,13 @@ class SitePermissionsManageExceptionsPhoneFeatureFragmentTest {
             origin = "origin",
             savedAt = 0L,
             autoplayAudible = AutoplayStatus.ALLOWED,
-            autoplayInaudible = AutoplayStatus.ALLOWED
+            autoplayInaudible = AutoplayStatus.ALLOWED,
         )
 
         val value = AutoplayValue.BlockAll(
             label = "label",
-            rules = mock(),
-            sitePermission = null
+            rules = mockk(),
+            sitePermission = null,
         )
 
         val result = value.updateSitePermissions(sitePermissions)
@@ -499,13 +498,13 @@ class SitePermissionsManageExceptionsPhoneFeatureFragmentTest {
             origin = "origin",
             savedAt = 0L,
             autoplayAudible = AutoplayStatus.ALLOWED,
-            autoplayInaudible = AutoplayStatus.BLOCKED
+            autoplayInaudible = AutoplayStatus.BLOCKED,
         )
 
         val value = AutoplayValue.BlockAudible(
             label = "label",
-            rules = mock(),
-            sitePermission = null
+            rules = mockk(),
+            sitePermission = null,
         )
 
         val result = value.updateSitePermissions(sitePermissions)

@@ -19,6 +19,7 @@ import org.hamcrest.CoreMatchers
 import org.hamcrest.CoreMatchers.containsString
 import org.mozilla.fenix.R
 import org.mozilla.fenix.helpers.TestAssetHelper
+import org.mozilla.fenix.helpers.TestHelper.mDevice
 import org.mozilla.fenix.helpers.click
 import org.mozilla.fenix.helpers.ext.waitNotNull
 
@@ -32,7 +33,7 @@ class SettingsSubMenuLoginsAndPasswordsSavedLoginsRobot {
     fun verifySavedLoginsAfterSync() {
         mDevice.waitNotNull(
             Until.findObjects(By.text("https://accounts.google.com")),
-            TestAssetHelper.waitingTime
+            TestAssetHelper.waitingTime,
         )
         assertSavedLoginAppears()
     }

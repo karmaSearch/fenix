@@ -36,7 +36,8 @@ import mozilla.components.support.test.robolectric.testContext
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertSame
-import org.junit.Assert.assertTrue
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -44,7 +45,6 @@ import org.junit.runner.RunWith
 import org.mozilla.fenix.GleanMetrics.TabsTray
 import org.mozilla.fenix.NavGraphDirections
 import org.mozilla.fenix.R
-import org.mozilla.fenix.components.metrics.MetricController
 import org.mozilla.fenix.databinding.ComponentTabstray2Binding
 import org.mozilla.fenix.databinding.ComponentTabstrayFabBinding
 import org.mozilla.fenix.databinding.FragmentTabTrayDialogBinding
@@ -54,6 +54,7 @@ import org.mozilla.fenix.helpers.FenixRobolectricTestRunner
 import org.mozilla.fenix.helpers.MockkRetryTestRule
 import org.mozilla.fenix.home.HomeScreenViewModel
 import org.mozilla.fenix.tabstray.browser.BrowserTrayInteractor
+import org.mozilla.fenix.tabstray.browser.InactiveTabsInteractor
 import org.mozilla.fenix.tabstray.ext.showWithTheme
 import org.mozilla.fenix.utils.allowUndo
 
@@ -86,7 +87,8 @@ class TabsTrayFragmentTest {
         fragment._tabsTrayDialogBinding = tabsTrayDialogBinding
         fragment._fabButtonBinding = fabButtonBinding
         every { fragment.context } returns context
-        every { fragment.view } returns view
+        every { fragment.context } returns context
+        every { fragment.viewLifecycleOwner } returns mockk(relaxed = true)
     }
 
     @Test
@@ -99,6 +101,7 @@ class TabsTrayFragmentTest {
             fabButtonBinding.newTabButton.isVisible = true
             every { fragment.context } returns testContext // needed for getString()
             every { any<CoroutineScope>().allowUndo(any(), any(), any(), any(), any(), any(), any(), any()) } just Runs
+            every { fragment.requireView() } returns view
 
             fragment.showUndoSnackbarForTab(true)
 
@@ -111,7 +114,7 @@ class TabsTrayFragmentTest {
                     any(),
                     fabButtonBinding.newTabButton,
                     TabsTrayFragment.ELEVATION,
-                    false
+                    false,
                 )
             }
         } finally {
@@ -129,6 +132,7 @@ class TabsTrayFragmentTest {
             every { any<LifecycleOwner>().lifecycleScope } returns lifecycleScope
             every { fragment.context } returns testContext // needed for getString()
             every { any<CoroutineScope>().allowUndo(any(), any(), any(), any(), any(), any(), any(), any()) } just Runs
+            every { fragment.requireView() } returns view
 
             fragment.showUndoSnackbarForTab(true)
 
@@ -141,7 +145,7 @@ class TabsTrayFragmentTest {
                     any(),
                     null,
                     TabsTrayFragment.ELEVATION,
-                    false
+                    false,
                 )
             }
         } finally {
@@ -160,6 +164,7 @@ class TabsTrayFragmentTest {
             fabButtonBinding.newTabButton.isVisible = true
             every { fragment.context } returns testContext // needed for getString()
             every { any<CoroutineScope>().allowUndo(any(), any(), any(), any(), any(), any(), any(), any()) } just Runs
+            every { fragment.requireView() } returns view
 
             fragment.showUndoSnackbarForTab(false)
 
@@ -172,7 +177,7 @@ class TabsTrayFragmentTest {
                     any(),
                     fabButtonBinding.newTabButton,
                     TabsTrayFragment.ELEVATION,
-                    false
+                    false,
                 )
             }
         } finally {
@@ -190,6 +195,7 @@ class TabsTrayFragmentTest {
             every { any<LifecycleOwner>().lifecycleScope } returns lifecycleScope
             every { fragment.context } returns testContext // needed for getString()
             every { any<CoroutineScope>().allowUndo(any(), any(), any(), any(), any(), any(), any(), any()) } just Runs
+            every { fragment.requireView() } returns view
 
             fragment.showUndoSnackbarForTab(false)
 
@@ -202,7 +208,7 @@ class TabsTrayFragmentTest {
                     any(),
                     null,
                     TabsTrayFragment.ELEVATION,
-                    false
+                    false,
                 )
             }
         } finally {
@@ -214,20 +220,29 @@ class TabsTrayFragmentTest {
     @Test
     fun `WHEN setupPager is called THEN it sets the tray adapter and disables user initiated scrolling`() {
         val store: TabsTrayStore = mockk()
+        val lifecycleOwner = mockk<LifecycleOwner>(relaxed = true)
         val trayInteractor: TabsTrayInteractor = mockk()
         val browserInteractor: BrowserTrayInteractor = mockk()
         val navigationInteractor: NavigationInteractor = mockk()
+        val inactiveTabsInteractor: InactiveTabsInteractor = mockk()
         val browserStore: BrowserStore = mockk()
         every { context.components.core.store } returns browserStore
 
         fragment.setupPager(
-            context, store, trayInteractor, browserInteractor, navigationInteractor
+            context = context,
+            lifecycleOwner = lifecycleOwner,
+            store = store,
+            trayInteractor = trayInteractor,
+            browserInteractor = browserInteractor,
+            navigationInteractor = navigationInteractor,
+            inactiveTabsInteractor = inactiveTabsInteractor,
         )
 
         val adapter = (tabsTrayBinding.tabsTray.adapter as TrayPagerAdapter)
         assertSame(context, adapter.context)
+        assertSame(lifecycleOwner, adapter.lifecycleOwner)
         assertSame(store, adapter.tabsTrayStore)
-        assertSame(trayInteractor, adapter.interactor)
+        assertSame(trayInteractor, adapter.tabsTrayInteractor)
         assertSame(browserInteractor, adapter.browserInteractor)
         assertSame(navigationInteractor, adapter.navInteractor)
         assertSame(browserStore, adapter.browserStore)
@@ -239,8 +254,6 @@ class TabsTrayFragmentTest {
         try {
             mockkStatic("org.mozilla.fenix.tabstray.ext.BrowserMenuKt")
             val navigationInteractor: NavigationInteractor = mockk()
-            val metrics: MetricController = mockk(relaxed = true)
-            every { context.components.analytics.metrics } returns metrics
             every { context.components.core.store } returns mockk()
             every { fragment.tabsTrayStore } returns mockk()
             val menu: BrowserMenu = mockk {
@@ -251,12 +264,12 @@ class TabsTrayFragmentTest {
             }
             every { fragment.getTrayMenu(any(), any(), any(), any(), any()) } returns menuBuilder
 
-            assertFalse(TabsTray.menuOpened.testHasValue())
+            assertNull(TabsTray.menuOpened.testGetValue())
 
             fragment.setupMenu(navigationInteractor)
             tabsTrayBinding.tabTrayOverflow.performClick()
 
-            assertTrue(TabsTray.menuOpened.testHasValue())
+            assertNotNull(TabsTray.menuOpened.testGetValue())
             verify { menuBuilder.build() }
             verify { menu.showWithTheme(tabsTrayBinding.tabTrayOverflow) }
         } finally {
@@ -351,8 +364,6 @@ class TabsTrayFragmentTest {
     @Test
     fun `WHEN dismissTabsTray is called THEN it dismisses the tray`() {
         every { fragment.dismissAllowingStateLoss() } just Runs
-        val metrics: MetricController = mockk(relaxed = true)
-        every { context.components.analytics.metrics } returns metrics
 
         fragment.dismissTabsTray()
 
@@ -374,7 +385,9 @@ class TabsTrayFragmentTest {
     @Test
     fun `WHEN the tabs tray is declared in XML THEN certain options are set for the behavior`() {
         tabsTrayBinding = ComponentTabstray2Binding.inflate(
-            LayoutInflater.from(testContext), CoordinatorLayout(testContext), true
+            LayoutInflater.from(testContext),
+            CoordinatorLayout(testContext),
+            true,
         )
         val behavior = BottomSheetBehavior.from(tabsTrayBinding.tabWrapper)
 

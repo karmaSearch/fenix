@@ -24,8 +24,6 @@ import androidx.core.graphics.drawable.toBitmap
 import org.mozilla.fenix.HomeActivity
 import org.mozilla.fenix.IntentReceiverActivity
 import org.mozilla.fenix.R
-import org.mozilla.fenix.components.metrics.Event
-import org.mozilla.fenix.ext.metrics
 import org.mozilla.fenix.ext.settings
 import org.mozilla.fenix.home.intent.StartSearchIntentProcessor
 import org.mozilla.fenix.utils.IntentUtils
@@ -40,7 +38,6 @@ class SearchWidgetProvider : AppWidgetProvider() {
 
     override fun onEnabled(context: Context) {
         context.settings().addSearchWidgetInstalled(1)
-        context.metrics.track(Event.SearchWidgetInstalled)
     }
 
     override fun onDeleted(context: Context, appWidgetIds: IntArray) {
@@ -69,7 +66,7 @@ class SearchWidgetProvider : AppWidgetProvider() {
         context: Context,
         appWidgetManager: AppWidgetManager,
         appWidgetId: Int,
-        newOptions: Bundle?
+        newOptions: Bundle?,
     ) {
         val textSearchIntent = createTextSearchIntent(context)
         val voiceSearchIntent = createVoiceSearchIntent(context)
@@ -96,7 +93,9 @@ class SearchWidgetProvider : AppWidgetProvider() {
                 intent.putExtra(HomeActivity.OPEN_TO_SEARCH, StartSearchIntentProcessor.SEARCH_WIDGET)
                 PendingIntent.getActivity(
                     context,
-                    REQUEST_CODE_NEW_TAB, intent, createTextSearchIntentFlags
+                    REQUEST_CODE_NEW_TAB,
+                    intent,
+                    createTextSearchIntentFlags,
                 )
             }
     }
@@ -120,7 +119,9 @@ class SearchWidgetProvider : AppWidgetProvider() {
         return intentSpeech.resolveActivity(context.packageManager)?.let {
             PendingIntent.getActivity(
                 context,
-                REQUEST_CODE_VOICE, voiceIntent, IntentUtils.defaultIntentPendingFlags
+                REQUEST_CODE_VOICE,
+                voiceIntent,
+                IntentUtils.defaultIntentPendingFlags,
             )
         }
     }
@@ -130,14 +131,15 @@ class SearchWidgetProvider : AppWidgetProvider() {
         layout: Int,
         textSearchIntent: PendingIntent,
         voiceSearchIntent: PendingIntent?,
-        text: String?
+        text: String?,
     ): RemoteViews {
         return RemoteViews(context.packageName, layout).apply {
             setIcon(context)
             when (layout) {
                 R.layout.search_widget_extra_small_v1,
                 R.layout.search_widget_extra_small_v2,
-                R.layout.search_widget_small_no_mic -> {
+                R.layout.search_widget_small_no_mic,
+                -> {
                     setOnClickPendingIntent(R.id.button_search_widget_new_tab, textSearchIntent)
                 }
                 R.layout.search_widget_small -> {
@@ -145,7 +147,8 @@ class SearchWidgetProvider : AppWidgetProvider() {
                     setOnClickPendingIntent(R.id.button_search_widget_voice, voiceSearchIntent)
                 }
                 R.layout.search_widget_medium,
-                R.layout.search_widget_large -> {
+                R.layout.search_widget_large,
+                -> {
                     setOnClickPendingIntent(R.id.button_search_widget_new_tab, textSearchIntent)
                     setOnClickPendingIntent(R.id.button_search_widget_voice, voiceSearchIntent)
                     setOnClickPendingIntent(R.id.button_search_widget_new_tab_icon, textSearchIntent)
@@ -165,22 +168,22 @@ class SearchWidgetProvider : AppWidgetProvider() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             setImageViewResource(
                 R.id.button_search_widget_new_tab_icon,
-                R.drawable.ic_launcher_foreground
+                R.drawable.ic_launcher_foreground,
             )
         } else {
             setImageViewBitmap(
                 R.id.button_search_widget_new_tab_icon,
                 AppCompatResources.getDrawable(
                     context,
-                    R.drawable.ic_launcher_foreground
-                )?.toBitmap()
+                    R.drawable.ic_launcher_foreground,
+                )?.toBitmap(),
             )
         }
 
         val appName = context.getString(R.string.app_name)
         setContentDescription(
             R.id.button_search_widget_new_tab_icon,
-            context.getString(R.string.search_widget_content_description_2, appName)
+            context.getString(R.string.search_widget_content_description_2, appName),
         )
     }
 
@@ -202,7 +205,7 @@ class SearchWidgetProvider : AppWidgetProvider() {
                     Intent(context, SearchWidgetProvider::class.java).apply {
                         action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
                         putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widgetIds)
-                    }
+                    },
                 )
             }
         }

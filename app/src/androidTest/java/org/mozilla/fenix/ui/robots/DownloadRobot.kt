@@ -7,6 +7,7 @@
 package org.mozilla.fenix.ui.robots
 
 import android.content.Intent
+import android.util.Log
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.intent.Intents
@@ -16,9 +17,7 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withContentDescription
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
-import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiSelector
 import androidx.test.uiautomator.Until
 import org.hamcrest.CoreMatchers
@@ -26,9 +25,11 @@ import org.junit.Assert.assertTrue
 import org.mozilla.fenix.R
 import org.mozilla.fenix.helpers.Constants.PackageName.GOOGLE_APPS_PHOTOS
 import org.mozilla.fenix.helpers.TestAssetHelper.waitingTime
+import org.mozilla.fenix.helpers.TestAssetHelper.waitingTimeLong
 import org.mozilla.fenix.helpers.TestHelper
 import org.mozilla.fenix.helpers.TestHelper.assertExternalAppOpens
 import org.mozilla.fenix.helpers.TestHelper.packageName
+import org.mozilla.fenix.helpers.TestHelper.mDevice
 import org.mozilla.fenix.helpers.click
 import org.mozilla.fenix.helpers.ext.waitNotNull
 
@@ -48,7 +49,7 @@ class DownloadRobot {
         assertTrue(
             "$fileName not found in Downloads list",
             mDevice.findObject(UiSelector().text(fileName))
-                .waitForExists(waitingTime)
+                .waitForExists(waitingTime),
         )
     }
 
@@ -64,7 +65,7 @@ class DownloadRobot {
         assertTrue(
             "Downloads list either empty or not displayed",
             mDevice.findObject(UiSelector().resourceId("$packageName:id/download_list"))
-                .waitForExists(waitingTime)
+                .waitForExists(waitingTime),
         )
 
     fun openDownloadedFile(fileName: String) {
@@ -95,8 +96,8 @@ class DownloadRobot {
             Intents.intended(
                 CoreMatchers.allOf(
                     IntentMatchers.hasAction(Intent.ACTION_VIEW),
-                    IntentMatchers.hasType(type)
-                )
+                    IntentMatchers.hasType(type),
+                ),
             )
 
             BrowserRobot().interact()
@@ -104,11 +105,9 @@ class DownloadRobot {
         }
 
         fun clickAllowPermission(interact: DownloadRobot.() -> Unit): Transition {
-            val mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-
             mDevice.waitNotNull(
                 Until.findObject(By.res(TestHelper.getPermissionAllowID() + ":id/permission_allow_button")),
-                waitingTime
+                waitingTime,
             )
 
             val allowPermissionButton = mDevice.findObject(By.res(TestHelper.getPermissionAllowID() + ":id/permission_allow_button"))
@@ -133,33 +132,46 @@ fun downloadRobot(interact: DownloadRobot.() -> Unit): DownloadRobot.Transition 
 }
 
 private fun assertDownloadPrompt(fileName: String) {
-    assertTrue(
-        "Download prompt button not visible",
-        mDevice.findObject(UiSelector().resourceId("$packageName:id/download_button"))
-            .waitForExists(waitingTime)
-    )
-    assertTrue(
-        "$fileName title doesn't match",
-        mDevice.findObject(UiSelector().text(fileName))
-            .waitForExists(waitingTime)
-    )
+    var currentTries = 0
+    while (currentTries++ < 3) {
+        try {
+            assertTrue(
+                "Download prompt button not visible",
+                mDevice.findObject(UiSelector().resourceId("$packageName:id/download_button"))
+                    .waitForExists(waitingTimeLong),
+            )
+            assertTrue(
+                "$fileName title doesn't match",
+                mDevice.findObject(UiSelector().text(fileName))
+                    .waitForExists(waitingTimeLong),
+            )
+
+            break
+        } catch (e: AssertionError) {
+            Log.e("DOWNLOAD_ROBOT", "Failed to find locator: ${e.localizedMessage}")
+
+            browserScreen {
+            }.clickDownloadLink(fileName) {
+            }
+        }
+    }
 }
 
 private fun assertDownloadNotificationPopup() {
     assertTrue(
         "Download notification Open button not found",
         mDevice.findObject(UiSelector().text("Open"))
-            .waitForExists(waitingTime)
+            .waitForExists(waitingTime),
     )
     assertTrue(
         "Download completed notification text doesn't match",
         mDevice.findObject(UiSelector().textContains("Download completed"))
-            .waitForExists(waitingTime)
+            .waitForExists(waitingTime),
     )
     assertTrue(
         "Downloaded file name not visible",
         mDevice.findObject(UiSelector().resourceId("$packageName:id/download_dialog_filename"))
-            .waitForExists(waitingTime)
+            .waitForExists(waitingTime),
     )
 }
 
@@ -181,5 +193,5 @@ private fun assertDownloadedFileIcon() =
     assertTrue(
         "Downloaded file icon not found",
         mDevice.findObject(UiSelector().resourceId("$packageName:id/favicon"))
-            .exists()
+            .exists(),
     )

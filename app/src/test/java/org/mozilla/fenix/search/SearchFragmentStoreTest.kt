@@ -8,7 +8,7 @@ import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import mozilla.components.browser.state.search.RegionState
 import mozilla.components.browser.state.search.SearchEngine
 import mozilla.components.browser.state.state.BrowserState
@@ -16,6 +16,7 @@ import mozilla.components.browser.state.state.ContentState
 import mozilla.components.browser.state.state.SearchState
 import mozilla.components.browser.state.state.TabSessionState
 import mozilla.components.support.test.ext.joinBlocking
+import mozilla.components.support.test.libstate.ext.waitUntilIdle
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -28,15 +29,20 @@ import org.mozilla.fenix.HomeActivity
 import org.mozilla.fenix.browser.browsingmode.BrowsingMode
 import org.mozilla.fenix.browser.browsingmode.BrowsingModeManager
 import org.mozilla.fenix.components.Components
-import org.mozilla.fenix.components.metrics.Event.PerformedSearch.SearchAccessPoint
+import org.mozilla.fenix.components.metrics.MetricsUtils
 import org.mozilla.fenix.utils.Settings
 
 class SearchFragmentStoreTest {
 
     @MockK private lateinit var searchEngine: SearchEngine
+
     @MockK private lateinit var activity: HomeActivity
-    @MockK(relaxed = true) private lateinit var components: Components
-    @MockK(relaxed = true) private lateinit var settings: Settings
+
+    @MockK(relaxed = true)
+    private lateinit var components: Components
+
+    @MockK(relaxed = true)
+    private lateinit var settings: Settings
 
     @Before
     fun setup() {
@@ -68,9 +74,10 @@ class SearchFragmentStoreTest {
             showHistorySuggestions = false,
             showBookmarkSuggestions = false,
             showSyncedTabsSuggestions = false,
+            showSessionSuggestions = true,
             tabId = null,
             pastedText = "pastedText",
-            searchAccessPoint = SearchAccessPoint.ACTION
+            searchAccessPoint = MetricsUtils.Source.ACTION,
         )
 
         assertEquals(
@@ -80,8 +87,8 @@ class SearchFragmentStoreTest {
                 components,
                 tabId = null,
                 pastedText = "pastedText",
-                searchAccessPoint = SearchAccessPoint.ACTION
-            )
+                searchAccessPoint = MetricsUtils.Source.ACTION,
+            ),
         )
         assertEquals(
             expected.copy(tabId = "tabId"),
@@ -90,8 +97,8 @@ class SearchFragmentStoreTest {
                 components,
                 tabId = "tabId",
                 pastedText = "pastedText",
-                searchAccessPoint = SearchAccessPoint.ACTION
-            )
+                searchAccessPoint = MetricsUtils.Source.ACTION,
+            ),
         )
     }
 
@@ -104,10 +111,10 @@ class SearchFragmentStoreTest {
                     id = "tabId",
                     content = ContentState(
                         url = "https://example.com",
-                        searchTerms = "search terms"
-                    )
-                )
-            )
+                        searchTerms = "search terms",
+                    ),
+                ),
+            ),
         )
 
         assertEquals(
@@ -126,22 +133,23 @@ class SearchFragmentStoreTest {
                 showHistorySuggestions = false,
                 showBookmarkSuggestions = false,
                 showSyncedTabsSuggestions = false,
+                showSessionSuggestions = true,
                 tabId = "tabId",
                 pastedText = "",
-                searchAccessPoint = SearchAccessPoint.SHORTCUT
+                searchAccessPoint = MetricsUtils.Source.SHORTCUT,
             ),
             createInitialSearchFragmentState(
                 activity,
                 components,
                 tabId = "tabId",
                 pastedText = "",
-                searchAccessPoint = SearchAccessPoint.SHORTCUT
-            )
+                searchAccessPoint = MetricsUtils.Source.SHORTCUT,
+            ),
         )
     }
 
     @Test
-    fun updateQuery() = runBlocking {
+    fun updateQuery() = runTest {
         val initialState = emptyDefaultState()
         val store = SearchFragmentStore(initialState)
         val query = "test query"
@@ -152,18 +160,48 @@ class SearchFragmentStoreTest {
     }
 
     @Test
-    fun selectSearchShortcutEngine() = runBlocking {
+    fun selectSearchShortcutEngine() = runTest {
         val initialState = emptyDefaultState()
         val store = SearchFragmentStore(initialState)
 
-        store.dispatch(SearchFragmentAction.SearchShortcutEngineSelected(searchEngine)).join()
+        store.dispatch(SearchFragmentAction.SearchShortcutEngineSelected(searchEngine, settings)).join()
         assertNotSame(initialState, store.state)
         assertEquals(SearchEngineSource.Shortcut(searchEngine), store.state.searchEngineSource)
         assertEquals(false, store.state.showSearchShortcuts)
     }
 
     @Test
-    fun showSearchShortcutEnginePicker() = runBlocking {
+    fun `WHEN history engine selected action dispatched THEN update search engine source`() = runTest {
+        val initialState = emptyDefaultState()
+        val store = SearchFragmentStore(initialState)
+
+        store.dispatch(SearchFragmentAction.SearchHistoryEngineSelected(searchEngine)).join()
+        assertNotSame(initialState, store.state)
+        assertEquals(SearchEngineSource.History(searchEngine), store.state.searchEngineSource)
+    }
+
+    @Test
+    fun `WHEN bookmarks engine selected action dispatched THEN update search engine source`() = runTest {
+        val initialState = emptyDefaultState()
+        val store = SearchFragmentStore(initialState)
+
+        store.dispatch(SearchFragmentAction.SearchBookmarksEngineSelected(searchEngine)).join()
+        assertNotSame(initialState, store.state)
+        assertEquals(SearchEngineSource.Bookmarks(searchEngine), store.state.searchEngineSource)
+    }
+
+    @Test
+    fun `WHEN tabs engine selected action dispatched THEN update search engine source`() = runTest {
+        val initialState = emptyDefaultState()
+        val store = SearchFragmentStore(initialState)
+
+        store.dispatch(SearchFragmentAction.SearchTabsEngineSelected(searchEngine)).join()
+        assertNotSame(initialState, store.state)
+        assertEquals(SearchEngineSource.Tabs(searchEngine), store.state.searchEngineSource)
+    }
+
+    @Test
+    fun showSearchShortcutEnginePicker() = runTest {
         val initialState = emptyDefaultState()
         val store = SearchFragmentStore(initialState)
 
@@ -173,7 +211,7 @@ class SearchFragmentStoreTest {
     }
 
     @Test
-    fun showSearchSuggestions() = runBlocking {
+    fun showSearchSuggestions() = runTest {
         val initialState = emptyDefaultState()
         val store = SearchFragmentStore(initialState)
 
@@ -186,7 +224,7 @@ class SearchFragmentStoreTest {
     }
 
     @Test
-    fun allowSearchInPrivateMode() = runBlocking {
+    fun allowSearchInPrivateMode() = runTest {
         val initialState = emptyDefaultState()
         val store = SearchFragmentStore(initialState)
 
@@ -206,21 +244,21 @@ class SearchFragmentStoreTest {
         assertFalse(store.state.clipboardHasUrl)
 
         store.dispatch(
-            SearchFragmentAction.UpdateClipboardHasUrl(true)
+            SearchFragmentAction.UpdateClipboardHasUrl(true),
         ).joinBlocking()
 
         assertTrue(store.state.clipboardHasUrl)
     }
 
     @Test
-    fun `Updating SearchFragmentState from SearchState`() = runBlocking {
+    fun `Updating SearchFragmentState from SearchState`() {
         val store = SearchFragmentStore(
             emptyDefaultState(
                 searchEngineSource = SearchEngineSource.None,
                 areShortcutsAvailable = false,
                 defaultEngine = null,
-                showSearchShortcutsSetting = true
-            )
+                showSearchShortcutsSetting = true,
+            ),
         )
 
         assertNull(store.state.defaultEngine)
@@ -235,28 +273,30 @@ class SearchFragmentStoreTest {
                     regionSearchEngines = listOf(
                         SearchEngine("engine-a", "Engine A", mockk(), type = SearchEngine.Type.BUNDLED),
                         SearchEngine("engine-b", "Engine B", mockk(), type = SearchEngine.Type.BUNDLED),
-                        SearchEngine("engine-c", "Engine C", mockk(), type = SearchEngine.Type.BUNDLED)
+                        SearchEngine("engine-c", "Engine C", mockk(), type = SearchEngine.Type.BUNDLED),
                     ),
                     customSearchEngines = listOf(
                         SearchEngine("engine-d", "Engine D", mockk(), type = SearchEngine.Type.CUSTOM),
-                        SearchEngine("engine-e", "Engine E", mockk(), type = SearchEngine.Type.CUSTOM)
+                        SearchEngine("engine-e", "Engine E", mockk(), type = SearchEngine.Type.CUSTOM),
                     ),
                     additionalSearchEngines = listOf(
-                        SearchEngine("engine-f", "Engine F", mockk(), type = SearchEngine.Type.BUNDLED_ADDITIONAL)
+                        SearchEngine("engine-f", "Engine F", mockk(), type = SearchEngine.Type.BUNDLED_ADDITIONAL),
                     ),
                     additionalAvailableSearchEngines = listOf(
                         SearchEngine("engine-g", "Engine G", mockk(), type = SearchEngine.Type.BUNDLED_ADDITIONAL),
-                        SearchEngine("engine-h", "Engine H", mockk(), type = SearchEngine.Type.BUNDLED_ADDITIONAL)
+                        SearchEngine("engine-h", "Engine H", mockk(), type = SearchEngine.Type.BUNDLED_ADDITIONAL),
                     ),
                     hiddenSearchEngines = listOf(
-                        SearchEngine("engine-i", "Engine I", mockk(), type = SearchEngine.Type.BUNDLED)
+                        SearchEngine("engine-i", "Engine I", mockk(), type = SearchEngine.Type.BUNDLED),
                     ),
                     regionDefaultSearchEngineId = "engine-b",
                     userSelectedSearchEngineId = null,
-                    userSelectedSearchEngineName = null
-                )
-            )
-        ).join()
+                    userSelectedSearchEngineName = null,
+                ),
+            ),
+        )
+
+        store.waitUntilIdle()
 
         assertNotNull(store.state.defaultEngine)
         assertEquals("Engine B", store.state.defaultEngine!!.name)
@@ -270,14 +310,14 @@ class SearchFragmentStoreTest {
     }
 
     @Test
-    fun `Updating SearchFragmentState from SearchState - shortcuts disabled`() = runBlocking {
+    fun `Updating SearchFragmentState from SearchState - shortcuts disabled`() {
         val store = SearchFragmentStore(
             emptyDefaultState(
                 searchEngineSource = SearchEngineSource.None,
                 areShortcutsAvailable = false,
                 defaultEngine = null,
-                showSearchShortcutsSetting = false
-            )
+                showSearchShortcutsSetting = false,
+            ),
         )
 
         assertNull(store.state.defaultEngine)
@@ -292,28 +332,30 @@ class SearchFragmentStoreTest {
                     regionSearchEngines = listOf(
                         SearchEngine("engine-a", "Engine A", mockk(), type = SearchEngine.Type.BUNDLED),
                         SearchEngine("engine-b", "Engine B", mockk(), type = SearchEngine.Type.BUNDLED),
-                        SearchEngine("engine-c", "Engine C", mockk(), type = SearchEngine.Type.BUNDLED)
+                        SearchEngine("engine-c", "Engine C", mockk(), type = SearchEngine.Type.BUNDLED),
                     ),
                     customSearchEngines = listOf(
                         SearchEngine("engine-d", "Engine D", mockk(), type = SearchEngine.Type.CUSTOM),
-                        SearchEngine("engine-e", "Engine E", mockk(), type = SearchEngine.Type.CUSTOM)
+                        SearchEngine("engine-e", "Engine E", mockk(), type = SearchEngine.Type.CUSTOM),
                     ),
                     additionalSearchEngines = listOf(
-                        SearchEngine("engine-f", "Engine F", mockk(), type = SearchEngine.Type.BUNDLED_ADDITIONAL)
+                        SearchEngine("engine-f", "Engine F", mockk(), type = SearchEngine.Type.BUNDLED_ADDITIONAL),
                     ),
                     additionalAvailableSearchEngines = listOf(
                         SearchEngine("engine-g", "Engine G", mockk(), type = SearchEngine.Type.BUNDLED_ADDITIONAL),
-                        SearchEngine("engine-h", "Engine H", mockk(), type = SearchEngine.Type.BUNDLED_ADDITIONAL)
+                        SearchEngine("engine-h", "Engine H", mockk(), type = SearchEngine.Type.BUNDLED_ADDITIONAL),
                     ),
                     hiddenSearchEngines = listOf(
-                        SearchEngine("engine-i", "Engine I", mockk(), type = SearchEngine.Type.BUNDLED)
+                        SearchEngine("engine-i", "Engine I", mockk(), type = SearchEngine.Type.BUNDLED),
                     ),
                     regionDefaultSearchEngineId = "engine-b",
                     userSelectedSearchEngineId = null,
-                    userSelectedSearchEngineName = null
-                )
-            )
-        ).join()
+                    userSelectedSearchEngineName = null,
+                ),
+            ),
+        )
+
+        store.waitUntilIdle()
 
         assertNotNull(store.state.defaultEngine)
         assertEquals("Engine B", store.state.defaultEngine!!.name)
@@ -330,7 +372,7 @@ class SearchFragmentStoreTest {
         searchEngineSource: SearchEngineSource = mockk(),
         defaultEngine: SearchEngine? = mockk(),
         areShortcutsAvailable: Boolean = true,
-        showSearchShortcutsSetting: Boolean = false
+        showSearchShortcutsSetting: Boolean = false,
     ): SearchFragmentState = SearchFragmentState(
         tabId = null,
         url = "",
@@ -347,6 +389,7 @@ class SearchFragmentStoreTest {
         showHistorySuggestions = false,
         showBookmarkSuggestions = false,
         showSyncedTabsSuggestions = false,
-        searchAccessPoint = SearchAccessPoint.NONE
+        showSessionSuggestions = false,
+        searchAccessPoint = MetricsUtils.Source.NONE,
     )
 }

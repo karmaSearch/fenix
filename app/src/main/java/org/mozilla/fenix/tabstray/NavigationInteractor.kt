@@ -15,17 +15,16 @@ import mozilla.components.browser.state.store.BrowserStore
 import mozilla.components.browser.storage.sync.Tab as SyncTab
 import mozilla.components.concept.engine.prompt.ShareData
 import mozilla.components.service.fxa.manager.FxaAccountManager
-import mozilla.telemetry.glean.private.NoExtras
+import mozilla.components.service.glean.private.NoExtras
 import org.mozilla.fenix.BrowserDirection
 import org.mozilla.fenix.GleanMetrics.Collections
+import org.mozilla.fenix.GleanMetrics.Events
 import org.mozilla.fenix.GleanMetrics.TabsTray
 import org.mozilla.fenix.HomeActivity
 import org.mozilla.fenix.collections.CollectionsDialog
 import org.mozilla.fenix.collections.show
 import org.mozilla.fenix.components.TabCollectionStorage
 import org.mozilla.fenix.components.bookmarks.BookmarksUseCase
-import org.mozilla.fenix.components.metrics.Event
-import org.mozilla.fenix.components.metrics.MetricController
 import org.mozilla.fenix.home.HomeFragment
 import org.mozilla.fenix.tabstray.ext.getTabSessionState
 import org.mozilla.fenix.tabstray.ext.isActiveDownload
@@ -102,7 +101,6 @@ class DefaultNavigationInteractor(
     private val activity: HomeActivity,
     private val browserStore: BrowserStore,
     private val navController: NavController,
-    private val metrics: MetricController,
     private val dismissTabTray: () -> Unit,
     private val dismissTabTrayAndNavigateHome: (sessionId: String) -> Unit,
     private val bookmarksUseCase: BookmarksUseCase,
@@ -111,12 +109,11 @@ class DefaultNavigationInteractor(
     private val showCollectionSnackbar: (
         tabSize: Int,
         isNewCollection: Boolean,
-        collectionToSelect: Long?
     ) -> Unit,
     private val showBookmarkSnackbar: (tabSize: Int) -> Unit,
     private val showCancelledDownloadWarning: (downloadCount: Int, tabId: String?, source: String?) -> Unit,
     private val accountManager: FxaAccountManager,
-    private val ioDispatcher: CoroutineContext
+    private val ioDispatcher: CoroutineContext,
 ) : NavigationInteractor {
 
     override fun onTabTrayDismissed() {
@@ -137,15 +134,15 @@ class DefaultNavigationInteractor(
 
     override fun onTabSettingsClicked() {
         navController.navigate(
-            TabsTrayFragmentDirections.actionGlobalTabSettingsFragment()
+            TabsTrayFragmentDirections.actionGlobalTabSettingsFragment(),
         )
     }
 
     override fun onOpenRecentlyClosedClicked() {
         navController.navigate(
-            TabsTrayFragmentDirections.actionGlobalRecentlyClosed()
+            TabsTrayFragmentDirections.actionGlobalRecentlyClosed(),
         )
-        metrics.track(Event.RecentlyClosedTabsOpenedOld)
+        Events.recentlyClosedTabsOpened.record(NoExtras())
     }
 
     override fun onShareTabs(tabs: Collection<TabSessionState>) {
@@ -155,7 +152,7 @@ class DefaultNavigationInteractor(
             ShareData(url = it.content.url, title = it.content.title)
         }
         val directions = TabsTrayFragmentDirections.actionGlobalShareFragment(
-            data = data.toTypedArray()
+            data = data.toTypedArray(),
         )
         navController.navigate(directions)
     }
@@ -166,7 +163,7 @@ class DefaultNavigationInteractor(
             ShareData(url = it.content.url, title = it.content.title)
         }
         val directions = TabsTrayFragmentDirections.actionGlobalShareFragment(
-            data = data.toTypedArray()
+            data = data.toTypedArray(),
         )
         navController.navigate(directions)
     }
@@ -214,22 +211,22 @@ class DefaultNavigationInteractor(
                     Collections.saved.record(
                         Collections.SavedExtra(
                             browserStore.state.normalTabs.size.toString(),
-                            tabs.size.toString()
-                        )
+                            tabs.size.toString(),
+                        ),
                     )
                 } else {
                     Collections.tabsAdded.record(
                         Collections.TabsAddedExtra(
                             browserStore.state.normalTabs.size.toString(),
-                            tabs.size.toString()
-                        )
+                            tabs.size.toString(),
+                        ),
                     )
                 }
                 id?.apply {
-                    showCollectionSnackbar(tabs.size, isNewCollection, id)
+                    showCollectionSnackbar(tabs.size, isNewCollection)
                 }
             },
-            onNegativeButtonClick = {}
+            onNegativeButtonClick = {},
         ).show(context)
     }
 
@@ -249,13 +246,13 @@ class DefaultNavigationInteractor(
     }
 
     override fun onSyncedTabClicked(tab: SyncTab) {
-        metrics.track(Event.SyncedTabOpened)
+        Events.syncedTabOpened.record(NoExtras())
 
         dismissTabTray()
         activity.openToBrowserAndLoad(
             searchTermOrURL = tab.active().url,
             newTab = true,
-            from = BrowserDirection.FromTabsTray
+            from = BrowserDirection.FromTabsTray,
         )
     }
 }

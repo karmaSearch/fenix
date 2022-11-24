@@ -6,6 +6,7 @@ package org.mozilla.fenix.library.history
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -23,17 +24,22 @@ import org.mozilla.fenix.theme.ThemeManager
 class HistoryView(
     container: ViewGroup,
     val interactor: HistoryInteractor,
-    val onZeroItemsLoaded: () -> Unit
+    val onZeroItemsLoaded: () -> Unit,
+    val onEmptyStateChanged: (Boolean) -> Unit,
 ) : LibraryPageView(container), UserInteractionHandler {
 
     val binding = ComponentHistoryBinding.inflate(
-        LayoutInflater.from(container.context), container, true
+        LayoutInflater.from(container.context),
+        container,
+        true,
     )
 
     var mode: HistoryFragmentState.Mode = HistoryFragmentState.Mode.Normal
         private set
 
-    val historyAdapter = HistoryAdapter(interactor).apply {
+    val historyAdapter = HistoryAdapter(interactor) { isEmpty ->
+        onEmptyStateChanged(isEmpty)
+    }.apply {
         addLoadStateListener {
             // First call will always have itemCount == 0, but we want to keep adapterItemCount
             // as null until we can distinguish an empty list from populated, so updateEmptyState()
@@ -59,8 +65,7 @@ class HistoryView(
             (itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
         }
 
-        val primaryTextColor =
-            ThemeManager.resolveAttribute(R.attr.textPrimary, context)
+        val primaryTextColor = ThemeManager.resolveAttribute(R.attr.textPrimary, context)
         binding.swipeRefresh.setColorSchemeColors(primaryTextColor)
         binding.swipeRefresh.setOnRefreshListener {
             interactor.onRequestSync()
@@ -76,12 +81,14 @@ class HistoryView(
             state.mode === HistoryFragmentState.Mode.Normal || state.mode === HistoryFragmentState.Mode.Syncing
         mode = state.mode
 
-        historyAdapter.updatePendingDeletionIds(state.pendingDeletionIds)
+        historyAdapter.updatePendingDeletionItems(state.pendingDeletionItems)
 
-        updateEmptyState(state.pendingDeletionIds.size != adapterItemCount)
+        updateEmptyState(userHasHistory = !state.isEmpty)
 
         historyAdapter.updateMode(state.mode)
-        val first = layoutManager.findFirstVisibleItemPosition()
+        // We want to update the one item above the upper border of the screen, because
+        // RecyclerView won't redraw it on scroll and onBindViewHolder() method won't be called.
+        val first = layoutManager.findFirstVisibleItemPosition() - 1
         val last = layoutManager.findLastVisibleItemPosition() + 1
         historyAdapter.notifyItemRangeChanged(first, last - first)
 
@@ -89,31 +96,28 @@ class HistoryView(
             interactor.onModeSwitched()
         }
 
-        if (state.mode is HistoryFragmentState.Mode.Editing) {
-            val unselectedItems = oldMode.selectedItems - state.mode.selectedItems
-
-            state.mode.selectedItems.union(unselectedItems).forEach { item ->
-                historyAdapter.notifyItemChanged(item.position)
-            }
-        }
-
         when (val mode = state.mode) {
             is HistoryFragmentState.Mode.Normal -> {
                 setUiForNormalMode(
-                    context.getString(R.string.library_history)
+                    context.getString(R.string.library_history),
                 )
             }
             is HistoryFragmentState.Mode.Editing -> {
                 setUiForSelectingMode(
-                    context.getString(R.string.history_multi_select_title, mode.selectedItems.size)
+                    context.getString(R.string.history_multi_select_title, mode.selectedItems.size),
                 )
+            }
+            else -> {
+                // no-op
             }
         }
     }
 
-    fun updateEmptyState(userHasHistory: Boolean) {
-        binding.historyList.isVisible = userHasHistory
+    private fun updateEmptyState(userHasHistory: Boolean) {
+        binding.historyList.isInvisible = !userHasHistory
         binding.historyEmptyView.isVisible = !userHasHistory
+        binding.topSpacer.isVisible = !userHasHistory
+
         with(binding.recentlyClosedNavEmpty) {
             recentlyClosedNav.setOnClickListener {
                 interactor.onRecentlyClosedClicked()
@@ -125,9 +129,9 @@ class HistoryView(
                         R.string.recently_closed_tab
                     } else {
                         R.string.recently_closed_tabs
-                    }
+                    },
                 ),
-                numRecentTabs
+                numRecentTabs,
             )
             recentlyClosedNav.isVisible = !userHasHistory
         }

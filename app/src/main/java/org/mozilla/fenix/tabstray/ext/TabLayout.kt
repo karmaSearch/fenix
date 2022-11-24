@@ -15,3 +15,6 @@ fun TabLayout.isPrivateModeSelected(): Boolean {
     return selectedTabPosition == TrayPagerAdapter.POSITION_PRIVATE_TABS
 }
 
+fun TabLayout.isSyncedModeSelected(): Boolean {
+    return selectedTabPosition == TrayPagerAdapter.POSITION_SYNCED_TABS
+}

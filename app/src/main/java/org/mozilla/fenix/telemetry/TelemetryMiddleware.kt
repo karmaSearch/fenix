@@ -15,11 +15,12 @@ import mozilla.components.browser.state.selector.normalTabs
 import mozilla.components.browser.state.state.BrowserState
 import mozilla.components.browser.state.state.EngineState
 import mozilla.components.browser.state.state.SessionState
-import mozilla.components.feature.search.telemetry.ads.AdsTelemetry
 import mozilla.components.lib.state.Middleware
 import mozilla.components.lib.state.MiddlewareContext
 import mozilla.components.support.base.android.Clock
 import mozilla.components.support.base.log.logger.Logger
+import org.mozilla.fenix.GleanMetrics.Events
+import org.mozilla.fenix.GleanMetrics.Metrics
 import org.mozilla.fenix.components.metrics.Event
 import org.mozilla.fenix.components.metrics.MetricController
 import org.mozilla.fenix.utils.Settings
@@ -29,12 +30,11 @@ import org.mozilla.fenix.GleanMetrics.EngineTab as EngineMetrics
  * [Middleware] to record telemetry in response to [BrowserAction]s.
  *
  * @property settings reference to the application [Settings].
- * @property adsTelemetry reference to [AdsTelemetry] use to record search telemetry.
- * @property metrics reference to the configured [MetricController] to record general page load events.
+ * @property metrics [MetricController] to pass events that have been mapped from actions
  */
 class TelemetryMiddleware(
     private val settings: Settings,
-    private val metrics: MetricController
+    private val metrics: MetricController,
 ) : Middleware<BrowserState, BrowserAction> {
 
     private val logger = Logger("TelemetryMiddleware")
@@ -43,7 +43,7 @@ class TelemetryMiddleware(
     override fun invoke(
         context: MiddlewareContext<BrowserState, BrowserAction>,
         next: (BrowserAction) -> Unit,
-        action: BrowserAction
+        action: BrowserAction,
     ) {
         // Pre process actions
         when (action) {
@@ -51,7 +51,7 @@ class TelemetryMiddleware(
                 context.state.findTab(action.sessionId)?.let { tab ->
                     // Record UriOpened event when a non-private page finishes loading
                     if (tab.content.loading && !action.loading) {
-                        metrics.track(Event.NormalAndPrivateUriOpened)
+                        Events.normalAndPrivateUriCount.add()
                     }
                 }
             }
@@ -59,6 +59,12 @@ class TelemetryMiddleware(
             is EngineAction.KillEngineSessionAction -> {
                 val tab = context.state.findTabOrCustomTab(action.tabId)
                 onEngineSessionKilled(context.state, tab)
+            }
+            is EngineAction.LoadUrlAction -> {
+                metrics.track(Event.GrowthData.FirstUriLoadForDay)
+            }
+            else -> {
+                // no-op
             }
         }
 
@@ -71,14 +77,18 @@ class TelemetryMiddleware(
             is TabListAction.RemoveTabAction,
             is TabListAction.RemoveAllNormalTabsAction,
             is TabListAction.RemoveAllTabsAction,
-            is TabListAction.RestoreAction -> {
+            is TabListAction.RestoreAction,
+            -> {
                 // Update/Persist tabs count whenever it changes
                 settings.openTabsCount = context.state.normalTabs.count()
-                if (context.state.normalTabs.count() > 0) {
-                    metrics.track(Event.HaveOpenTabs)
+                if (context.state.normalTabs.isNotEmpty()) {
+                    Metrics.hasOpenTabs.set(true)
                 } else {
-                    metrics.track(Event.HaveNoOpenTabs)
+                    Metrics.hasOpenTabs.set(false)
                 }
+            }
+            else -> {
+                // no-op
             }
         }
     }
@@ -102,9 +112,9 @@ class TelemetryMiddleware(
 
         // Record the age of the engine session of the killed foreground/background tab.
         if (isSelected && age != null) {
-            EngineMetrics.killForegroundAge.accumulateSamples(listOf(age).toLongArray())
+            EngineMetrics.killForegroundAge.accumulateSamples(listOf(age))
         } else if (age != null) {
-            EngineMetrics.killBackgroundAge.accumulateSamples(listOf(age).toLongArray())
+            EngineMetrics.killBackgroundAge.accumulateSamples(listOf(age))
         }
     }
 }

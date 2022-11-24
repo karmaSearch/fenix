@@ -13,14 +13,14 @@ tasks:
             $if: 'tasks_for in ["cron", "action"]'
             then: '${tasks_for}@noreply.mozilla.org'
             else:
-                $if: 'event.sender.login == "bors[bot]"'
-                then: 'skaspari+mozlando@mozilla.com'   # It must match what's in bors.toml
-                else:
-                    $if: 'tasks_for == "github-push"'
+                $if: 'tasks_for == "github-push"'
+                then:
+                    $if: 'event.pusher.email'
                     then: '${event.pusher.email}'
-                    else:
-                        $if: 'tasks_for == "github-pull-request"'
-                        then: '${event.pull_request.user.login}@users.noreply.github.com'
+                    else: '${event.pusher.name}@users.noreply.github.com'
+                else:
+                    $if: 'tasks_for == "github-pull-request"'
+                    then: '${event.pull_request.user.login}@users.noreply.github.com'
         baseRepoUrl:
             $if: 'tasks_for == "github-push"'
             then: '${event.repository.html_url}'
@@ -185,6 +185,7 @@ tasks:
                               MOBILE_HEAD_REV: '${head_sha}'
                               MOBILE_REPOSITORY_TYPE: git
                               MOBILE_PIP_REQUIREMENTS: taskcluster/requirements.txt
+                              MOZ_AUTOMATION: "1"
                               REPOSITORIES: {$json: {mobile: "Fenix"}}
                               HG_STORE_PATH: /builds/worker/checkouts/hg-store
                               ANDROID_SDK_ROOT: /builds/worker/android-sdk
@@ -202,7 +203,7 @@ tasks:
                         chainOfTrust: true
                         # Note: This task is built server side without the context or tooling that
                         # exist in tree so we must hard code the hash
-                    image: mozillareleases/taskgraph:decision-mobile-7e11b0cc3966ad9729e08b19551399b3343d3b385eac067b6335d4c34431a899@sha256:b309fa59efd59991ba286a326cb43b724c38e6f3872c52d0f85e96428899c2fc
+                    image: mozillareleases/taskgraph:decision-mobile-625975b642c148be4c6f1d8ee5cedf7399f5d0dd33d275ff69d5934e3082d4a9@sha256:bfb26700182486e1c6c52701baea6f386fa39e5e25417423c27845933605ad43
 
                     maxRunTime: 1800
 
@@ -214,7 +215,7 @@ tasks:
                         - bash
                         - -cx
                         - $let:
-                            extraArgs: 
+                            extraArgs:
                                 $if: 'tasks_for == "cron"'
                                 then: '${cron.quoted_args}'
                                 else: ''
@@ -246,7 +247,7 @@ tasks:
                         'public':
                             type: 'directory'
                             path: '/builds/worker/artifacts'
-                            expires: 
+                            expires:
                                 $fromNow: '1 year'
                         'public/docker-contexts':
                             type: 'directory'
@@ -255,7 +256,7 @@ tasks:
                             # decision task + the docker-image task deadlines.
                             # It is set to a week to allow for some time for
                             # debugging, but they are not useful long-term.
-                            expires: 
+                            expires:
                                 $fromNow: '7 day'
 
                 extra:

@@ -9,14 +9,16 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
+import android.util.Patterns
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import android.webkit.URLUtil
 import androidx.core.content.ContextCompat
+import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import mozilla.components.lib.state.ext.consumeFrom
@@ -40,14 +42,14 @@ import org.mozilla.fenix.settings.logins.interactor.AddLoginInteractor
  * Displays the editable new login information for a single website
  */
 @Suppress("TooManyFunctions", "NestedBlockDepth", "ForbiddenComment")
-class AddLoginFragment : Fragment(R.layout.fragment_add_login) {
+class AddLoginFragment : Fragment(R.layout.fragment_add_login), MenuProvider {
 
     private lateinit var loginsFragmentStore: LoginsFragmentStore
     private lateinit var interactor: AddLoginInteractor
 
     private var duplicateLogin: SavedLogin? = null
 
-    private var validPassword = true
+    private var validPassword = false
     private var validUsername = true
     private var validHostname = false
     private var usernameChanged = false
@@ -57,13 +59,13 @@ class AddLoginFragment : Fragment(R.layout.fragment_add_login) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setHasOptionsMenu(true)
+        requireActivity().addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         _binding = FragmentAddLoginBinding.bind(view)
 
         loginsFragmentStore = StoreProvider.get(this) {
             LoginsFragmentStore(
-                createInitialLoginsListState(requireContext().settings())
+                createInitialLoginsListState(requireContext().settings()),
             )
         }
 
@@ -72,8 +74,8 @@ class AddLoginFragment : Fragment(R.layout.fragment_add_login) {
                 passwordsStorage = requireContext().components.core.passwordsStorage,
                 lifecycleScope = lifecycleScope,
                 navController = findNavController(),
-                loginsFragmentStore = loginsFragmentStore
-            )
+                loginsFragmentStore = loginsFragmentStore,
+            ),
         )
 
         initEditableValues()
@@ -149,83 +151,104 @@ class AddLoginFragment : Fragment(R.layout.fragment_add_login) {
             }
         }
 
-        binding.hostnameText.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(h: Editable?) {
-                val hostnameText = h.toString()
+        binding.hostnameText.addTextChangedListener(
+            object : TextWatcher {
+                override fun afterTextChanged(h: Editable?) {
+                    val hostnameText = h.toString()
 
-                when {
-                    hostnameText.isEmpty() -> {
-                        setHostnameError()
-                        binding.clearHostnameTextButton.isEnabled = false
-                    }
-                    !URLUtil.isHttpUrl(hostnameText) && !URLUtil.isHttpsUrl(hostnameText) -> {
-                        setHostnameError()
-                        binding.clearHostnameTextButton.isEnabled = true
-                    }
-                    else -> {
-                        validHostname = true
+                    when {
+                        hostnameText.isEmpty() -> {
+                            setHostnameError()
+                            binding.clearHostnameTextButton.isEnabled = false
+                        }
+                        !Patterns.WEB_URL.matcher(hostnameText).matches() -> {
+                            setHostnameError()
+                            binding.clearHostnameTextButton.isEnabled = true
+                        }
+                        else -> {
+                            validHostname = true
 
-                        binding.clearHostnameTextButton.isEnabled = true
-                        binding.inputLayoutHostname.error = null
-                        binding.inputLayoutHostname.errorIconDrawable = null
+                            binding.clearHostnameTextButton.isEnabled = true
+                            binding.inputLayoutHostname.error = null
+                            binding.inputLayoutHostname.errorIconDrawable = null
 
-                        findDuplicate()
+                            findDuplicate()
+                        }
                     }
+                    setSaveButtonState()
                 }
-                setSaveButtonState()
-            }
 
-            override fun beforeTextChanged(u: CharSequence?, start: Int, count: Int, after: Int) {
-                // NOOP
-            }
-
-            override fun onTextChanged(u: CharSequence?, start: Int, before: Int, count: Int) {
-                // NOOP
-            }
-        })
-
-        binding.usernameText.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(u: Editable?) {
-                usernameChanged = true
-                updateUsernameField()
-                setSaveButtonState()
-                findDuplicate()
-            }
-
-            override fun beforeTextChanged(u: CharSequence?, start: Int, count: Int, after: Int) {
-                // NOOP
-            }
-
-            override fun onTextChanged(u: CharSequence?, start: Int, before: Int, count: Int) {
-                // NOOP
-            }
-        })
-
-        binding.passwordText.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(p: Editable?) {
-                when {
-                    p.toString().isEmpty() -> {
-                        binding.clearPasswordTextButton.isVisible = false
-                        setPasswordError()
-                    }
-                    else -> {
-                        validPassword = true
-                        binding.inputLayoutPassword.error = null
-                        binding.inputLayoutPassword.errorIconDrawable = null
-                        binding.clearPasswordTextButton.isVisible = true
-                    }
+                override fun beforeTextChanged(
+                    u: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int,
+                ) {
+                    // NOOP
                 }
-                setSaveButtonState()
-            }
 
-            override fun beforeTextChanged(p: CharSequence?, start: Int, count: Int, after: Int) {
-                // NOOP
-            }
+                override fun onTextChanged(u: CharSequence?, start: Int, before: Int, count: Int) {
+                    // NOOP
+                }
+            },
+        )
 
-            override fun onTextChanged(p: CharSequence?, start: Int, before: Int, count: Int) {
-                // NOOP
-            }
-        })
+        binding.usernameText.addTextChangedListener(
+            object : TextWatcher {
+                override fun afterTextChanged(u: Editable?) {
+                    usernameChanged = true
+                    updateUsernameField()
+                    setSaveButtonState()
+                    findDuplicate()
+                }
+
+                override fun beforeTextChanged(
+                    u: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int,
+                ) {
+                    // NOOP
+                }
+
+                override fun onTextChanged(u: CharSequence?, start: Int, before: Int, count: Int) {
+                    // NOOP
+                }
+            },
+        )
+
+        binding.passwordText.addTextChangedListener(
+            object : TextWatcher {
+                override fun afterTextChanged(p: Editable?) {
+                    when {
+                        p.toString().isEmpty() -> {
+                            binding.clearPasswordTextButton.isVisible = false
+                            setPasswordError()
+                        }
+                        else -> {
+                            validPassword = true
+                            binding.inputLayoutPassword.error = null
+                            binding.inputLayoutPassword.errorIconDrawable = null
+                            binding.clearPasswordTextButton.isVisible = true
+                        }
+                    }
+                    setSaveButtonState()
+                }
+
+                override fun beforeTextChanged(
+                    p: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int,
+                ) {
+                    // NOOP
+                }
+
+                override fun onTextChanged(p: CharSequence?, start: Int, before: Int, count: Int) {
+                    // NOOP
+                }
+            },
+        )
     }
 
     private fun findDuplicate() {
@@ -248,8 +271,11 @@ class AddLoginFragment : Fragment(R.layout.fragment_add_login) {
                 layout.setErrorIconDrawable(R.drawable.mozac_ic_warning_with_bottom_padding)
                 layout.setErrorIconTintList(
                     ColorStateList.valueOf(
-                        ContextCompat.getColor(requireContext(), R.color.fx_mobile_text_color_warning)
-                    )
+                        ContextCompat.getColor(
+                            requireContext(),
+                            R.color.fx_mobile_text_color_warning,
+                        ),
+                    ),
                 )
             }
             duplicateLogin != null -> {
@@ -259,8 +285,11 @@ class AddLoginFragment : Fragment(R.layout.fragment_add_login) {
                 layout.setErrorIconDrawable(R.drawable.mozac_ic_warning_with_bottom_padding)
                 layout.setErrorIconTintList(
                     ColorStateList.valueOf(
-                        ContextCompat.getColor(requireContext(), R.color.fx_mobile_text_color_warning)
-                    )
+                        ContextCompat.getColor(
+                            requireContext(),
+                            R.color.fx_mobile_text_color_warning,
+                        ),
+                    ),
                 )
             }
             else -> {
@@ -282,8 +311,8 @@ class AddLoginFragment : Fragment(R.layout.fragment_add_login) {
             layout.setErrorIconDrawable(R.drawable.mozac_ic_warning_with_bottom_padding)
             layout.setErrorIconTintList(
                 ColorStateList.valueOf(
-                    ContextCompat.getColor(requireContext(), R.color.fx_mobile_text_color_warning)
-                )
+                    ContextCompat.getColor(requireContext(), R.color.fx_mobile_text_color_warning),
+                ),
             )
         }
     }
@@ -295,8 +324,8 @@ class AddLoginFragment : Fragment(R.layout.fragment_add_login) {
             layout.setErrorIconDrawable(R.drawable.mozac_ic_warning_with_bottom_padding)
             layout.setErrorIconTintList(
                 ColorStateList.valueOf(
-                    ContextCompat.getColor(requireContext(), R.color.fx_mobile_text_color_warning)
-                )
+                    ContextCompat.getColor(requireContext(), R.color.fx_mobile_text_color_warning),
+                ),
             )
         }
     }
@@ -305,7 +334,7 @@ class AddLoginFragment : Fragment(R.layout.fragment_add_login) {
         activity?.invalidateOptionsMenu()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+    override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.login_save, menu)
     }
 
@@ -319,7 +348,7 @@ class AddLoginFragment : Fragment(R.layout.fragment_add_login) {
         redirectToReAuth(
             listOf(R.id.savedLoginsFragment),
             findNavController().currentDestination?.id,
-            R.id.addLoginFragment
+            R.id.addLoginFragment,
         )
         super.onPause()
     }
@@ -329,13 +358,13 @@ class AddLoginFragment : Fragment(R.layout.fragment_add_login) {
         showToolbar(getString(R.string.add_login))
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
+    override fun onMenuItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         R.id.save_login_button -> {
             view?.hideKeyboard()
             interactor.onAddLogin(
                 binding.hostnameText.text.toString(),
                 binding.usernameText.text.toString(),
-                binding.passwordText.text.toString()
+                binding.passwordText.text.toString(),
             )
             true
         }

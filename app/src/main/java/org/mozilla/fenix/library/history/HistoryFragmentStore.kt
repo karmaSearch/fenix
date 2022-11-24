@@ -32,14 +32,17 @@ sealed class History : Parcelable {
      * @property visitedAt Timestamp of when this history item was visited.
      * @property historyTimeGroup [HistoryItemTimeGroup] of the history item.
      * @property selected Whether or not the history item is selected.
+     * @property isRemote A history item is either opened locally or synced from other devices.
      */
-    @Parcelize data class Regular(
+    @Parcelize
+    data class Regular(
         override val position: Int,
         override val title: String,
         val url: String,
         override val visitedAt: Long,
         override val historyTimeGroup: HistoryItemTimeGroup,
-        override val selected: Boolean = false
+        override val selected: Boolean = false,
+        val isRemote: Boolean = false,
     ) : History()
 
     /**
@@ -55,7 +58,8 @@ sealed class History : Parcelable {
      * was opened from history.
      * @property selected Whether or not the history metadata item is selected.
      */
-    @Parcelize data class Metadata(
+    @Parcelize
+    data class Metadata(
         override val position: Int,
         override val title: String,
         val url: String,
@@ -63,7 +67,7 @@ sealed class History : Parcelable {
         override val historyTimeGroup: HistoryItemTimeGroup,
         val totalViewTime: Int,
         val historyMetadataKey: HistoryMetadataKey,
-        override val selected: Boolean = false
+        override val selected: Boolean = false,
     ) : History()
 
     /**
@@ -76,13 +80,14 @@ sealed class History : Parcelable {
      * @property items List of history metadata items associated with the group.
      * @property selected Whether or not the history group is selected.
      */
-    @Parcelize data class Group(
+    @Parcelize
+    data class Group(
         override val position: Int,
         override val title: String,
         override val visitedAt: Long,
         override val historyTimeGroup: HistoryItemTimeGroup,
         val items: List<Metadata>,
-        override val selected: Boolean = false
+        override val selected: Boolean = false,
     ) : History()
 }
 
@@ -98,7 +103,7 @@ fun HistoryMetadata.toHistoryMetadata(position: Int): History.Metadata {
         visitedAt = createdAt,
         historyTimeGroup = HistoryItemTimeGroup.timeGroupForTimestamp(createdAt),
         totalViewTime = totalViewTime,
-        historyMetadataKey = key
+        historyMetadataKey = key,
     )
 }
 
@@ -115,8 +120,18 @@ sealed class HistoryFragmentAction : Action {
     object ExitEditMode : HistoryFragmentAction()
     data class AddItemForRemoval(val item: History) : HistoryFragmentAction()
     data class RemoveItemForRemoval(val item: History) : HistoryFragmentAction()
-    data class AddPendingDeletionSet(val itemIds: Set<Long>) : HistoryFragmentAction()
-    data class UndoPendingDeletionSet(val itemIds: Set<Long>) : HistoryFragmentAction()
+
+    /**
+     * Updates the empty state of [org.mozilla.fenix.library.history.HistoryView].
+     */
+    data class ChangeEmptyState(val isEmpty: Boolean) : HistoryFragmentAction()
+
+    /**
+     * Updates the set of items marked for removal from the [org.mozilla.fenix.components.AppStore]
+     * to the [HistoryFragmentStore], to be hidden from the UI.
+     */
+    data class UpdatePendingDeletionItems(val pendingDeletionItems: Set<PendingDeletionHistory>) :
+        HistoryFragmentAction()
     object EnterDeletionMode : HistoryFragmentAction()
     object ExitDeletionMode : HistoryFragmentAction()
     object StartSync : HistoryFragmentAction()
@@ -131,8 +146,9 @@ sealed class HistoryFragmentAction : Action {
 data class HistoryFragmentState(
     val items: List<History>,
     val mode: Mode,
-    val pendingDeletionIds: Set<Long>,
-    val isDeletingItems: Boolean
+    val pendingDeletionItems: Set<PendingDeletionHistory>,
+    val isEmpty: Boolean,
+    val isDeletingItems: Boolean,
 ) : State {
     sealed class Mode {
         open val selectedItems = emptySet<History>()
@@ -148,7 +164,7 @@ data class HistoryFragmentState(
  */
 private fun historyStateReducer(
     state: HistoryFragmentState,
-    action: HistoryFragmentAction
+    action: HistoryFragmentAction,
 ): HistoryFragmentState {
     return when (action) {
         is HistoryFragmentAction.AddItemForRemoval ->
@@ -160,7 +176,7 @@ private fun historyStateReducer(
                     HistoryFragmentState.Mode.Normal
                 } else {
                     HistoryFragmentState.Mode.Editing(selected)
-                }
+                },
             )
         }
         is HistoryFragmentAction.ExitEditMode -> state.copy(mode = HistoryFragmentState.Mode.Normal)
@@ -168,13 +184,9 @@ private fun historyStateReducer(
         is HistoryFragmentAction.ExitDeletionMode -> state.copy(isDeletingItems = false)
         is HistoryFragmentAction.StartSync -> state.copy(mode = HistoryFragmentState.Mode.Syncing)
         is HistoryFragmentAction.FinishSync -> state.copy(mode = HistoryFragmentState.Mode.Normal)
-        is HistoryFragmentAction.AddPendingDeletionSet ->
-            state.copy(
-                pendingDeletionIds = state.pendingDeletionIds + action.itemIds
-            )
-        is HistoryFragmentAction.UndoPendingDeletionSet ->
-            state.copy(
-                pendingDeletionIds = state.pendingDeletionIds - action.itemIds
-            )
+        is HistoryFragmentAction.ChangeEmptyState -> state.copy(isEmpty = action.isEmpty)
+        is HistoryFragmentAction.UpdatePendingDeletionItems -> state.copy(
+            pendingDeletionItems = action.pendingDeletionItems,
+        )
     }
 }

@@ -6,7 +6,7 @@ package org.mozilla.fenix.library.bookmarks
 
 import io.mockk.mockk
 import io.mockk.verify
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 
@@ -19,12 +19,12 @@ class BookmarkSearchDialogInteractorTest {
     fun setup() {
         searchController = mockk(relaxed = true)
         interactor = BookmarkSearchDialogInteractor(
-            searchController
+            searchController,
         )
     }
 
     @Test
-    fun onEditingCanceled() = runBlockingTest {
+    fun onEditingCanceled() = runTest {
         interactor.onEditingCanceled()
 
         verify {

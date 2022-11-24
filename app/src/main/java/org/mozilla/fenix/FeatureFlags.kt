@@ -4,10 +4,22 @@
 
 package org.mozilla.fenix
 
+import android.content.Context
+import mozilla.components.support.locale.LocaleManager
+import mozilla.components.support.locale.LocaleManager.getSystemDefault
+
 /**
  * A single source for setting feature flags that are mostly based on build type.
  */
 object FeatureFlags {
+
+    /**
+     * Enables custom extension collection feature,
+     * This feature does not only depend on this flag. It requires the AMO collection override to
+     * be enabled which is behind the Secret Settings.
+     * */
+    val customExtensionCollectionFeature = Config.channel.isNightlyOrDebug || Config.channel.isBeta
+
     /**
      * Pull-to-refresh allows you to pull the web content down far enough to have the page to
      * reload.
@@ -15,9 +27,24 @@ object FeatureFlags {
     const val pullToRefreshEnabled = true
 
     /**
-     * Enables the Addresses autofill feature.
+     * Enables the Sync Addresses feature.
      */
-    val addressesFeature = Config.channel.isNightlyOrDebug
+    const val syncAddressesFeature = false
+
+    /**
+     * Enables the onboarding sync CFR on the home screen.
+     */
+    const val showSynCFR = true
+
+    /**
+     * Enables the onboarding jump back in CFR on the home screen.
+     */
+    const val showJumpBackInCFR = true
+
+    /**
+     * Enables the first run onboarding updates.
+     */
+    const val showFirstRunOnboardingUpdates = false
 
     /**
      * Enables the "recent" tabs feature in the home screen.
@@ -40,11 +67,6 @@ object FeatureFlags {
     const val inactiveTabs = true
 
     /**
-     * Identifies and separates the tabs list with a group containing search term tabs.
-     */
-    val tabGroupFeature = Config.channel.isNightlyOrDebug
-
-    /**
      * Allows tabs to be dragged around as long as tab groups are disabled
      */
     val tabReorderingFeature = Config.channel.isNightlyOrDebug
@@ -52,27 +74,19 @@ object FeatureFlags {
     /**
      * Show Pocket recommended stories on home.
      */
-    fun isPocketRecommendationsFeatureEnabled(): Boolean = false
+    fun isPocketRecommendationsFeatureEnabled() = false
+
+    /**
+     * Show Pocket sponsored stories in between Pocket recommended stories on home.
+     */
+    fun isPocketSponsoredStoriesFeatureEnabled(): Boolean {
+        return isPocketRecommendationsFeatureEnabled() && Config.channel.isDebug
+    }
 
     /**
      * Enables showing the homescreen onboarding card.
      */
     const val showHomeOnboarding = false
-
-    /**
-     * Enables showing the option to clear site data.
-     */
-    const val showClearSiteData = true
-
-    /**
-     * Enables showing the wallpaper functionality.
-     */
-    const val showWallpapers = false
-
-    /**
-     * Enables the Contile top sites.
-     */
-    const val contileFeature = false
 
     /**
      * Enables history improvement features.
@@ -82,10 +96,35 @@ object FeatureFlags {
     /**
      * Enables the Task Continuity enhancements.
      */
-    val taskContinuityFeature = Config.channel.isDebug
+    const val taskContinuityFeature = true
 
     /**
      * Enables the Unified Search feature.
      */
     val unifiedSearchFeature = Config.channel.isNightlyOrDebug
+
+    /**
+     * Enables receiving from the messaging framework.
+     */
+    const val messagingFeature = false
+
+    /**
+     * Enables compose on the tabs tray items.
+     */
+    val composeTabsTray = Config.channel.isDebug
+
+    /**
+     * Enables the wallpaper onboarding.
+     */
+    const val wallpaperOnboardingEnabled = false
+
+    /**
+     * Enables the wallpaper v2 enhancements.
+     */
+    const val wallpaperV2Enabled = false
+
+    /**
+     * Enables the save to PDF feature.
+     */
+    val saveToPDF = Config.channel.isNightlyOrDebug
 }

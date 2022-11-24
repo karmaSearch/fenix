@@ -34,7 +34,7 @@ import org.mozilla.fenix.ui.robots.settingsSubMenuLoginsAndPassword
 
 @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
 class SyncIntegrationTest {
-    val mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+    private lateinit var mDevice: UiDevice
     private lateinit var mockWebServer: MockWebServer
 
     @get:Rule
@@ -42,6 +42,7 @@ class SyncIntegrationTest {
 
     @Before
     fun setUp() {
+        mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         mockWebServer = MockWebServer().apply {
             dispatcher = AndroidAssetDispatcher()
             start()
@@ -176,7 +177,7 @@ class SyncIntegrationTest {
         val emailInput = mDevice.findObject(
             UiSelector()
                 .instance(0)
-                .className(EditText::class.java)
+                .className(EditText::class.java),
         )
         emailInput.waitForExists(TestAssetHelper.waitingTime)
 
@@ -193,7 +194,7 @@ class SyncIntegrationTest {
         val passwordInput = mDevice.findObject(
             UiSelector()
                 .instance(0)
-                .className(EditText::class.java)
+                .className(EditText::class.java),
         )
 
         val passwordValue = javaClass.classLoader!!.getResource("password.txt").readText()

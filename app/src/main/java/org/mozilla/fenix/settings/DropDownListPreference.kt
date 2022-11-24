@@ -11,9 +11,9 @@ import androidx.preference.DropDownPreference
 import androidx.preference.ListPreference
 import org.mozilla.fenix.R
 
-class DropDownListPreference @JvmOverloads constructor(
+open class DropDownListPreference @JvmOverloads constructor(
     context: Context,
-    attrs: AttributeSet? = null
+    attrs: AttributeSet? = null,
 ) : DropDownPreference(context, attrs) {
 
     init {

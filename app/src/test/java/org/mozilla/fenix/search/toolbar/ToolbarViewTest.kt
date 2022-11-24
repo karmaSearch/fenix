@@ -13,6 +13,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.spyk
 import io.mockk.verify
+import mozilla.components.browser.state.search.SearchEngine
 import mozilla.components.browser.toolbar.BrowserToolbar
 import mozilla.components.browser.toolbar.edit.EditToolbar
 import mozilla.components.concept.engine.Engine
@@ -24,7 +25,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mozilla.fenix.R
-import org.mozilla.fenix.components.metrics.Event
+import org.mozilla.fenix.components.metrics.MetricsUtils
 import org.mozilla.fenix.helpers.FenixRobolectricTestRunner
 import org.mozilla.fenix.search.SearchEngineSource
 import org.mozilla.fenix.search.SearchFragmentState
@@ -32,7 +33,9 @@ import org.mozilla.fenix.utils.Settings
 
 @RunWith(FenixRobolectricTestRunner::class)
 class ToolbarViewTest {
-    @MockK(relaxed = true) private lateinit var interactor: ToolbarInteractor
+    @MockK(relaxed = true)
+    private lateinit var interactor: ToolbarInteractor
+
     @MockK private lateinit var engine: Engine
     private lateinit var context: Context
     private lateinit var toolbar: BrowserToolbar
@@ -45,7 +48,8 @@ class ToolbarViewTest {
             mockk {
                 every { name } returns "Search Engine"
                 every { icon } returns testContext.getDrawable(R.drawable.ic_search)!!.toBitmap()
-            }
+                every { type } returns SearchEngine.Type.BUNDLED
+            },
         ),
         defaultEngine = null,
         showSearchShortcutsSetting = false,
@@ -57,7 +61,8 @@ class ToolbarViewTest {
         showHistorySuggestions = false,
         showBookmarkSuggestions = false,
         showSyncedTabsSuggestions = false,
-        searchAccessPoint = Event.PerformedSearch.SearchAccessPoint.NONE
+        showSessionSuggestions = false,
+        searchAccessPoint = MetricsUtils.Source.NONE,
     )
 
     @Before
@@ -136,7 +141,7 @@ class ToolbarViewTest {
     fun `searchTerms don't get set if pastedText has a value`() {
         val toolbarView = buildToolbarView(false)
         toolbarView.update(
-            defaultState.copy(query = "Query", pastedText = "PastedText", searchTerms = "Search Terms")
+            defaultState.copy(query = "Query", pastedText = "PastedText", searchTerms = "Search Terms"),
         )
 
         verify(exactly = 0) { toolbar.setSearchTerms("Search Terms") }
@@ -157,10 +162,8 @@ class ToolbarViewTest {
         context,
         Settings(context),
         interactor,
-        historyStorage = null,
         isPrivate = isPrivate,
         view = toolbar,
-        engine = engine,
-        fromHomeFragment = false
+        fromHomeFragment = false,
     )
 }

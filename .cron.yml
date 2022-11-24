@@ -12,21 +12,28 @@ jobs:
       when:
           - {hour: 5, minute: 0}
           - {hour: 17, minute: 0}
+    - name: nightly-test
+      job:
+          type: decision-task
+          treeherder-symbol: Nt
+          target-tasks-method: nightly-test
+      when:
+        - {hour: 5, minute: 0}
     - name: fennec-production
       job:
           type: decision-task
           treeherder-symbol: fennec-production
           target-tasks-method: fennec-production
       when: []  # Force hook only
-    - name: bump-android-components
-      job:
-          type: decision-task
-          treeherder-symbol: bump-ac
-          target-tasks-method: bump_android_components
-      when: [{hour: 15, minute: 30}]
     - name: screenshots
       job:
           type: decision-task
           treeherder-symbol: screenshots-D
           target-tasks-method: screenshots
       when: [{weekday: 'Monday', hour: 10, minute: 0}]
+    - name: legacy-api-ui-tests
+      job:
+          type: decision-task
+          treeherder-symbol: legacy-api-ui
+          target-tasks-method: legacy_api_ui_tests
+      when: [] # temporarily unscheduled

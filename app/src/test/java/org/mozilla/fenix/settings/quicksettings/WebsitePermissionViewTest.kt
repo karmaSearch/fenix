@@ -13,10 +13,10 @@ import io.mockk.spyk
 import io.mockk.MockKAnnotations
 import io.mockk.verify
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue
 import junit.framework.TestCase.assertEquals
-import mozilla.components.support.test.mock
 import mozilla.components.support.test.robolectric.testContext
 import org.junit.Before
 import org.junit.Test
@@ -49,13 +49,13 @@ class WebsitePermissionViewTest {
             status = "status",
             isVisible = true,
             isEnabled = true,
-            isBlockedByAndroid = false
+            isBlockedByAndroid = false,
         )
 
         val map = mapOf<PhoneFeature, WebsitePermission>(PhoneFeature.CAMERA to permission)
 
         view.permissionViews = EnumMap(
-            mapOf(PhoneFeature.CAMERA to ToggleablePermission(label, status))
+            mapOf(PhoneFeature.CAMERA to ToggleablePermission(label, status)),
         )
 
         every { view.bindPermission(any(), any()) } returns Unit
@@ -75,7 +75,7 @@ class WebsitePermissionViewTest {
             status = "status",
             isVisible = false,
             isEnabled = true,
-            isBlockedByAndroid = false
+            isBlockedByAndroid = false,
         )
 
         val map = mapOf<PhoneFeature, WebsitePermission>(PhoneFeature.CAMERA to permission)
@@ -101,7 +101,7 @@ class WebsitePermissionViewTest {
             status = "status",
             isVisible = true,
             isEnabled = true,
-            isBlockedByAndroid = false
+            isBlockedByAndroid = false,
         )
 
         view.permissionViews = EnumMap(mapOf(PhoneFeature.CAMERA to permissionView))
@@ -130,7 +130,7 @@ class WebsitePermissionViewTest {
             status = "status",
             isVisible = false,
             isEnabled = false,
-            isBlockedByAndroid = false
+            isBlockedByAndroid = false,
         )
 
         view.permissionViews = EnumMap(mapOf(PhoneFeature.CAMERA to permissionView))
@@ -157,24 +157,24 @@ class WebsitePermissionViewTest {
         val options = listOf(
             AutoplayValue.BlockAll(
                 label = "BlockAll",
-                rules = mock(),
-                sitePermission = null
+                rules = mockk(),
+                sitePermission = null,
             ),
             AutoplayValue.AllowAll(
                 label = "AllowAll",
-                rules = mock(),
-                sitePermission = null
+                rules = mockk(),
+                sitePermission = null,
             ),
             AutoplayValue.BlockAudible(
                 label = "BlockAudible",
-                rules = mock(),
-                sitePermission = null
-            )
+                rules = mockk(),
+                sitePermission = null,
+            ),
         )
         val permission = WebsitePermission.Autoplay(
             autoplayValue = options[0],
             options = options,
-            isVisible = true
+            isVisible = true,
         )
 
         view.permissionViews = EnumMap(mapOf(PhoneFeature.AUTOPLAY to permissionView))
@@ -189,10 +189,10 @@ class WebsitePermissionViewTest {
         assertEquals(permission.autoplayValue, permissionView.status.selectedItem)
 
         permissionView.status.onItemSelectedListener!!.onItemSelected(
-            mock(),
+            mockk(),
             permissionView.status,
             1,
-            0L
+            0L,
         )
 
         // Selecting the same item should not trigger a selection event.
@@ -200,10 +200,10 @@ class WebsitePermissionViewTest {
 
         permissionView.status.setSelection(2)
         permissionView.status.onItemSelectedListener!!.onItemSelected(
-            mock(),
+            mockk(),
             permissionView.status,
             2,
-            0L
+            0L,
         )
 
         // Selecting a different item from the selected one should trigger an selection event.

@@ -34,7 +34,7 @@ object GeckoProvider {
         context: Context,
         autofillStorage: Lazy<CreditCardsAddressesStorage>,
         loginStorage: Lazy<LoginsStorage>,
-        trackingProtectionPolicy: TrackingProtectionPolicy
+        trackingProtectionPolicy: TrackingProtectionPolicy,
     ): GeckoRuntime {
         if (runtime == null) {
             runtime =
@@ -48,7 +48,7 @@ object GeckoProvider {
         context: Context,
         autofillStorage: Lazy<CreditCardsAddressesStorage>,
         loginStorage: Lazy<LoginsStorage>,
-        policy: TrackingProtectionPolicy
+        policy: TrackingProtectionPolicy,
     ): GeckoRuntime {
         val builder = GeckoRuntimeSettings.Builder()
 
@@ -81,24 +81,26 @@ object GeckoProvider {
                 mozcn,
                 // Keep the existing configuration
                 ContentBlocking.GOOGLE_SAFE_BROWSING_PROVIDER,
-                ContentBlocking.GOOGLE_LEGACY_SAFE_BROWSING_PROVIDER
+                ContentBlocking.GOOGLE_LEGACY_SAFE_BROWSING_PROVIDER,
             )
 
             runtimeSettings.contentBlocking.setSafeBrowsingPhishingTable(
                 "m6eb-phish-shavar",
                 "m6ib-phish-shavar",
                 // Existing configuration
-                "goog-phish-proto"
+                "goog-phish-proto",
             )
         }
 
         val geckoRuntime = GeckoRuntime.create(context, runtimeSettings)
 
         geckoRuntime.autocompleteStorageDelegate = GeckoAutocompleteStorageDelegate(
-            GeckoCreditCardsAddressesStorageDelegate(autofillStorage) {
-                context.settings().shouldAutofillCreditCardDetails
-            },
-            GeckoLoginStorageDelegate(loginStorage)
+            GeckoCreditCardsAddressesStorageDelegate(
+                storage = autofillStorage,
+                isCreditCardAutofillEnabled = { context.settings().shouldAutofillCreditCardDetails },
+                isAddressAutofillEnabled = { context.settings().shouldAutofillAddressDetails },
+            ),
+            GeckoLoginStorageDelegate(loginStorage),
         )
 
         return geckoRuntime

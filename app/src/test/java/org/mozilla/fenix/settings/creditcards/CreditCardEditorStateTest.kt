@@ -6,7 +6,7 @@ package org.mozilla.fenix.settings.creditcards
 
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import mozilla.components.concept.storage.CreditCard
 import mozilla.components.concept.storage.CreditCardNumber
 import mozilla.components.service.sync.autofill.AutofillCreditCardsAddressesStorage
@@ -33,11 +33,11 @@ class CreditCardEditorStateTest {
         timeCreated = 1L,
         timeLastUsed = 1L,
         timeLastModified = 1L,
-        timesUsed = 1L
+        timesUsed = 1L,
     )
 
     @Test
-    fun testToCreditCardEditorState() = runBlocking {
+    fun testToCreditCardEditorState() = runTest {
         val storage: AutofillCreditCardsAddressesStorage = mockk(relaxed = true)
         val crypto: AutofillCrypto = mockk(relaxed = true)
 

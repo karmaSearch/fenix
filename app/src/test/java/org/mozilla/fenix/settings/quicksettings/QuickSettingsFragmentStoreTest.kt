@@ -11,7 +11,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.spyk
 import io.mockk.verify
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import mozilla.components.browser.state.state.BrowserState
 import mozilla.components.browser.state.state.content.PermissionHighlightsState
 import mozilla.components.browser.state.state.createTab
@@ -20,7 +20,6 @@ import mozilla.components.concept.engine.permission.SitePermissions
 import mozilla.components.feature.sitepermissions.SitePermissionsRules
 import mozilla.components.feature.sitepermissions.SitePermissionsRules.Action
 import mozilla.components.feature.sitepermissions.SitePermissionsRules.AutoplayAction
-import mozilla.components.support.test.mock
 import mozilla.components.support.test.robolectric.testContext
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -67,7 +66,7 @@ class QuickSettingsFragmentStoreTest {
     fun `createStore constructs a QuickSettingsFragmentState`() {
         val tab = createTab(
             url = "https://www.firefox.com",
-            title = "Firefox"
+            title = "Firefox",
         )
         val browserStore = BrowserStore(BrowserState(tabs = listOf(tab)))
 
@@ -83,7 +82,7 @@ class QuickSettingsFragmentStoreTest {
             permissionHighlights = permissionHighlights,
             settings = appSettings,
             sessionId = tab.id,
-            isTrackingProtectionEnabled = true
+            isTrackingProtectionEnabled = true,
         )
 
         assertNotNull(store)
@@ -131,7 +130,7 @@ class QuickSettingsFragmentStoreTest {
             context.checkPermission(
                 any(),
                 any(),
-                any()
+                any(),
             )
         }.returns(PackageManager.PERMISSION_GRANTED)
         every { permissions.camera } returns SitePermissions.Status.ALLOWED
@@ -146,7 +145,10 @@ class QuickSettingsFragmentStoreTest {
         every { appSettings.getAutoplayUserSetting() } returns AUTOPLAY_BLOCK_ALL
 
         val state = QuickSettingsFragmentStore.createWebsitePermissionState(
-            context, permissions, permissionHighlights, appSettings
+            context,
+            permissions,
+            permissionHighlights,
+            appSettings,
         )
 
         // Just need to know that the WebsitePermissionsState properties are initialized.
@@ -172,7 +174,7 @@ class QuickSettingsFragmentStoreTest {
             context.checkPermission(
                 any(),
                 any(),
-                any()
+                any(),
             )
         }.returns(PackageManager.PERMISSION_GRANTED)
         every { permissions.camera } returns SitePermissions.Status.ALLOWED
@@ -182,7 +184,7 @@ class QuickSettingsFragmentStoreTest {
             context = context,
             permissions = permissions,
             permissionHighlights = permissionHighlights,
-            settings = appSettings
+            settings = appSettings,
         )
 
         assertNotNull(websitePermission)
@@ -196,7 +198,7 @@ class QuickSettingsFragmentStoreTest {
             context = context,
             permissions = permissions,
             permissionHighlights = permissionHighlights,
-            settings = appSettings
+            settings = appSettings,
         ) as WebsitePermission.Autoplay
 
         assertNotNull(autoplayPermission)
@@ -216,7 +218,7 @@ class QuickSettingsFragmentStoreTest {
             context,
             permissions,
             permissionHighlights,
-            appSettings
+            appSettings,
         )
 
         verify {
@@ -235,7 +237,7 @@ class QuickSettingsFragmentStoreTest {
 
     @Test
     fun `TogglePermission should only modify status and visibility of a specific WebsitePermissionsState`() =
-        runBlocking {
+        runTest {
             val initialCameraStatus = "initialCameraStatus"
             val initialMicStatus = "initialMicStatus"
             val initialNotificationStatus = "initialNotificationStatus"
@@ -253,38 +255,38 @@ class QuickSettingsFragmentStoreTest {
                 status = "",
                 isVisible = true,
                 isEnabled = true,
-                isBlockedByAndroid = true
+                isBlockedByAndroid = true,
             )
             val initialWebsitePermissionsState = mapOf(
                 PhoneFeature.CAMERA to baseWebsitePermission.copy(
                     phoneFeature = PhoneFeature.CAMERA,
-                    status = initialCameraStatus
+                    status = initialCameraStatus,
                 ),
                 PhoneFeature.MICROPHONE to baseWebsitePermission.copy(
                     phoneFeature = PhoneFeature.MICROPHONE,
-                    status = initialMicStatus
+                    status = initialMicStatus,
                 ),
                 PhoneFeature.NOTIFICATION to baseWebsitePermission.copy(
                     phoneFeature = PhoneFeature.NOTIFICATION,
-                    status = initialNotificationStatus
+                    status = initialNotificationStatus,
                 ),
                 PhoneFeature.LOCATION to baseWebsitePermission.copy(
                     phoneFeature = PhoneFeature.LOCATION,
-                    status = initialLocationStatus
+                    status = initialLocationStatus,
                 ),
                 PhoneFeature.AUTOPLAY_AUDIBLE to baseWebsitePermission.copy(
                     phoneFeature = PhoneFeature.AUTOPLAY_AUDIBLE,
-                    status = initialAutoplayAudibleStatus
+                    status = initialAutoplayAudibleStatus,
                 ),
                 PhoneFeature.AUTOPLAY_INAUDIBLE to baseWebsitePermission.copy(
                     phoneFeature = PhoneFeature.AUTOPLAY_INAUDIBLE,
-                    status = initialAutoplayInaudibleStatus
-                )
+                    status = initialAutoplayInaudibleStatus,
+                ),
             )
             val initialState = QuickSettingsFragmentState(
                 webInfoState = websiteInfoState,
                 websitePermissionsState = initialWebsitePermissionsState,
-                trackingProtectionState = mock()
+                trackingProtectionState = mockk(),
             )
             val store = QuickSettingsFragmentStore(initialState)
 
@@ -292,8 +294,8 @@ class QuickSettingsFragmentStoreTest {
                 WebsitePermissionAction.TogglePermission(
                     PhoneFeature.MICROPHONE,
                     updatedMicrophoneStatus,
-                    updatedMicrophoneEnabledStatus
-                )
+                    updatedMicrophoneEnabledStatus,
+                ),
             ).join()
 
             assertNotNull(store.state)
@@ -345,7 +347,7 @@ class QuickSettingsFragmentStoreTest {
             context = context,
             websiteUrl = tab.content.url,
             sessionId = tab.id,
-            isTrackingProtectionEnabled = isTrackingProtectionEnabled
+            isTrackingProtectionEnabled = isTrackingProtectionEnabled,
         )
 
         assertNotNull(state)

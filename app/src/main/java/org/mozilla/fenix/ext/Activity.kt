@@ -15,6 +15,7 @@ import android.provider.Settings
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
+import mozilla.components.concept.engine.EngineSession
 import org.mozilla.fenix.BrowserDirection
 import org.mozilla.fenix.HomeActivity
 import org.mozilla.fenix.R
@@ -30,8 +31,8 @@ import org.mozilla.fenix.settings.SupportUtils
     message = "Use the Android Component implementation instead.",
     replaceWith = ReplaceWith(
         "enterToImmersiveMode()",
-        "mozilla.components.support.ktx.android.view.enterToImmersiveMode"
-    )
+        "mozilla.components.support.ktx.android.view.enterToImmersiveMode",
+    ),
 )
 fun Activity.enterToImmersiveMode() {
     window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -48,34 +49,41 @@ fun Activity.enterToImmersiveMode() {
 
 fun Activity.breadcrumb(
     message: String,
-    data: Map<String, String> = emptyMap()
+    data: Map<String, String> = emptyMap(),
 ) {
     components.analytics.crashReporter.recordCrashBreadcrumb(
         Breadcrumb(
             category = this::class.java.simpleName,
             message = message,
             data = data + mapOf(
-                "instance" to this.hashCode().toString()
+                "instance" to this.hashCode().toString(),
             ),
-            level = Breadcrumb.Level.INFO
-        )
+            level = Breadcrumb.Level.INFO,
+        ),
     )
 }
 
 /**
  * Opens Android's Manage Default Apps Settings if possible.
+ * Otherwise navigates to the Sumo article indicating why it couldn't open it.
+ *
+ * @param from fallback direction in case, couldn't open the setting.
+ * @param flags fallback flags for when opening the Sumo article page.
  */
-fun Activity.openSetDefaultBrowserOption() {
+fun Activity.openSetDefaultBrowserOption(
+    from: BrowserDirection = BrowserDirection.FromSettings,
+    flags: EngineSession.LoadUrlFlags = EngineSession.LoadUrlFlags.none(),
+) {
     when {
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
             getSystemService(RoleManager::class.java).also {
                 if (it.isRoleAvailable(RoleManager.ROLE_BROWSER) && !it.isRoleHeld(
-                        RoleManager.ROLE_BROWSER
+                        RoleManager.ROLE_BROWSER,
                     )
                 ) {
                     startActivityForResult(
                         it.createRequestRoleIntent(RoleManager.ROLE_BROWSER),
-                        REQUEST_CODE_BROWSER_ROLE
+                        REQUEST_CODE_BROWSER_ROLE,
                     )
                 } else {
                     navigateToDefaultBrowserAppsSettings()
@@ -89,10 +97,11 @@ fun Activity.openSetDefaultBrowserOption() {
             (this as HomeActivity).openToBrowserAndLoad(
                 searchTermOrURL = SupportUtils.getSumoURLForTopic(
                     this,
-                    SupportUtils.SumoTopic.SET_AS_DEFAULT_BROWSER
+                    SupportUtils.SumoTopic.SET_AS_DEFAULT_BROWSER,
                 ),
                 newTab = true,
-                from = BrowserDirection.FromSettings
+                from = from,
+                flags = flags,
             )
         }
     }
@@ -103,11 +112,11 @@ private fun Activity.navigateToDefaultBrowserAppsSettings() {
         val intent = Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS)
         intent.putExtra(
             SETTINGS_SELECT_OPTION_KEY,
-            DEFAULT_BROWSER_APP_OPTION
+            DEFAULT_BROWSER_APP_OPTION,
         )
         intent.putExtra(
             SETTINGS_SHOW_FRAGMENT_ARGS,
-            bundleOf(SETTINGS_SELECT_OPTION_KEY to DEFAULT_BROWSER_APP_OPTION)
+            bundleOf(SETTINGS_SELECT_OPTION_KEY to DEFAULT_BROWSER_APP_OPTION),
         )
         startActivity(intent)
     }
@@ -118,7 +127,7 @@ private fun Activity.navigateToDefaultBrowserAppsSettings() {
  * @param icon The resource id of the icon.
  */
 fun Activity.setNavigationIcon(
-    @DrawableRes icon: Int
+    @DrawableRes icon: Int,
 ) {
     (this as? AppCompatActivity)?.supportActionBar?.let {
         it.setDisplayHomeAsUpEnabled(true)

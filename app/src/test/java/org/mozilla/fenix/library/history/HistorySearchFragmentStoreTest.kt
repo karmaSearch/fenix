@@ -5,7 +5,7 @@
 package org.mozilla.fenix.library.history
 
 import io.mockk.impl.annotations.MockK
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotSame
 import org.junit.Test
@@ -13,7 +13,8 @@ import org.mozilla.fenix.components.Components
 
 class HistorySearchFragmentStoreTest {
 
-    @MockK(relaxed = true) private lateinit var components: Components
+    @MockK(relaxed = true)
+    private lateinit var components: Components
 
     @Test
     fun `GIVEN createInitialHistorySearchFragmentState THEN query is empty`() {
@@ -21,12 +22,12 @@ class HistorySearchFragmentStoreTest {
 
         assertEquals(
             expected,
-            createInitialHistorySearchFragmentState()
+            createInitialHistorySearchFragmentState(),
         )
     }
 
     @Test
-    fun updateQuery() = runBlocking {
+    fun updateQuery() = runTest {
         val initialState = HistorySearchFragmentState(query = "")
         val store = HistorySearchFragmentStore(initialState)
         val query = "test query"

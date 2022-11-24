@@ -12,8 +12,8 @@ import org.junit.Rule
 import org.junit.Test
 import org.mozilla.fenix.customannotations.SmokeTest
 import org.mozilla.fenix.helpers.AndroidAssetDispatcher
-import org.mozilla.fenix.helpers.FeatureSettingsHelper
 import org.mozilla.fenix.helpers.HomeActivityIntentTestRule
+import org.mozilla.fenix.helpers.RetryTestRule
 import org.mozilla.fenix.helpers.TestAssetHelper.getGenericAsset
 import org.mozilla.fenix.helpers.TestHelper.restartApp
 import org.mozilla.fenix.ui.robots.browserScreen
@@ -26,10 +26,13 @@ import org.mozilla.fenix.ui.robots.navigationToolbar
  */
 class SettingsHomepageTest {
     private lateinit var mockWebServer: MockWebServer
-    private val featureSettingsHelper = FeatureSettingsHelper()
 
     @get:Rule
-    val activityIntentTestRule = HomeActivityIntentTestRule()
+    val activityIntentTestRule = HomeActivityIntentTestRule.withDefaultSettingsOverrides(skipOnboarding = true)
+
+    @Rule
+    @JvmField
+    val retryTestRule = RetryTestRule(3)
 
     @Before
     fun setUp() {
@@ -37,18 +40,85 @@ class SettingsHomepageTest {
             dispatcher = AndroidAssetDispatcher()
             start()
         }
-        featureSettingsHelper.setJumpBackCFREnabled(false)
     }
 
     @After
     fun tearDown() {
         mockWebServer.shutdown()
-
-        // resetting modified features enabled setting to default
-        featureSettingsHelper.resetAllFeatureFlags()
     }
 
-    @Ignore("Failing, see: https://github.com/mozilla-mobile/fenix/issues/24375")
+    @Test
+    fun verifyHomepageSettingsTest() {
+        homeScreen {
+        }.openThreeDotMenu {
+        }.openSettings {
+        }.openHomepageSubMenu {
+            verifyHomePageView()
+        }
+    }
+
+    @Test
+    fun verifyShortcutOptionTest() {
+        // en-US defaults
+        val defaultTopSites = arrayOf(
+            "Top Articles",
+            "Wikipedia",
+            "Google",
+        )
+
+        homeScreen {
+            defaultTopSites.forEach { item ->
+                verifyExistingTopSitesTabs(item)
+            }
+        }.openThreeDotMenu {
+        }.openCustomizeHome {
+            clickShortcutsButton()
+        }.goBack {
+            defaultTopSites.forEach { item ->
+                verifyNotExistingTopSitesList(item)
+            }
+        }
+    }
+
+    @Test
+    fun verifyRecentlyVisitedOptionTest() {
+        activityIntentTestRule.applySettingsExceptions {
+            it.isRecentTabsFeatureEnabled = false
+        }
+        val genericURL = getGenericAsset(mockWebServer, 1)
+
+        navigationToolbar {
+        }.enterURLAndEnterToBrowser(genericURL.url) {
+        }.goToHomescreen {
+            verifyRecentlyVisitedSectionIsDisplayed()
+        }.openThreeDotMenu {
+        }.openCustomizeHome {
+            clickRecentlyVisited()
+        }.goBack {
+            verifyRecentlyVisitedSectionIsNotDisplayed()
+        }
+    }
+
+    @Test
+    fun verifyPocketOptionTest() {
+        activityIntentTestRule.applySettingsExceptions {
+            it.isRecentTabsFeatureEnabled = false
+            it.isRecentlyVisitedFeatureEnabled = false
+        }
+        val genericURL = getGenericAsset(mockWebServer, 1)
+
+        navigationToolbar {
+        }.enterURLAndEnterToBrowser(genericURL.url) {
+        }.goToHomescreen {
+            verifyPocketSectionIsDisplayed()
+        }.openThreeDotMenu {
+        }.openCustomizeHome {
+            clickPocketButton()
+        }.goBack {
+            verifyPocketSectionIsNotDisplayed()
+        }
+    }
+
     @SmokeTest
     @Test
     fun jumpBackInOptionTest() {
@@ -66,7 +136,6 @@ class SettingsHomepageTest {
         }
     }
 
-    @Ignore("Failing, see: https://github.com/mozilla-mobile/fenix/issues/24384")
     @SmokeTest
     @Test
     fun recentBookmarksOptionTest() {
@@ -141,11 +210,12 @@ class SettingsHomepageTest {
 
     @SmokeTest
     @Test
+    @Ignore("Intermittent test: https://github.com/mozilla-mobile/fenix/issues/26559")
     fun setWallpaperTest() {
         val wallpapers = listOf(
             "Wallpaper Item: amethyst",
             "Wallpaper Item: cerulean",
-            "Wallpaper Item: sunrise"
+            "Wallpaper Item: sunrise",
         )
 
         for (wallpaper in wallpapers) {

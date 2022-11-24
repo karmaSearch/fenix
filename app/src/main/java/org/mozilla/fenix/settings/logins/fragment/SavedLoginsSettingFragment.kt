@@ -7,10 +7,9 @@ package org.mozilla.fenix.settings.logins.fragment
 import android.os.Bundle
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
+import org.mozilla.fenix.GleanMetrics.Logins
 import org.mozilla.fenix.R
-import org.mozilla.fenix.components.metrics.Event
 import org.mozilla.fenix.ext.components
-import org.mozilla.fenix.ext.metrics
 import org.mozilla.fenix.ext.showToolbar
 import org.mozilla.fenix.settings.RadioButtonPreference
 import org.mozilla.fenix.settings.SharedPreferenceUpdater
@@ -35,10 +34,10 @@ class SavedLoginsSettingFragment : PreferenceFragmentCompat() {
         preferenceSave.onPreferenceChangeListener = object : SharedPreferenceUpdater() {
             override fun onPreferenceChange(preference: Preference, newValue: Any?): Boolean {
                 if (newValue == true) {
-                    context?.metrics?.track(
-                        Event.SaveLoginsSettingChanged(
-                            Event.SaveLoginsSettingChanged.Setting.ASK_TO_SAVE
-                        )
+                    Logins.saveLoginsSettingChanged.record(
+                        Logins.SaveLoginsSettingChangedExtra(
+                            Setting.ASK_TO_SAVE.name,
+                        ),
                     )
                 }
                 // We want to reload the current session here so we can try to fill the current page
@@ -54,10 +53,10 @@ class SavedLoginsSettingFragment : PreferenceFragmentCompat() {
         preferenceNeverSave.onPreferenceChangeListener = object : SharedPreferenceUpdater() {
             override fun onPreferenceChange(preference: Preference, newValue: Any?): Boolean {
                 if (newValue == true) {
-                    context?.metrics?.track(
-                        Event.SaveLoginsSettingChanged(
-                            Event.SaveLoginsSettingChanged.Setting.NEVER_SAVE
-                        )
+                    Logins.saveLoginsSettingChanged.record(
+                        Logins.SaveLoginsSettingChangedExtra(
+                            Setting.NEVER_SAVE.name,
+                        ),
                     )
                 }
                 // We want to reload the current session here so we don't save any currently inserted login
@@ -66,5 +65,10 @@ class SavedLoginsSettingFragment : PreferenceFragmentCompat() {
             }
         }
         return preferenceNeverSave
+    }
+
+    companion object {
+        // Setting describing the approach of saving logins, used for telemetry
+        enum class Setting { NEVER_SAVE, ASK_TO_SAVE }
     }
 }

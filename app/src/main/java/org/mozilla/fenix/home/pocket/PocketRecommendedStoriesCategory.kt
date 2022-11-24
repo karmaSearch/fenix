@@ -4,7 +4,7 @@
 
 package org.mozilla.fenix.home.pocket
 
-import mozilla.components.service.pocket.PocketRecommendedStory
+import mozilla.components.service.pocket.PocketStory.PocketRecommendedStory
 
 /**
  * Category name of the default category from which stories are to be shown
@@ -23,5 +23,5 @@ const val POCKET_STORIES_DEFAULT_CATEGORY_NAME = "general"
  */
 data class PocketRecommendedStoriesCategory(
     val name: String,
-    val stories: List<PocketRecommendedStory> = emptyList()
+    val stories: List<PocketRecommendedStory> = emptyList(),
 )

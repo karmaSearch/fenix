@@ -6,11 +6,38 @@
 <androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <androidx.preference.Preference
+        android:key="@string/pref_key_sign_in"
+        android:layout="@layout/sign_in_preference"
+        android:summary="@string/preferences_sign_in_description_2"
+        android:title="@string/preferences_sync_2"
+        app:allowDividerBelow="false" />
+
     <androidx.preference.SwitchPreference
         android:key="@string/pref_key_allow_domestic_china_fxa_server"
         android:title="@string/preferences_allow_domestic_china_fxa_server"
-        app:isPreferenceVisible="false"
         android:defaultValue="true"/>
+
+    <androidx.preference.PreferenceCategory
+        android:key="@string/pref_key_account_category"
+        android:title="@string/preferences_category_account"
+        app:isPreferenceVisible="false"
+        android:layout="@layout/preference_category_no_icon_style">
+
+        <org.mozilla.fenix.settings.account.AccountPreference
+            android:icon="@drawable/ic_account"
+            android:key="@string/pref_key_account" />
+
+        <org.mozilla.fenix.settings.account.AccountAuthErrorPreference
+            android:icon="@drawable/ic_account_warning"
+            android:key="@string/pref_key_account_auth_error" />
+    </androidx.preference.PreferenceCategory>
+
+    <androidx.preference.Preference
+        app:iconSpaceReserved="false"
+        android:key="@string/pref_key_sync_debug"
+        android:title="@string/preferences_sync_debug"
+        app:isPreferenceVisible="false" />
 
     <androidx.preference.PreferenceCategory
         android:title="@string/preferences_category_general"

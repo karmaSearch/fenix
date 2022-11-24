@@ -4,23 +4,31 @@
 
 package org.mozilla.fenix.ui
 
+import android.os.Build
+import android.view.autofill.AutofillManager
 import androidx.core.net.toUri
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
+import org.mozilla.fenix.R
 import org.mozilla.fenix.customannotations.SmokeTest
-import org.mozilla.fenix.ext.settings
 import org.mozilla.fenix.helpers.AndroidAssetDispatcher
 import org.mozilla.fenix.helpers.HomeActivityIntentTestRule
 import org.mozilla.fenix.helpers.TestAssetHelper
+import org.mozilla.fenix.helpers.TestAssetHelper.getStorageTestAsset
 import org.mozilla.fenix.helpers.TestHelper
+import org.mozilla.fenix.helpers.TestHelper.appContext
+import org.mozilla.fenix.helpers.TestHelper.exitMenu
+import org.mozilla.fenix.helpers.TestHelper.generateRandomString
+import org.mozilla.fenix.helpers.TestHelper.getStringResource
 import org.mozilla.fenix.helpers.TestHelper.openAppFromExternalLink
 import org.mozilla.fenix.helpers.TestHelper.restartApp
+import org.mozilla.fenix.helpers.TestHelper.setNetworkEnabled
 import org.mozilla.fenix.ui.robots.addToHomeScreen
 import org.mozilla.fenix.ui.robots.browserScreen
 import org.mozilla.fenix.ui.robots.homeScreen
@@ -35,22 +43,26 @@ import org.mozilla.fenix.ui.robots.settingsScreen
 class SettingsPrivacyTest {
     /* ktlint-disable no-blank-line-before-rbrace */ // This imposes unreadable grouping.
 
-    private val mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+    private lateinit var mDevice: UiDevice
     private lateinit var mockWebServer: MockWebServer
-    private val pageShortcutName = "TestShortcut"
+    private val pageShortcutName = generateRandomString(5)
 
     @get:Rule
-    val activityTestRule = HomeActivityIntentTestRule()
+    val activityTestRule = HomeActivityIntentTestRule.withDefaultSettingsOverrides(skipOnboarding = true)
 
     @Before
     fun setUp() {
+        mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         mockWebServer = MockWebServer().apply {
             dispatcher = AndroidAssetDispatcher()
             start()
         }
 
-        val settings = activityTestRule.activity.applicationContext.settings()
-        settings.shouldShowJumpBackInCFR = false
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.R) {
+            val autofillManager: AutofillManager =
+                appContext.getSystemService(AutofillManager::class.java)
+            autofillManager.disableAutofillServices()
+        }
     }
 
     @After
@@ -58,12 +70,8 @@ class SettingsPrivacyTest {
         mockWebServer.shutdown()
     }
 
-    @Test
-    @Ignore(
-        "New https-only setting was added. Test needs refactoring. " +
-            "See https://github.com/mozilla-mobile/fenix/issues/24495"
-    )
     // Walks through settings privacy menu and sub-menus to ensure all items are present
+    @Test
     fun settingsPrivacyItemsTest() {
         homeScreen {
         }.openThreeDotMenu {
@@ -76,10 +84,13 @@ class SettingsPrivacyTest {
         }.openPrivateBrowsingSubMenu {
             verifyNavigationToolBarHeader()
         }.goBack {
+            // HTTPS-Only Mode
+            verifyHTTPSOnlyModeButton()
+            verifyHTTPSOnlyModeState("Off")
 
             // ENHANCED TRACKING PROTECTION
             verifyEnhancedTrackingProtectionButton()
-            verifyEnhancedTrackingProtectionValue("On")
+            verifyEnhancedTrackingProtectionState("On")
         }.openEnhancedTrackingProtectionSubMenu {
             verifyNavigationToolBarHeader()
             verifyEnhancedTrackingProtectionProtectionSubMenuItems()
@@ -90,7 +101,6 @@ class SettingsPrivacyTest {
             verifyEnhancedTrackingProtectionProtectionExceptionsSubMenuItems()
         }.goBack {
         }.goBack {
-
             // SITE PERMISSIONS
             verifySitePermissionsButton()
         }.openSettingsSubMenuSitePermissions {
@@ -102,68 +112,58 @@ class SettingsPrivacyTest {
             verifyNavigationToolBarHeader("Autoplay")
             verifySitePermissionsAutoPlaySubMenuItems()
         }.goBack {
-
             // SITE PERMISSIONS CAMERA
         }.openCamera {
             verifyNavigationToolBarHeader("Camera")
             verifySitePermissionsCommonSubMenuItems()
             verifyToggleNameToON("3. Toggle Camera to ON")
         }.goBack {
-
             // SITE PERMISSIONS LOCATION
         }.openLocation {
             verifyNavigationToolBarHeader("Location")
             verifySitePermissionsCommonSubMenuItems()
             verifyToggleNameToON("3. Toggle Location to ON")
         }.goBack {
-
             // SITE PERMISSIONS MICROPHONE
         }.openMicrophone {
             verifyNavigationToolBarHeader("Microphone")
             verifySitePermissionsCommonSubMenuItems()
             verifyToggleNameToON("3. Toggle Microphone to ON")
         }.goBack {
-
             // SITE PERMISSIONS NOTIFICATION
         }.openNotification {
             verifyNavigationToolBarHeader("Notification")
             verifySitePermissionsNotificationSubMenuItems()
         }.goBack {
-
             // SITE PERMISSIONS PERSISTENT STORAGE
         }.openPersistentStorage {
             verifyNavigationToolBarHeader("Persistent Storage")
             verifySitePermissionsPersistentStorageSubMenuItems()
         }.goBack {
-
             // SITE PERMISSIONS EXCEPTIONS
         }.openExceptions {
             verifyNavigationToolBarHeader()
             verifySitePermissionsExceptionSubMenuItems()
         }.goBack {
         }.goBack {
-
             // DELETE BROWSING DATA
             verifyDeleteBrowsingDataButton()
         }.openSettingsSubMenuDeleteBrowsingData {
             verifyNavigationToolBarHeader()
             verifyDeleteBrowsingDataSubMenuItems()
         }.goBack {
-
             // DELETE BROWSING DATA ON QUIT
             verifyDeleteBrowsingDataOnQuitButton()
-            verifyDeleteBrowsingDataOnQuitValue("Off")
+            verifyDeleteBrowsingDataOnQuitState("Off")
         }.openSettingsSubMenuDeleteBrowsingDataOnQuit {
             verifyNavigationToolBarHeader()
             verifyDeleteBrowsingDataOnQuitSubMenuItems()
         }.goBack {
-
             // NOTIFICATIONS
             verifyNotificationsButton()
         }.openSettingsSubMenuNotifications {
             verifySystemNotificationsView()
         }.goBack {
-
             // DATA COLLECTION
             verifyDataCollectionButton()
         }.openSettingsSubMenuDataCollection {
@@ -229,8 +229,6 @@ class SettingsPrivacyTest {
     @Test
     fun neverSaveLoginFromPromptTest() {
         val saveLoginTest = TestAssetHelper.getSaveLoginAsset(mockWebServer)
-        val settings = activityTestRule.activity.settings()
-        settings.shouldShowJumpBackInCFR = false
 
         navigationToolbar {
         }.enterURLAndEnterToBrowser(saveLoginTest.url) {
@@ -332,6 +330,7 @@ class SettingsPrivacyTest {
         openAppFromExternalLink(firstWebPage.url.toString())
 
         browserScreen {
+            verifyUrl(firstWebPage.url.toString())
         }.openTabDrawer {
             verifyPrivateModeSelected()
         }.closeTabDrawer {
@@ -343,6 +342,7 @@ class SettingsPrivacyTest {
         openAppFromExternalLink(secondWebPage.url.toString())
 
         browserScreen {
+            verifyUrl(secondWebPage.url.toString())
         }.openTabDrawer {
             verifyNormalModeSelected()
         }
@@ -361,6 +361,7 @@ class SettingsPrivacyTest {
             addShortcutName(pageShortcutName)
             clickAddShortcutButton()
             clickAddAutomaticallyButton()
+            verifyShortcutAdded(pageShortcutName)
         }
 
         mDevice.waitForIdle()
@@ -380,8 +381,6 @@ class SettingsPrivacyTest {
 
     @Test
     fun launchLinksInPrivateToggleOffStateDoesntChangeTest() {
-        val settings = activityTestRule.activity.applicationContext.settings()
-        settings.shouldShowJumpBackInCFR = false
         val defaultWebPage = TestAssetHelper.getGenericAsset(mockWebServer, 1)
 
         setOpenLinksInPrivateOn()
@@ -427,6 +426,45 @@ class SettingsPrivacyTest {
         }.openBrowser {
         }.openTabDrawer {
             verifyPrivateModeSelected()
+        }
+    }
+
+    // Verifies that you can go to System settings and change app's permissions from inside the app
+    @SmokeTest
+    @Test
+    @SdkSuppress(minSdkVersion = 29)
+    fun redirectToAppPermissionsSystemSettingsTest() {
+        homeScreen {
+        }.openThreeDotMenu {
+        }.openSettings {
+        }.openSettingsSubMenuSitePermissions {
+        }.openCamera {
+            verifyBlockedByAndroid()
+        }.goBack {
+        }.openLocation {
+            verifyBlockedByAndroid()
+        }.goBack {
+        }.openMicrophone {
+            verifyBlockedByAndroid()
+            clickGoToSettingsButton()
+            openAppSystemPermissionsSettings()
+            switchAppPermissionSystemSetting("Camera", "Allow")
+            goBackToSystemAppPermissionSettings()
+            verifySystemGrantedPermission("Camera")
+            switchAppPermissionSystemSetting("Location", "Allow")
+            goBackToSystemAppPermissionSettings()
+            verifySystemGrantedPermission("Location")
+            switchAppPermissionSystemSetting("Microphone", "Allow")
+            goBackToSystemAppPermissionSettings()
+            verifySystemGrantedPermission("Microphone")
+            goBackToPermissionsSettingsSubMenu()
+            verifyUnblockedByAndroid()
+        }.goBack {
+        }.openLocation {
+            verifyUnblockedByAndroid()
+        }.goBack {
+        }.openCamera {
+            verifyUnblockedByAndroid()
         }
     }
 
@@ -536,16 +574,16 @@ class SettingsPrivacyTest {
 
     @SmokeTest
     @Test
-    fun deleteDeleteBrowsingHistoryDataTest() {
-        val firstWebPage = TestAssetHelper.getGenericAsset(mockWebServer, 1)
-        val secondWebPage = TestAssetHelper.getGenericAsset(mockWebServer, 2)
+    fun deleteBrowsingHistoryAndSiteDataTest() {
+        val storageWritePage = getStorageTestAsset(mockWebServer, "storage_write.html").url
+        val storageCheckPage = getStorageTestAsset(mockWebServer, "storage_check.html").url
 
         navigationToolbar {
-        }.enterURLAndEnterToBrowser(firstWebPage.url) {
-            mDevice.waitForIdle()
+        }.enterURLAndEnterToBrowser(storageWritePage) {
         }.openNavigationToolbar {
-        }.enterURLAndEnterToBrowser(secondWebPage.url) {
-            mDevice.waitForIdle()
+        }.enterURLAndEnterToBrowser(storageCheckPage) {
+            verifyPageContent("Session storage has value")
+            verifyPageContent("Local storage has value")
         }.openThreeDotMenu {
         }.openSettings {
         }.openSettingsSubMenuDeleteBrowsingData {
@@ -557,15 +595,75 @@ class SettingsPrivacyTest {
             clickDeleteBrowsingDataButton()
             confirmDeletionAndAssertSnackbar()
             verifyBrowsingHistoryDetails("0")
-        }.goBack {
-            verifyGeneralHeading()
-        }.goBack {
+            exitMenu()
         }
         navigationToolbar {
         }.openThreeDotMenu {
         }.openHistory {
             verifyEmptyHistoryView()
+            mDevice.pressBack()
         }
+        navigationToolbar {
+        }.enterURLAndEnterToBrowser(storageCheckPage) {
+            verifyPageContent("Session storage empty")
+            verifyPageContent("Local storage empty")
+        }
+    }
+
+    @SmokeTest
+    @Test
+    fun deleteCookiesTest() {
+        val cookiesTestPage = getStorageTestAsset(mockWebServer, "storage_write.html").url
+
+        navigationToolbar {
+        }.enterURLAndEnterToBrowser(cookiesTestPage) {
+            verifyPageContent("No cookies set")
+            clickSetCookiesButton()
+            verifyPageContent("user=android")
+        }.openThreeDotMenu {
+        }.openSettings {
+        }.openSettingsSubMenuDeleteBrowsingData {
+            selectOnlyCookiesCheckBox()
+            clickDeleteBrowsingDataButton()
+            confirmDeletionAndAssertSnackbar()
+            exitMenu()
+        }
+        browserScreen {
+        }.openThreeDotMenu {
+        }.refreshPage {
+            verifyPageContent("No cookies set")
+        }
+    }
+
+    @SmokeTest
+    @Test
+    fun deleteCachedFilesTest() {
+        val pocketTopArticles = getStringResource(R.string.pocket_pinned_top_articles)
+
+        homeScreen {
+            verifyExistingTopSitesTabs(pocketTopArticles)
+        }.openTopSiteTabWithTitle(pocketTopArticles) {
+            waitForPageToLoad()
+        }.openTabDrawer {
+        }.openNewTab {
+        }.submitQuery("about:cache") {
+            // disabling wifi to prevent downloads in the background
+            setNetworkEnabled(enabled = false)
+        }.openThreeDotMenu {
+        }.openSettings {
+        }.openSettingsSubMenuDeleteBrowsingData {
+            selectOnlyCachedFilesCheckBox()
+            clickDeleteBrowsingDataButton()
+            confirmDeletionAndAssertSnackbar()
+            exitMenu()
+        }
+        browserScreen {
+        }.openThreeDotMenu {
+        }.refreshPage {
+            verifyNetworkCacheIsEmpty("memory")
+            verifyNetworkCacheIsEmpty("disk")
+        }
+        setNetworkEnabled(enabled = true)
     }
 
     @SmokeTest

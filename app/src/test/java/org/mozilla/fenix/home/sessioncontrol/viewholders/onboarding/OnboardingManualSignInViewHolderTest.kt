@@ -23,7 +23,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mozilla.fenix.GleanMetrics.Onboarding
-import org.mozilla.fenix.R
 import org.mozilla.fenix.databinding.OnboardingManualSigninBinding
 import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.helpers.FenixRobolectricTestRunner
@@ -56,16 +55,6 @@ class OnboardingManualSignInViewHolderTest {
     }
 
     @Test
-    fun `bind header text`() {
-        OnboardingManualSignInViewHolder(binding.root).bind()
-        val string = testContext.getString(R.string.onboarding_account_sign_in_header_1)
-        assertEquals(
-            string,
-            binding.headerText.text
-        )
-    }
-
-    @Test
     fun `navigate on click`() {
         every { testContext.components.analytics } returns mockk(relaxed = true)
         OnboardingManualSignInViewHolder(binding.root)
@@ -73,8 +62,8 @@ class OnboardingManualSignInViewHolderTest {
 
         verify { navController.navigate(HomeFragmentDirections.actionGlobalTurnOnSync()) }
         // Check if the event was recorded
-        Assert.assertTrue(Onboarding.fxaManualSignin.testHasValue())
-        assertEquals(1, Onboarding.fxaManualSignin.testGetValue().size)
-        Assert.assertNull(Onboarding.fxaManualSignin.testGetValue().single().extra)
+        Assert.assertNotNull(Onboarding.fxaManualSignin.testGetValue())
+        assertEquals(1, Onboarding.fxaManualSignin.testGetValue()!!.size)
+        Assert.assertNull(Onboarding.fxaManualSignin.testGetValue()!!.single().extra)
     }
 }

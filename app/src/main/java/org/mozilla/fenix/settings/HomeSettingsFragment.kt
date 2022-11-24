@@ -13,6 +13,8 @@ import androidx.preference.SwitchPreference
 import org.mozilla.fenix.FeatureFlags
 import org.mozilla.fenix.GleanMetrics.CustomizeHome
 import org.mozilla.fenix.R
+import org.mozilla.fenix.components.appstate.AppAction
+import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.ext.settings
 import org.mozilla.fenix.ext.showToolbar
 import org.mozilla.fenix.utils.view.addToRadioGroup
@@ -57,8 +59,8 @@ class HomeSettingsFragment : PreferenceFragmentCompat() {
                     CustomizeHome.preferenceToggled.record(
                         CustomizeHome.PreferenceToggledExtra(
                             newValue as Boolean,
-                            "most_visited_sites"
-                        )
+                            "most_visited_sites",
+                        ),
                     )
 
                     return super.onPreferenceChange(preference, newValue)
@@ -67,15 +69,14 @@ class HomeSettingsFragment : PreferenceFragmentCompat() {
         }
 
         requirePreference<CheckBoxPreference>(R.string.pref_key_enable_contile).apply {
-            isVisible = FeatureFlags.contileFeature
             isChecked = context.settings().showContileFeature
             onPreferenceChangeListener = object : SharedPreferenceUpdater() {
                 override fun onPreferenceChange(preference: Preference, newValue: Any?): Boolean {
                     CustomizeHome.preferenceToggled.record(
                         CustomizeHome.PreferenceToggledExtra(
                             newValue as Boolean,
-                            "contile"
-                        )
+                            "contile",
+                        ),
                     )
 
                     return super.onPreferenceChange(preference, newValue)
@@ -107,8 +108,8 @@ class HomeSettingsFragment : PreferenceFragmentCompat() {
                     CustomizeHome.preferenceToggled.record(
                         CustomizeHome.PreferenceToggledExtra(
                             newValue as Boolean,
-                            "jump_back_in"
-                        )
+                            "jump_back_in",
+                        ),
                     )
 
                     return super.onPreferenceChange(preference, newValue)
@@ -124,8 +125,8 @@ class HomeSettingsFragment : PreferenceFragmentCompat() {
                     CustomizeHome.preferenceToggled.record(
                         CustomizeHome.PreferenceToggledExtra(
                             newValue as Boolean,
-                            "recently_saved"
-                        )
+                            "recently_saved",
+                        ),
                     )
 
                     return super.onPreferenceChange(preference, newValue)
@@ -141,9 +142,31 @@ class HomeSettingsFragment : PreferenceFragmentCompat() {
                     CustomizeHome.preferenceToggled.record(
                         CustomizeHome.PreferenceToggledExtra(
                             newValue as Boolean,
-                            "pocket"
-                        )
+                            "pocket",
+                        ),
                     )
+
+                    return super.onPreferenceChange(preference, newValue)
+                }
+            }
+        }
+
+        requirePreference<CheckBoxPreference>(R.string.pref_key_pocket_sponsored_stories).apply {
+            isVisible = FeatureFlags.isPocketSponsoredStoriesFeatureEnabled()
+            isChecked = context.settings().showPocketSponsoredStories
+            onPreferenceChangeListener = object : SharedPreferenceUpdater() {
+                override fun onPreferenceChange(preference: Preference, newValue: Any?): Boolean {
+                    when (newValue) {
+                        true -> {
+                            context.components.core.pocketStoriesService.startPeriodicSponsoredStoriesRefresh()
+                        }
+                        false -> {
+                            context.components.core.pocketStoriesService.deleteProfile()
+                            context.components.appStore.dispatch(
+                                AppAction.PocketSponsoredStoriesChange(emptyList()),
+                            )
+                        }
+                    }
 
                     return super.onPreferenceChange(preference, newValue)
                 }
@@ -158,8 +181,8 @@ class HomeSettingsFragment : PreferenceFragmentCompat() {
                     CustomizeHome.preferenceToggled.record(
                         CustomizeHome.PreferenceToggledExtra(
                             newValue as Boolean,
-                            "recently_visited"
-                        )
+                            "recently_visited",
+                        ),
                     )
 
                     return super.onPreferenceChange(preference, newValue)
@@ -177,17 +200,16 @@ class HomeSettingsFragment : PreferenceFragmentCompat() {
         requirePreference<Preference>(R.string.pref_key_wallpapers).apply {
             setOnPreferenceClickListener {
                 view?.findNavController()?.navigate(
-                    HomeSettingsFragmentDirections.actionHomeSettingsFragmentToWallpaperSettingsFragment()
+                    HomeSettingsFragmentDirections.actionHomeSettingsFragmentToWallpaperSettingsFragment(),
                 )
                 true
             }
-            isVisible = FeatureFlags.showWallpapers
         }
 
         addToRadioGroup(
             openingScreenRadioHomepage,
             openingScreenLastTab,
-            openingScreenAfterFourHours
+            openingScreenAfterFourHours,
         )
     }
 }

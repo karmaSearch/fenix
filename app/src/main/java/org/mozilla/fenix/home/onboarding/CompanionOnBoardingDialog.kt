@@ -131,7 +131,7 @@ class CompanionOnBoardingDialog(private val searchBar: View, private val recycle
         for (index in 0..count) {
             val viewHolder = recyclerView.findViewHolderForAdapterPosition(index)
             if (viewHolder is LearnAndActViewHolder) {
-                return viewHolder.containerView
+                return viewHolder.itemView
             }
         }
         return null

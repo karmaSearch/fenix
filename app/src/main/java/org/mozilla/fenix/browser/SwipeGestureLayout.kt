@@ -53,7 +53,7 @@ interface SwipeGestureListener {
 class SwipeGestureLayout @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0
+    defStyleAttr: Int = 0,
 ) : FrameLayout(context, attrs, defStyleAttr) {
 
     private val gestureListener = object : GestureDetector.SimpleOnGestureListener() {
@@ -65,7 +65,7 @@ class SwipeGestureLayout @JvmOverloads constructor(
             e1: MotionEvent?,
             e2: MotionEvent?,
             distanceX: Float,
-            distanceY: Float
+            distanceY: Float,
         ): Boolean {
             val start = e1?.let { event -> PointF(event.rawX, event.rawY) } ?: return false
             val next = e2?.let { event -> PointF(event.rawX, event.rawY) } ?: return false
@@ -84,7 +84,7 @@ class SwipeGestureLayout @JvmOverloads constructor(
             e1: MotionEvent?,
             e2: MotionEvent?,
             velocityX: Float,
-            velocityY: Float
+            velocityY: Float,
         ): Boolean {
             activeListener?.onSwipeFinished(velocityX, velocityY)
             return if (activeListener != null) {
@@ -106,8 +106,8 @@ class SwipeGestureLayout @JvmOverloads constructor(
         listeners.add(listener)
     }
 
-    override fun onInterceptTouchEvent(event: MotionEvent?): Boolean {
-        return when (event?.actionMasked) {
+    override fun onInterceptTouchEvent(event: MotionEvent): Boolean {
+        return when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 handledInitialScroll = false
                 gestureDetector.onTouchEvent(event)
@@ -117,15 +117,15 @@ class SwipeGestureLayout @JvmOverloads constructor(
         }
     }
 
-    override fun onTouchEvent(event: MotionEvent?): Boolean {
-        return when (event?.actionMasked) {
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        return when (event.actionMasked) {
             MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
                 gestureDetector.onTouchEvent(event)
                 // If the active listener is not null here, then we haven't detected a fling
                 // so notify the listener that the swipe was finished with 0 velocity
                 activeListener?.onSwipeFinished(
                     velocityX = 0f,
-                    velocityY = 0f
+                    velocityY = 0f,
                 )
                 activeListener = null
                 false

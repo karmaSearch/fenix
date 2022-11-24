@@ -10,19 +10,17 @@ import mozilla.components.feature.tabs.TabsUseCases
 import mozilla.components.service.glean.testing.GleanTestRule
 import mozilla.components.support.test.robolectric.testContext
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mozilla.fenix.GleanMetrics.TabsTray
-import org.mozilla.fenix.components.metrics.MetricController
 import org.mozilla.fenix.helpers.FenixRobolectricTestRunner
 
 @RunWith(FenixRobolectricTestRunner::class) // for gleanTestRule
 class SelectTabUseCaseWrapperTest {
 
-    val metricController = mockk<MetricController>(relaxed = true)
     val selectUseCase: TabsUseCases.SelectTabUseCase = mockk(relaxed = true)
 
     @get:Rule
@@ -34,12 +32,12 @@ class SelectTabUseCaseWrapperTest {
         val onSelect: (String) -> Unit = { invoked = it }
         val wrapper = SelectTabUseCaseWrapper(selectUseCase, onSelect)
 
-        assertFalse(TabsTray.openedExistingTab.testHasValue())
+        assertNull(TabsTray.openedExistingTab.testGetValue())
 
         wrapper("123")
 
-        assertTrue(TabsTray.openedExistingTab.testHasValue())
-        val snapshot = TabsTray.openedExistingTab.testGetValue()
+        assertNotNull(TabsTray.openedExistingTab.testGetValue())
+        val snapshot = TabsTray.openedExistingTab.testGetValue()!!
         assertEquals(1, snapshot.size)
         assertEquals("unknown", snapshot.single().extra?.getValue("source"))
 
@@ -53,12 +51,12 @@ class SelectTabUseCaseWrapperTest {
         val onSelect: (String) -> Unit = { invoked = it }
         val wrapper = SelectTabUseCaseWrapper(selectUseCase, onSelect)
 
-        assertFalse(TabsTray.openedExistingTab.testHasValue())
+        assertNull(TabsTray.openedExistingTab.testGetValue())
 
         wrapper("123", "Test")
 
-        assertTrue(TabsTray.openedExistingTab.testHasValue())
-        val snapshot = TabsTray.openedExistingTab.testGetValue()
+        assertNotNull(TabsTray.openedExistingTab.testGetValue())
+        val snapshot = TabsTray.openedExistingTab.testGetValue()!!
         assertEquals(1, snapshot.size)
         assertEquals("Test", snapshot.single().extra?.getValue("source"))
 

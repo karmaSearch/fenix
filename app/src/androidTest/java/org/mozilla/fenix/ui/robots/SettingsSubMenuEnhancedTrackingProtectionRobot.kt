@@ -22,8 +22,6 @@ import androidx.test.espresso.matcher.ViewMatchers.withParent
 import androidx.test.espresso.matcher.ViewMatchers.withParentIndex
 import androidx.test.espresso.matcher.ViewMatchers.withResourceName
 import androidx.test.espresso.matcher.ViewMatchers.withText
-import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.uiautomator.UiDevice
 import org.hamcrest.CoreMatchers.allOf
 import org.mozilla.fenix.helpers.TestHelper.appName
 import org.mozilla.fenix.helpers.TestHelper.scrollToElementByText
@@ -70,8 +68,6 @@ class SettingsSubMenuEnhancedTrackingProtectionRobot {
     fun selectTrackingProtectionOption(option: String) = onView(withText(option)).click()
 
     class Transition {
-        val mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())!!
-
         fun goBackToHomeScreen(interact: HomeScreenRobot.() -> Unit): HomeScreenRobot.Transition {
             // To settings
             goBackButton().click()
@@ -90,13 +86,12 @@ class SettingsSubMenuEnhancedTrackingProtectionRobot {
         }
 
         fun openExceptions(
-            interact: SettingsSubMenuEnhancedTrackingProtectionExceptionsRobot.() -> Unit
+            interact: SettingsSubMenuEnhancedTrackingProtectionExceptionsRobot.() -> Unit,
         ): SettingsSubMenuEnhancedTrackingProtectionExceptionsRobot.Transition {
-
             onView(withId(R.id.recycler_view)).perform(
                 RecyclerViewActions.scrollTo<RecyclerView.ViewHolder>(
-                    hasDescendant(withText("Exceptions"))
-                )
+                    hasDescendant(withText("Exceptions")),
+                ),
             )
 
             openExceptions().click()
@@ -111,8 +106,8 @@ private fun assertNavigationToolBarHeader() {
     onView(
         allOf(
             withParent(withId(org.mozilla.fenix.R.id.navigationToolbar)),
-            withText("Enhanced Tracking Protection")
-        )
+            withText("Enhanced Tracking Protection"),
+        ),
     )
         .check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
 }
@@ -126,8 +121,8 @@ private fun assertEnhancedTrackingProtectionHeaderDescription() {
     onView(
         allOf(
             withParent(withParentIndex(0)),
-            withText("Keep your data to yourself. $appName protects you from many of the most common trackers that follow what you do online.")
-        )
+            withText("Keep your data to yourself. $appName protects you from many of the most common trackers that follow what you do online."),
+        ),
     )
         .check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
 }
@@ -136,8 +131,8 @@ private fun assertLearnMoreText() {
     onView(
         allOf(
             withParent(withParentIndex(0)),
-            withText("Learn more")
-        )
+            withText("Learn more"),
+        ),
     )
         .check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
 }
@@ -146,8 +141,8 @@ private fun assertEnhancedTrackingProtectionTextWithSwitchWidget() {
     onView(
         allOf(
             withParentIndex(1),
-            withChild(withText("Enhanced Tracking Protection"))
-        )
+            withChild(withText("Enhanced Tracking Protection")),
+        ),
     )
         .check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
 }
@@ -176,26 +171,26 @@ private fun assertTrackingProtectionSwitchEnabled() {
     onView(withResourceName("switch_widget")).check(
         matches(
             isChecked(
-                true
-            )
-        )
+                true,
+            ),
+        ),
     )
 }
 
 private fun assertRadioButtonDefaults() {
     onView(
-        withText("Strict")
+        withText("Strict"),
     ).assertIsChecked(false)
 
     onView(
         allOf(
             withId(org.mozilla.fenix.R.id.radio_button),
-            hasSibling(withText("Standard (default)"))
-        )
+            hasSibling(withText("Standard (default)")),
+        ),
     ).assertIsChecked(true)
 
     onView(
-        withText("Custom")
+        withText("Custom"),
     ).assertIsChecked(false)
 }
 
@@ -223,7 +218,7 @@ private fun assertCustomTrackingProtectionSettings() {
 
 private fun cookiesCheckbox() = onView(withText("Cookies"))
 
-private fun cookiesDropDownMenuDefault() = onView(withText("Cross-site and social media trackers"))
+private fun cookiesDropDownMenuDefault() = onView(withText("Isolate cross-site cookies"))
 
 private fun trackingContentCheckbox() = onView(withText("Tracking content"))
 

@@ -13,25 +13,25 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.mozilla.fenix.R
 import org.mozilla.fenix.helpers.TestAssetHelper.waitingTime
+import org.mozilla.fenix.helpers.TestHelper
 import org.mozilla.fenix.helpers.TestHelper.getPermissionAllowID
+import org.mozilla.fenix.helpers.TestHelper.mDevice
 import org.mozilla.fenix.helpers.TestHelper.packageName
 import org.mozilla.fenix.helpers.click
 
 class SitePermissionsRobot {
-    fun clickAppPermissionButton(allow: Boolean) {
-        if (allow) {
-            allowSystemPermissionButton.waitForExists(waitingTime)
-            allowSystemPermissionButton.click()
-        } else {
-            denySystemPermissionButton.waitForExists(waitingTime)
-            denySystemPermissionButton.click()
-        }
+    fun clickGrantAppPermissionButton() {
+        TestHelper.grantPermission()
+    }
+
+    fun clickDenyAppPermissionButton() {
+        TestHelper.denyPermission()
     }
 
     fun verifyMicrophonePermissionPrompt(url: String) {
         assertTrue(
             mDevice.findObject(UiSelector().text("Allow $url to use your microphone?"))
-                .waitForExists(waitingTime)
+                .waitForExists(waitingTime),
         )
         assertTrue(denyPagePermissionButton.text.equals("Don’t allow"))
         assertTrue(allowPagePermissionButton.text.equals("Allow"))
@@ -40,7 +40,7 @@ class SitePermissionsRobot {
     fun verifyCameraPermissionPrompt(url: String) {
         assertTrue(
             mDevice.findObject(UiSelector().text("Allow $url to use your camera?"))
-                .waitForExists(waitingTime)
+                .waitForExists(waitingTime),
         )
         assertTrue(denyPagePermissionButton.text.equals("Don’t allow"))
         assertTrue(allowPagePermissionButton.text.equals("Allow"))
@@ -49,7 +49,7 @@ class SitePermissionsRobot {
     fun verifyAudioVideoPermissionPrompt(url: String) {
         assertTrue(
             mDevice.findObject(UiSelector().text("Allow $url to use your camera and microphone?"))
-                .waitForExists(waitingTime)
+                .waitForExists(waitingTime),
         )
         assertTrue(denyPagePermissionButton.text.equals("Don’t allow"))
         assertTrue(allowPagePermissionButton.text.equals("Allow"))
@@ -58,7 +58,7 @@ class SitePermissionsRobot {
     fun verifyLocationPermissionPrompt(url: String) {
         assertTrue(
             mDevice.findObject(UiSelector().text("Allow $url to use your location?"))
-                .waitForExists(waitingTime)
+                .waitForExists(waitingTime),
         )
         assertTrue(denyPagePermissionButton.text.equals("Don’t allow"))
         assertTrue(allowPagePermissionButton.text.equals("Allow"))
@@ -68,7 +68,7 @@ class SitePermissionsRobot {
         if (!blocked) {
             assertTrue(
                 mDevice.findObject(UiSelector().text("Allow $url to send notifications?"))
-                    .waitForExists(waitingTime)
+                    .waitForExists(waitingTime),
             )
             assertTrue(denyPagePermissionButton.text.equals("Never"))
             assertTrue(allowPagePermissionButton.text.equals("Always"))
@@ -77,7 +77,7 @@ class SitePermissionsRobot {
                the Notifications permission prompt won't be displayed anymore */
             assertFalse(
                 mDevice.findObject(UiSelector().text("Allow $url to send notifications?"))
-                    .exists()
+                    .exists(),
             )
         }
     }

@@ -44,7 +44,6 @@ import org.mozilla.fenix.R
 import org.mozilla.fenix.components.toolbar.ToolbarPosition
 import org.mozilla.fenix.databinding.FragmentHistorySearchDialogBinding
 import org.mozilla.fenix.databinding.SearchSuggestionsHintBinding
-import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.ext.settings
 import org.mozilla.fenix.library.history.awesomebar.AwesomeBarView
 import org.mozilla.fenix.library.history.toolbar.ToolbarView
@@ -80,26 +79,25 @@ class HistorySearchDialogFragment : AppCompatDialogFragment(), UserInteractionHa
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentHistorySearchDialogBinding.inflate(inflater, container, false)
         val activity = requireActivity() as HomeActivity
 
         store = HistorySearchFragmentStore(
-            createInitialHistorySearchFragmentState()
+            createInitialHistorySearchFragmentState(),
         )
 
         interactor = HistorySearchDialogInteractor(
             HistorySearchDialogController(
                 activity = activity,
-                metrics = activity.components.analytics.metrics,
                 fragmentStore = store,
                 clearToolbarFocus = {
                     dialogHandledAction = true
                     toolbarView.view.hideKeyboard()
                     toolbarView.view.clearFocus()
                 },
-            )
+            ),
         )
 
         toolbarView = ToolbarView(
@@ -139,10 +137,10 @@ class HistorySearchDialogFragment : AppCompatDialogFragment(), UserInteractionHa
                 (activity as HomeActivity)
                     .openToBrowserAndLoad(
                         searchTermOrURL = SupportUtils.getGenericSumoURLForTopic(
-                            SupportUtils.SumoTopic.SEARCH_SUGGESTION
+                            SupportUtils.SumoTopic.SEARCH_SUGGESTION,
                         ),
                         newTab = true,
-                        from = BrowserDirection.FromHistorySearchDialog
+                        from = BrowserDirection.FromHistorySearchDialog,
                     )
             }
 
@@ -290,8 +288,8 @@ class HistorySearchDialogFragment : AppCompatDialogFragment(), UserInteractionHa
                 imageDrawable = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_microphone)!!,
                 contentDescription = requireContext().getString(R.string.voice_search_content_description),
                 visible = { true },
-                listener = ::launchVoiceSearch
-            )
+                listener = ::launchVoiceSearch,
+            ),
         )
 
         voiceSearchButtonAlreadyAdded = true

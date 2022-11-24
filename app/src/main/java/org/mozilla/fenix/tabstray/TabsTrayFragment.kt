@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatDialogFragment
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -43,7 +44,6 @@ import org.mozilla.fenix.databinding.FragmentTabTrayDialogBinding
 import org.mozilla.fenix.databinding.TabsTrayTabCounter2Binding
 import org.mozilla.fenix.databinding.TabstrayMultiselectItemsBinding
 import org.mozilla.fenix.ext.components
-import org.mozilla.fenix.ext.metrics
 import org.mozilla.fenix.ext.requireComponents
 import org.mozilla.fenix.ext.runIfFragmentIsAttached
 import org.mozilla.fenix.ext.settings
@@ -51,6 +51,9 @@ import org.mozilla.fenix.home.HomeScreenViewModel
 import org.mozilla.fenix.share.ShareFragment
 import org.mozilla.fenix.tabstray.browser.BrowserTrayInteractor
 import org.mozilla.fenix.tabstray.browser.DefaultBrowserTrayInteractor
+import org.mozilla.fenix.tabstray.browser.DefaultInactiveTabsController
+import org.mozilla.fenix.tabstray.browser.DefaultInactiveTabsInteractor
+import org.mozilla.fenix.tabstray.browser.InactiveTabsInteractor
 import org.mozilla.fenix.tabstray.browser.SelectionBannerBinding
 import org.mozilla.fenix.tabstray.browser.SelectionBannerBinding.VisibilityModifier
 import org.mozilla.fenix.tabstray.browser.SelectionHandleBinding
@@ -59,12 +62,19 @@ import org.mozilla.fenix.tabstray.ext.anchorWithAction
 import org.mozilla.fenix.tabstray.ext.bookmarkMessage
 import org.mozilla.fenix.tabstray.ext.collectionMessage
 import org.mozilla.fenix.tabstray.ext.make
-import org.mozilla.fenix.tabstray.ext.orDefault
 import org.mozilla.fenix.tabstray.ext.showWithTheme
 import org.mozilla.fenix.theme.ThemeManager
 import org.mozilla.fenix.tabstray.syncedtabs.SyncedTabsIntegration
 import org.mozilla.fenix.utils.allowUndo
 import kotlin.math.max
+
+/**
+ * The action or screen that was used to navigate to the Tabs Tray.
+ */
+enum class TabsTrayAccessPoint {
+    None,
+    HomeRecentSyncedTab,
+}
 
 @Suppress("TooManyFunctions", "LargeClass")
 class TabsTrayFragment : AppCompatDialogFragment() {
@@ -73,7 +83,9 @@ class TabsTrayFragment : AppCompatDialogFragment() {
     private lateinit var browserTrayInteractor: BrowserTrayInteractor
     private lateinit var tabsTrayInteractor: TabsTrayInteractor
     private lateinit var tabsTrayController: DefaultTabsTrayController
+    private lateinit var inactiveTabsInteractor: DefaultInactiveTabsInteractor
     private lateinit var navigationInteractor: DefaultNavigationInteractor
+
     @VisibleForTesting internal lateinit var trayBehaviorManager: TabSheetBehaviorManager
 
     private val tabLayoutMediator = ViewBoundFeatureWrapper<TabLayoutMediator>()
@@ -87,13 +99,18 @@ class TabsTrayFragment : AppCompatDialogFragment() {
     private val tabsTrayInactiveTabsOnboardingBinding = ViewBoundFeatureWrapper<TabsTrayInactiveTabsOnboardingBinding>()
     private val syncedTabsIntegration = ViewBoundFeatureWrapper<SyncedTabsIntegration>()
 
-    @VisibleForTesting @Suppress("VariableNaming")
+    @VisibleForTesting
+    @Suppress("VariableNaming")
     internal var _tabsTrayBinding: ComponentTabstray2Binding? = null
     private val tabsTrayBinding get() = _tabsTrayBinding!!
-    @VisibleForTesting @Suppress("VariableNaming")
+
+    @VisibleForTesting
+    @Suppress("VariableNaming")
     internal var _tabsTrayDialogBinding: FragmentTabTrayDialogBinding? = null
     private val tabsTrayDialogBinding get() = _tabsTrayDialogBinding!!
-    @VisibleForTesting @Suppress("VariableNaming")
+
+    @VisibleForTesting
+    @Suppress("VariableNaming")
     internal var _fabButtonBinding: ComponentTabstrayFabBinding? = null
     private val fabButtonBinding get() = _fabButtonBinding!!
 
@@ -108,25 +125,28 @@ class TabsTrayFragment : AppCompatDialogFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _tabsTrayDialogBinding = FragmentTabTrayDialogBinding.inflate(
             inflater,
             container,
-            false
+            false,
         )
         _tabsTrayBinding = ComponentTabstray2Binding.inflate(
             inflater,
             tabsTrayDialogBinding.root,
-            true
+            true,
         )
         _fabButtonBinding = ComponentTabstrayFabBinding.inflate(
             LayoutInflater.from(tabsTrayDialogBinding.root.context),
             tabsTrayDialogBinding.root,
-            true
+            true,
         )
 
         val args by navArgs<TabsTrayFragmentArgs>()
+        args.accessPoint.takeIf { it != TabsTrayAccessPoint.None }?.let {
+            TabsTray.accessPoint[it.name.lowercase()].add()
+        }
         val initialMode = if (args.enterMultiselect) {
             TabsTrayState.Mode.Select(emptySet())
         } else {
@@ -139,13 +159,10 @@ class TabsTrayFragment : AppCompatDialogFragment() {
                 initialState = TabsTrayState(
                     selectedPage = initialPage,
                     mode = initialMode,
-                    focusGroupTabId = args.focusGroupTabId
                 ),
                 middlewares = listOf(
-                    TabsTrayMiddleware(
-                        metrics = requireContext().metrics
-                    )
-                )
+                    TabsTrayMiddleware(),
+                ),
             )
         }
 
@@ -184,7 +201,6 @@ class TabsTrayFragment : AppCompatDialogFragment() {
                 tabsTrayStore = tabsTrayStore,
                 browserStore = requireComponents.core.store,
                 navController = findNavController(),
-                metrics = requireComponents.analytics.metrics,
                 dismissTabTray = ::dismissTabsTray,
                 dismissTabTrayAndNavigateHome = ::dismissTabsTrayAndNavigateHome,
                 bookmarksUseCase = requireComponents.useCases.bookmarksUseCases,
@@ -193,7 +209,7 @@ class TabsTrayFragment : AppCompatDialogFragment() {
                 showBookmarkSnackbar = ::showBookmarkSnackbar,
                 showCancelledDownloadWarning = ::showCancelledDownloadWarning,
                 accountManager = requireComponents.backgroundServices.accountManager,
-                ioDispatcher = Dispatchers.IO
+                ioDispatcher = Dispatchers.IO,
             )
 
         tabsTrayController = DefaultTabsTrayController(
@@ -204,12 +220,11 @@ class TabsTrayFragment : AppCompatDialogFragment() {
             navigateToHomeAndDeleteSession = ::navigateToHomeAndDeleteSession,
             navigationInteractor = navigationInteractor,
             profiler = requireComponents.core.engine.profiler,
-            metrics = requireComponents.analytics.metrics,
             tabsUseCases = requireComponents.useCases.tabsUseCases,
             selectTabPosition = ::selectTabPosition,
             dismissTray = ::dismissTabsTray,
             showUndoSnackbarForTab = ::showUndoSnackbarForTab,
-            showCancelledDownloadWarning = ::showCancelledDownloadWarning
+            showCancelledDownloadWarning = ::showCancelledDownloadWarning,
         )
 
         tabsTrayInteractor = DefaultTabsTrayInteractor(tabsTrayController)
@@ -221,13 +236,26 @@ class TabsTrayFragment : AppCompatDialogFragment() {
             requireComponents.useCases.tabsUseCases.selectTab,
         )
 
+        inactiveTabsInteractor = DefaultInactiveTabsInteractor(
+            controller = DefaultInactiveTabsController(
+                appStore = requireComponents.appStore,
+                settings = requireContext().settings(),
+                browserStore = requireComponents.core.store,
+                tabsUseCases = requireComponents.useCases.tabsUseCases,
+                showUndoSnackbar = ::showUndoSnackbarForTab,
+            ),
+            browserInteractor = browserTrayInteractor,
+        )
+
         setupMenu(navigationInteractor)
         setupPager(
-            view.context,
-            tabsTrayStore,
-            tabsTrayInteractor,
-            browserTrayInteractor,
-            navigationInteractor
+            context = view.context,
+            lifecycleOwner = viewLifecycleOwner,
+            store = tabsTrayStore,
+            trayInteractor = tabsTrayInteractor,
+            browserInteractor = browserTrayInteractor,
+            navigationInteractor = navigationInteractor,
+            inactiveTabsInteractor = inactiveTabsInteractor,
         )
 
         setupBackgroundDismissalListener {
@@ -240,7 +268,7 @@ class TabsTrayFragment : AppCompatDialogFragment() {
             orientation = resources.configuration.orientation,
             maxNumberOfTabs = max(
                 requireContext().components.core.store.state.normalTabs.size,
-                requireContext().components.core.store.state.privateTabs.size
+                requireContext().components.core.store.state.privateTabs.size,
             ),
             numberForExpandingTray = if (requireContext().settings().gridTabView) {
                 EXPAND_AT_GRID_SIZE
@@ -248,20 +276,19 @@ class TabsTrayFragment : AppCompatDialogFragment() {
                 EXPAND_AT_LIST_SIZE
             },
             navigationInteractor = navigationInteractor,
-            displayMetrics = requireContext().resources.displayMetrics
+            displayMetrics = requireContext().resources.displayMetrics,
         )
 
         tabsFeature.set(
             feature = TabsFeature(
                 tabsTray = TabSorter(
                     requireContext().settings(),
-                    tabsTrayStore
+                    tabsTrayStore,
                 ),
                 store = requireContext().components.core.store,
-                defaultTabPartitionsFilter = { tabPartitions -> tabPartitions[SEARCH_TERM_TAB_GROUPS] }
             ),
             owner = this,
-            view = view
+            view = view,
         )
 
         tabsTrayCtaBinding.set(
@@ -270,10 +297,10 @@ class TabsTrayFragment : AppCompatDialogFragment() {
                 store = requireComponents.core.store,
                 infoBannerView = tabsTrayBinding.infoBanner,
                 settings = requireComponents.settings,
-                navigationInteractor = navigationInteractor
+                navigationInteractor = navigationInteractor,
             ),
             owner = this,
-            view = view
+            view = view,
         )
 
         tabLayoutMediator.set(
@@ -285,34 +312,34 @@ class TabsTrayFragment : AppCompatDialogFragment() {
                 tabsTrayStore = tabsTrayStore,
             ),
             owner = this,
-            view = view
+            view = view,
         )
 
         val tabsTrayTabCounter2Binding = TabsTrayTabCounter2Binding.bind(
-            tabsTrayBinding.tabLayout
+            tabsTrayBinding.tabLayout,
         )
 
         tabCounterBinding.set(
             feature = TabCounterBinding(
                 store = requireComponents.core.store,
-                counter = tabsTrayTabCounter2Binding.tabCounter
+                counter = tabsTrayTabCounter2Binding.tabCounter,
             ),
             owner = this,
-            view = view
+            view = view,
         )
 
         floatingActionButtonBinding.set(
             feature = FloatingActionButtonBinding(
                 store = tabsTrayStore,
                 actionButton = fabButtonBinding.newTabButton,
-                browserTrayInteractor = browserTrayInteractor
+                browserTrayInteractor = browserTrayInteractor,
             ),
             owner = this,
-            view = view
+            view = view,
         )
 
         val tabsTrayMultiselectItemsBinding = TabstrayMultiselectItemsBinding.bind(
-            tabsTrayBinding.root
+            tabsTrayBinding.root,
         )
 
         selectionBannerBinding.set(
@@ -328,26 +355,26 @@ class TabsTrayFragment : AppCompatDialogFragment() {
                     tabsTrayMultiselectItemsBinding.shareMultiSelect,
                     tabsTrayMultiselectItemsBinding.menuMultiSelect,
                     tabsTrayBinding.multiselectTitle,
-                    tabsTrayBinding.exitMultiSelect
+                    tabsTrayBinding.exitMultiSelect,
                 ),
                 showOnNormalViews = VisibilityModifier(
                     tabsTrayBinding.tabLayout,
                     tabsTrayBinding.tabTrayOverflow,
-                    fabButtonBinding.newTabButton
-                )
+                    fabButtonBinding.newTabButton,
+                ),
             ),
             owner = this,
-            view = view
+            view = view,
         )
 
         selectionHandleBinding.set(
             feature = SelectionHandleBinding(
                 store = tabsTrayStore,
                 handle = tabsTrayBinding.handle,
-                containerLayout = tabsTrayBinding.tabWrapper
+                containerLayout = tabsTrayBinding.tabWrapper,
             ),
             owner = this,
-            view = view
+            view = view,
         )
 
         secureTabsTrayBinding.set(
@@ -355,10 +382,10 @@ class TabsTrayFragment : AppCompatDialogFragment() {
                 store = tabsTrayStore,
                 settings = requireComponents.settings,
                 fragment = this,
-                dialog = dialog as TabsTrayDialog
+                dialog = dialog as TabsTrayDialog,
             ),
             owner = this,
-            view = view
+            view = view,
         )
 
         tabsTrayInactiveTabsOnboardingBinding.set(
@@ -367,10 +394,10 @@ class TabsTrayFragment : AppCompatDialogFragment() {
                 store = requireComponents.core.store,
                 tabsTrayBinding = tabsTrayBinding,
                 settings = requireComponents.settings,
-                navigationInteractor = navigationInteractor
+                navigationInteractor = navigationInteractor,
             ),
             owner = this,
-            view = view
+            view = view,
         )
 
         syncedTabsIntegration.set(
@@ -380,10 +407,10 @@ class TabsTrayFragment : AppCompatDialogFragment() {
                 navController = findNavController(),
                 storage = requireComponents.backgroundServices.syncedTabsStorage,
                 accountManager = requireComponents.backgroundServices.accountManager,
-                lifecycleOwner = this
+                lifecycleOwner = this,
             ),
             owner = this,
-            view = view
+            view = view,
         )
 
         setFragmentResultListener(ShareFragment.RESULT_KEY) { _, _ ->
@@ -421,16 +448,16 @@ class TabsTrayFragment : AppCompatDialogFragment() {
                 shouldWidthMatchParent = true,
                 positiveButtonBackgroundColor = ThemeManager.resolveAttribute(
                     R.attr.accent,
-                    requireContext()
+                    requireContext(),
                 ),
                 positiveButtonTextColor = ThemeManager.resolveAttribute(
                     R.attr.textOnColorPrimary,
-                    requireContext()
+                    requireContext(),
                 ),
-                positiveButtonRadius = (resources.getDimensionPixelSize(R.dimen.tab_corner_radius)).toFloat()
+                positiveButtonRadius = (resources.getDimensionPixelSize(R.dimen.tab_corner_radius)).toFloat(),
             ),
 
-            onPositiveButtonClicked = ::onCancelDownloadWarningAccepted
+            onPositiveButtonClicked = ::onCancelDownloadWarningAccepted,
         )
         dialog.show(parentFragmentManager, DOWNLOAD_CANCEL_DIALOG_FRAGMENT_TAG)
     }
@@ -451,33 +478,38 @@ class TabsTrayFragment : AppCompatDialogFragment() {
                 requireComponents.useCases.tabsUseCases.undo.invoke()
                 tabLayoutMediator.withFeature {
                     it.selectTabAtPosition(
-                        if (isPrivate) Page.PrivateTabs.ordinal else Page.NormalTabs.ordinal
+                        if (isPrivate) Page.PrivateTabs.ordinal else Page.NormalTabs.ordinal,
                     )
                 }
             },
             operation = { },
             elevation = ELEVATION,
-            anchorView = if (fabButtonBinding.newTabButton.isVisible) fabButtonBinding.newTabButton else null
+            anchorView = if (fabButtonBinding.newTabButton.isVisible) fabButtonBinding.newTabButton else null,
         )
     }
 
     @VisibleForTesting
+    @Suppress("LongParameterList")
     internal fun setupPager(
         context: Context,
+        lifecycleOwner: LifecycleOwner,
         store: TabsTrayStore,
         trayInteractor: TabsTrayInteractor,
         browserInteractor: BrowserTrayInteractor,
-        navigationInteractor: NavigationInteractor
+        navigationInteractor: NavigationInteractor,
+        inactiveTabsInteractor: InactiveTabsInteractor,
     ) {
         tabsTrayBinding.tabsTray.apply {
             adapter = TrayPagerAdapter(
-                context,
-                store,
-                browserInteractor,
-                navigationInteractor,
-                trayInteractor,
-                requireComponents.core.store,
-                requireComponents.appStore,
+                context = context,
+                lifecycleOwner = lifecycleOwner,
+                tabsTrayStore = store,
+                browserInteractor = browserInteractor,
+                navInteractor = navigationInteractor,
+                tabsTrayInteractor = trayInteractor,
+                browserStore = requireComponents.core.store,
+                appStore = requireComponents.appStore,
+                inactiveTabsInteractor = inactiveTabsInteractor,
             )
             isUserInputEnabled = false
         }
@@ -494,7 +526,7 @@ class TabsTrayFragment : AppCompatDialogFragment() {
                 browserStore = requireComponents.core.store,
                 tabsTrayStore = tabsTrayStore,
                 tabLayout = tabsTrayBinding.tabLayout,
-                navigationInteractor = navigationInteractor
+                navigationInteractor = navigationInteractor,
             ).build()
 
             menu.showWithTheme(anchor)
@@ -507,7 +539,7 @@ class TabsTrayFragment : AppCompatDialogFragment() {
         browserStore: BrowserStore,
         tabsTrayStore: TabsTrayStore,
         tabLayout: TabLayout,
-        navigationInteractor: NavigationInteractor
+        navigationInteractor: NavigationInteractor,
     ) = MenuIntegration(context, browserStore, tabsTrayStore, tabLayout, navigationInteractor)
 
     @VisibleForTesting
@@ -548,7 +580,6 @@ class TabsTrayFragment : AppCompatDialogFragment() {
     internal fun showCollectionSnackbar(
         tabSize: Int,
         isNewCollection: Boolean = false,
-        collectionToSelect: Long?
     ) {
         runIfFragmentIsAttached {
             FenixSnackbar
@@ -558,8 +589,8 @@ class TabsTrayFragment : AppCompatDialogFragment() {
                     findNavController().navigate(
                         TabsTrayFragmentDirections.actionGlobalHome(
                             focusOnAddressBar = false,
-                            focusOnCollection = collectionToSelect.orDefault()
-                        )
+                            scrollToCollection = true,
+                        ),
                     )
                     dismissTabsTray()
                 }.show()
@@ -568,14 +599,14 @@ class TabsTrayFragment : AppCompatDialogFragment() {
 
     @VisibleForTesting
     internal fun showBookmarkSnackbar(
-        tabSize: Int
+        tabSize: Int,
     ) {
         FenixSnackbar
             .make(requireView())
             .bookmarkMessage(tabSize)
             .anchorWithAction(getSnackbarAnchor()) {
                 findNavController().navigate(
-                    TabsTrayFragmentDirections.actionGlobalBookmarkFragment(BookmarkRoot.Mobile.id)
+                    TabsTrayFragmentDirections.actionGlobalBookmarkFragment(BookmarkRoot.Mobile.id),
                 )
                 dismissTabsTray()
             }

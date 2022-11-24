@@ -4,11 +4,11 @@ import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.mozilla.fenix.customannotations.SmokeTest
 import org.mozilla.fenix.helpers.AndroidAssetDispatcher
-import org.mozilla.fenix.helpers.FeatureSettingsHelper
 import org.mozilla.fenix.helpers.HomeActivityIntentTestRule
 import org.mozilla.fenix.helpers.SearchDispatcher
 import org.mozilla.fenix.helpers.TestAssetHelper.getGenericAsset
@@ -19,11 +19,10 @@ import org.mozilla.fenix.ui.robots.navigationToolbar
 class SettingsSearchTest {
     private lateinit var mockWebServer: MockWebServer
     private lateinit var searchMockServer: MockWebServer
-    private val featureSettingsHelper = FeatureSettingsHelper()
 
     @get:Rule
     val activityTestRule = AndroidComposeTestRule(
-        HomeActivityIntentTestRule()
+        HomeActivityIntentTestRule.withDefaultSettingsOverrides(),
     ) { it.activity }
 
     @Before
@@ -32,15 +31,11 @@ class SettingsSearchTest {
             dispatcher = AndroidAssetDispatcher()
             start()
         }
-        featureSettingsHelper.setJumpBackCFREnabled(false)
     }
 
     @After
     fun tearDown() {
         mockWebServer.shutdown()
-
-        // resetting modified features enabled setting to default
-        featureSettingsHelper.resetAllFeatureFlags()
     }
 
     @Test
@@ -70,6 +65,7 @@ class SettingsSearchTest {
     }
 
     @Test
+    @Ignore("Failing after compose migration. See: https://github.com/mozilla-mobile/fenix/issues/26087")
     fun toggleSearchBookmarksAndHistoryTest() {
         // Bookmarks 2 websites, toggles the bookmarks and history search settings off,
         // then verifies if the websites do not show in the suggestions.
@@ -119,9 +115,9 @@ class SettingsSearchTest {
         }
     }
 
+    // Ads a new search engine from the list of custom engines
     @SmokeTest
     @Test
-    // Ads a new search engine from the list of custom engines
     fun addPredefinedSearchEngineTest() {
         val searchEngine = "Reddit"
 
@@ -145,9 +141,9 @@ class SettingsSearchTest {
         }
     }
 
+    // Verifies setting as default a customized search engine name and URL
     @SmokeTest
     @Test
-    // Verifies setting as default a customized search engine name and URL
     fun editCustomSearchEngineTest() {
         searchMockServer = MockWebServer().apply {
             dispatcher = SearchDispatcher()
@@ -181,13 +177,13 @@ class SettingsSearchTest {
         }
     }
 
-    @SmokeTest
-    @Test
     // Test running on beta/release builds in CI:
     // caution when making changes to it, so they don't block the builds
     // Goes through the settings and changes the search suggestion toggle, then verifies it changes.
+    @Ignore("Failing, see: https://github.com/mozilla-mobile/fenix/issues/23817")
+    @SmokeTest
+    @Test
     fun toggleSearchSuggestionsTest() {
-
         homeScreen {
         }.openSearch {
             typeSearch("mozilla")

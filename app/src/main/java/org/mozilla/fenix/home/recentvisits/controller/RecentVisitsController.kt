@@ -13,11 +13,11 @@ import mozilla.components.browser.state.action.HistoryMetadataAction
 import mozilla.components.browser.state.store.BrowserStore
 import mozilla.components.concept.storage.HistoryMetadataStorage
 import mozilla.components.feature.tabs.TabsUseCases.SelectOrAddUseCase
+import mozilla.components.service.glean.private.NoExtras
+import org.mozilla.fenix.GleanMetrics.RecentSearches
 import org.mozilla.fenix.R
 import org.mozilla.fenix.components.AppStore
 import org.mozilla.fenix.components.appstate.AppAction
-import org.mozilla.fenix.components.metrics.Event
-import org.mozilla.fenix.components.metrics.MetricController
 import org.mozilla.fenix.home.HomeFragmentDirections
 import org.mozilla.fenix.home.recentvisits.RecentlyVisitedItem.RecentHistoryGroup
 import org.mozilla.fenix.home.recentvisits.RecentlyVisitedItem.RecentHistoryHighlight
@@ -60,6 +60,11 @@ interface RecentVisitsController {
      * @param highlightUrl Url of the [RecentHistoryHighlight] to remove.
      */
     fun handleRemoveRecentHistoryHighlight(highlightUrl: String)
+
+    /**
+     * Callback for when the user long clicks on a recent visit.
+     */
+    fun handleRecentVisitLongClicked()
 }
 
 /**
@@ -72,7 +77,6 @@ class DefaultRecentVisitsController(
     private val navController: NavController,
     private val storage: HistoryMetadataStorage,
     private val scope: CoroutineScope,
-    private val metrics: MetricController
 ) : RecentVisitsController {
 
     /**
@@ -81,7 +85,7 @@ class DefaultRecentVisitsController(
     override fun handleHistoryShowAllClicked() {
         dismissSearchDialogIfDisplayed()
         navController.navigate(
-            HomeFragmentDirections.actionGlobalHistoryFragment()
+            HomeFragmentDirections.actionGlobalHistoryFragment(),
         )
     }
 
@@ -95,8 +99,8 @@ class DefaultRecentVisitsController(
             HomeFragmentDirections.actionGlobalHistoryMetadataGroup(
                 title = recentHistoryGroup.title,
                 historyMetadataItems = recentHistoryGroup.historyMetadata
-                    .mapIndexed { index, item -> item.toHistoryMetadata(index) }.toTypedArray()
-            )
+                    .mapIndexed { index, item -> item.toHistoryMetadata(index) }.toTypedArray(),
+            ),
         )
     }
 
@@ -115,7 +119,7 @@ class DefaultRecentVisitsController(
         scope.launch {
             storage.deleteHistoryMetadata(groupTitle)
         }
-        metrics.track(Event.RecentSearchesGroupDeleted)
+        RecentSearches.groupDeleted.record(NoExtras())
     }
 
     /**
@@ -139,6 +143,13 @@ class DefaultRecentVisitsController(
         scope.launch {
             storage.deleteHistoryMetadataForUrl(highlightUrl)
         }
+    }
+
+    /**
+     * Dismiss the search dialog if displayed.
+     */
+    override fun handleRecentVisitLongClicked() {
+        dismissSearchDialogIfDisplayed()
     }
 
     @VisibleForTesting(otherwise = PRIVATE)
