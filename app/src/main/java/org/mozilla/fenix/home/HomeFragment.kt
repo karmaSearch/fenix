@@ -615,12 +615,12 @@ class HomeFragment : Fragment() {
         binding.toolbarWrapper.setOnLongClickListener(toolbarWrapperOnLongClickListener)
         binding.toolbarWrapper2.setOnLongClickListener(toolbarWrapperOnLongClickListener)
 
-        /*PrivateBrowsingButtonView(binding.privateBrowsingButton, browsingModeManager) { newMode ->
+        PrivateBrowsingButtonView(binding.privateBrowsingButton, browsingModeManager) { newMode ->
             sessionControlInteractor.onPrivateModeButtonClicked(
                 newMode,
                 onboarding.userHasBeenOnboarded(),
             )
-        }*/
+        }
 
         consumeFrom(requireComponents.core.store) {
             updateTabCounter(it)
@@ -925,7 +925,7 @@ class HomeFragment : Fragment() {
             }
             // We want to show the popup only after privateBrowsingButton is available.
             // Otherwise, we will encounter an activity token error.
-           /* binding.privateBrowsingButton.post {
+            binding.privateBrowsingButton.post {
                 runIfFragmentIsAttached {
                     context.settings().showedPrivateModeContextualFeatureRecommender = true
                     context.settings().lastCfrShownTimeInMillis = System.currentTimeMillis()
@@ -936,7 +936,7 @@ class HomeFragment : Fragment() {
                         Gravity.TOP or Gravity.END,
                     )
                 }
-            }*/
+            }
         }
     }
 
