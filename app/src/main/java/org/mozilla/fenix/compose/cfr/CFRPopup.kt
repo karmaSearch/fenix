@@ -147,7 +147,7 @@ class CFRPopup(
         /**
          * Corner radius for the popup body.
          */
-        internal const val DEFAULT_CORNER_RADIUS = 12
+        internal const val DEFAULT_CORNER_RADIUS = 13
 
         /**
          * Vertical distance between the indicator arrow and the anchor.

@@ -5,7 +5,9 @@
 package org.mozilla.fenix.compose.cfr
 
 import android.content.res.Configuration
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -22,11 +24,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import mozilla.components.ui.colors.PhotonColors
 import org.mozilla.fenix.R
 import org.mozilla.fenix.R.drawable
 import org.mozilla.fenix.theme.FirefoxTheme
@@ -65,19 +69,15 @@ fun CFRPopupContent(
             color = Color.Transparent,
             // Need to override the default RectangleShape to avoid casting shadows for that shape.
             shape = popupShape,
+            border = BorderStroke(1.dp, FirefoxTheme.colors.textAccent),
             modifier = Modifier
                 .align(Alignment.Center)
                 .background(
                     shape = popupShape,
-                    brush = Brush.linearGradient(
-                        colors = listOf(
-                            FirefoxTheme.colors.gradientEnd,
-                            FirefoxTheme.colors.gradientStart,
-                        ),
-                        end = Offset(0f, Float.POSITIVE_INFINITY),
-                        start = Offset(Float.POSITIVE_INFINITY, 0f),
-                    ),
+                    color = colorResource(id = R.color.companion_background)
+
                 )
+
                 .wrapContentHeight()
                 .width(popupWidth),
         ) {
@@ -104,35 +104,38 @@ fun CFRPopupContent(
                     modifier = Modifier.padding(
                         end = 24.dp, // 8.dp extra padding to the "X" icon
                     ),
-                    color = FirefoxTheme.colors.textOnColorPrimary,
-                    style = FirefoxTheme.typography.body2,
+                    color = FirefoxTheme.colors.textPrimary,
+                    style = FirefoxTheme.typography.body1,
                 )
 
                 action()
             }
         }
 
-        IconButton(
-            onClick = { onDismiss(true) },
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(
-                    top = if (indicatorDirection == CFRPopup.IndicatorDirection.UP) 14.dp else 0.dp,
-                    end = 6.dp,
-                )
-                .size(48.dp),
-        ) {
-            Icon(
-                painter = painterResource(drawable.mozac_ic_close_20),
-                contentDescription = stringResource(R.string.cfr_dismiss_button_default_content_description),
+        if(false) {
+
+            IconButton(
+                onClick = { onDismiss(true) },
                 modifier = Modifier
-                    // Following alignment and padding are necessary to visually align the middle
-                    // of the "X" button with the top of the text.
-                    .align(Alignment.TopCenter)
-                    .padding(top = 10.dp)
-                    .size(24.dp),
-                tint = FirefoxTheme.colors.iconOnColor,
-            )
+                    .align(Alignment.TopEnd)
+                    .padding(
+                        top = if (indicatorDirection == CFRPopup.IndicatorDirection.UP) 14.dp else 0.dp,
+                        end = 6.dp,
+                    )
+                    .size(48.dp),
+            ) {
+                Icon(
+                    painter = painterResource(drawable.mozac_ic_close_20),
+                    contentDescription = stringResource(R.string.cfr_dismiss_button_default_content_description),
+                    modifier = Modifier
+                        // Following alignment and padding are necessary to visually align the middle
+                        // of the "X" button with the top of the text.
+                        .align(Alignment.TopCenter)
+                        .padding(top = 10.dp)
+                        .size(24.dp),
+                    tint = FirefoxTheme.colors.iconOnColor,
+                )
+            }
         }
     }
 }

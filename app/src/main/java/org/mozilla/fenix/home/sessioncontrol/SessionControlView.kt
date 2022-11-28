@@ -241,6 +241,7 @@ class SessionControlView(
                             featureRecommended = HomeCFRPresenter(
                                 context = context,
                                 recyclerView = view,
+                                searchBar = searchBarView
                             ).show()
                         }
 

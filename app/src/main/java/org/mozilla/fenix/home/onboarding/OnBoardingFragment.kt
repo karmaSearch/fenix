@@ -69,7 +69,7 @@ class OnBoardingFragment: Fragment() {
         TabLayoutMediator(pageIndicator, binding.onboardingPager) { _, _ ->}.attach()
 
         binding.onboardingSkip.setOnClickListener {
-            val directions = NavGraphDirections.actionGlobalHome()
+            val directions = NavGraphDirections.actionStartupDefaultbrowser()
             findNavController().navigate(directions)
         }
         return view

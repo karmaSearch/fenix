@@ -15,8 +15,10 @@ import org.mozilla.fenix.R
 import org.mozilla.fenix.compose.cfr.CFRPopup
 import org.mozilla.fenix.compose.cfr.CFRPopupProperties
 import org.mozilla.fenix.ext.settings
+import org.mozilla.fenix.home.onboarding.CompanionOnBoardingDialog
 import org.mozilla.fenix.home.recentsyncedtabs.view.RecentSyncedTabViewHolder
 import org.mozilla.fenix.home.recenttabs.view.RecentTabsHeaderViewHolder
+import org.mozilla.fenix.home.topsites.TopSitePagerViewHolder
 
 /**
  * Vertical padding needed to improve the visual alignment of the popup and respect the UX design.
@@ -31,6 +33,7 @@ private const val CFR_TO_ANCHOR_VERTICAL_PADDING = -16
  */
 class HomeCFRPresenter(
     private val context: Context,
+    private val searchBar: View,
     private val recyclerView: RecyclerView,
 ) {
 
@@ -46,6 +49,14 @@ class HomeCFRPresenter(
             }
             is Result.JumpBackIn -> {
                 showJumpBackInCFR(view = result.view)
+                true
+            }
+            is Result.Companion -> {
+                showCompanion()
+                true
+            }
+            is Result.TopSiteOnBoarding -> {
+                showTopSiteOnBoardingDialog(view = result.view)
                 true
             }
             else -> false
@@ -99,6 +110,24 @@ class HomeCFRPresenter(
         RecentTabs.jumpBackInCfrShown.record(NoExtras())
     }
 
+    private fun showTopSiteOnBoardingDialog(view: View) {
+        CFRPopup(
+            text = context.getString(R.string.onboarding_companion_shortcut),
+            anchor = view,
+            properties = CFRPopupProperties(
+                indicatorDirection = CFRPopup.IndicatorDirection.DOWN,
+                popupVerticalOffset = (-40).dp, // Offset the top spacer in the recent tabs header.
+            ),
+        ).show()
+        context.settings().shouldShowTopSiteCompanion = false
+
+    }
+
+    private fun showCompanion() {
+        val companion = CompanionOnBoardingDialog(searchBar, recyclerView)
+        companion.showIfNeeded()
+    }
+
     /**
      * Returns a [Result] that indicates the CFR that should be shown on the Home screen if any
      * based on the views available and the preferences.
@@ -117,6 +146,12 @@ class HomeCFRPresenter(
                 viewHolder is RecentTabsHeaderViewHolder
             ) {
                 result = Result.JumpBackIn(view = viewHolder.composeView)
+            }  else if (context.settings().shouldShowCompanion) {
+                result = Result.Companion
+            } else if(context.settings().shouldShowTopSiteCompanion &&
+                viewHolder is TopSitePagerViewHolder
+            ) {
+                result = Result.TopSiteOnBoarding(view = viewHolder.itemView)
             }
         }
 
@@ -142,5 +177,9 @@ class HomeCFRPresenter(
          * Indicates a CFR should be for Jump Back In and the associated [view] to anchor the CFR.
          */
         data class JumpBackIn(val view: View) : Result()
+
+        data class TopSiteOnBoarding(val view: View) : Result()
+
+        object Companion : Result()
     }
 }
