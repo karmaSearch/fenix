@@ -18,7 +18,8 @@
         android:dependency="@string/pref_key_show_top_sites"
         android:layout="@layout/checkbox_left_sub_preference"
         android:key="@string/pref_key_enable_contile"
-        android:title="@string/customize_toggle_contile" />
+        android:title="@string/customize_toggle_contile"
+        app:isPreferenceVisible="false"/>
 
     <androidx.preference.SwitchPreference
         android:key="@string/pref_key_recent_tabs"
@@ -52,7 +53,8 @@
 
     <androidx.preference.Preference
         android:key="@string/pref_key_wallpapers"
-        android:title="@string/customize_wallpapers" />
+        android:title="@string/customize_wallpapers"
+        app:isPreferenceVisible="false"/>
 
     <androidx.preference.PreferenceCategory
         android:layout="@layout/preference_cat_style"
