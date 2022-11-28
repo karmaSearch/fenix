@@ -198,7 +198,6 @@ internal object AppStoreReducer {
             )
         }
         is AppAction.LearnAndActShown -> state.copy(learnAndAct = action.learnAndAct)
-        is AppAction.AnimalShown -> state.copy(animalBackground = action.animalBackground)
 
         is AppAction.AddPendingDeletionSet ->
             state.copy(pendingDeletionHistoryItems = state.pendingDeletionHistoryItems + action.historyItems)

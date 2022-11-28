@@ -39,67 +39,6 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <FrameLayout
-                    android:id="@+id/random_animals_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <ImageView
-                        android:id="@+id/random_animals_image"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:adjustViewBounds="true"
-                        android:clickable="false"
-                        android:focusable="false"
-                        android:importantForAccessibility="no"
-                        tools:src="@drawable/philip_brown"
-                        android:scaleType="centerCrop"/>
-                    <View
-                        android:id="@+id/ovalView"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/ic_home_bg_hill"
-                        android:layout_gravity="bottom" />
-
-                    <ImageView
-                        android:id="@+id/random_animals_credit"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="bottom"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginBottom="10dp"
-                        app:srcCompat="@drawable/ic_credit"/>
-
-                    <LinearLayout
-                        android:id="@+id/random_animals_credit_layout"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_gravity="bottom"
-                        android:background="@drawable/credit_background"
-                        android:layout_marginBottom="10dp"
-                        android:layout_marginLeft="10dp"
-                        android:visibility="gone"
-                        android:animateLayoutChanges="true"
-                        android:padding="5dp">
-
-                        <TextView
-                            android:id="@+id/random_animals_credit_info"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            tools:text="Tattaa"/>
-                        <TextView
-                            android:id="@+id/random_animals_credit_author"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:textColor="@color/fx_mobile_text_color_accent"
-                            tools:text="Tattaa"/>
-                    </LinearLayout>
-
-
-
-                </FrameLayout>
-
 
              <ImageView
                  android:id="@+id/wordmark"
@@ -113,8 +52,7 @@
                  android:contentDescription="@string/app_name"
                  android:focusable="false"
                  android:importantForAccessibility="no"
-                 app:srcCompat="?fenixLogo"
-                 android:visibility="gone"/>
+                 app:srcCompat="?fenixLogo"/>
 
              <FrameLayout
                  android:id="@+id/toolbar_wrapper"
@@ -231,18 +169,6 @@
              app:iconTint="?textPrimary"
              app:srcCompat="@drawable/ic_search"/>
      </FrameLayout>
-
-
-     <ImageView
-         android:id="@+id/karma_logo"
-         android:layout_width="wrap_content"
-         android:layout_height="wrap_content"
-         android:layout_gravity="center"
-         app:srcCompat="@drawable/ic_karma_logo_illus"
-         app:layout_constraintBottom_toBottomOf="@+id/bottom_bar"
-         app:layout_constraintEnd_toEndOf="parent"
-         app:layout_constraintStart_toStartOf="parent"
-         app:layout_constraintTop_toTopOf="@+id/bottom_bar" />
 
      <androidx.constraintlayout.widget.Barrier
          android:id="@+id/accessory_button_barrier"

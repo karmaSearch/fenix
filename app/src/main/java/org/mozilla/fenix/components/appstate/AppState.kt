@@ -15,7 +15,6 @@ import mozilla.components.service.pocket.PocketStory.PocketRecommendedStory
 import mozilla.components.service.pocket.PocketStory.PocketSponsoredStory
 import org.mozilla.fenix.home.HomeFragment
 import org.mozilla.fenix.home.Mode
-import org.mozilla.fenix.home.animalsbackground.AnimalBackground
 import org.mozilla.fenix.home.pocket.PocketRecommendedStoriesCategory
 import org.mozilla.fenix.home.pocket.PocketRecommendedStoriesSelectedCategory
 import org.mozilla.fenix.home.recentbookmarks.RecentBookmark
@@ -71,8 +70,6 @@ data class AppState(
     val pocketStoriesCategories: List<PocketRecommendedStoriesCategory> = emptyList(),
     val pocketStoriesCategoriesSelections: List<PocketRecommendedStoriesSelectedCategory> = emptyList(),
     val learnAndAct: List<LearnAndAct> = emptyList(),
-    val animalBackground: AnimalBackground? = null,
-
     val pocketSponsoredStories: List<PocketSponsoredStory> = emptyList(),
     val messaging: MessagingState = MessagingState(),
     val pendingDeletionHistoryItems: Set<PendingDeletionHistory> = emptySet(),

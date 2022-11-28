@@ -440,12 +440,6 @@ class HomeFragment : Fragment() {
                         binding.toolbarWrapper.visibility = View.VISIBLE
                         //binding.toolbarLayout.setBackgroundColor(android.graphics.Color.TRANSPARENT)
                     }
-                    if (requireContext().settings().showKARMAPicture) {
-                        binding.karmaLogo.visibility =
-                                    if (abs(verticalOffset - binding.toolbarWrapper.height) >= appBarLayout.height - binding.randomAnimalsImage.height - binding.karmaLogo.height / 2) View.INVISIBLE else View.VISIBLE
-                    } else {
-                        binding.karmaLogo.visibility = View.GONE
-                    }
 
                 }
             }
@@ -791,7 +785,6 @@ class HomeFragment : Fragment() {
     override fun onStart() {
         super.onStart()
 
-        subscribeToRandomAnimalBackground()
         subscribeToTabCollections()
 
         val context = requireContext()
@@ -982,45 +975,6 @@ class HomeFragment : Fragment() {
             requireComponents.appStore.dispatch(AppAction.CollectionsChange(it))
         }.also { observer ->
             requireComponents.core.tabCollectionStorage.getCollections().observe(this, observer)
-        }
-    }
-
-    private fun subscribeToRandomAnimalBackground() {
-        if (requireContext().settings().showKARMAPicture) {
-            val randomAnimal =
-                requireComponents.core.randomAnimalBackgroundService.getRandomAnimals()
-
-            randomAnimal?.let {
-                val resource =
-                    resources.getIdentifier(it.imageName, "drawable", requireActivity().packageName)
-                binding.randomAnimalsImage.setImageResource(resource)
-                binding.randomAnimalsCreditInfo.text = it.infoText + " "
-                binding.randomAnimalsCreditAuthor.text = it.author
-
-                val onClickOnImage = object : View.OnClickListener {
-                    override fun onClick(v: android.view.View) {
-
-                        if (v == binding.randomAnimalsCreditLayout) {
-                            (activity as HomeActivity).openToBrowserAndLoad(it.url, true, BrowserDirection.FromHome)
-                        }
-                    }
-                }
-
-                binding.randomAnimalsImage.setOnClickListener {
-                    binding.randomAnimalsCreditLayout.visibility = if(binding.randomAnimalsCreditLayout.visibility == View.VISIBLE) View.GONE else View.VISIBLE
-                }
-
-                binding.randomAnimalsCreditLayout.setOnClickListener(onClickOnImage)
-            }
-            binding.randomAnimalsLayout.visibility = View.VISIBLE
-            binding.wordmark.visibility = View.GONE
-            binding.karmaLogo.visibility = if(requireContext().settings().toolbarPosition == ToolbarPosition.TOP) View.VISIBLE else View.GONE
-
-
-        } else {
-            binding.randomAnimalsLayout.visibility = View.GONE
-            binding.wordmark.visibility = View.VISIBLE
-            binding.karmaLogo.visibility = View.GONE
         }
     }
 

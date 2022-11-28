@@ -235,7 +235,6 @@
     <!-- Query containing the search parameters to be hidden from the top frecent sites  -->
     <string name="pref_key_frecency_filter_query" translatable="false">pref_key_frecency_filter_query</string>
     
-    <string name="pref_key_enable_karma_picture" translatable="false">pref_key_enable_karma_picture</string>
     <string name="pref_key_enable_learn_and_act" translatable="false">pref_key_enable_learn_and_act</string>
 
 

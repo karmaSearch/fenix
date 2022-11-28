@@ -13,7 +13,6 @@ import mozilla.components.service.pocket.PocketStory
 import mozilla.components.service.pocket.PocketStory.PocketSponsoredStory
 import org.mozilla.fenix.components.AppStore
 import org.mozilla.fenix.home.Mode
-import org.mozilla.fenix.home.animalsbackground.AnimalBackground
 import org.mozilla.fenix.home.pocket.PocketRecommendedStoriesCategory
 import org.mozilla.fenix.home.pocket.PocketRecommendedStoriesSelectedCategory
 import org.mozilla.fenix.home.recentbookmarks.RecentBookmark
@@ -107,8 +106,6 @@ sealed class AppAction : Action {
     data class PocketStoriesCategoriesChange(val storiesCategories: List<PocketRecommendedStoriesCategory>) :
         AppAction()
     data class LearnAndActShown(val learnAndAct: List<LearnAndAct>) : AppAction()
-    data class AnimalShown(val animalBackground: AnimalBackground) :
-        AppAction()
 
     /**
      * Restores the list of Pocket recommended stories categories selections.

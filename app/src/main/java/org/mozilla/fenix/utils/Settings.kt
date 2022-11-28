@@ -141,11 +141,6 @@ class Settings(private val appContext: Context) : PreferencesHolder {
         default = { homescreenSections[HomeScreenSection.TOP_SITES] == true },
     )
 
-    var showKARMAPicture by booleanPreference(
-        appContext.getPreferenceKey(R.string.pref_key_enable_karma_picture),
-        default = false
-    )
-
     var showLearnAndAct by booleanPreference(
         appContext.getPreferenceKey(R.string.pref_key_enable_learn_and_act),
         default = true

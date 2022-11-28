@@ -36,22 +36,6 @@ class HomeSettingsFragment : PreferenceFragmentCompat() {
 
     private fun setupPreferences() {
 
-        requirePreference<SwitchPreference>(R.string.pref_key_enable_karma_picture).apply {
-            isChecked = context.settings().showKARMAPicture
-            onPreferenceChangeListener = object : SharedPreferenceUpdater() {
-                override fun onPreferenceChange(preference: Preference, newValue: Any?): Boolean {
-                    CustomizeHome.preferenceToggled.record(
-                        CustomizeHome.PreferenceToggledExtra(
-                            newValue as Boolean,
-                            "karma_picture"
-                        )
-                    )
-
-                    return super.onPreferenceChange(preference, newValue)
-                }
-            }
-        }
-
         requirePreference<SwitchPreference>(R.string.pref_key_show_top_sites).apply {
             isChecked = context.settings().showTopSitesFeature
             onPreferenceChangeListener = object : SharedPreferenceUpdater() {

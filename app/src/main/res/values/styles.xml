@@ -128,7 +128,7 @@
         <!-- Drawables -->
         <item name="fenixLogo">@drawable/karma_logo_illus</item>
         <item name="fenixWordmarkText">@drawable/ic_karma</item>
-        <item name="fenixWordmarkLogo">@drawable/ic_karma</item>
+        <item name="fenixWordmarkLogo">@drawable/ic_karma_logo_illus</item>
         <item name="homeBackground">@color/fx_mobile_layer_color_1</item>
         <item name="bottomBarBackground">@drawable/home_bottom_bar_background</item>
         <item name="bottomBarBackgroundTop">@drawable/home_bottom_bar_background_top</item>

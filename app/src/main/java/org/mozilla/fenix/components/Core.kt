@@ -90,8 +90,6 @@ import org.mozilla.fenix.gecko.GeckoProvider
 import org.mozilla.fenix.historymetadata.DefaultHistoryMetadataService
 import org.mozilla.fenix.historymetadata.HistoryMetadataMiddleware
 import org.mozilla.fenix.historymetadata.HistoryMetadataService
-import org.mozilla.fenix.home.animalsbackground.RandomAnimalBackgroundParser
-import org.mozilla.fenix.home.animalsbackground.RandomAnimalBackgroundService
 import org.mozilla.fenix.media.MediaSessionService
 import org.mozilla.fenix.perf.StrictModeManager
 import org.mozilla.fenix.perf.lazyMonitored
@@ -400,7 +398,6 @@ class Core(
     }
     val pocketStoriesService by lazyMonitored { PocketStoriesService(context, pocketStoriesConfig) }
     val learnAndActService by lazyMonitored { LearnAndActService(context, learnAndActConfig) }
-    val randomAnimalBackgroundService by lazyMonitored { RandomAnimalBackgroundService(context, RandomAnimalBackgroundParser()) }
 
     val contileTopSitesProvider by lazyMonitored {
         ContileTopSitesProvider(
