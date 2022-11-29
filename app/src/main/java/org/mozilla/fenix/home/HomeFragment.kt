@@ -40,6 +40,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
+import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.SmoothScroller
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.AppBarLayout.OnOffsetChangedListener
@@ -957,8 +958,29 @@ class HomeFragment : Fragment() {
         navigateToSearch()
     }
 
-    @VisibleForTesting
-    internal fun navigateToSearch() {
+    private fun navigateToSearch() {
+        // Dismisses the search dialog when the home content is scrolled
+        val recyclerView = sessionControlView!!.view
+        val listener = object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                if (newState == RecyclerView.SCROLL_STATE_DRAGGING || newState == RecyclerView.SCROLL_STATE_SETTLING) {
+                    findNavController().navigateUp()
+                    recyclerView.removeOnScrollListener(this)
+                    if (!recyclerView.hasNestedScrollingParent(ViewCompat.TYPE_NON_TOUCH)) {
+                        recyclerView.startNestedScroll(View.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_NON_TOUCH);
+                    }
+                    binding.homeAppBar.setExpanded(true)
+                }
+            }
+        }
+        if (!recyclerView.hasNestedScrollingParent(ViewCompat.TYPE_NON_TOUCH)) {
+            recyclerView.startNestedScroll(View.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_NON_TOUCH);
+        }
+        binding.homeAppBar.setExpanded(false)
+
+        recyclerView.addOnScrollListener(listener)
+
         val directions =
             HomeFragmentDirections.actionGlobalSearchDialog(
                 sessionId = null,
