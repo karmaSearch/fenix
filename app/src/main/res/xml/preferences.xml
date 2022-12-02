@@ -42,6 +42,10 @@
     <androidx.preference.PreferenceCategory
         android:title="@string/preferences_category_general"
         android:layout="@layout/preference_category_no_icon_style">
+        <androidx.preference.Preference
+            app:iconSpaceReserved="false"
+            android:key="@string/pref_key_search_settings"
+            android:title="@string/preferences_search" />
 
         <androidx.preference.Preference
             app:iconSpaceReserved="false"
