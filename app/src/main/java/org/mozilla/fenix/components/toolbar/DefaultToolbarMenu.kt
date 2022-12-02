@@ -90,6 +90,7 @@ open class DefaultToolbarMenu(
                 onItemTapped.invoke(ToolbarMenu.Item.AddonsManager)
             },
             appendExtensionSubMenuAtStart = shouldUseBottomToolbar,
+            showAddonsInMenu = false
         )
     }
 
