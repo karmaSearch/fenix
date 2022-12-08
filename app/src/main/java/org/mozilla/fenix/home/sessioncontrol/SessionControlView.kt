@@ -105,9 +105,11 @@ internal fun normalModeAdapterItems(
     }
 
     if(learnAndAct.isNotEmpty()) {
-        items.add(AdapterItem.LearnAndActItem)
+        items.add(AdapterItem.LearnAndActHeader)
+        learnAndAct.forEach {
+            items.add(AdapterItem.LearnAndActItem(it))
+        }
     }
-
     if (shouldShowCustomizeHome) {
         items.add(AdapterItem.CustomizeHomeButton)
     }
@@ -215,8 +217,6 @@ class SessionControlView(
 
     // We want to limit feature recommendations to one per HomePage visit.
     var featureRecommended = false
-
-    private var companionIsShowing: Boolean = false
 
     private val sessionControlAdapter = SessionControlAdapter(
         interactor,

@@ -13,15 +13,17 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import karma.service.learnandact.LearnAndAct
 import mozilla.components.feature.tab.collections.TabCollection
 import mozilla.components.feature.top.sites.TopSite
 import org.mozilla.fenix.components.Components
 import org.mozilla.fenix.gleanplumb.Message
 import org.mozilla.fenix.home.BottomSpacerViewHolder
-import org.mozilla.fenix.home.learnandact.viewholders.LearnAndActViewHolder
 import org.mozilla.fenix.home.TopPlaceholderViewHolder
 import org.mozilla.fenix.home.collections.CollectionViewHolder
 import org.mozilla.fenix.home.collections.TabInCollectionViewHolder
+import org.mozilla.fenix.home.learnandact.viewholders.LearnAndActHeaderViewHolder
+import org.mozilla.fenix.home.learnandact.viewholders.LearnAndActItemViewHolder
 import org.mozilla.fenix.home.pocket.PocketCategoriesViewHolder
 import org.mozilla.fenix.home.pocket.PocketRecommendationsHeaderViewHolder
 import org.mozilla.fenix.home.pocket.PocketStoriesViewHolder
@@ -177,7 +179,20 @@ sealed class AdapterItem(@LayoutRes val viewType: Int) {
 
     object RecentVisitsHeader : AdapterItem(RecentVisitsHeaderViewHolder.LAYOUT_ID)
     object RecentVisitsItems : AdapterItem(RecentlyVisitedViewHolder.LAYOUT_ID)
-    object LearnAndActItem : AdapterItem(LearnAndActViewHolder.LAYOUT_ID)
+
+    data class LearnAndActItem(
+        val learnAndAct: LearnAndAct,
+    ) : AdapterItem(LearnAndActItemViewHolder.LAYOUT_ID) {
+        override fun sameAs(other: AdapterItem) =
+            other is LearnAndActItem && learnAndAct.title == other.learnAndAct.title
+
+        override fun contentsSameAs(other: AdapterItem): Boolean {
+            return other is LearnAndActItem && this.learnAndAct.title == other.learnAndAct.title
+        }
+    }
+
+    object LearnAndActHeader : AdapterItem(LearnAndActHeaderViewHolder.LAYOUT_ID)
+
 
     object RecentBookmarksHeader : AdapterItem(RecentBookmarksHeaderViewHolder.LAYOUT_ID)
     object RecentBookmarks : AdapterItem(RecentBookmarksViewHolder.LAYOUT_ID)
@@ -304,10 +319,14 @@ class SessionControlAdapter(
                 viewLifecycleOwner = viewLifecycleOwner,
                 interactor = interactor,
             )
-            LearnAndActViewHolder.LAYOUT_ID -> return LearnAndActViewHolder(
+            LearnAndActItemViewHolder.LAYOUT_ID -> return LearnAndActItemViewHolder(
                 composeView = ComposeView(parent.context),
                 viewLifecycleOwner = viewLifecycleOwner,
                 interactor = interactor
+            )
+            LearnAndActHeaderViewHolder.LAYOUT_ID -> return LearnAndActHeaderViewHolder(
+                composeView = ComposeView(parent.context),
+                viewLifecycleOwner = viewLifecycleOwner,
             )
         }
 
@@ -363,6 +382,7 @@ class SessionControlAdapter(
             is PocketCategoriesViewHolder,
             is PocketRecommendationsHeaderViewHolder,
             is PocketStoriesViewHolder,
+                is LearnAndActHeaderViewHolder
             -> {
                 // no op
                 // This previously called "composeView.disposeComposition" which would have the
@@ -385,11 +405,18 @@ class SessionControlAdapter(
                 // This ViewHolder can be removed / re-added and we need it to show a fresh new composition.
                 holder.composeView.disposeComposition()
             }
-            else -> super.onViewRecycled(holder)
+            is LearnAndActItemViewHolder -> {
+                holder.composeView.disposeComposition()
+            }
+        else -> super.onViewRecycled(holder)
         }
     }
 
     override fun getItemViewType(position: Int) = getItem(position).viewType
+
+    override fun getItemId(position: Int): Long {
+        return position.toLong()
+    }
 
     override fun onBindViewHolder(
         holder: RecyclerView.ViewHolder,
@@ -431,6 +458,10 @@ class SessionControlAdapter(
             is OnboardingSectionHeaderViewHolder -> holder.bind(
                 (item as AdapterItem.OnboardingSectionHeader).labelBuilder,
             )
+            is LearnAndActItemViewHolder -> {
+                val learnandAct = (item as AdapterItem.LearnAndActItem).learnAndAct
+                holder.bindSession(learnandAct)
+            }
             is OnboardingManualSignInViewHolder,
             is RecentlyVisitedViewHolder,
             is RecentBookmarksViewHolder,
