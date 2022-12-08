@@ -77,6 +77,11 @@
             app:iconSpaceReserved="false"
             android:title="@string/preferences_accessibility" />
 
+        <androidx.preference.Preference
+            android:key="@string/pref_key_language"
+            app:iconSpaceReserved="false"
+            android:title="@string/preferences_language" />
+
         <org.mozilla.fenix.settings.DefaultBrowserPreference
             android:key="@string/pref_key_make_default_browser"
             app:iconSpaceReserved="false"
