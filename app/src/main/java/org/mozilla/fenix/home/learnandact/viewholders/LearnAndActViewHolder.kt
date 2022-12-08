@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -37,6 +38,7 @@ import org.mozilla.fenix.components.components
 import org.mozilla.fenix.compose.ComposeViewHolder
 import org.mozilla.fenix.home.learnandact.LearnAndActInteractor
 import org.mozilla.fenix.theme.FirefoxTheme
+import org.mozilla.fenix.theme.KarmaColors
 
 
 class LearnAndActHeaderViewHolder(composeView: ComposeView,
@@ -52,7 +54,7 @@ class LearnAndActHeaderViewHolder(composeView: ComposeView,
             Spacer(Modifier.height(16.dp))
             Text(
                 stringResource(R.string.learn_and_act_title),
-                fontSize = 38.sp,
+                fontSize = 45.sp,
                 fontWeight = FontWeight.Normal,
                 color = PhotonColors.Green50,
                 fontFamily = FontFamily(Font(R.font.amithen)),
@@ -65,7 +67,7 @@ class LearnAndActHeaderViewHolder(composeView: ComposeView,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Normal,
                 fontFamily = FontFamily(Font(R.font.proximanova)),
-                color = Color.LightGray,
+                color = FirefoxTheme.colors.textSecondary,
                 modifier = Modifier
                     .padding(start = 10.dp)
             )
@@ -105,56 +107,6 @@ class LearnAndActItemViewHolder(composeView: ComposeView,
 
 }
 
-@Composable
-fun LearnAndActTextsColumn(
-    y: Dp,
-    item: LearnAndAct
-) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(0.dp),
-        modifier = Modifier
-            .offset(y = y)
-            .padding(start = 10.dp, end = 10.dp, top = 0.dp, bottom = 5.dp)
-    ) {
-        Text(
-            text = item.title,
-            lineHeight = 19.sp,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = FirefoxTheme.colors.textPrimary,
-            fontFamily = FontFamily(Font(R.font.proximanova_semibold)),
-        )
-        if (item.duration.isNotEmpty()) {
-            Text(
-                text = item.duration,
-                lineHeight = 17.sp,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Medium,
-                color = Color.LightGray,
-                fontFamily = FontFamily(Font(R.font.proximanova_medium)),
-            )
-        }
-        Text(
-            text = item.description,
-            lineHeight = 20.sp,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Medium,
-            color = FirefoxTheme.colors.textPrimary,
-            maxLines = 4,
-            fontFamily = FontFamily(Font(R.font.proximanova_medium)),
-            overflow = TextOverflow.Ellipsis
-        )
-        Text(
-            text = item.action,
-            lineHeight = 20.sp,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Bold,
-            color = FirefoxTheme.colors.textAccent,
-            fontFamily = FontFamily(Font(R.font.proximanova_bold)),
-        )
-    }
-
-}
 
 @Composable
 fun LearnAndActItem(item: LearnAndAct,
@@ -224,94 +176,169 @@ fun LearnAndActItem(item: LearnAndAct,
                 Column(
                     modifier = Modifier.weight(10f, true),
                 ) {
-                    Text(
-                        text = item.type.uppercase(),
-                        lineHeight = 22.sp,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(0.dp, 12.dp, 12.dp, 0.dp))
-                            .background(FirefoxTheme.colors.textAccent)
-                            .padding(start = 17.dp, end = 17.dp, bottom = 0.dp)
-                            .height(24.dp),
-                        color = Color.Black,
-                        fontFamily = FontFamily(Font(R.font.proximanova_semibold)),
-                    )
 
-                    LearnAndActTextsColumn(item = item, y = 0.dp)
+                    LearnAndActType(item = item)
+                    LearnAndActTextsColumn(item = item)
                 }
 
 
             }
         } else {
-            Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
-                if (item.imageUrl.startsWith("http")) {
-                    ImageLoader(
-                        url = item.imageUrl,
-                        client = components.core.client,
-                    ) {
-                        WithImage { painter ->
-                            Image(
-                                painter = painter,
-                                modifier = Modifier
-                                    .height(193.dp)
-                                    .fillMaxWidth(),
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                            )
-                        }
+            Column(verticalArrangement = Arrangement.spacedBy(0.dp),
+            modifier = Modifier.fillMaxHeight(1f)) {
 
-                        Placeholder {
-                            Image(
-                                painter = painterResource(id = defaultImageName),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .height(193.dp)
-                                    .fillMaxWidth(),
-                                contentScale = ContentScale.Crop,
-                            )
-                        }
-
-                        Fallback {
-                            Image(
-                                painter = painterResource(id = defaultImageName),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .height(193.dp)
-                                    .fillMaxWidth(),
-                                contentScale = ContentScale.Crop,
-                            )
-                        }
-                    }
-                } else {
-                    Image(
-                        painter = painterResource(id = defaultImageName),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .height(193.dp)
-                            .fillMaxWidth(),
-                        contentScale = ContentScale.Crop,
-                    )
-                }
-
-                Text(
-                    text = item.type.uppercase(),
-                    lineHeight = 22.sp, fontSize = 16.sp, fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier
-                        .offset(y = -12.dp)
-                        .clip(RoundedCornerShape(0.dp, 12.dp, 12.dp, 0.dp))
-                        .background(FirefoxTheme.colors.textAccent)
-                        .padding(start = 17.dp, end = 17.dp, bottom = 0.dp)
-                        .height(24.dp),
-                    color = Color.Black,
-                    fontFamily = FontFamily(Font(R.font.proximanova_semibold)),
-                )
-
+                LearnAndActImage(item = item)
+                LearnAndActType(item = item, offset = -12.dp)
                 LearnAndActTextsColumn(item = item, y = -10.dp)
 
             }
         }
     }
+}
+
+
+@Composable
+fun LearnAndActImage(
+    item: LearnAndAct
+) {
+    val defaultImageName =
+        if (item.type.lowercase() == "learn" || item.type.lowercase() == "comprendre") R.drawable.ic_learn_placeholder else R.drawable.ic_act_placeholder
+
+    if (item.imageUrl.startsWith("http")) {
+
+        ImageLoader(
+            url = item.imageUrl,
+            client = components.core.client,
+        ) {
+            WithImage { painter ->
+                Image(
+                    painter = painter,
+                    modifier = Modifier
+                        .height(193.dp)
+                        .fillMaxWidth(),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                )
+            }
+
+            Placeholder {
+                Image(
+                    painter = painterResource(id = defaultImageName),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .height(193.dp)
+                        .fillMaxWidth(),
+                    contentScale = ContentScale.Crop,
+                )
+            }
+
+            Fallback {
+                Image(
+                    painter = painterResource(id = defaultImageName),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .height(193.dp)
+                        .fillMaxWidth(),
+                    contentScale = ContentScale.Crop,
+                )
+            }
+        }
+    } else {
+        Image(
+            painter = painterResource(id = defaultImageName),
+            contentDescription = null,
+            modifier = Modifier
+                .height(193.dp)
+                .fillMaxWidth(),
+            contentScale = ContentScale.Crop,
+        )
+    }
+}
+
+@Composable
+fun LearnAndActType(
+    item: LearnAndAct,
+    offset: Dp = 0.dp
+) {
+
+    val backgroundColor =
+        if (item.type.lowercase() == "learn") KarmaColors.learnHeader else KarmaColors.actHeader
+    val icon = if (item.type.lowercase() == "learn") R.drawable.ic_learn else R.drawable.ic_act
+    Row(horizontalArrangement = Arrangement.Center,
+        modifier = Modifier
+            .offset(y = offset)
+            .clip(RoundedCornerShape(0.dp, 12.dp, 12.dp, 0.dp))
+            .background(backgroundColor)
+            .padding(start = 17.dp, end = 17.dp)
+            .height(24.dp)) {
+        Image(
+            painter = painterResource(id = icon),
+            contentDescription = null,
+            contentScale = ContentScale.Fit,
+            modifier = Modifier.fillMaxHeight(0.9f)
+        )
+        Spacer(Modifier.width(10.dp))
+        Text(
+            text = item.type.uppercase(),
+            lineHeight = 22.sp,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = Color.Black,
+            fontFamily = FontFamily(Font(R.font.proximanova_semibold)),
+        )
+    }
+
+}
+
+@Composable
+fun LearnAndActTextsColumn(
+    y: Dp = 0.dp,
+    item: LearnAndAct
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(0.dp),
+        modifier = Modifier
+            .offset(y = y)
+            .padding(start = 10.dp, end = 10.dp, top = 0.dp, bottom = 5.dp)
+    ) {
+        Text(
+            text = item.title,
+            lineHeight = 19.sp,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = FirefoxTheme.colors.textPrimary,
+            fontFamily = FontFamily(Font(R.font.proximanova_semibold)),
+        )
+        if (item.duration.isNotEmpty()) {
+            Text(
+                text = item.duration,
+                lineHeight = 17.sp,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color.LightGray,
+                fontFamily = FontFamily(Font(R.font.proximanova_medium)),
+            )
+        }
+        Text(
+            text = item.description,
+            lineHeight = 20.sp,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Medium,
+            color = FirefoxTheme.colors.textSecondary,
+            maxLines = 4,
+            fontFamily = FontFamily(Font(R.font.proximanova_medium)),
+            overflow = TextOverflow.Ellipsis
+        )
+        Text(
+            text = item.action,
+            lineHeight = 20.sp,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold,
+            color = FirefoxTheme.colors.textAccent,
+            fontFamily = FontFamily(Font(R.font.proximanova_bold)),
+        )
+    }
+
 }
 
 @Preview
