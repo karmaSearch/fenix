@@ -4,6 +4,7 @@
 
 package org.mozilla.fenix.library.bookmarks
 
+import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
 import android.text.SpannableString
@@ -15,8 +16,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.getSystemService
+import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
@@ -24,6 +27,7 @@ import androidx.navigation.fragment.navArgs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.isActive
@@ -46,6 +50,7 @@ import org.mozilla.fenix.components.StoreProvider
 import org.mozilla.fenix.databinding.FragmentBookmarkBinding
 import org.mozilla.fenix.ext.bookmarkStorage
 import org.mozilla.fenix.ext.components
+import org.mozilla.fenix.ext.getRootView
 import org.mozilla.fenix.ext.minus
 import org.mozilla.fenix.ext.nav
 import org.mozilla.fenix.ext.requireComponents
@@ -58,7 +63,7 @@ import org.mozilla.fenix.utils.allowUndo
  * The screen that displays the user's bookmark list in their Library.
  */
 @Suppress("TooManyFunctions", "LargeClass")
-class BookmarkFragment : LibraryPageFragment<BookmarkNode>(), UserInteractionHandler {
+class BookmarkFragment : LibraryPageFragment<BookmarkNode>(), UserInteractionHandler, MenuProvider {
 
     private lateinit var bookmarkStore: BookmarkFragmentStore
     private lateinit var bookmarkView: BookmarkView
@@ -69,18 +74,18 @@ class BookmarkFragment : LibraryPageFragment<BookmarkNode>(), UserInteractionHan
     private val sharedViewModel: BookmarksSharedViewModel by activityViewModels()
     private val desktopFolders by lazy { DesktopFolders(requireContext(), showMobileRoot = false) }
 
-    private var pendingBookmarkDeletionJob: (suspend () -> Unit)? = null
     private var pendingBookmarksToDelete: MutableSet<BookmarkNode> = mutableSetOf()
 
     private var _binding: FragmentBookmarkBinding? = null
     private val binding get() = _binding!!
 
-    private val metrics
-        get() = context?.components?.analytics?.metrics
-
     override val selectedItems get() = bookmarkStore.state.mode.selectedItems
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View {
         _binding = FragmentBookmarkBinding.inflate(inflater, container, false)
 
         bookmarkStore = StoreProvider.get(this) {
@@ -100,10 +105,9 @@ class BookmarkFragment : LibraryPageFragment<BookmarkNode>(), UserInteractionHan
                 showSnackbar = ::showSnackBarWithText,
                 deleteBookmarkNodes = ::deleteMulti,
                 deleteBookmarkFolder = ::showRemoveFolderDialog,
-                invokePendingDeletion = ::invokePendingDeletion,
-                showTabTray = ::showTabTray
+                showTabTray = ::showTabTray,
+                settings = requireComponents.settings,
             ),
-            metrics = metrics!!
         )
 
         bookmarkView = BookmarkView(binding.bookmarkLayout, bookmarkInteractor, findNavController())
@@ -112,8 +116,8 @@ class BookmarkFragment : LibraryPageFragment<BookmarkNode>(), UserInteractionHan
             BookmarkDeselectNavigationListener(
                 findNavController(),
                 sharedViewModel,
-                bookmarkInteractor
-            )
+                bookmarkInteractor,
+            ),
         )
 
         return binding.root
@@ -124,21 +128,27 @@ class BookmarkFragment : LibraryPageFragment<BookmarkNode>(), UserInteractionHan
             FenixSnackbar.make(
                 view = it,
                 duration = FenixSnackbar.LENGTH_LONG,
-                isDisplayedWithBrowserToolbar = false
+                isDisplayedWithBrowserToolbar = false,
             ).setText(text).show()
         }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        requireActivity().addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
+
+        val accountManager = requireComponents.backgroundServices.accountManager
         consumeFrom(bookmarkStore) {
             bookmarkView.update(it)
-        }
-    }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
+            // Only display the sign-in prompt if we're inside of the virtual "Desktop Bookmarks" node.
+            // Don't want to pester user too much with it, and if there are lots of bookmarks present,
+            // it'll just get visually lost. Inside of the "Desktop Bookmarks" node, it'll nicely stand-out,
+            // since there are always only three other items in there. It's also the right place contextually.
+            bookmarkView.binding.bookmarkFoldersSignIn.isVisible =
+                it.tree?.guid == BookmarkRoot.Root.id && accountManager.authenticatedAccount() == null
+        }
     }
 
     override fun onResume() {
@@ -165,7 +175,7 @@ class BookmarkFragment : LibraryPageFragment<BookmarkNode>(), UserInteractionHan
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+    override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {
         when (val mode = bookmarkStore.state.mode) {
             is BookmarkFragmentState.Mode.Normal -> {
                 if (mode.showMenu) {
@@ -188,24 +198,26 @@ class BookmarkFragment : LibraryPageFragment<BookmarkNode>(), UserInteractionHan
                         }
                 }
             }
+            else -> {
+                // no-op
+            }
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    override fun onMenuItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.bookmark_search -> {
                 bookmarkInteractor.onSearch()
                 true
             }
             R.id.close_bookmarks -> {
-                invokePendingDeletion()
                 close()
                 true
             }
             R.id.add_bookmark_folder -> {
                 navigateToBookmarkFragment(
                     BookmarkFragmentDirections
-                        .actionBookmarkFragmentToBookmarkAddFolderFragment()
+                        .actionBookmarkFragmentToBookmarkAddFolderFragment(),
                 )
                 true
             }
@@ -229,8 +241,8 @@ class BookmarkFragment : LibraryPageFragment<BookmarkNode>(), UserInteractionHan
                 }
                 navigateToBookmarkFragment(
                     BookmarkFragmentDirections.actionGlobalShareFragment(
-                        data = shareTabs.toTypedArray()
-                    )
+                        data = shareTabs.toTypedArray(),
+                    ),
                 )
                 true
             }
@@ -238,25 +250,23 @@ class BookmarkFragment : LibraryPageFragment<BookmarkNode>(), UserInteractionHan
                 deleteMulti(bookmarkStore.state.mode.selectedItems)
                 true
             }
-            else -> super.onOptionsItemSelected(item)
+            // other options are not handled by this menu provider
+            else -> false
         }
     }
 
     private fun showTabTray() {
-        invokePendingDeletion()
         navigateToBookmarkFragment(BookmarkFragmentDirections.actionGlobalTabsTrayFragment())
     }
 
     private fun navigateToBookmarkFragment(directions: NavDirections) {
-        invokePendingDeletion()
         findNavController().nav(
             R.id.bookmarkFragment,
-            directions
+            directions,
         )
     }
 
     override fun onBackPressed(): Boolean {
-        invokePendingDeletion()
         sharedViewModel.selectedFolder = null
         return bookmarkView.onBackPressed()
     }
@@ -282,21 +292,10 @@ class BookmarkFragment : LibraryPageFragment<BookmarkNode>(), UserInteractionHan
             }
     }
 
-    override fun onPause() {
-        invokePendingDeletion()
-        super.onPause()
-    }
-
-    private suspend fun deleteSelectedBookmarks(selected: Set<BookmarkNode>) {
-        CoroutineScope(IO).launch {
-            val tempStorage = context?.bookmarkStorage
-            selected.map {
-                async { tempStorage?.deleteNode(it.guid) }
-            }.awaitAll()
-        }
-    }
-
-    private fun deleteMulti(selected: Set<BookmarkNode>, eventType: BookmarkRemoveType = BookmarkRemoveType.MULTIPLE) {
+    private fun deleteMulti(
+        selected: Set<BookmarkNode>,
+        eventType: BookmarkRemoveType = BookmarkRemoveType.MULTIPLE,
+    ) {
         selected.iterator().forEach {
             if (it.type == BookmarkNodeType.FOLDER) {
                 showRemoveFolderDialog(selected)
@@ -305,35 +304,36 @@ class BookmarkFragment : LibraryPageFragment<BookmarkNode>(), UserInteractionHan
         }
         updatePendingBookmarksToDelete(selected)
 
-        pendingBookmarkDeletionJob = getDeleteOperation(eventType)
-
         val message = when (eventType) {
             BookmarkRemoveType.MULTIPLE -> {
                 getRemoveBookmarksSnackBarMessage(selected, containsFolders = false)
             }
             BookmarkRemoveType.FOLDER,
-            BookmarkRemoveType.SINGLE -> {
+            BookmarkRemoveType.SINGLE,
+            -> {
                 val bookmarkNode = selected.first()
                 getString(
                     R.string.bookmark_deletion_snackbar_message,
-                    bookmarkNode.url?.toShortUrl(requireContext().components.publicSuffixList) ?: bookmarkNode.title
+                    bookmarkNode.url?.toShortUrl(requireContext().components.publicSuffixList)
+                        ?: bookmarkNode.title,
                 )
             }
         }
 
-        viewLifecycleOwner.lifecycleScope.allowUndo(
-            requireView(), message,
+        MainScope().allowUndo(
+            requireActivity().getRootView()!!,
+            message,
             getString(R.string.bookmark_undo_deletion),
             {
                 undoPendingDeletion(selected)
             },
-            operation = getDeleteOperation(eventType)
+            operation = getDeleteOperation(eventType),
         )
     }
 
     private fun getRemoveBookmarksSnackBarMessage(
         selected: Set<BookmarkNode>,
-        containsFolders: Boolean
+        containsFolders: Boolean,
     ): String {
         return if (selected.size > 1) {
             return if (containsFolders) {
@@ -346,14 +346,17 @@ class BookmarkFragment : LibraryPageFragment<BookmarkNode>(), UserInteractionHan
             getString(
                 R.string.bookmark_deletion_snackbar_message,
                 bookmarkNode.url?.toShortUrl(requireContext().components.publicSuffixList)
-                    ?: bookmarkNode.title
+                    ?: bookmarkNode.title,
             )
         }
     }
 
     private fun getDialogConfirmationMessage(selected: Set<BookmarkNode>): String {
         return if (selected.size > 1) {
-            getString(R.string.bookmark_delete_multiple_folders_confirmation_dialog, getString(R.string.app_name))
+            getString(
+                R.string.bookmark_delete_multiple_folders_confirmation_dialog,
+                getString(R.string.app_name),
+            )
         } else {
             getString(R.string.bookmark_delete_folder_confirmation_dialog)
         }
@@ -375,18 +378,18 @@ class BookmarkFragment : LibraryPageFragment<BookmarkNode>(), UserInteractionHan
                 }
                 setPositiveButton(R.string.delete_browsing_data_prompt_allow) { dialog: DialogInterface, _ ->
                     updatePendingBookmarksToDelete(selected)
-                    pendingBookmarkDeletionJob = getDeleteOperation(BookmarkRemoveType.FOLDER)
                     dialog.dismiss()
-                    val snackbarMessage = getRemoveBookmarksSnackBarMessage(selected, containsFolders = true)
+                    val snackbarMessage =
+                        getRemoveBookmarksSnackBarMessage(selected, containsFolders = true)
                     // Use fragment's lifecycle; the view may be gone by the time dialog is interacted with.
-                    lifecycleScope.allowUndo(
-                        requireView(),
+                    MainScope().allowUndo(
+                        requireActivity().getRootView()!!,
                         snackbarMessage,
                         getString(R.string.bookmark_undo_deletion),
                         {
                             undoPendingDeletion(selected)
                         },
-                        operation = getDeleteOperation(BookmarkRemoveType.FOLDER)
+                        operation = getDeleteOperation(BookmarkRemoveType.FOLDER),
                     )
                 }
                 create()
@@ -397,20 +400,23 @@ class BookmarkFragment : LibraryPageFragment<BookmarkNode>(), UserInteractionHan
 
     private fun updatePendingBookmarksToDelete(selected: Set<BookmarkNode>) {
         pendingBookmarksToDelete.addAll(selected)
-        val bookmarkTree = sharedViewModel.selectedFolder!! - pendingBookmarksToDelete
+        val selectedFolder = sharedViewModel.selectedFolder ?: return
+        val bookmarkTree = selectedFolder - pendingBookmarksToDelete
         bookmarkInteractor.onBookmarksChanged(bookmarkTree)
     }
 
     private suspend fun undoPendingDeletion(selected: Set<BookmarkNode>) {
         pendingBookmarksToDelete.removeAll(selected)
-        pendingBookmarkDeletionJob = null
         refreshBookmarks()
     }
 
-    private fun getDeleteOperation(event: BookmarkRemoveType): (suspend () -> Unit) {
-        return {
-            deleteSelectedBookmarks(pendingBookmarksToDelete)
-            pendingBookmarkDeletionJob = null
+    private fun getDeleteOperation(event: BookmarkRemoveType): (suspend (context: Context) -> Unit) {
+        return { context ->
+            CoroutineScope(IO).launch {
+                pendingBookmarksToDelete.map {
+                    async { context.bookmarkStorage.deleteNode(it.guid) }
+                }.awaitAll()
+            }
             when (event) {
                 BookmarkRemoveType.FOLDER ->
                     BookmarksManagement.folderRemove.record(NoExtras())
@@ -420,16 +426,6 @@ class BookmarkFragment : LibraryPageFragment<BookmarkNode>(), UserInteractionHan
                     BookmarksManagement.removed.record(NoExtras())
             }
             refreshBookmarks()
-        }
-    }
-
-    private fun invokePendingDeletion() {
-        pendingBookmarkDeletionJob?.let {
-            viewLifecycleOwner.lifecycleScope.launch {
-                it.invoke()
-            }.invokeOnCompletion {
-                pendingBookmarkDeletionJob = null
-            }
         }
     }
 }

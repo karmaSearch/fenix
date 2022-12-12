@@ -8,16 +8,19 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
-import org.junit.Ignore
+import okhttp3.mockwebserver.MockWebServer
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.mozilla.fenix.customannotations.SmokeTest
-import org.mozilla.fenix.ext.settings
+import org.mozilla.fenix.helpers.AndroidAssetDispatcher
 import org.mozilla.fenix.helpers.HomeActivityTestRule
 import org.mozilla.fenix.helpers.RetryTestRule
+import org.mozilla.fenix.helpers.TestAssetHelper
 import org.mozilla.fenix.helpers.TestAssetHelper.waitingTime
 import org.mozilla.fenix.helpers.ext.waitNotNull
 import org.mozilla.fenix.ui.robots.homeScreen
+import org.mozilla.fenix.ui.robots.navigationToolbar
 
 /**
  *  Tests for verifying the presence of home screen and first-run homescreen elements
@@ -29,14 +32,30 @@ import org.mozilla.fenix.ui.robots.homeScreen
 class HomeScreenTest {
     /* ktlint-disable no-blank-line-before-rbrace */ // This imposes unreadable grouping.
 
-    private val mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+    private lateinit var mDevice: UiDevice
+    private lateinit var mockWebServer: MockWebServer
 
     @get:Rule
-    val activityTestRule = HomeActivityTestRule()
+    val activityTestRule = HomeActivityTestRule.withDefaultSettingsOverrides()
 
     @Rule
     @JvmField
     val retryTestRule = RetryTestRule(3)
+
+    @Before
+    fun setUp() {
+        mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+
+        mockWebServer = MockWebServer().apply {
+            dispatcher = AndroidAssetDispatcher()
+            start()
+        }
+    }
+
+    @After
+    fun tearDown() {
+        mockWebServer.shutdown()
+    }
 
     @Test
     fun homeScreenItemsTest() {
@@ -60,7 +79,6 @@ class HomeScreenTest {
         }
     }
 
-    @Ignore("Failing, see: https://github.com/mozilla-mobile/fenix/issues/24508")
     @Test
     fun privateModeScreenItemsTest() {
         homeScreen { }.dismissOnboarding()
@@ -122,8 +140,11 @@ class HomeScreenTest {
 
     @Test
     fun dismissOnboardingUsingHelpTest() {
-        val settings = activityTestRule.activity.applicationContext.settings()
-        settings.shouldShowJumpBackInCFR = false
+        activityTestRule.applySettingsExceptions {
+            it.isJumpBackInCFREnabled = false
+            it.isWallpaperOnboardingEnabled = false
+        }
+
         homeScreen {
             verifyWelcomeHeader()
         }.openThreeDotMenu {
@@ -147,18 +168,47 @@ class HomeScreenTest {
         }
     }
 
-    @SmokeTest
     @Test
-    fun tapLogoToChangeWallpaperTest() {
+    fun verifyPocketHomepageStoriesTest() {
+        activityTestRule.applySettingsExceptions {
+            it.isRecentTabsFeatureEnabled = false
+            it.isRecentlyVisitedFeatureEnabled = false
+        }
+
         homeScreen {
-            clickFirefoxLogo()
-            verifyWallpaperImageApplied(true)
-            clickFirefoxLogo()
-            verifyWallpaperImageApplied(true)
-            clickFirefoxLogo()
-            verifyWallpaperImageApplied(true)
-            clickFirefoxLogo()
-            verifyWallpaperImageApplied(false)
+        }.dismissOnboarding()
+
+        homeScreen {
+            verifyThoughtProvokingStories(true)
+            verifyStoriesByTopic(true)
+        }.openThreeDotMenu {
+        }.openCustomizeHome {
+            clickPocketButton()
+        }.goBack {
+            verifyThoughtProvokingStories(false)
+            verifyStoriesByTopic(false)
+        }
+    }
+
+    @Test
+    fun verifyCustomizeHomepageTest() {
+        val defaultWebPage = TestAssetHelper.getGenericAsset(mockWebServer, 1)
+
+        navigationToolbar {
+        }.enterURLAndEnterToBrowser(defaultWebPage.url) {
+        }.goToHomescreen {
+        }.openCustomizeHomepage {
+            clickJumpBackInButton()
+            clickRecentBookmarksButton()
+            clickRecentSearchesButton()
+            clickPocketButton()
+        }.goBack {
+            verifyCustomizeHomepageButton(false)
+        }.openThreeDotMenu {
+        }.openCustomizeHome {
+            clickJumpBackInButton()
+        }.goBack {
+            verifyCustomizeHomepageButton(true)
         }
     }
 }

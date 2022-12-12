@@ -8,21 +8,31 @@ import android.app.Activity
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY
 import android.net.Uri
+import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkStatic
+import io.mockk.spyk
 import io.mockk.unmockkStatic
 import io.mockk.verify
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import mozilla.components.feature.intent.processing.IntentProcessor
+import mozilla.components.support.test.robolectric.testContext
+import mozilla.telemetry.glean.testing.GleanTestRule
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mozilla.fenix.components.IntentProcessorType
+import org.mozilla.fenix.GleanMetrics.Events
 import org.mozilla.fenix.components.IntentProcessors
 import org.mozilla.fenix.customtabs.ExternalAppBrowserActivity
 import org.mozilla.fenix.ext.components
@@ -40,6 +50,9 @@ class IntentReceiverActivityTest {
     private lateinit var settings: Settings
     private lateinit var intentProcessors: IntentProcessors
 
+    @get:Rule
+    val gleanTestRule = GleanTestRule(testContext)
+
     @Before
     fun setup() {
         mockkStatic("org.mozilla.fenix.ext.ContextKt")
@@ -54,6 +67,7 @@ class IntentReceiverActivityTest {
         every { intentProcessors.externalAppIntentProcessors } returns emptyList()
         every { intentProcessors.fennecPageShortcutIntentProcessor } returns mockIntentProcessor()
         every { intentProcessors.externalDeepLinkIntentProcessor } returns mockIntentProcessor()
+        every { intentProcessors.webNotificationsIntentProcessor } returns mockIntentProcessor()
 
         coEvery { intentProcessors.intentProcessor.process(any()) } returns true
     }
@@ -64,9 +78,10 @@ class IntentReceiverActivityTest {
     }
 
     @Test
-    fun `process intent with flag launched from history`() = runBlockingTest {
+    fun `process intent with flag launched from history`() = runTest {
         val intent = Intent()
         intent.flags = FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY
+        assertNull(Events.openedLink.testGetValue())
 
         val activity = Robolectric.buildActivity(IntentReceiverActivity::class.java, intent).get()
         attachMocks(activity)
@@ -75,15 +90,17 @@ class IntentReceiverActivityTest {
         val shadow = shadowOf(activity)
         val actualIntent = shadow.peekNextStartedActivity()
 
+        assertNotNull(Events.openedLink.testGetValue())
         assertEquals(HomeActivity::class.java.name, actualIntent.component?.className)
         assertEquals(true, actualIntent.flags == FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY)
     }
 
     @Test
     fun `GIVEN a deeplink intent WHEN processing the intent THEN add the className HomeActivity`() =
-        runBlockingTest {
+        runTest {
             val uri = Uri.parse(BuildConfig.DEEP_LINK_SCHEME + "://settings_wallpapers")
             val intent = Intent("", uri)
+            assertNull(Events.openedLink.testGetValue())
 
             coEvery { intentProcessors.intentProcessor.process(any()) } returns false
             coEvery { intentProcessors.externalDeepLinkIntentProcessor.process(any()) } returns true
@@ -96,13 +113,15 @@ class IntentReceiverActivityTest {
             val shadow = shadowOf(activity)
             val actualIntent = shadow.peekNextStartedActivity()
 
+            assertNotNull(Events.openedLink.testGetValue())
             assertEquals(HomeActivity::class.java.name, actualIntent.component?.className)
         }
 
     @Test
-    fun `process intent with action OPEN_PRIVATE_TAB`() = runBlockingTest {
+    fun `process intent with action OPEN_PRIVATE_TAB`() = runTest {
         val intent = Intent()
         intent.action = NewTabShortcutIntentProcessor.ACTION_OPEN_PRIVATE_TAB
+        assertNull(Events.openedLink.testGetValue())
 
         coEvery { intentProcessors.intentProcessor.process(intent) } returns false
         coEvery { intentProcessors.customTabIntentProcessor.process(intent) } returns false
@@ -113,13 +132,15 @@ class IntentReceiverActivityTest {
         val shadow = shadowOf(activity)
         val actualIntent = shadow.peekNextStartedActivity()
 
+        assertNotNull(Events.openedLink.testGetValue())
         assertEquals(HomeActivity::class.java.name, actualIntent.component?.className)
         assertEquals(true, actualIntent.getBooleanExtra(HomeActivity.PRIVATE_BROWSING_MODE, false))
         assertEquals(false, actualIntent.getBooleanExtra(HomeActivity.OPEN_TO_BROWSER, true))
     }
 
     @Test
-    fun `process intent with action OPEN_TAB`() = runBlockingTest {
+    fun `process intent with action OPEN_TAB`() = runTest {
+        assertNull(Events.openedLink.testGetValue())
         val intent = Intent()
         intent.action = NewTabShortcutIntentProcessor.ACTION_OPEN_TAB
 
@@ -132,10 +153,12 @@ class IntentReceiverActivityTest {
 
         assertEquals(HomeActivity::class.java.name, actualIntent.component?.className)
         assertEquals(false, actualIntent.getBooleanExtra(HomeActivity.PRIVATE_BROWSING_MODE, false))
+        assertNotNull(Events.openedLink.testGetValue())
     }
 
     @Test
-    fun `process intent starts Activity`() = runBlockingTest {
+    fun `process intent starts Activity`() = runTest {
+        assertNull(Events.openedLink.testGetValue())
         val intent = Intent()
         val activity = Robolectric.buildActivity(IntentReceiverActivity::class.java, intent).get()
         attachMocks(activity)
@@ -146,10 +169,13 @@ class IntentReceiverActivityTest {
 
         assertEquals(HomeActivity::class.java.name, actualIntent.component?.className)
         assertEquals(true, actualIntent.getBooleanExtra(HomeActivity.OPEN_TO_BROWSER, true))
+        assertNotNull(Events.openedLink.testGetValue())
     }
 
     @Test
-    fun `process intent with launchLinksInPrivateTab set to true`() = runBlockingTest {
+    fun `process intent with launchLinksInPrivateTab set to true`() = runTest {
+        assertNull(Events.openedLink.testGetValue())
+
         every { settings.openLinksInAPrivateTab } returns true
 
         coEvery { intentProcessors.intentProcessor.process(any()) } returns false
@@ -168,10 +194,12 @@ class IntentReceiverActivityTest {
         verify { intentProcessors.privateIntentProcessor.process(intent) }
         assertEquals(HomeActivity::class.java.name, actualIntent.component?.className)
         assertTrue(actualIntent.getBooleanExtra(HomeActivity.PRIVATE_BROWSING_MODE, false))
+        assertNotNull(Events.openedLink.testGetValue())
     }
 
     @Test
-    fun `process intent with launchLinksInPrivateTab set to false`() = runBlockingTest {
+    fun `process intent with launchLinksInPrivateTab set to false`() = runTest {
+        assertNull(Events.openedLink.testGetValue())
         val intent = Intent()
 
         val activity = Robolectric.buildActivity(IntentReceiverActivity::class.java, intent).get()
@@ -180,13 +208,16 @@ class IntentReceiverActivityTest {
 
         coVerify(exactly = 0) { intentProcessors.privateIntentProcessor.process(intent) }
         coVerify { intentProcessors.intentProcessor.process(intent) }
+        assertNotNull(Events.openedLink.testGetValue())
     }
 
     @Test
-    fun `process custom tab intent`() = runBlockingTest {
+    fun `process custom tab intent`() = runTest {
+        assertNull(Events.openedLink.testGetValue())
         val intent = Intent()
         coEvery { intentProcessors.intentProcessor.process(intent) } returns false
         coEvery { intentProcessors.customTabIntentProcessor.process(intent) } returns true
+        assertNull(Events.openedLink.testGetValue())
 
         val activity = Robolectric.buildActivity(IntentReceiverActivity::class.java, intent).get()
         attachMocks(activity)
@@ -197,10 +228,12 @@ class IntentReceiverActivityTest {
 
         assertEquals(ExternalAppBrowserActivity::class.java.name, intent.component!!.className)
         assertTrue(intent.getBooleanExtra(HomeActivity.OPEN_TO_BROWSER, false))
+        assertNotNull(Events.openedLink.testGetValue())
     }
 
     @Test
-    fun `process private custom tab intent`() = runBlockingTest {
+    fun `process private custom tab intent`() = runTest {
+        assertNull(Events.openedLink.testGetValue())
         every { settings.openLinksInAPrivateTab } returns true
 
         val intent = Intent()
@@ -216,6 +249,20 @@ class IntentReceiverActivityTest {
 
         assertEquals(ExternalAppBrowserActivity::class.java.name, intent.component!!.className)
         assertTrue(intent.getBooleanExtra(HomeActivity.OPEN_TO_BROWSER, false))
+        assertNotNull(Events.openedLink.testGetValue())
+    }
+
+    @Test
+    fun `process web notifications click intent`() {
+        val intent = Intent()
+        every { intentProcessors.webNotificationsIntentProcessor.process(intent) } returns true
+        val activity = spyk(Robolectric.buildActivity(IntentReceiverActivity::class.java, intent).get())
+        attachMocks(activity)
+        every { activity.launch(any(), any()) } just Runs
+        activity.processIntent(intent)
+
+        verify { intentProcessors.webNotificationsIntentProcessor.process(intent) }
+        verify { activity.launch(intent, IntentProcessorType.NEW_TAB) }
     }
 
     private fun attachMocks(activity: Activity) {

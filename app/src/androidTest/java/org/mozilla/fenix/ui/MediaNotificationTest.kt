@@ -4,21 +4,22 @@
 
 package org.mozilla.fenix.ui
 
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.UiDevice
 import mozilla.components.browser.state.store.BrowserStore
 import mozilla.components.concept.engine.mediasession.MediaSession
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.helpers.AndroidAssetDispatcher
 import org.mozilla.fenix.helpers.HomeActivityTestRule
+import org.mozilla.fenix.helpers.RetryTestRule
 import org.mozilla.fenix.helpers.TestAssetHelper
 import org.mozilla.fenix.ui.robots.browserScreen
 import org.mozilla.fenix.ui.robots.homeScreen
-import org.mozilla.fenix.ui.robots.mDevice
 import org.mozilla.fenix.ui.robots.navigationToolbar
 import org.mozilla.fenix.ui.robots.notificationShade
 
@@ -32,10 +33,15 @@ class MediaNotificationTest {
     /* ktlint-disable no-blank-line-before-rbrace */ // This imposes unreadable grouping.
 
     private lateinit var mockWebServer: MockWebServer
+    private lateinit var mDevice: UiDevice
 
     @get:Rule
-    val activityTestRule = HomeActivityTestRule()
+    val activityTestRule = HomeActivityTestRule.withDefaultSettingsOverrides()
     private lateinit var browserStore: BrowserStore
+
+    @Rule
+    @JvmField
+    val retryTestRule = RetryTestRule(3)
 
     @Before
     fun setUp() {
@@ -43,6 +49,7 @@ class MediaNotificationTest {
         // So we are initializing this here instead of in all tests.
         browserStore = activityTestRule.activity.components.core.store
 
+        mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         mockWebServer = MockWebServer().apply {
             dispatcher = AndroidAssetDispatcher()
             start()
@@ -54,7 +61,6 @@ class MediaNotificationTest {
         mockWebServer.shutdown()
     }
 
-    @Ignore("Still failing, due to https://github.com/mozilla-mobile/android-components/issues/9748")
     @Test
     fun videoPlaybackSystemNotificationTest() {
         val videoTestPage = TestAssetHelper.getVideoPageAsset(mockWebServer)
@@ -66,7 +72,7 @@ class MediaNotificationTest {
             assertPlaybackState(browserStore, MediaSession.PlaybackState.PLAYING)
         }.openNotificationShade {
             verifySystemNotificationExists(videoTestPage.title)
-            clickSystemNotificationControlButton("Pause")
+            clickMediaNotificationControlButton("Pause")
             verifyMediaSystemNotificationButtonState("Play")
         }
 
@@ -88,19 +94,21 @@ class MediaNotificationTest {
         mDevice.pressBack()
     }
 
-    @Ignore("Failing, see: https://github.com/mozilla-mobile/fenix/issues/23716")
     @Test
     fun mediaSystemNotificationInPrivateModeTest() {
         val audioTestPage = TestAssetHelper.getAudioPageAsset(mockWebServer)
 
         navigationToolbar {
-        }.enterURLAndEnterToBrowser(audioTestPage.url) {
+        }.openTabTray {
+        }.toggleToPrivateTabs {
+        }.openNewTab {
+        }.submitQuery(audioTestPage.url.toString()) {
             mDevice.waitForIdle()
             clickMediaPlayerPlayButton()
             assertPlaybackState(browserStore, MediaSession.PlaybackState.PLAYING)
         }.openNotificationShade {
             verifySystemNotificationExists("A site is playing media")
-            clickSystemNotificationControlButton("Pause")
+            clickMediaNotificationControlButton("Pause")
             verifyMediaSystemNotificationButtonState("Play")
         }
 

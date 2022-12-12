@@ -12,6 +12,8 @@ import android.text.method.LinkMovementMethod
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import org.mozilla.fenix.R
+import org.mozilla.fenix.components.metrics.MetricServiceType
+import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.ext.settings
 import kotlin.system.exitProcess
 
@@ -29,29 +31,36 @@ fun showPrivacyPopWindow(context: Context, activity: Activity) {
     val clickableSpan3 = PrivacyContentSpan(Position.POS3, context)
 
     messageSpannable.setSpan(
-        clickableSpan1, content.indexOf(messageClickable1),
-        content.indexOf(messageClickable1) + messageClickable1.length, Spanned.SPAN_INCLUSIVE_INCLUSIVE
+        clickableSpan1,
+        content.indexOf(messageClickable1),
+        content.indexOf(messageClickable1) + messageClickable1.length,
+        Spanned.SPAN_INCLUSIVE_INCLUSIVE,
     )
     messageSpannable.setSpan(
-        clickableSpan2, content.indexOf(messageClickable2),
-        content.indexOf(messageClickable2) + messageClickable2.length, Spanned.SPAN_INCLUSIVE_INCLUSIVE
+        clickableSpan2,
+        content.indexOf(messageClickable2),
+        content.indexOf(messageClickable2) + messageClickable2.length,
+        Spanned.SPAN_INCLUSIVE_INCLUSIVE,
     )
     messageSpannable.setSpan(
-        clickableSpan3, content.indexOf(messageClickable3),
-        content.indexOf(messageClickable3) + messageClickable3.length, Spanned.SPAN_INCLUSIVE_INCLUSIVE
+        clickableSpan3,
+        content.indexOf(messageClickable3),
+        content.indexOf(messageClickable3) + messageClickable3.length,
+        Spanned.SPAN_INCLUSIVE_INCLUSIVE,
     )
 
     // Users can only use fenix after they agree with the privacy notice
     val builder = AlertDialog.Builder(activity)
         .setPositiveButton(
             context.getString(R.string.privacy_notice_positive_button),
-            { _, _ ->
-                context.settings().shouldShowPrivacyPopWindow = false
-            }
-        )
+        ) { _, _ ->
+            context.settings().shouldShowPrivacyPopWindow = false
+            context.settings().isMarketingTelemetryEnabled = true
+            context.components.analytics.metrics.start(MetricServiceType.Marketing)
+        }
         .setNeutralButton(
             context.getString(R.string.privacy_notice_neutral_button_2),
-            { _, _ -> exitProcess(0) }
+            { _, _ -> exitProcess(0) },
         )
         .setTitle(context.getString(R.string.privacy_notice_title))
         .setMessage(messageSpannable)

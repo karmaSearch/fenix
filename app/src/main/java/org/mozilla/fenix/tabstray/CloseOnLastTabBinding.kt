@@ -23,7 +23,7 @@ import mozilla.components.support.ktx.kotlinx.coroutines.flow.ifChanged
 class CloseOnLastTabBinding(
     browserStore: BrowserStore,
     private val tabsTrayStore: TabsTrayStore,
-    private val navigationInteractor: NavigationInteractor
+    private val navigationInteractor: NavigationInteractor,
 ) : AbstractBinding<BrowserState>(browserStore) {
     override suspend fun onState(flow: Flow<BrowserState>) {
         flow.map { it }
@@ -39,8 +39,12 @@ class CloseOnLastTabBinding(
                     Page.PrivateTabs -> {
                         state.privateTabs
                     }
+                    else -> {
+                        // Do nothing if we're on any other non-browser page.
+                        null
+                    }
                 }
-                if (tabs.isEmpty()) {
+                if (tabs?.isEmpty() == true) {
                     navigationInteractor.onCloseAllTabsClicked(selectedPage == Page.PrivateTabs)
                 }
             }

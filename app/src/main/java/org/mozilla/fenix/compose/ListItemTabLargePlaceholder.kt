@@ -43,7 +43,7 @@ import org.mozilla.fenix.theme.Theme
 @Composable
 fun ListItemTabLargePlaceholder(
     text: String,
-    onClick: () -> Unit = { }
+    onClick: () -> Unit = { },
 ) {
     Card(
         modifier = Modifier
@@ -57,7 +57,7 @@ fun ListItemTabLargePlaceholder(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp),
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Center,
         ) {
             Text(
                 text = text,
@@ -74,7 +74,7 @@ fun ListItemTabLargePlaceholder(
 @Composable
 @Preview
 private fun ListItemTabLargePlaceholderPreview() {
-    FirefoxTheme(theme = Theme.getTheme(isPrivate = false)) {
+    FirefoxTheme(theme = Theme.getTheme()) {
         ListItemTabLargePlaceholder(text = "Item placeholder")
     }
 }

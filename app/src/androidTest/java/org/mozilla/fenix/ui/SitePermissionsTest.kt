@@ -4,12 +4,22 @@
 
 package org.mozilla.fenix.ui
 
+import android.Manifest
+import android.content.Context
+import android.hardware.camera2.CameraManager
+import android.media.AudioManager
+import android.os.Build
 import androidx.core.net.toUri
-import org.junit.Ignore
+import androidx.test.filters.SdkSuppress
+import androidx.test.rule.GrantPermissionRule
+import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
 import org.mozilla.fenix.customannotations.SmokeTest
-import org.mozilla.fenix.helpers.HomeActivityIntentTestRule
+import org.mozilla.fenix.helpers.HomeActivityTestRule
+import org.mozilla.fenix.helpers.MockLocationUpdatesRule
+import org.mozilla.fenix.helpers.RetryTestRule
+import org.mozilla.fenix.helpers.TestHelper.appContext
 import org.mozilla.fenix.ui.robots.browserScreen
 import org.mozilla.fenix.ui.robots.navigationToolbar
 
@@ -21,21 +31,40 @@ class SitePermissionsTest {
     /* Test page created and handled by the Mozilla mobile test-eng team */
     private val testPage = "https://mozilla-mobile.github.io/testapp/permissions"
     private val testPageSubstring = "https://mozilla-mobile.github.io:443"
+    private val cameraManager = appContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+    private val micManager = appContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
     @get:Rule
-    val activityTestRule = HomeActivityIntentTestRule()
+    val activityTestRule = HomeActivityTestRule(
+        isJumpBackInCFREnabled = false,
+        isPWAsPromptEnabled = false,
+        isTCPCFREnabled = false,
+        isDeleteSitePermissionsEnabled = true,
+    )
 
+    @get:Rule
+    val grantPermissionRule: GrantPermissionRule = GrantPermissionRule.grant(
+        Manifest.permission.RECORD_AUDIO,
+        Manifest.permission.CAMERA,
+        Manifest.permission.ACCESS_COARSE_LOCATION,
+    )
+
+    @get: Rule
+    val mockLocationUpdatesRule = MockLocationUpdatesRule()
+
+    @get: Rule
+    val retryTestRule = RetryTestRule(3)
+
+    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.P, codeName = "P")
     @SmokeTest
     @Test
     fun audioVideoPermissionChoiceOnEachRequestTest() {
+        assumeTrue(cameraManager.cameraIdList.isNotEmpty())
+
         navigationToolbar {
         }.enterURLAndEnterToBrowser(testPage.toUri()) {
             waitForPageToLoad()
         }.clickStartAudioVideoButton {
-            // allow app to record video
-            clickAppPermissionButton(true)
-            // allow app to record audio
-            clickAppPermissionButton(true)
             verifyAudioVideoPermissionPrompt(testPageSubstring)
         }.clickPagePermissionButton(false) {
             verifyPageContent("Camera and Microphone not allowed")
@@ -48,14 +77,13 @@ class SitePermissionsTest {
     @SmokeTest
     @Test
     fun rememberBlockAudioVideoPermissionChoiceTest() {
+        assumeTrue(cameraManager.cameraIdList.isNotEmpty())
+        assumeTrue(micManager.microphones.isNotEmpty())
+
         navigationToolbar {
         }.enterURLAndEnterToBrowser(testPage.toUri()) {
             waitForPageToLoad()
         }.clickStartAudioVideoButton {
-            // allow app to record video
-            clickAppPermissionButton(true)
-            // allow app to record audio
-            clickAppPermissionButton(true)
             verifyAudioVideoPermissionPrompt(testPageSubstring)
             selectRememberPermissionDecision()
         }.clickPagePermissionButton(false) {
@@ -69,18 +97,16 @@ class SitePermissionsTest {
         }
     }
 
-    @Ignore("Failing, see https://github.com/mozilla-mobile/fenix/issues/23358")
     @SmokeTest
     @Test
     fun rememberAllowAudioVideoPermissionChoiceTest() {
+        assumeTrue(cameraManager.cameraIdList.isNotEmpty())
+        assumeTrue(micManager.microphones.isNotEmpty())
+
         navigationToolbar {
         }.enterURLAndEnterToBrowser(testPage.toUri()) {
             waitForPageToLoad()
         }.clickStartAudioVideoButton {
-            // allow app to record video
-            clickAppPermissionButton(true)
-            // allow app to record audio
-            clickAppPermissionButton(true)
             verifyAudioVideoPermissionPrompt(testPageSubstring)
             selectRememberPermissionDecision()
         }.clickPagePermissionButton(true) {
@@ -94,29 +120,14 @@ class SitePermissionsTest {
         }
     }
 
-    @SmokeTest
-    @Test
-    fun blockAppUsingAudioVideoTest() {
-        navigationToolbar {
-        }.enterURLAndEnterToBrowser(testPage.toUri()) {
-        }.clickStartAudioVideoButton {
-            // allow app to record video
-            clickAppPermissionButton(false)
-            // allow app to record audio
-            clickAppPermissionButton(false)
-        }
-        browserScreen {
-            verifyPageContent("Camera and Microphone not allowed")
-        }
-    }
-
     @Test
     fun microphonePermissionChoiceOnEachRequestTest() {
+        assumeTrue(micManager.microphones.isNotEmpty())
+
         navigationToolbar {
         }.enterURLAndEnterToBrowser(testPage.toUri()) {
             waitForPageToLoad()
         }.clickStartMicrophoneButton {
-            clickAppPermissionButton(true)
             verifyMicrophonePermissionPrompt(testPageSubstring)
         }.clickPagePermissionButton(false) {
             verifyPageContent("Microphone not allowed")
@@ -128,11 +139,12 @@ class SitePermissionsTest {
 
     @Test
     fun rememberBlockMicrophonePermissionChoiceTest() {
+        assumeTrue(micManager.microphones.isNotEmpty())
+
         navigationToolbar {
         }.enterURLAndEnterToBrowser(testPage.toUri()) {
             waitForPageToLoad()
         }.clickStartMicrophoneButton {
-            clickAppPermissionButton(true)
             verifyMicrophonePermissionPrompt(testPageSubstring)
             selectRememberPermissionDecision()
         }.clickPagePermissionButton(false) {
@@ -146,14 +158,14 @@ class SitePermissionsTest {
         }
     }
 
-    @Ignore("Flaky, needs investigation: https://github.com/mozilla-mobile/fenix/issues/23298")
     @Test
     fun rememberAllowMicrophonePermissionChoiceTest() {
+        assumeTrue(micManager.microphones.isNotEmpty())
+
         navigationToolbar {
         }.enterURLAndEnterToBrowser(testPage.toUri()) {
             waitForPageToLoad()
         }.clickStartMicrophoneButton {
-            clickAppPermissionButton(true)
             verifyMicrophonePermissionPrompt(testPageSubstring)
             selectRememberPermissionDecision()
         }.clickPagePermissionButton(true) {
@@ -168,24 +180,13 @@ class SitePermissionsTest {
     }
 
     @Test
-    fun blockAppUsingMicrophoneTest() {
-        navigationToolbar {
-        }.enterURLAndEnterToBrowser(testPage.toUri()) {
-        }.clickStartMicrophoneButton {
-            clickAppPermissionButton(false)
-        }
-        browserScreen {
-            verifyPageContent("Microphone not allowed")
-        }
-    }
-
-    @Test
     fun cameraPermissionChoiceOnEachRequestTest() {
+        assumeTrue(cameraManager.cameraIdList.isNotEmpty())
+
         navigationToolbar {
         }.enterURLAndEnterToBrowser(testPage.toUri()) {
             waitForPageToLoad()
         }.clickStartCameraButton {
-            clickAppPermissionButton(true)
             verifyCameraPermissionPrompt(testPageSubstring)
         }.clickPagePermissionButton(false) {
             verifyPageContent("Camera not allowed")
@@ -197,11 +198,12 @@ class SitePermissionsTest {
 
     @Test
     fun rememberBlockCameraPermissionChoiceTest() {
+        assumeTrue(cameraManager.cameraIdList.isNotEmpty())
+
         navigationToolbar {
         }.enterURLAndEnterToBrowser(testPage.toUri()) {
             waitForPageToLoad()
         }.clickStartCameraButton {
-            clickAppPermissionButton(true)
             verifyCameraPermissionPrompt(testPageSubstring)
             selectRememberPermissionDecision()
         }.clickPagePermissionButton(false) {
@@ -217,11 +219,12 @@ class SitePermissionsTest {
 
     @Test
     fun rememberAllowCameraPermissionChoiceTest() {
+        assumeTrue(cameraManager.cameraIdList.isNotEmpty())
+
         navigationToolbar {
         }.enterURLAndEnterToBrowser(testPage.toUri()) {
             waitForPageToLoad()
         }.clickStartCameraButton {
-            clickAppPermissionButton(true)
             verifyCameraPermissionPrompt(testPageSubstring)
             selectRememberPermissionDecision()
         }.clickPagePermissionButton(true) {
@@ -232,18 +235,6 @@ class SitePermissionsTest {
         }.clickStartCameraButton { }
         browserScreen {
             verifyPageContent("Camera allowed")
-        }
-    }
-
-    @Test
-    fun blockAppUsingCameraTest() {
-        navigationToolbar {
-        }.enterURLAndEnterToBrowser(testPage.toUri()) {
-        }.clickStartCameraButton {
-            clickAppPermissionButton(false)
-        }
-        browserScreen {
-            verifyPageContent("Camera not allowed")
         }
     }
 
@@ -274,27 +265,25 @@ class SitePermissionsTest {
         }
     }
 
-    @Ignore("Needs mocking location for Firebase - to do: https://github.com/mozilla-mobile/mobile-test-eng/issues/585")
     @Test
     fun allowLocationPermissionsTest() {
+        mockLocationUpdatesRule.setMockLocation()
+
         navigationToolbar {
         }.enterURLAndEnterToBrowser(testPage.toUri()) {
         }.clickGetLocationButton {
-            clickAppPermissionButton(true)
             verifyLocationPermissionPrompt(testPageSubstring)
         }.clickPagePermissionButton(true) {
-            verifyPageContent("longitude")
-            verifyPageContent("latitude")
+            verifyPageContent("${mockLocationUpdatesRule.latitude}")
+            verifyPageContent("${mockLocationUpdatesRule.longitude}")
         }
     }
 
-    @Ignore("Needs mocking location for Firebase - to do: https://github.com/mozilla-mobile/mobile-test-eng/issues/585")
     @Test
     fun blockLocationPermissionsTest() {
         navigationToolbar {
         }.enterURLAndEnterToBrowser(testPage.toUri()) {
         }.clickGetLocationButton {
-            clickAppPermissionButton(true)
             verifyLocationPermissionPrompt(testPageSubstring)
         }.clickPagePermissionButton(false) {
             verifyPageContent("User denied geolocation prompt")

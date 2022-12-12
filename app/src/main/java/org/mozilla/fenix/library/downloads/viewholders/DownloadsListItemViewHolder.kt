@@ -14,13 +14,15 @@ import org.mozilla.fenix.selection.SelectionHolder
 import org.mozilla.fenix.library.downloads.DownloadInteractor
 import org.mozilla.fenix.library.downloads.DownloadItem
 import org.mozilla.fenix.ext.getIcon
+import org.mozilla.fenix.ext.hideAndDisable
 import org.mozilla.fenix.ext.showAndEnable
+import org.mozilla.fenix.library.downloads.DownloadFragmentState
 import org.mozilla.fenix.library.downloads.DownloadItemMenu
 
 class DownloadsListItemViewHolder(
     view: View,
     private val downloadInteractor: DownloadInteractor,
-    private val selectionHolder: SelectionHolder<DownloadItem>
+    private val selectionHolder: SelectionHolder<DownloadItem>,
 ) : RecyclerView.ViewHolder(view) {
 
     private var item: DownloadItem? = null
@@ -31,9 +33,13 @@ class DownloadsListItemViewHolder(
         setupMenu()
     }
 
+    /**
+     * Binds the view in the [DownloadFragment].
+     */
     fun bind(
         item: DownloadItem,
-        isPendingDeletion: Boolean = false
+        mode: DownloadFragmentState.Mode,
+        isPendingDeletion: Boolean = false,
     ) {
         binding.downloadLayout.visibility = if (isPendingDeletion) {
             View.GONE
@@ -56,6 +62,11 @@ class DownloadsListItemViewHolder(
             downloadInteractor.onDeleteSome(setOf(item))
         }
 
+        if (mode is DownloadFragmentState.Mode.Editing) {
+            binding.downloadLayout.overflowView.hideAndDisable()
+        } else {
+            binding.downloadLayout.overflowView.showAndEnable()
+        }
         this.item = item
     }
 

@@ -17,7 +17,6 @@ import mozilla.components.support.utils.SafeIntent
 import org.mozilla.fenix.BrowserDirection
 import org.mozilla.fenix.HomeActivity
 import org.mozilla.fenix.NavGraphDirections
-import org.mozilla.fenix.components.metrics.Event
 import org.mozilla.fenix.ext.components
 import java.security.InvalidParameterException
 
@@ -45,7 +44,7 @@ open class ExternalAppBrowserActivity : HomeActivity() {
         return "Changing to fragment $fragmentName, isCustomTab: true"
     }
 
-    final override fun getIntentSource(intent: SafeIntent) = Event.OpenedApp.Source.CUSTOM_TAB
+    final override fun getIntentSource(intent: SafeIntent) = "CUSTOM_TAB"
 
     final override fun getIntentSessionId(intent: SafeIntent) = intent.getSessionId()
 
@@ -63,7 +62,7 @@ open class ExternalAppBrowserActivity : HomeActivity() {
 
     override fun getNavDirections(
         from: BrowserDirection,
-        customTabSessionId: String?
+        customTabSessionId: String?,
     ): NavDirections? {
         if (customTabSessionId == null) {
             finishAndRemoveTask()
@@ -77,10 +76,10 @@ open class ExternalAppBrowserActivity : HomeActivity() {
             BrowserDirection.FromGlobal ->
                 NavGraphDirections.actionGlobalExternalAppBrowser(
                     activeSessionId = customTabSessionId,
-                    webAppManifest = manifest
+                    webAppManifest = manifest,
                 )
             else -> throw InvalidParameterException(
-                "Tried to navigate to ExternalAppBrowserFragment from $from"
+                "Tried to navigate to ExternalAppBrowserFragment from $from",
             )
         }
     }

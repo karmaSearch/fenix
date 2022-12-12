@@ -11,11 +11,9 @@ import mozilla.components.concept.storage.HistoryMetadata
 import mozilla.components.concept.storage.HistoryMetadataKey
 import org.junit.Before
 import org.junit.Test
-import org.mozilla.fenix.R
-import org.mozilla.fenix.historymetadata.HistoryMetadataGroup
-import org.mozilla.fenix.historymetadata.controller.HistoryMetadataController
-import org.mozilla.fenix.home.learnandact.LearnAndActController
+import org.mozilla.fenix.home.pocket.PocketStoriesController
 import org.mozilla.fenix.home.recentbookmarks.controller.RecentBookmarksController
+import org.mozilla.fenix.home.recentsyncedtabs.controller.RecentSyncedTabController
 import org.mozilla.fenix.home.recenttabs.controller.RecentTabController
 import org.mozilla.fenix.home.recentvisits.RecentlyVisitedItem.RecentHistoryGroup
 import org.mozilla.fenix.home.recentvisits.RecentlyVisitedItem.RecentHistoryHighlight
@@ -27,10 +25,10 @@ class RecentVisitsInteractorTest {
     private val defaultSessionControlController: DefaultSessionControlController =
         mockk(relaxed = true)
     private val recentTabController: RecentTabController = mockk(relaxed = true)
+    private val recentSyncedTabController: RecentSyncedTabController = mockk(relaxed = true)
     private val recentBookmarksController: RecentBookmarksController = mockk(relaxed = true)
     private val pocketStoriesController: PocketStoriesController = mockk(relaxed = true)
     private val recentVisitsController: RecentVisitsController = mockk(relaxed = true)
-    private val learnAndActController: LearnAndActController = mockk(relaxed = true)
 
     private lateinit var interactor: SessionControlInteractor
 
@@ -39,10 +37,10 @@ class RecentVisitsInteractorTest {
         interactor = SessionControlInteractor(
             defaultSessionControlController,
             recentTabController,
+            recentSyncedTabController,
             recentBookmarksController,
             recentVisitsController,
             pocketStoriesController,
-            learnAndActController
         )
     }
 
@@ -59,9 +57,9 @@ class RecentVisitsInteractorTest {
                         updatedAt = System.currentTimeMillis(),
                         totalViewTime = 10,
                         documentType = DocumentType.Regular,
-                        previewImageUrl = null
-                    )
-                )
+                        previewImageUrl = null,
+                    ),
+                ),
             )
 
         interactor.onRecentHistoryGroupClicked(historyGroup)
@@ -81,7 +79,7 @@ class RecentVisitsInteractorTest {
         val historyMetadataKey = HistoryMetadataKey(
             "http://www.mozilla.com",
             "mozilla",
-            null
+            null,
         )
 
         val historyGroup =
@@ -95,9 +93,9 @@ class RecentVisitsInteractorTest {
                         updatedAt = System.currentTimeMillis(),
                         totalViewTime = 10,
                         documentType = DocumentType.Regular,
-                        previewImageUrl = null
-                    )
-                )
+                        previewImageUrl = null,
+                    ),
+                ),
             )
 
         interactor.onRemoveRecentHistoryGroup(historyGroup.title)
@@ -121,5 +119,12 @@ class RecentVisitsInteractorTest {
         interactor.onRemoveRecentHistoryHighlight("url")
 
         verify { recentVisitsController.handleRemoveRecentHistoryHighlight("url") }
+    }
+
+    @Test
+    fun onRecentVisitLongClicked() {
+        interactor.onRecentVisitLongClicked()
+
+        verify { recentVisitsController.handleRecentVisitLongClicked() }
     }
 }

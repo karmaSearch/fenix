@@ -20,15 +20,15 @@ import io.mockk.mockkStatic
 import io.mockk.spyk
 import io.mockk.verify
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.test.TestCoroutineDispatcher
-import kotlinx.coroutines.test.runBlockingTest
 import mozilla.components.feature.share.RecentApp
 import mozilla.components.feature.share.RecentAppsStorage
 import mozilla.components.service.fxa.manager.FxaAccountManager
 import mozilla.components.support.test.robolectric.testContext
-import org.junit.After
+import mozilla.components.support.test.rule.MainCoroutineRule
+import mozilla.components.support.test.rule.runTestOnMain
 import org.junit.Assert.assertEquals
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mozilla.fenix.ext.application
@@ -44,8 +44,11 @@ import org.robolectric.shadows.ShadowLooper
 @RunWith(FenixRobolectricTestRunner::class)
 class ShareViewModelTest {
 
+    @get:Rule
+    val coroutinesTestRule = MainCoroutineRule()
+    private val testIoDispatcher = coroutinesTestRule.testDispatcher
+
     private val packageName = "org.mozilla.fenix"
-    private val testIoDispatcher = TestCoroutineDispatcher()
     private lateinit var application: Application
     private lateinit var packageManager: PackageManager
     private lateinit var connectivityManager: ConnectivityManager
@@ -71,13 +74,8 @@ class ShareViewModelTest {
         viewModel = spyk(
             ShareViewModel(application).apply {
                 this.ioDispatcher = testIoDispatcher
-            }
+            },
         )
-    }
-
-    @After
-    fun cleanUp() {
-        testIoDispatcher.cleanupTestCoroutines()
     }
 
     @Test
@@ -87,9 +85,9 @@ class ShareViewModelTest {
     }
 
     @Test
-    fun `loadDevicesAndApps`() = runBlockingTest {
+    fun `loadDevicesAndApps`() = runTestOnMain {
         val appOptions = listOf(
-            AppShareOption("Label", mockk(), "Package", "Activity")
+            AppShareOption("Label", mockk(), "Package", "Activity"),
         )
 
         val appEntity = mockk<RecentApp>()
@@ -107,7 +105,7 @@ class ShareViewModelTest {
         verify {
             connectivityManager.registerNetworkCallback(
                 any(),
-                any<ConnectivityManager.NetworkCallback>()
+                any<ConnectivityManager.NetworkCallback>(),
             )
         }
 
@@ -125,19 +123,48 @@ class ShareViewModelTest {
         val info = listOf(
             createResolveInfo("App 0", icon1, "package 0", "activity 0"),
             createResolveInfo("Self", mockk(), packageName, "activity self"),
-            createResolveInfo("App 1", icon2, "package 1", "activity 1")
+            createResolveInfo("App 1", icon2, "package 1", "activity 1"),
         )
         val apps = listOf(
             AppShareOption("App 0", icon1, "package 0", "activity 0"),
-            AppShareOption("App 1", icon2, "package 1", "activity 1")
+            AppShareOption("App 1", icon2, "package 1", "activity 1"),
         )
         assertEquals(apps, viewModel.buildAppsList(info, application))
     }
 
     @Test
-    fun `GIVEN only one app THEN show copy to clipboard before the app`() = runBlockingTest {
+    fun `buildDevicesList returns offline option`() {
+        every { connectivityManager.isOnline() } returns false
+        assertEquals(listOf(SyncShareOption.Offline), viewModel.buildDeviceList(fxaAccountManager))
+
+        every { connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork) } returns null
+        assertEquals(listOf(SyncShareOption.Offline), viewModel.buildDeviceList(fxaAccountManager))
+    }
+
+    @Test
+    fun `buildDevicesList returns sign-in option`() {
+        every { connectivityManager.isOnline() } returns true
+        every { fxaAccountManager.authenticatedAccount() } returns null
+
+        assertEquals(listOf(SyncShareOption.SignIn), viewModel.buildDeviceList(fxaAccountManager))
+    }
+
+    @Test
+    fun `buildDevicesList returns reconnect option`() {
+        every { connectivityManager.isOnline() } returns true
+        every { fxaAccountManager.authenticatedAccount() } returns mockk()
+        every { fxaAccountManager.accountNeedsReauth() } returns true
+
+        assertEquals(
+            listOf(SyncShareOption.Reconnect),
+            viewModel.buildDeviceList(fxaAccountManager),
+        )
+    }
+
+    @Test
+    fun `GIVEN only one app THEN show copy to clipboard before the app`() = runTestOnMain {
         val appOptions = listOf(
-            AppShareOption("Label", mockk(), "Package", "Activity")
+            AppShareOption("Label", mockk(), "Package", "Activity"),
         )
 
         val appEntity = mockk<RecentApp>()
@@ -157,7 +184,7 @@ class ShareViewModelTest {
     }
 
     @Test
-    fun `WHEN no app THEN at least have copy to clipboard as app`() = runBlockingTest {
+    fun `WHEN no app THEN at least have copy to clipboard as app`() = runTestOnMain {
         val appEntity = mockk<RecentApp>()
         every { appEntity.activityName } returns "Activity"
         every { storage.getRecentAppsUpTo(RECENT_APPS_LIMIT) } returns emptyList()
@@ -177,7 +204,7 @@ class ShareViewModelTest {
         label: String,
         icon: Drawable,
         packageName: String,
-        name: String
+        name: String,
     ): ResolveInfo {
         val info = ResolveInfo().apply {
             activityInfo = ActivityInfo()

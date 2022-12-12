@@ -17,7 +17,7 @@ import org.mozilla.fenix.utils.Settings
  */
 class TrackingProtectionPolicyFactory(
     private val settings: Settings,
-    private val resources: Resources
+    private val resources: Resources,
 ) {
 
     /**
@@ -32,7 +32,7 @@ class TrackingProtectionPolicyFactory(
     @Suppress("ComplexMethod")
     fun createTrackingProtectionPolicy(
         normalMode: Boolean = settings.shouldUseTrackingProtection,
-        privateMode: Boolean = settings.shouldUseTrackingProtection
+        privateMode: Boolean = settings.shouldUseTrackingProtection,
     ): TrackingProtectionPolicy {
         val trackingProtectionPolicy =
             when {
@@ -42,9 +42,9 @@ class TrackingProtectionPolicyFactory(
             }
 
         return when {
-            normalMode && privateMode -> trackingProtectionPolicy.adaptPolicyToChannel()
-            normalMode && !privateMode -> trackingProtectionPolicy.adaptPolicyToChannel().forRegularSessionsOnly()
-            !normalMode && privateMode -> trackingProtectionPolicy.adaptPolicyToChannel().forPrivateSessionsOnly()
+            normalMode && privateMode -> trackingProtectionPolicy.applyTCPIfNeeded(settings)
+            normalMode && !privateMode -> trackingProtectionPolicy.applyTCPIfNeeded(settings).forRegularSessionsOnly()
+            !normalMode && privateMode -> trackingProtectionPolicy.applyTCPIfNeeded(settings).forPrivateSessionsOnly()
             else -> TrackingProtectionPolicy.none()
         }
     }
@@ -53,7 +53,7 @@ class TrackingProtectionPolicyFactory(
         return TrackingProtectionPolicy.select(
             cookiePolicy = getCustomCookiePolicy(),
             trackingCategories = getCustomTrackingCategories(),
-            cookiePurging = getCustomCookiePurgingPolicy()
+            cookiePurging = getCustomCookiePurgingPolicy(),
         ).let {
             if (settings.blockTrackingContentSelectionInCustomTrackingProtection == "private") {
                 it.forPrivateSessionsOnly()
@@ -72,6 +72,7 @@ class TrackingProtectionPolicyFactory(
                 resources.getString(R.string.social) -> CookiePolicy.ACCEPT_NON_TRACKERS
                 resources.getString(R.string.unvisited) -> CookiePolicy.ACCEPT_VISITED
                 resources.getString(R.string.third_party) -> CookiePolicy.ACCEPT_ONLY_FIRST_PARTY
+                resources.getString(R.string.total_protection) -> CookiePolicy.ACCEPT_FIRST_PARTY_AND_ISOLATE_OTHERS
                 else -> CookiePolicy.ACCEPT_NONE
             }
         }
@@ -82,7 +83,7 @@ class TrackingProtectionPolicyFactory(
             TrackingProtectionPolicy.TrackingCategory.AD,
             TrackingProtectionPolicy.TrackingCategory.ANALYTICS,
             TrackingProtectionPolicy.TrackingCategory.SOCIAL,
-            TrackingProtectionPolicy.TrackingCategory.MOZILLA_SOCIAL
+            TrackingProtectionPolicy.TrackingCategory.MOZILLA_SOCIAL,
         )
 
         if (settings.blockTrackingContentInCustomTrackingProtection) {
@@ -106,11 +107,18 @@ class TrackingProtectionPolicyFactory(
 }
 
 @VisibleForTesting
-internal fun TrackingProtectionPolicyForSessionTypes.adaptPolicyToChannel(): TrackingProtectionPolicyForSessionTypes {
+internal fun TrackingProtectionPolicyForSessionTypes.applyTCPIfNeeded(settings: Settings):
+    TrackingProtectionPolicyForSessionTypes {
+    val updatedCookiePolicy = if (settings.enabledTotalCookieProtection) {
+        CookiePolicy.ACCEPT_FIRST_PARTY_AND_ISOLATE_OTHERS
+    } else {
+        cookiePolicy
+    }
+
     return TrackingProtectionPolicy.select(
         trackingCategories = trackingCategories,
-        cookiePolicy = cookiePolicy,
+        cookiePolicy = updatedCookiePolicy,
         strictSocialTrackingProtection = strictSocialTrackingProtection,
-        cookiePurging = cookiePurging
+        cookiePurging = cookiePurging,
     )
 }

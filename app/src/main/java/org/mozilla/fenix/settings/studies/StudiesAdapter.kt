@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.ListAdapter
 import com.google.android.material.button.MaterialButton
 import org.mozilla.experiments.nimbus.internal.EnrolledExperiment
 import org.mozilla.fenix.R
+import org.mozilla.fenix.gleanplumb.MESSAGING_FEATURE_ID
 import org.mozilla.fenix.settings.studies.CustomViewHolder.SectionViewHolder
 import org.mozilla.fenix.settings.studies.CustomViewHolder.StudyViewHolder
 
@@ -42,8 +43,7 @@ private const val VIEW_HOLDER_TYPE_STUDY = 1
 class StudiesAdapter(
     private val studiesDelegate: StudiesAdapterDelegate,
     studies: List<EnrolledExperiment>,
-    @VisibleForTesting
-    internal val shouldSubmitOnInit: Boolean = true
+    private val shouldSubmitOnInit: Boolean = true,
 ) : ListAdapter<Any, CustomViewHolder>(DifferCallback) {
     /**
      * Represents all the studies that will be distributed in multiple headers like
@@ -87,7 +87,7 @@ class StudiesAdapter(
             view,
             titleView,
             summaryView,
-            removeButton
+            removeButton,
         )
     }
 
@@ -128,13 +128,13 @@ class StudiesAdapter(
     internal fun showDeleteDialog(context: Context, study: EnrolledExperiment): AlertDialog {
         val builder = AlertDialog.Builder(context)
             .setPositiveButton(
-                R.string.studies_restart_dialog_ok
+                R.string.studies_restart_dialog_ok,
             ) { dialog, _ ->
                 studiesDelegate.onRemoveButtonClicked(study)
                 dialog.dismiss()
             }
             .setNegativeButton(
-                R.string.studies_restart_dialog_cancel
+                R.string.studies_restart_dialog_cancel,
             ) { dialog: DialogInterface, _ ->
                 dialog.dismiss()
             }
@@ -150,7 +150,7 @@ class StudiesAdapter(
         val itemsWithSections = ArrayList<Any>()
         val activeStudies = ArrayList<EnrolledExperiment>()
 
-        activeStudies.addAll(studies)
+        activeStudies.addAll(filterStudies(studies))
 
         if (activeStudies.isNotEmpty()) {
             itemsWithSections.add(Section(R.string.studies_active, true))
@@ -159,6 +159,14 @@ class StudiesAdapter(
 
         return itemsWithSections
     }
+
+    /**
+     * Filter out studies which only affect the messaging feature.
+     */
+    private fun filterStudies(studies: List<EnrolledExperiment>) =
+        studies.filterNot {
+            it.featureIds.size == 1 && it.featureIds.contains(MESSAGING_FEATURE_ID)
+        }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     internal data class Section(@StringRes val title: Int, val visibleDivider: Boolean = true)

@@ -21,7 +21,7 @@ import androidx.core.view.isVisible
 import mozilla.components.browser.state.selector.findTabOrCustomTab
 import mozilla.components.browser.state.state.TabSessionState
 import mozilla.components.browser.state.store.BrowserStore
-import mozilla.components.browser.tabstray.TabViewHolder
+import mozilla.components.browser.tabstray.SelectableTabViewHolder
 import mozilla.components.browser.tabstray.TabsTray
 import mozilla.components.browser.tabstray.TabsTrayStyling
 import mozilla.components.browser.tabstray.thumbnail.TabThumbnailView
@@ -31,21 +31,17 @@ import mozilla.components.concept.base.images.ImageLoader
 import mozilla.components.concept.engine.mediasession.MediaSession
 import mozilla.telemetry.glean.private.NoExtras
 import org.mozilla.fenix.FeatureFlags
-import org.mozilla.fenix.GleanMetrics.Collections
+import org.mozilla.fenix.GleanMetrics.Tab
 import org.mozilla.fenix.R
-import org.mozilla.fenix.components.metrics.Event
-import org.mozilla.fenix.components.metrics.MetricController
 import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.ext.increaseTapArea
 import org.mozilla.fenix.ext.removeAndDisable
 import org.mozilla.fenix.ext.removeTouchDelegate
-import org.mozilla.fenix.ext.settings
 import org.mozilla.fenix.ext.showAndEnable
 import org.mozilla.fenix.ext.toShortUrl
 import org.mozilla.fenix.selection.SelectionHolder
 import org.mozilla.fenix.tabstray.TabsTrayState
 import org.mozilla.fenix.tabstray.TabsTrayStore
-import org.mozilla.fenix.tabstray.ext.isSelect
 
 /**
  * A RecyclerView ViewHolder implementation for "tab" items.
@@ -55,7 +51,6 @@ import org.mozilla.fenix.tabstray.ext.isSelect
  * @param trayStore [TabsTrayStore] containing the complete state of tabs tray and methods to update that.
  * @param featureName [String] representing the name of the feature displaying tabs. Used in telemetry reporting.
  * @param store [BrowserStore] containing the complete state of the browser and methods to update that.
- * @param metrics [MetricController] used for handling telemetry events.
  */
 @Suppress("LongParameterList")
 abstract class AbstractBrowserTabViewHolder(
@@ -63,11 +58,9 @@ abstract class AbstractBrowserTabViewHolder(
     private val imageLoader: ImageLoader,
     private val trayStore: TabsTrayStore,
     private val selectionHolder: SelectionHolder<TabSessionState>?,
-    @VisibleForTesting
     internal val featureName: String,
     private val store: BrowserStore = itemView.context.components.core.store,
-    private val metrics: MetricController = itemView.context.components.analytics.metrics
-) : TabViewHolder(itemView) {
+) : SelectableTabViewHolder(itemView) {
 
     private val faviconView: ImageView? =
         itemView.findViewById(R.id.mozac_browser_tabstray_favicon_icon)
@@ -97,7 +90,7 @@ abstract class AbstractBrowserTabViewHolder(
         tab: TabSessionState,
         isSelected: Boolean,
         styling: TabsTrayStyling,
-        delegate: TabsTray.Delegate
+        delegate: TabsTray.Delegate,
     ) {
         this.tab = tab
         beingDragged = false
@@ -112,7 +105,9 @@ abstract class AbstractBrowserTabViewHolder(
         if (selectionHolder != null) {
             setSelectionInteractor(tab, selectionHolder, browserTrayInteractor)
         } else {
-            itemView.setOnClickListener { browserTrayInteractor.onTabSelected(tab, featureName) }
+            itemView.setOnClickListener {
+                browserTrayInteractor.onTabSelected(tab, featureName)
+            }
         }
 
         if (tab.content.thumbnail != null) {
@@ -122,7 +117,7 @@ abstract class AbstractBrowserTabViewHolder(
         }
     }
 
-    fun showTabIsMultiSelectEnabled(selectedMaskView: View?, isSelected: Boolean) {
+    override fun showTabIsMultiSelectEnabled(selectedMaskView: View?, isSelected: Boolean) {
         selectedMaskView?.isVisible = isSelected
         closeView.isInvisible = trayStore.state.mode is TabsTrayState.Mode.Select
     }
@@ -172,7 +167,7 @@ abstract class AbstractBrowserTabViewHolder(
                     contentDescription =
                         context.getString(R.string.mozac_feature_media_notification_action_play)
                     setImageDrawable(
-                        AppCompatResources.getDrawable(context, R.drawable.media_state_play)
+                        AppCompatResources.getDrawable(context, R.drawable.media_state_play),
                     )
                 }
 
@@ -181,7 +176,7 @@ abstract class AbstractBrowserTabViewHolder(
                     contentDescription =
                         context.getString(R.string.mozac_feature_media_notification_action_pause)
                     setImageDrawable(
-                        AppCompatResources.getDrawable(context, R.drawable.media_state_pause)
+                        AppCompatResources.getDrawable(context, R.drawable.media_state_pause),
                     )
                 }
 
@@ -194,16 +189,16 @@ abstract class AbstractBrowserTabViewHolder(
             setOnClickListener {
                 when (sessionState?.mediaSessionState?.playbackState) {
                     MediaSession.PlaybackState.PLAYING -> {
-                        metrics.track(Event.TabMediaPause)
+                        Tab.mediaPause.record(NoExtras())
                         sessionState.mediaSessionState?.controller?.pause()
                     }
 
                     MediaSession.PlaybackState.PAUSED -> {
-                        metrics.track(Event.TabMediaPlay)
+                        Tab.mediaPlay.record(NoExtras())
                         sessionState.mediaSessionState?.controller?.play()
                     }
                     else -> throw AssertionError(
-                        "Play/Pause button clicked without play/pause state."
+                        "Play/Pause button clicked without play/pause state.",
                     )
                 }
             }
@@ -217,27 +212,14 @@ abstract class AbstractBrowserTabViewHolder(
     private fun setSelectionInteractor(
         item: TabSessionState,
         holder: SelectionHolder<TabSessionState>,
-        interactor: BrowserTrayInteractor
+        interactor: BrowserTrayInteractor,
     ) {
         itemView.setOnClickListener {
-            val selected = holder.selectedItems
-            when {
-                selected.isEmpty() && trayStore.state.mode.isSelect().not() -> {
-                    interactor.onTabSelected(item, featureName)
-                }
-                item.id in selected.map { item -> item.id } -> interactor.deselect(item)
-                else -> interactor.select(item)
-            }
+            interactor.onMultiSelectClicked(item, holder, featureName)
         }
 
         itemView.setOnLongClickListener {
-            if (holder.selectedItems.isEmpty()) {
-                Collections.longPress.record(NoExtras())
-                interactor.select(item)
-                true
-            } else {
-                false
-            }
+            interactor.onLongClicked(item, holder)
         }
         setDragInteractor(item, holder, interactor)
     }
@@ -246,7 +228,7 @@ abstract class AbstractBrowserTabViewHolder(
     private fun setDragInteractor(
         item: TabSessionState,
         holder: SelectionHolder<TabSessionState>,
-        interactor: BrowserTrayInteractor
+        interactor: BrowserTrayInteractor,
     ) {
         // Since I immediately pass the event to onTouchEvent if it's not a move
         // The ClickableViewAccessibility warning isn't useful
@@ -262,11 +244,8 @@ abstract class AbstractBrowserTabViewHolder(
                     val touchStart = touchStartPoint
                     val selected = holder.selectedItems
                     val selectsOnlyThis = (selected.size == 1 && selected.contains(item))
-                    val featureEnabled = FeatureFlags.tabReorderingFeature &&
-                        !itemView.context.settings().searchTermTabGroupsAreEnabled
-                    if (featureEnabled && selectsOnlyThis && touchStart != null) {
-                        // In a tab group, we do not use a AbstractBrowserTrayList as the parent,
-                        // so we should return early and mark the event as unhandled (return false).
+                    if (FeatureFlags.tabReorderingFeature && selectsOnlyThis && touchStart != null) {
+                        // If the parent is null then return early and mark the event as unhandled
                         val parent = itemView.parent as? AbstractBrowserTrayList ?: return@setOnTouchListener false
 
                         // Prevent scrolling if the user tries to start drag vertically

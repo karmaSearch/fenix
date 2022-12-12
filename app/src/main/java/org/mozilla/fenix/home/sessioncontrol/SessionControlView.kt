@@ -7,26 +7,27 @@ package org.mozilla.fenix.home.sessioncontrol
 import android.view.View
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LifecycleOwner
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import karma.service.learnandact.LearnAndAct
 import mozilla.components.concept.storage.BookmarkNode
 import mozilla.components.feature.tab.collections.TabCollection
 import mozilla.components.feature.top.sites.TopSite
-import mozilla.components.service.pocket.PocketRecommendedStory
-import org.mozilla.fenix.components.AppStore
+import mozilla.components.service.pocket.PocketStory
+import org.mozilla.fenix.components.appstate.AppAction
 import org.mozilla.fenix.components.appstate.AppState
 import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.ext.settings
+import org.mozilla.fenix.ext.shouldShowRecentSyncedTabs
+import org.mozilla.fenix.ext.shouldShowRecentTabs
+import org.mozilla.fenix.gleanplumb.Message
 import org.mozilla.fenix.home.Mode
 import org.mozilla.fenix.home.OnboardingState
 import org.mozilla.fenix.home.onboarding.CompanionOnBoardingDialog
 import org.mozilla.fenix.home.onboarding.TopSiteOnBoardingDialog
 import org.mozilla.fenix.home.recentbookmarks.RecentBookmark
-import org.mozilla.fenix.home.recenttabs.RecentTab
 import org.mozilla.fenix.home.recentvisits.RecentlyVisitedItem
-import org.mozilla.fenix.onboarding.JumpBackInCFRDialog
+import org.mozilla.fenix.onboarding.HomeCFRPresenter
 import org.mozilla.fenix.utils.Settings
 
 
@@ -41,36 +42,45 @@ internal fun normalModeAdapterItems(
     expandedCollections: Set<Long>,
     recentBookmarks: List<RecentBookmark>,
     showCollectionsPlaceholder: Boolean,
-    showSetAsDefaultBrowserCard: Boolean,
-    recentTabs: List<RecentTab>,
+    nimbusMessageCard: Message? = null,
+    showRecentTab: Boolean,
+    showRecentSyncedTab: Boolean,
     recentVisits: List<RecentlyVisitedItem>,
-    pocketStories: List<PocketRecommendedStory>,
+    pocketStories: List<PocketStory>,
+    firstFrameDrawn: Boolean = false,
     learnAndAct: List<LearnAndAct>
 ): List<AdapterItem> {
     val items = mutableListOf<AdapterItem>()
+    var shouldShowCustomizeHome = false
 
     // Add a synchronous, unconditional and invisible placeholder so home is anchored to the top when created.
     items.add(AdapterItem.TopPlaceholderItem)
 
-    if (showSetAsDefaultBrowserCard) {
-        items.add(AdapterItem.ExperimentDefaultBrowserCard)
+    nimbusMessageCard?.let {
+        items.add(AdapterItem.NimbusMessageCard(it))
     }
 
     if (settings.showTopSitesFeature && topSites.isNotEmpty()) {
         items.add(AdapterItem.TopSitePager(topSites))
     }
 
-    if (settings.showRecentTabsFeature && recentTabs.isNotEmpty()) {
+    if (showRecentTab) {
+        shouldShowCustomizeHome = true
         items.add(AdapterItem.RecentTabsHeader)
         items.add(AdapterItem.RecentTabItem)
+        if (showRecentSyncedTab) {
+            items.add(AdapterItem.RecentSyncedTabItem)
+        }
     }
 
     if (settings.showRecentBookmarksFeature && recentBookmarks.isNotEmpty()) {
+        shouldShowCustomizeHome = true
         items.add(AdapterItem.RecentBookmarksHeader)
         items.add(AdapterItem.RecentBookmarks)
     }
 
     if (settings.historyMetadataUIFeature && recentVisits.isNotEmpty()) {
+        shouldShowCustomizeHome = true
         items.add(AdapterItem.RecentVisitsHeader)
         items.add(AdapterItem.RecentVisitsItems)
     }
@@ -83,14 +93,25 @@ internal fun normalModeAdapterItems(
         showCollections(collections, expandedCollections, items)
     }
 
-    if (settings.showPocketRecommendationsFeature && pocketStories.isNotEmpty()) {
+    // When Pocket is enabled and the initial layout of the app is done, then we can add these items
+    // to render to the home screen.
+    // This is only useful while we have a RecyclerView + Compose implementation. We can remove this
+    // when we switch to a Compose-only home screen.
+    if (firstFrameDrawn && settings.showPocketRecommendationsFeature && pocketStories.isNotEmpty()) {
+        shouldShowCustomizeHome = true
         items.add(AdapterItem.PocketStoriesItem)
         items.add(AdapterItem.PocketCategoriesItem)
         items.add(AdapterItem.PocketRecommendationsFooterItem)
     }
 
     if(learnAndAct.isNotEmpty()) {
-        items.add(AdapterItem.LearnAndActItem)
+        items.add(AdapterItem.LearnAndActHeader)
+        learnAndAct.forEach {
+            items.add(AdapterItem.LearnAndActItem(it))
+        }
+    }
+    if (shouldShowCustomizeHome) {
+        items.add(AdapterItem.CustomizeHomeButton)
     }
 
     items.add(AdapterItem.CustomizeHomeButton)
@@ -103,7 +124,7 @@ internal fun normalModeAdapterItems(
 private fun showCollections(
     collections: List<TabCollection>,
     expandedCollections: Set<Long>,
-    items: MutableList<AdapterItem>
+    items: MutableList<AdapterItem>,
 ) {
     // If the collection is expanded, we want to add all of its tabs beneath it in the adapter
     items.add(AdapterItem.CollectionHeader)
@@ -126,27 +147,27 @@ private fun onboardingAdapterItems(onboardingState: OnboardingState): List<Adapt
         listOf(
             AdapterItem.OnboardingThemePicker,
             AdapterItem.OnboardingToolbarPositionPicker,
-            AdapterItem.OnboardingTrackingProtection
-        )
+        ),
     )
     // Customize FxA items based on where we are with the account state:
     items.addAll(
         when (onboardingState) {
             OnboardingState.SignedOutNoAutoSignIn -> {
                 listOf(
-                    AdapterItem.OnboardingManualSignIn
+                    AdapterItem.OnboardingManualSignIn,
                 )
             }
             OnboardingState.SignedIn -> listOf()
-        }
+        },
     )
 
     items.addAll(
         listOf(
+            AdapterItem.OnboardingTrackingProtection,
             AdapterItem.OnboardingPrivacyNotice,
             AdapterItem.OnboardingFinish,
-            AdapterItem.BottomSpacer
-        )
+            AdapterItem.BottomSpacer,
+        ),
     )
 
     return items
@@ -160,21 +181,16 @@ private fun AppState.toAdapterList(settings: Settings): List<AdapterItem> = when
         expandedCollections,
         recentBookmarks,
         showCollectionPlaceholder,
-        showSetAsDefaultBrowserCard,
-        recentTabs,
+        messaging.messageToShow,
+        shouldShowRecentTabs(settings),
+        shouldShowRecentSyncedTabs(settings),
         recentHistory,
         pocketStories,
+        firstFrameDrawn,
         learnAndAct
     )
     is Mode.Private -> privateModeAdapterItems()
     is Mode.Onboarding -> onboardingAdapterItems(mode.state)
-}
-
-@VisibleForTesting
-internal fun AppState.shouldShowHomeOnboardingDialog(settings: Settings): Boolean {
-    val isAnySectionsVisible = recentTabs.isNotEmpty() || recentBookmarks.isNotEmpty() ||
-        recentHistory.isNotEmpty() || pocketStories.isNotEmpty()
-    return isAnySectionsVisible && !settings.hasShownHomeOnboardingDialog
 }
 
 private fun collectionTabItems(collection: TabCollection) =
@@ -182,62 +198,77 @@ private fun collectionTabItems(collection: TabCollection) =
         AdapterItem.TabInCollectionItem(collection, tab, index == collection.tabs.lastIndex)
     }
 
+/**
+ * Shows a list of Home screen views.
+ *
+ * @param containerView The [View] that is used to initialize the Home recycler view.
+ * @param viewLifecycleOwner [LifecycleOwner] for the view.
+ * @property interactor [SessionControlInteractor] which will have delegated to all user
+ * interactions.
+ */
 class SessionControlView(
-    store: AppStore,
-    val containerView: View,
+    containerView: View,
     val searchBarView: View,
     viewLifecycleOwner: LifecycleOwner,
-    internal val interactor: SessionControlInteractor
+    private val interactor: SessionControlInteractor,
 ) {
 
     val view: RecyclerView = containerView as RecyclerView
 
-    private var companionIsShowing: Boolean = false
+    // We want to limit feature recommendations to one per HomePage visit.
+    var featureRecommended = false
 
     private val sessionControlAdapter = SessionControlAdapter(
-        store,
         interactor,
         viewLifecycleOwner,
-        containerView.context.components
+        containerView.context.components,
     )
 
     init {
+        @Suppress("NestedBlockDepth")
         view.apply {
             adapter = sessionControlAdapter
             layoutManager = object : LinearLayoutManager(containerView.context) {
                 override fun onLayoutCompleted(state: RecyclerView.State?) {
                     super.onLayoutCompleted(state)
 
-                    val companion = CompanionOnBoardingDialog(searchBarView, view)
+                    if (!featureRecommended && !context.settings().showHomeOnboardingDialog) {
+                        if (!context.settings().showHomeOnboardingDialog && (
+                            context.settings().showSyncCFR ||
+                                context.settings().shouldShowJumpBackInCFR
+                            )
+                        ) {
+                            featureRecommended = HomeCFRPresenter(
+                                context = context,
+                                recyclerView = view,
+                                searchBar = searchBarView
+                            ).show()
+                        }
 
-                    //prevent 2 dialog is same time
-                    if (!companionIsShowing) {
-                        companion.showIfNeeded()
-                        companionIsShowing = companion.isShowing
-
-                        if (!companionIsShowing) {
-                            JumpBackInCFRDialog(view).showIfNeeded()
-                            TopSiteOnBoardingDialog(view).showIfNeeded()
+                        if (!context.settings().shouldShowJumpBackInCFR &&
+                            context.settings().showWallpaperOnboarding &&
+                            !featureRecommended
+                        ) {
+                            featureRecommended = interactor.showWallpapersOnboardingDialog(
+                                context.components.appStore.state.wallpaperState,
+                            )
                         }
                     }
 
+                    // We want some parts of the home screen UI to be rendered first if they are
+                    // the most prominent parts of the visible part of the screen.
+                    // For this reason, we wait for the home screen recycler view to finish it's
+                    // layout and post an update for when it's best for non-visible parts of the
+                    // home screen to render itself.
+                    containerView.context.components.appStore.dispatch(
+                        AppAction.UpdateFirstFrameDrawn(true),
+                    )
                 }
             }
-            val itemTouchHelper =
-                ItemTouchHelper(
-                    SwipeToDeleteCallback(
-                        interactor
-                    )
-                )
-            itemTouchHelper.attachToRecyclerView(this)
         }
     }
 
     fun update(state: AppState, shouldReportMetrics: Boolean = false) {
-        if (state.shouldShowHomeOnboardingDialog(view.context.settings())) {
-            interactor.showOnboardingDialog()
-        }
-
         if (shouldReportMetrics) interactor.reportSessionMetrics(state)
 
         sessionControlAdapter.submitList(state.toAdapterList(view.context.settings()))

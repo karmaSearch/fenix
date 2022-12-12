@@ -4,13 +4,29 @@
 
 package org.mozilla.fenix.helpers
 
+import androidx.test.espresso.IdlingResourceTimeoutException
+import androidx.test.espresso.NoMatchingViewException
+import androidx.test.uiautomator.UiObjectNotFoundException
+import junit.framework.AssertionFailedError
+import kotlinx.coroutines.runBlocking
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
-import java.lang.AssertionError
+import org.mozilla.fenix.components.PermissionStorage
+import org.mozilla.fenix.helpers.IdlingResourceHelper.unregisterAllIdlingResources
+import org.mozilla.fenix.helpers.TestHelper.appContext
 
+/**
+ *  Rule to retry flaky tests for a given number of times, catching some of the more common exceptions.
+ *  The Rule doesn't clear the app state in between retries, so we are doing some cleanup here.
+ *  The @Before and @After methods are not called between retries.
+ *
+ */
 class RetryTestRule(private val retryCount: Int = 5) : TestRule {
+    // Used for clearing all permission data after each test try
+    private val permissionStorage = PermissionStorage(appContext.applicationContext)
 
+    @Suppress("TooGenericExceptionCaught", "ComplexMethod")
     override fun apply(base: Statement, description: Description): Statement {
         return statement {
             for (i in 1..retryCount) {
@@ -18,6 +34,58 @@ class RetryTestRule(private val retryCount: Int = 5) : TestRule {
                     base.evaluate()
                     break
                 } catch (t: AssertionError) {
+                    unregisterAllIdlingResources()
+                    runBlocking {
+                        permissionStorage.deleteAllSitePermissions()
+                    }
+                    if (i == retryCount) {
+                        throw t
+                    }
+                } catch (t: AssertionFailedError) {
+                    unregisterAllIdlingResources()
+                    runBlocking {
+                        permissionStorage.deleteAllSitePermissions()
+                    }
+                    if (i == retryCount) {
+                        throw t
+                    }
+                } catch (t: UiObjectNotFoundException) {
+                    unregisterAllIdlingResources()
+                    runBlocking {
+                        permissionStorage.deleteAllSitePermissions()
+                    }
+                    if (i == retryCount) {
+                        throw t
+                    }
+                } catch (t: NoMatchingViewException) {
+                    unregisterAllIdlingResources()
+                    runBlocking {
+                        permissionStorage.deleteAllSitePermissions()
+                    }
+                    if (i == retryCount) {
+                        throw t
+                    }
+                } catch (t: IdlingResourceTimeoutException) {
+                    unregisterAllIdlingResources()
+                    runBlocking {
+                        permissionStorage.deleteAllSitePermissions()
+                    }
+                    if (i == retryCount) {
+                        throw t
+                    }
+                } catch (t: RuntimeException) {
+                    unregisterAllIdlingResources()
+                    runBlocking {
+                        permissionStorage.deleteAllSitePermissions()
+                    }
+                    if (i == retryCount) {
+                        throw t
+                    }
+                } catch (t: NullPointerException) {
+                    unregisterAllIdlingResources()
+                    runBlocking {
+                        permissionStorage.deleteAllSitePermissions()
+                    }
                     if (i == retryCount) {
                         throw t
                     }

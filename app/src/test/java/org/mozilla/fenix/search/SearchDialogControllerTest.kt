@@ -8,14 +8,16 @@ import androidx.appcompat.app.AlertDialog
 import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import io.mockk.MockKAnnotations
+import io.mockk.Runs
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.spyk
 import io.mockk.unmockkObject
 import io.mockk.verify
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import mozilla.components.browser.state.action.BrowserAction
 import mozilla.components.browser.state.action.TabListAction
 import mozilla.components.browser.state.search.SearchEngine
@@ -29,40 +31,51 @@ import mozilla.components.support.test.middleware.CaptureActionsMiddleware
 import mozilla.components.support.test.robolectric.testContext
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mozilla.fenix.BrowserDirection
+import org.mozilla.fenix.GleanMetrics.Events
 import org.mozilla.fenix.GleanMetrics.SearchShortcuts
+import org.mozilla.fenix.GleanMetrics.UnifiedSearch
 import org.mozilla.fenix.HomeActivity
 import org.mozilla.fenix.R
-import org.mozilla.fenix.components.metrics.Event
-import org.mozilla.fenix.components.metrics.MetricController
+import org.mozilla.fenix.components.Core
 import org.mozilla.fenix.components.metrics.MetricsUtils
 import org.mozilla.fenix.helpers.FenixRobolectricTestRunner
 import org.mozilla.fenix.search.SearchDialogFragmentDirections.Companion.actionGlobalAddonsManagementFragment
 import org.mozilla.fenix.search.SearchDialogFragmentDirections.Companion.actionGlobalSearchEngineFragment
+import org.mozilla.fenix.search.toolbar.SearchSelectorMenu
 import org.mozilla.fenix.settings.SupportUtils
 import org.mozilla.fenix.utils.Settings
 
-@RunWith(FenixRobolectricTestRunner::class) // For gleanTestRule
+@RunWith(FenixRobolectricTestRunner::class) // for gleanTestRule
 class SearchDialogControllerTest {
 
-    @get:Rule
-    val gleanTestRule = GleanTestRule(testContext)
+    @MockK(relaxed = true)
+    private lateinit var activity: HomeActivity
 
-    @MockK(relaxed = true) private lateinit var activity: HomeActivity
-    @MockK(relaxed = true) private lateinit var store: SearchDialogFragmentStore
-    @MockK(relaxed = true) private lateinit var navController: NavController
+    @MockK(relaxed = true)
+    private lateinit var store: SearchDialogFragmentStore
+
+    @MockK(relaxed = true)
+    private lateinit var navController: NavController
+
     @MockK private lateinit var searchEngine: SearchEngine
-    @MockK(relaxed = true) private lateinit var metrics: MetricController
-    @MockK(relaxed = true) private lateinit var settings: Settings
+
+    @MockK(relaxed = true)
+    private lateinit var settings: Settings
 
     private lateinit var middleware: CaptureActionsMiddleware<BrowserState, BrowserAction>
     private lateinit var browserStore: BrowserStore
+
+    @get:Rule
+    val gleanTestRule = GleanTestRule(testContext)
 
     @Before
     fun setUp() {
@@ -70,14 +83,15 @@ class SearchDialogControllerTest {
         mockkObject(MetricsUtils)
         middleware = CaptureActionsMiddleware()
         browserStore = BrowserStore(
-            middleware = listOf(middleware)
+            middleware = listOf(middleware),
         )
         every { store.state.tabId } returns "test-tab-id"
         every { store.state.searchEngineSource.searchEngine } returns searchEngine
+        every { searchEngine.type } returns SearchEngine.Type.BUNDLED
         every { navController.currentDestination } returns mockk {
             every { id } returns R.id.searchDialogFragment
         }
-        every { MetricsUtils.createSearchEvent(searchEngine, browserStore, any()) } returns null
+        every { MetricsUtils.recordSearchMetrics(searchEngine, any(), any()) } just Runs
     }
 
     @After
@@ -88,6 +102,7 @@ class SearchDialogControllerTest {
     @Test
     fun handleUrlCommitted() {
         val url = "https://www.google.com/"
+        assertNull(Events.enteredUrl.testGetValue())
 
         createController().handleUrlCommitted(url)
 
@@ -96,10 +111,14 @@ class SearchDialogControllerTest {
                 searchTermOrURL = url,
                 newTab = false,
                 from = BrowserDirection.FromSearchDialog,
-                engine = searchEngine
+                engine = searchEngine,
             )
         }
-        verify { metrics.track(Event.EnteredUrl(false)) }
+
+        assertNotNull(Events.enteredUrl.testGetValue())
+        val snapshot = Events.enteredUrl.testGetValue()!!
+        assertEquals(1, snapshot.size)
+        assertEquals("false", snapshot.single().extra?.getValue("autocomplete"))
     }
 
     @Test
@@ -110,7 +129,7 @@ class SearchDialogControllerTest {
         createController(
             dismissDialog = {
                 dismissDialogInvoked = true
-            }
+            },
         ).handleUrlCommitted(url)
 
         assertTrue(dismissDialogInvoked)
@@ -127,9 +146,34 @@ class SearchDialogControllerTest {
                 searchTermOrURL = searchTerm,
                 newTab = false,
                 from = BrowserDirection.FromSearchDialog,
-                engine = searchEngine
+                engine = searchEngine,
             )
         }
+    }
+
+    @Test
+    fun `WHEN the search engine is added by the application THEN do not load URL`() {
+        every { searchEngine.type } returns SearchEngine.Type.APPLICATION
+
+        val searchTerm = "Firefox"
+        var dismissDialogInvoked = false
+
+        createController(
+            dismissDialog = {
+                dismissDialogInvoked = true
+            },
+        ).handleUrlCommitted(searchTerm)
+
+        verify(exactly = 0) {
+            activity.openToBrowserAndLoad(
+                searchTermOrURL = any(),
+                newTab = any(),
+                from = any(),
+                engine = any(),
+            )
+        }
+
+        assertFalse(dismissDialogInvoked)
     }
 
     @Test
@@ -157,6 +201,7 @@ class SearchDialogControllerTest {
     @Test
     fun handleMozillaUrlCommitted() {
         val url = "moz://a"
+        assertNull(Events.enteredUrl.testGetValue())
 
         createController().handleUrlCommitted(url)
 
@@ -165,19 +210,23 @@ class SearchDialogControllerTest {
                 searchTermOrURL = SupportUtils.getMozillaPageUrl(SupportUtils.MozillaPage.MANIFESTO),
                 newTab = false,
                 from = BrowserDirection.FromSearchDialog,
-                engine = searchEngine
+                engine = searchEngine,
             )
         }
-        verify { metrics.track(Event.EnteredUrl(false)) }
+
+        assertNotNull(Events.enteredUrl.testGetValue())
+        val snapshot = Events.enteredUrl.testGetValue()!!
+        assertEquals(1, snapshot.size)
+        assertEquals("false", snapshot.single().extra?.getValue("autocomplete"))
     }
 
     @Test
-    fun handleEditingCancelled() = runBlockingTest {
+    fun handleEditingCancelled() = runTest {
         var clearToolbarFocusInvoked = false
         createController(
             clearToolbarFocus = {
                 clearToolbarFocusInvoked = true
-            }
+            },
         ).handleEditingCancelled()
 
         assertTrue(clearToolbarFocusInvoked)
@@ -257,6 +306,7 @@ class SearchDialogControllerTest {
     fun handleUrlTapped() {
         val url = "https://www.google.com/"
         val flags = EngineSession.LoadUrlFlags.all()
+        assertNull(Events.enteredUrl.testGetValue())
 
         createController().handleUrlTapped(url, flags)
         createController().handleUrlTapped(url)
@@ -266,10 +316,15 @@ class SearchDialogControllerTest {
                 searchTermOrURL = url,
                 newTab = false,
                 from = BrowserDirection.FromSearchDialog,
-                flags = flags
+                flags = flags,
             )
         }
-        verify { metrics.track(Event.EnteredUrl(false)) }
+
+        assertNotNull(Events.enteredUrl.testGetValue())
+        val snapshot = Events.enteredUrl.testGetValue()!!
+        assertEquals(2, snapshot.size)
+        assertEquals("false", snapshot.first().extra?.getValue("autocomplete"))
+        assertEquals("false", snapshot[1].extra?.getValue("autocomplete"))
     }
 
     @Test
@@ -284,7 +339,7 @@ class SearchDialogControllerTest {
                 newTab = false,
                 from = BrowserDirection.FromSearchDialog,
                 engine = searchEngine,
-                forceSearch = true
+                forceSearch = true,
             )
         }
     }
@@ -297,19 +352,103 @@ class SearchDialogControllerTest {
         createController(
             focusToolbar = {
                 focusToolbarInvoked = true
-            }
+            },
         ).handleSearchShortcutEngineSelected(searchEngine)
 
         assertTrue(focusToolbarInvoked)
-        verify { store.dispatch(SearchFragmentAction.SearchShortcutEngineSelected(searchEngine)) }
+        verify { store.dispatch(SearchFragmentAction.SearchShortcutEngineSelected(searchEngine, settings)) }
 
-        assertTrue(SearchShortcuts.selected.testHasValue())
-        val recordedEvents = SearchShortcuts.selected.testGetValue()
+        assertNotNull(SearchShortcuts.selected.testGetValue())
+        val recordedEvents = SearchShortcuts.selected.testGetValue()!!
         assertEquals(1, recordedEvents.size)
         val eventExtra = recordedEvents.single().extra
         assertNotNull(eventExtra)
         assertTrue(eventExtra!!.containsKey("engine"))
         assertEquals(searchEngine.name, eventExtra["engine"])
+    }
+
+    @Test
+    fun `WHEN history search engine is selected THEN dispatch correct action`() {
+        val searchEngine: SearchEngine = mockk(relaxed = true)
+        every { searchEngine.type } returns SearchEngine.Type.APPLICATION
+        every { searchEngine.id } returns Core.HISTORY_SEARCH_ENGINE_ID
+        every { settings.showUnifiedSearchFeature } returns true
+
+        assertNull(UnifiedSearch.engineSelected.testGetValue())
+
+        var focusToolbarInvoked = false
+        createController(
+            focusToolbar = {
+                focusToolbarInvoked = true
+            },
+        ).handleSearchShortcutEngineSelected(searchEngine)
+
+        assertTrue(focusToolbarInvoked)
+        verify { store.dispatch(SearchFragmentAction.SearchHistoryEngineSelected(searchEngine)) }
+
+        assertNotNull(UnifiedSearch.engineSelected.testGetValue())
+        val recordedEvents = UnifiedSearch.engineSelected.testGetValue()!!
+        assertEquals(1, recordedEvents.size)
+        val eventExtra = recordedEvents.single().extra
+        assertNotNull(eventExtra)
+        assertTrue(eventExtra!!.containsKey("engine"))
+        assertEquals("history", eventExtra["engine"])
+    }
+
+    @Test
+    fun `WHEN bookmarks search engine is selected THEN dispatch correct action`() {
+        val searchEngine: SearchEngine = mockk(relaxed = true)
+        every { searchEngine.type } returns SearchEngine.Type.APPLICATION
+        every { searchEngine.id } returns Core.BOOKMARKS_SEARCH_ENGINE_ID
+        every { settings.showUnifiedSearchFeature } returns true
+
+        assertNull(UnifiedSearch.engineSelected.testGetValue())
+
+        var focusToolbarInvoked = false
+        createController(
+            focusToolbar = {
+                focusToolbarInvoked = true
+            },
+        ).handleSearchShortcutEngineSelected(searchEngine)
+
+        assertTrue(focusToolbarInvoked)
+        verify { store.dispatch(SearchFragmentAction.SearchBookmarksEngineSelected(searchEngine)) }
+
+        assertNotNull(UnifiedSearch.engineSelected.testGetValue())
+        val recordedEvents = UnifiedSearch.engineSelected.testGetValue()!!
+        assertEquals(1, recordedEvents.size)
+        val eventExtra = recordedEvents.single().extra
+        assertNotNull(eventExtra)
+        assertTrue(eventExtra!!.containsKey("engine"))
+        assertEquals("bookmarks", eventExtra["engine"])
+    }
+
+    @Test
+    fun `WHEN tabs search engine is selected THEN dispatch correct action`() {
+        val searchEngine: SearchEngine = mockk(relaxed = true)
+        every { searchEngine.type } returns SearchEngine.Type.APPLICATION
+        every { searchEngine.id } returns Core.TABS_SEARCH_ENGINE_ID
+        every { settings.showUnifiedSearchFeature } returns true
+
+        assertNull(UnifiedSearch.engineSelected.testGetValue())
+
+        var focusToolbarInvoked = false
+        createController(
+            focusToolbar = {
+                focusToolbarInvoked = true
+            },
+        ).handleSearchShortcutEngineSelected(searchEngine)
+
+        assertTrue(focusToolbarInvoked)
+        verify { store.dispatch(SearchFragmentAction.SearchTabsEngineSelected(searchEngine)) }
+
+        assertNotNull(UnifiedSearch.engineSelected.testGetValue())
+        val recordedEvents = UnifiedSearch.engineSelected.testGetValue()!!
+        assertEquals(1, recordedEvents.size)
+        val eventExtra = recordedEvents.single().extra
+        assertNotNull(eventExtra)
+        assertTrue(eventExtra!!.containsKey("engine"))
+        assertEquals("tabs", eventExtra["engine"])
     }
 
     @Test
@@ -376,11 +515,20 @@ class SearchDialogControllerTest {
         verify { dialogBuilder.show() }
     }
 
+    @Test
+    fun `GIVEN search settings menu item WHEN search selector menu item is tapped THEN show search engine settings`() {
+        val controller = spyk(createController())
+
+        controller.handleMenuItemTapped(SearchSelectorMenu.Item.SearchSettings)
+
+        verify { controller.handleClickSearchEngineSettings() }
+    }
+
     private fun createController(
         clearToolbarFocus: () -> Unit = { },
         focusToolbar: () -> Unit = { },
         clearToolbar: () -> Unit = { },
-        dismissDialog: () -> Unit = { }
+        dismissDialog: () -> Unit = { },
     ): SearchDialogController {
         return SearchDialogController(
             activity = activity,
@@ -389,11 +537,10 @@ class SearchDialogControllerTest {
             fragmentStore = store,
             navController = navController,
             settings = settings,
-            metrics = metrics,
             dismissDialog = dismissDialog,
             clearToolbarFocus = clearToolbarFocus,
             focusToolbar = focusToolbar,
-            clearToolbar = clearToolbar
+            clearToolbar = clearToolbar,
         )
     }
 }

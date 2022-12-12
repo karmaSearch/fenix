@@ -2,30 +2,33 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+@file:Suppress("DEPRECATION")
+
 package org.mozilla.fenix.screenshots
 
 import android.os.SystemClock
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
-import androidx.test.rule.ActivityTestRule
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
+import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
-import org.mozilla.fenix.HomeActivity
 import org.mozilla.fenix.R
 import org.mozilla.fenix.helpers.AndroidAssetDispatcher
 import org.mozilla.fenix.helpers.HomeActivityTestRule
 import org.mozilla.fenix.helpers.TestAssetHelper
+import org.mozilla.fenix.helpers.TestHelper.mDevice
 import org.mozilla.fenix.helpers.click
 import org.mozilla.fenix.helpers.ext.waitNotNull
 import org.mozilla.fenix.ui.robots.bookmarksMenu
 import org.mozilla.fenix.ui.robots.homeScreen
-import org.mozilla.fenix.ui.robots.mDevice
 import org.mozilla.fenix.ui.robots.navigationToolbar
 import org.mozilla.fenix.ui.robots.swipeToBottom
 import tools.fastlane.screengrab.Screengrab
@@ -33,15 +36,18 @@ import tools.fastlane.screengrab.locale.LocaleTestRule
 
 class MenuScreenShotTest : ScreenshotTest() {
     private lateinit var mockWebServer: MockWebServer
+    private lateinit var mDevice: UiDevice
+
     @Rule
     @JvmField
     val localeTestRule = LocaleTestRule()
 
     @get:Rule
-    var mActivityTestRule: ActivityTestRule<HomeActivity> = HomeActivityTestRule()
+    var mActivityTestRule = HomeActivityTestRule.withDefaultSettingsOverrides()
 
     @Before
     fun setUp() {
+        mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         mockWebServer = MockWebServer().apply {
             dispatcher = AndroidAssetDispatcher()
             start()
@@ -158,6 +164,7 @@ class MenuScreenShotTest : ScreenshotTest() {
     }
 
     @Test
+    @Ignore("Failing after compose migration. See: https://github.com/mozilla-mobile/fenix/issues/26087")
     fun tabMenuTest() {
         val defaultWebPage = TestAssetHelper.getGenericAsset(mockWebServer, 1)
         navigationToolbar {
@@ -196,7 +203,7 @@ fun deleteBookmarkFolder() = onView(withText(R.string.bookmark_menu_delete_butto
 
 fun tapOnTabCounter() = onView(withId(R.id.counter_text)).click()
 
-fun settingsAccountPreferences() = onView(withText(R.string.preferences_sync)).click()
+fun settingsAccountPreferences() = onView(withText(R.string.preferences_sync_2)).click()
 
 fun settingsSearch() = onView(withText(R.string.preferences_search)).click()
 

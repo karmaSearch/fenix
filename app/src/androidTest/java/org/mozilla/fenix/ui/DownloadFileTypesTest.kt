@@ -5,18 +5,12 @@
 package org.mozilla.fenix.ui
 
 import androidx.core.net.toUri
-import androidx.test.rule.GrantPermissionRule
-import org.junit.After
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import org.mozilla.fenix.customannotations.SmokeTest
-import org.mozilla.fenix.helpers.FeatureSettingsHelper
 import org.mozilla.fenix.helpers.HomeActivityIntentTestRule
-import org.mozilla.fenix.helpers.RetryTestRule
-import org.mozilla.fenix.helpers.TestHelper
 import org.mozilla.fenix.ui.robots.navigationToolbar
 
 /**
@@ -30,20 +24,9 @@ class DownloadFileTypesTest(fileName: String) {
     /* Remote test page managed by Mozilla Mobile QA team at https://github.com/mozilla-mobile/testapp */
     private val downloadTestPage = "https://storage.googleapis.com/mobile_test_assets/test_app/downloads.html"
     private var downloadFile: String = fileName
-    private val featureSettingsHelper = FeatureSettingsHelper()
 
     @get:Rule
-    val activityTestRule = HomeActivityIntentTestRule()
-
-    @Rule
-    @JvmField
-    val retryTestRule = RetryTestRule(3)
-
-    @get:Rule
-    var mGrantPermissions = GrantPermissionRule.grant(
-        android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-        android.Manifest.permission.READ_EXTERNAL_STORAGE
-    )
+    val activityTestRule = HomeActivityIntentTestRule.withDefaultSettingsOverrides()
 
     companion object {
         // Creating test data. The test will take each file name as a parameter and run it individually.
@@ -57,22 +40,8 @@ class DownloadFileTypesTest(fileName: String) {
             "web_icon.png",
             "videoSample.webm",
             "CSVfile.csv",
-            "XMLfile.xml"
+            "XMLfile.xml",
         )
-    }
-
-    @Before
-    fun setUp() {
-        // disabling the jump-back-in pop-up that interferes with the tests.
-        featureSettingsHelper.setJumpBackCFREnabled(false)
-        // disabling the PWA CFR on 3rd visit
-        featureSettingsHelper.disablePwaCFR(true)
-    }
-
-    @After
-    fun tearDown() {
-        TestHelper.deleteDownloadFromStorage(downloadFile)
-        featureSettingsHelper.resetAllFeatureFlags()
     }
 
     @SmokeTest

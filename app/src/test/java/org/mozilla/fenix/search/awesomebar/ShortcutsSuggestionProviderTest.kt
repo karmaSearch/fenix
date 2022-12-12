@@ -10,7 +10,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import mozilla.components.browser.state.search.SearchEngine
 import mozilla.components.browser.state.state.BrowserState
 import mozilla.components.browser.state.state.SearchState
@@ -42,7 +42,7 @@ class ShortcutsSuggestionProviderTest {
     }
 
     @Test
-    fun `returns suggestions from search engine provider`() = runBlockingTest {
+    fun `returns suggestions from search engine provider`() = runTest {
         val engineOne = mockk<SearchEngine> {
             every { id } returns "1"
             every { name } returns "EngineOne"
@@ -56,9 +56,9 @@ class ShortcutsSuggestionProviderTest {
         val store = BrowserStore(
             BrowserState(
                 search = SearchState(
-                    regionSearchEngines = listOf(engineOne, engineTwo)
-                )
-            )
+                    regionSearchEngines = listOf(engineOne, engineTwo),
+                ),
+            ),
         )
         val provider = ShortcutsSuggestionProvider(store, context, {}, {})
 
@@ -82,14 +82,14 @@ class ShortcutsSuggestionProviderTest {
     }
 
     @Test
-    fun `callbacks are triggered when suggestions are clicked`() = runBlockingTest {
+    fun `callbacks are triggered when suggestions are clicked`() = runTest {
         val engineOne = mockk<SearchEngine>(relaxed = true)
         val store = BrowserStore(
             BrowserState(
                 search = SearchState(
-                    regionSearchEngines = listOf(engineOne)
-                )
-            )
+                    regionSearchEngines = listOf(engineOne),
+                ),
+            ),
         )
 
         var selectEngine: SearchEngine? = null
@@ -98,7 +98,7 @@ class ShortcutsSuggestionProviderTest {
             store,
             context,
             { selectEngine = it },
-            { selectShortcutEngineSettingsChanged = true }
+            { selectShortcutEngineSettingsChanged = true },
         )
 
         val suggestions = provider.onInputChanged("")

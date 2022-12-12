@@ -17,7 +17,7 @@ import org.mozilla.fenix.ext.loadIntoView
 import org.mozilla.fenix.utils.view.ViewHolder
 
 class CollectionCreationTabListAdapter(
-    private val interactor: CollectionCreationInteractor
+    private val interactor: CollectionCreationInteractor,
 ) : RecyclerView.Adapter<TabViewHolder>() {
 
     private var tabs: List<Tab> = listOf()
@@ -30,7 +30,7 @@ class CollectionCreationTabListAdapter(
         binding = CollectionTabListRowBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,
-            false
+            false,
         )
 
         return TabViewHolder(binding)
@@ -43,12 +43,7 @@ class CollectionCreationTabListAdapter(
             when (payloads[0]) {
                 is CheckChanged -> {
                     val checkChanged = payloads[0] as CheckChanged
-                    if (checkChanged.shouldBeChecked) {
-                        binding.tabSelectedCheckbox.isChecked = true
-                    } else if (checkChanged.shouldBeUnchecked) {
-                        binding.tabSelectedCheckbox.isChecked = false
-                    }
-                    binding.tabSelectedCheckbox.isGone = checkChanged.shouldHideCheckBox
+                    holder.updateCheckbox(checkChanged)
                 }
             }
         }
@@ -79,8 +74,8 @@ class CollectionCreationTabListAdapter(
                 this.selectedTabs,
                 selectedTabs,
                 this.hideCheckboxes,
-                hideCheckboxes
-            )
+                hideCheckboxes,
+            ),
         )
 
         this.tabs = tabs
@@ -109,6 +104,15 @@ class TabViewHolder(private val binding: CollectionTabListRowBinding) : ViewHold
         }
 
         itemView.context.components.core.icons.loadIntoView(binding.faviconImage, tab.url)
+    }
+
+    /**
+     * Method used to change the tabSelectedCheckbox state
+     * @param checkChanged [CheckChanged] class containing the required checkbox updates
+     */
+    fun updateCheckbox(checkChanged: CheckChanged) {
+        binding.tabSelectedCheckbox.isChecked = checkChanged.shouldBeChecked
+        binding.tabSelectedCheckbox.isGone = checkChanged.shouldHideCheckBox
     }
 
     companion object {

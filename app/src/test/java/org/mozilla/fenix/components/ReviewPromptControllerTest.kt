@@ -6,7 +6,7 @@ package org.mozilla.fenix.components
 
 import com.google.android.play.core.review.ReviewManager
 import com.google.android.play.core.review.ReviewManagerFactory
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import mozilla.components.support.test.robolectric.testContext
 import org.junit.Test
 import org.junit.Assert.assertEquals
@@ -20,7 +20,7 @@ import org.mozilla.fenix.helpers.FenixRobolectricTestRunner
 class TestReviewSettings(
     override var numberOfAppLaunches: Int = 0,
     var isDefault: Boolean = false,
-    override var lastReviewPromptTimeInMillis: Long = 0
+    override var lastReviewPromptTimeInMillis: Long = 0,
 ) : ReviewSettings {
     override val isDefaultBrowser: Boolean
         get() = isDefault
@@ -37,19 +37,19 @@ class ReviewPromptControllerTest {
     }
 
     @Test
-    fun promptReviewDoesNotSetMillis() = runBlockingTest {
+    fun promptReviewDoesNotSetMillis() = runTest {
         var promptWasCalled = false
         val settings = TestReviewSettings(
             numberOfAppLaunches = 5,
             isDefault = false,
-            lastReviewPromptTimeInMillis = 0L
+            lastReviewPromptTimeInMillis = 0L,
         )
 
         val controller = ReviewPromptController(
             reviewManager,
             settings,
             { 100L },
-            { promptWasCalled = true }
+            { promptWasCalled = true },
         )
 
         controller.reviewPromptIsReady = true
@@ -60,19 +60,19 @@ class ReviewPromptControllerTest {
     }
 
     @Test
-    fun promptReviewSetsMillisIfSuccessful() = runBlockingTest {
+    fun promptReviewSetsMillisIfSuccessful() = runTest {
         var promptWasCalled = false
         val settings = TestReviewSettings(
             numberOfAppLaunches = 5,
             isDefault = true,
-            lastReviewPromptTimeInMillis = 0L
+            lastReviewPromptTimeInMillis = 0L,
         )
 
         val controller = ReviewPromptController(
             reviewManager,
             settings,
             { 100L },
-            { promptWasCalled = true }
+            { promptWasCalled = true },
         )
 
         controller.reviewPromptIsReady = true
@@ -82,19 +82,19 @@ class ReviewPromptControllerTest {
     }
 
     @Test
-    fun promptReviewWillNotBeCalledIfNotReady() = runBlockingTest {
+    fun promptReviewWillNotBeCalledIfNotReady() = runTest {
         var promptWasCalled = false
         val settings = TestReviewSettings(
             numberOfAppLaunches = 5,
             isDefault = true,
-            lastReviewPromptTimeInMillis = 0L
+            lastReviewPromptTimeInMillis = 0L,
         )
 
         val controller = ReviewPromptController(
             reviewManager,
             settings,
             { 100L },
-            { promptWasCalled = true }
+            { promptWasCalled = true },
         )
 
         controller.promptReview(HomeActivity())
@@ -102,19 +102,19 @@ class ReviewPromptControllerTest {
     }
 
     @Test
-    fun promptReviewWillUnreadyPromptAfterCalled() = runBlockingTest {
+    fun promptReviewWillUnreadyPromptAfterCalled() = runTest {
         var promptWasCalled = false
         val settings = TestReviewSettings(
             numberOfAppLaunches = 5,
             isDefault = true,
-            lastReviewPromptTimeInMillis = 0L
+            lastReviewPromptTimeInMillis = 0L,
         )
 
         val controller = ReviewPromptController(
             reviewManager,
             settings,
             { 100L },
-            { promptWasCalled = true }
+            { promptWasCalled = true },
         )
 
         controller.reviewPromptIsReady = true
@@ -131,13 +131,13 @@ class ReviewPromptControllerTest {
         val settings = TestReviewSettings(
             numberOfAppLaunches = 4,
             isDefault = true,
-            lastReviewPromptTimeInMillis = 0L
+            lastReviewPromptTimeInMillis = 0L,
         )
 
         val controller = ReviewPromptController(
             reviewManager,
             settings,
-            { 0L }
+            { 0L },
         )
 
         assertFalse(controller.reviewPromptIsReady)
@@ -154,13 +154,13 @@ class ReviewPromptControllerTest {
         val settings = TestReviewSettings(
             numberOfAppLaunches = 5,
             isDefault = true,
-            lastReviewPromptTimeInMillis = 0L
+            lastReviewPromptTimeInMillis = 0L,
         )
 
         val controller = ReviewPromptController(
             reviewManager,
             settings,
-            { TEST_TIME_NOW }
+            { TEST_TIME_NOW },
         )
 
         // Test first success criteria

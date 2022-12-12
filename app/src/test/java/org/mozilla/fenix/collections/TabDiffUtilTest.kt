@@ -21,7 +21,7 @@ class TabDiffUtilTest {
             oldSelected = emptySet(),
             newSelected = emptySet(),
             oldHideCheckboxes = false,
-            newHideCheckboxes = false
+            newHideCheckboxes = false,
         )
 
         assertEquals(2, diffUtil.oldListSize)
@@ -39,7 +39,7 @@ class TabDiffUtilTest {
             oldSelected = emptySet(),
             newSelected = emptySet(),
             oldHideCheckboxes = false,
-            newHideCheckboxes = false
+            newHideCheckboxes = false,
         )
 
         assertTrue(diffUtil.areItemsTheSame(0, 0))
@@ -57,7 +57,7 @@ class TabDiffUtilTest {
             oldSelected = emptySet(),
             newSelected = setOf(tab),
             oldHideCheckboxes = false,
-            newHideCheckboxes = false
+            newHideCheckboxes = false,
         )
 
         assertTrue(diffUtil.areItemsTheSame(0, 0))
@@ -75,7 +75,7 @@ class TabDiffUtilTest {
             oldSelected = setOf(tab),
             newSelected = setOf(tab),
             oldHideCheckboxes = false,
-            newHideCheckboxes = true
+            newHideCheckboxes = true,
         )
 
         assertTrue(diffUtil.areItemsTheSame(0, 0))
@@ -91,16 +91,15 @@ class TabDiffUtilTest {
             oldSelected = setOf(tab),
             newSelected = setOf(tab),
             oldHideCheckboxes = false,
-            newHideCheckboxes = false
+            newHideCheckboxes = false,
         ).getChangePayload(0, 0)
 
         assertEquals(
             CheckChanged(
-                shouldBeChecked = false,
-                shouldBeUnchecked = false,
-                shouldHideCheckBox = false
+                shouldBeChecked = true,
+                shouldHideCheckBox = false,
             ),
-            payload
+            payload,
         )
     }
 
@@ -113,16 +112,15 @@ class TabDiffUtilTest {
             oldSelected = emptySet(),
             newSelected = setOf(tab),
             oldHideCheckboxes = false,
-            newHideCheckboxes = false
+            newHideCheckboxes = false,
         ).getChangePayload(0, 0)
 
         assertEquals(
             CheckChanged(
                 shouldBeChecked = true,
-                shouldBeUnchecked = false,
-                shouldHideCheckBox = false
+                shouldHideCheckBox = false,
             ),
-            payload
+            payload,
         )
     }
 
@@ -135,16 +133,15 @@ class TabDiffUtilTest {
             oldSelected = setOf(tab),
             newSelected = emptySet(),
             oldHideCheckboxes = false,
-            newHideCheckboxes = true
+            newHideCheckboxes = true,
         ).getChangePayload(0, 0)
 
         assertEquals(
             CheckChanged(
                 shouldBeChecked = false,
-                shouldBeUnchecked = true,
-                shouldHideCheckBox = true
+                shouldHideCheckBox = true,
             ),
-            payload
+            payload,
         )
     }
 }

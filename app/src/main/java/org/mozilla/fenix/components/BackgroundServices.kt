@@ -30,7 +30,8 @@ import mozilla.components.service.fxa.SyncEngine
 import mozilla.components.service.fxa.manager.FxaAccountManager
 import mozilla.components.service.fxa.manager.SCOPE_SESSION
 import mozilla.components.service.fxa.manager.SCOPE_SYNC
-import mozilla.components.service.fxa.manager.SyncEnginesStorage
+import mozilla.components.service.fxa.store.SyncStore
+import mozilla.components.service.fxa.store.SyncStoreSupport
 import mozilla.components.service.fxa.sync.GlobalSyncableStoreProvider
 import mozilla.components.service.glean.private.NoExtras
 import mozilla.components.service.sync.autofill.AutofillCreditCardsAddressesStorage
@@ -61,7 +62,7 @@ class BackgroundServices(
     passwordsStorage: Lazy<SyncableLoginsStorage>,
     remoteTabsStorage: Lazy<RemoteTabsStorage>,
     creditCardsStorage: Lazy<AutofillCreditCardsAddressesStorage>,
-    strictMode: StrictModeManager
+    strictMode: StrictModeManager,
 ) {
     // Allows executing tasks which depend on the account manager, but do not need to eagerly initialize it.
     val accountManagerAvailableQueue = RunWhenReadyQueue()
@@ -71,7 +72,7 @@ class BackgroundServices(
             R.string.default_device_name_2,
             context.getString(R.string.app_name),
             Build.MANUFACTURER,
-            Build.MODEL
+            Build.MODEL,
         )
 
     val serverConfig = FxaServer.config(context)
@@ -87,7 +88,7 @@ class BackgroundServices(
         // Enable encryption for account state on supported API levels (23+).
         // Just on Nightly and local builds for now.
         // Enabling this for all channels is tracked in https://github.com/mozilla-mobile/fenix/issues/6704
-        secureStateAtRest = Config.channel.isNightlyOrDebug
+        secureStateAtRest = Config.channel.isNightlyOrDebug,
     )
 
     @VisibleForTesting
@@ -98,7 +99,7 @@ class BackgroundServices(
             SyncEngine.Passwords,
             SyncEngine.Tabs,
             SyncEngine.CreditCards,
-            if (FeatureFlags.addressesFeature) SyncEngine.Addresses else null
+            if (FeatureFlags.syncAddressesFeature) SyncEngine.Addresses else null,
         )
     private val syncConfig =
         SyncConfig(supportedEngines, PeriodicSyncConfig(periodMinutes = 240)) // four hours
@@ -113,14 +114,14 @@ class BackgroundServices(
         GlobalSyncableStoreProvider.configureStore(SyncEngine.Bookmarks to bookmarkStorage)
         GlobalSyncableStoreProvider.configureStore(
             storePair = SyncEngine.Passwords to passwordsStorage,
-            keyProvider = lazy { passwordKeyProvider }
+            keyProvider = lazy { passwordKeyProvider },
         )
         GlobalSyncableStoreProvider.configureStore(SyncEngine.Tabs to remoteTabsStorage)
         GlobalSyncableStoreProvider.configureStore(
             storePair = SyncEngine.CreditCards to creditCardsStorage,
-            keyProvider = lazy { creditCardKeyProvider }
+            keyProvider = lazy { creditCardKeyProvider },
         )
-        if (FeatureFlags.addressesFeature) {
+        if (FeatureFlags.syncAddressesFeature) {
             GlobalSyncableStoreProvider.configureStore(SyncEngine.Addresses to creditCardsStorage)
         }
     }
@@ -130,6 +131,12 @@ class BackgroundServices(
     )
 
     val accountAbnormalities = AccountAbnormalities(context, crashReporter, strictMode)
+
+    val syncStore by lazyMonitored {
+        SyncStore()
+    }
+
+    private lateinit var syncStoreSupport: SyncStoreSupport
 
     val accountManager by lazyMonitored {
         makeAccountManager(context, serverConfig, deviceConfig, syncConfig, crashReporter)
@@ -145,7 +152,7 @@ class BackgroundServices(
         serverConfig: ServerConfig,
         deviceConfig: DeviceConfig,
         syncConfig: SyncConfig?,
-        crashReporter: CrashReporter?
+        crashReporter: CrashReporter?,
     ) = FxaAccountManager(
         context,
         serverConfig,
@@ -160,15 +167,10 @@ class BackgroundServices(
             SCOPE_SYNC,
             // Necessary to enable "Manage Account" functionality and ability to generate OAuth
             // codes for certain scopes.
-            SCOPE_SESSION
+            SCOPE_SESSION,
         ),
-        crashReporter
+        crashReporter,
     ).also { accountManager ->
-        // TODO this needs to change once we have a SyncManager
-        context.settings().fxaHasSyncedItems = accountManager.authenticatedAccount()?.let {
-            SyncEnginesStorage(context).getStatus().any { it.value }
-        } ?: false
-
         // Register a telemetry account observer to keep track of FxA auth metrics.
         accountManager.register(telemetryAccountObserver)
 
@@ -181,6 +183,7 @@ class BackgroundServices(
         // Enable push if it's configured.
         push.feature?.let { autoPushFeature ->
             FxaPushSupportFeature(context, accountManager, autoPushFeature, crashReporter)
+                .initialize()
         }
 
         SendTabFeature(accountManager) { device, tabs ->
@@ -188,6 +191,10 @@ class BackgroundServices(
         }
 
         SyncedTabsIntegration(context, accountManager).launch()
+
+        syncStoreSupport = SyncStoreSupport(syncStore, lazyOf(accountManager)).also {
+            it.initialize()
+        }
 
         MainScope().launch {
             accountManager.start()
@@ -203,7 +210,7 @@ class BackgroundServices(
 }
 
 private class AccountManagerReadyObserver(
-    private val accountManagerAvailableQueue: RunWhenReadyQueue
+    private val accountManagerAvailableQueue: RunWhenReadyQueue,
 ) : AccountObserver {
     override fun onReady(authenticatedAccount: OAuthAccount?) {
         accountManagerAvailableQueue.ready()
@@ -238,7 +245,8 @@ internal class TelemetryAccountObserver(
             // User signed-in into an FxA account shared from another locally installed app using the reuse flow.
             AuthType.MigratedReuse,
             // Account restored from a hydrated state on disk (e.g. during startup).
-            AuthType.Existing -> {
+            AuthType.Existing,
+            -> {
                 // no-op, events not recorded in Glean
             }
         }

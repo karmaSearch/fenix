@@ -7,13 +7,13 @@ package org.mozilla.fenix.home.recentbookmarks
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.advanceUntilIdle
 import mozilla.components.concept.storage.BookmarkNode
 import mozilla.components.support.test.libstate.ext.waitUntilIdle
 import mozilla.components.support.test.middleware.CaptureActionsMiddleware
 import mozilla.components.support.test.rule.MainCoroutineRule
+import mozilla.components.support.test.rule.runTestOnMain
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
@@ -32,12 +32,13 @@ class RecentBookmarksFeatureTest {
     private val bookmark = RecentBookmark(
         title = null,
         url = "https://www.example.com",
-        previewImageUrl = null
+        previewImageUrl = null,
     )
 
     @get:Rule
     val coroutinesTestRule = MainCoroutineRule()
     private val testDispatcher = coroutinesTestRule.testDispatcher
+    private val scope = coroutinesTestRule.scope
 
     @Before
     fun setup() {
@@ -46,19 +47,19 @@ class RecentBookmarksFeatureTest {
 
     @Test
     fun `GIVEN no recent bookmarks WHEN feature starts THEN fetch bookmarks and notify store`() =
-        testDispatcher.runBlockingTest {
+        runTestOnMain {
             val feature = RecentBookmarksFeature(
                 appStore,
                 bookmarksUseCases,
-                CoroutineScope(testDispatcher),
-                testDispatcher
+                scope,
+                testDispatcher,
             )
 
             assertEquals(emptyList<BookmarkNode>(), appStore.state.recentBookmarks)
 
             feature.start()
 
-            testDispatcher.advanceUntilIdle()
+            advanceUntilIdle()
             appStore.waitUntilIdle()
 
             coVerify {

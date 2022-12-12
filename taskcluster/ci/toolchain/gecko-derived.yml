@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 ---
-job-defaults:
+task-defaults:
     run:
         using: index-search
     run-on-projects: []
@@ -49,10 +49,10 @@ linux64-node:
         index-search:
             - gecko.cache.level-3.toolchains.v3.linux64-node-12.latest
 
-visual-metrics:
+linux64-node-16:
     attributes:
-        toolchain-artifact: public/visualmetrics.py
-    description: "Browsertime visual metrics analysis script"
+        toolchain-artifact: public/build/node.tar.zst
+    description: "Node.js toolchain"
     run:
         index-search:
-            - gecko.cache.level-3.content.v1.visual-metrics.latest
+            - gecko.cache.level-3.toolchains.v3.linux64-node-16.latest

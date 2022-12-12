@@ -9,7 +9,6 @@ import android.net.ConnectivityManager
 import io.mockk.mockk
 import io.mockk.spyk
 import io.mockk.verify
-import mozilla.components.support.test.mock
 import mozilla.components.support.test.robolectric.testContext
 import org.junit.Assert.assertTrue
 import org.junit.Assert.assertFalse
@@ -45,7 +44,7 @@ class WifiConnectionMonitorTest {
         verify(exactly = 1) {
             connectivityManager.registerNetworkCallback(
                 any(),
-                wifiConnectionMonitor.frameworkListener
+                wifiConnectionMonitor.frameworkListener,
             )
         }
 
@@ -67,7 +66,7 @@ class WifiConnectionMonitorTest {
         verify(exactly = 0) {
             connectivityManager.registerNetworkCallback(
                 any(),
-                wifiConnectionMonitor.frameworkListener
+                wifiConnectionMonitor.frameworkListener,
             )
         }
     }
@@ -79,7 +78,7 @@ class WifiConnectionMonitorTest {
 
         verify {
             wifiConnectionMonitor.connectivityManager.unregisterNetworkCallback(
-                wifiConnectionMonitor.frameworkListener
+                wifiConnectionMonitor.frameworkListener,
             )
         }
 
@@ -101,7 +100,6 @@ class WifiConnectionMonitorTest {
 
     @Test
     fun `WHEN adding a listener THEN should be added to the callback queue`() {
-
         wifiConnectionMonitor.addOnWifiConnectedChangedListener({})
 
         assertFalse(wifiConnectionMonitor.callbacks.isEmpty())
@@ -122,7 +120,6 @@ class WifiConnectionMonitorTest {
 
     @Test
     fun `WHEN removing a listener THEN it will be removed from the listeners queue`() {
-
         assertTrue(wifiConnectionMonitor.callbacks.isEmpty())
 
         val callback: (Boolean) -> Unit = {}
@@ -142,7 +139,7 @@ class WifiConnectionMonitorTest {
         val callback: (Boolean) -> Unit = { wasNotified = it }
 
         wifiConnectionMonitor.addOnWifiConnectedChangedListener(callback)
-        wifiConnectionMonitor.frameworkListener.onLost(mock())
+        wifiConnectionMonitor.frameworkListener.onLost(mockk())
 
         assertFalse(wasNotified!!)
     }
@@ -154,7 +151,7 @@ class WifiConnectionMonitorTest {
         val callback: (Boolean) -> Unit = { wasNotified = it }
 
         wifiConnectionMonitor.addOnWifiConnectedChangedListener(callback)
-        wifiConnectionMonitor.frameworkListener.onAvailable(mock())
+        wifiConnectionMonitor.frameworkListener.onAvailable(mockk())
 
         assertTrue(wasNotified!!)
     }
@@ -178,12 +175,12 @@ class WifiConnectionMonitorTest {
     @Test
     fun `GIVEN multiple listeners are are added and notify THEN a ConcurrentModificationException must not be thrown`() {
         repeat(100) {
-
             // Adding to callbacks.
             wifiConnectionMonitor.addOnWifiConnectedChangedListener {
                 // Altering callbacks while looping.
-                if (wifiConnectionMonitor.callbacks.isNotEmpty())
+                if (wifiConnectionMonitor.callbacks.isNotEmpty()) {
                     wifiConnectionMonitor.callbacks.removeFirst()
+                }
             }
 
             // Looping over callbacks.

@@ -24,12 +24,13 @@ import mozilla.components.feature.contextmenu.ContextMenuCandidate
 import mozilla.components.feature.readerview.ReaderViewFeature
 import mozilla.components.feature.tab.collections.TabCollection
 import mozilla.components.feature.tabs.WindowFeature
+import mozilla.components.service.glean.private.NoExtras
 import mozilla.components.support.base.feature.UserInteractionHandler
 import mozilla.components.support.base.feature.ViewBoundFeatureWrapper
+import org.mozilla.fenix.GleanMetrics.ReaderMode
 import org.mozilla.fenix.R
 import org.mozilla.fenix.components.FenixSnackbar
 import org.mozilla.fenix.components.TabCollectionStorage
-import org.mozilla.fenix.components.metrics.Event
 import org.mozilla.fenix.components.toolbar.ToolbarMenu
 import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.ext.nav
@@ -66,19 +67,19 @@ class BrowserFragment : BaseBrowserFragment(), UserInteractionHandler {
                     tabPreview = binding.tabPreview,
                     toolbarLayout = browserToolbarView.view,
                     store = components.core.store,
-                    selectTabUseCase = components.useCases.tabsUseCases.selectTab
-                )
+                    selectTabUseCase = components.useCases.tabsUseCases.selectTab,
+                ),
             )
         }
 
         val homeAction = BrowserToolbar.Button(
             imageDrawable = AppCompatResources.getDrawable(
                 context,
-                R.drawable.mozac_ic_home
+                R.drawable.mozac_ic_home,
             )!!,
             contentDescription = context.getString(R.string.browser_toolbar_home),
             iconTintColorResource = ThemeManager.resolveAttribute(R.attr.textPrimary, context),
-            listener = browserToolbarInteractor::onHomeButtonClicked
+            listener = browserToolbarInteractor::onHomeButtonClicked,
         )
 
         browserToolbarView.view.addNavigationAction(homeAction)
@@ -89,7 +90,7 @@ class BrowserFragment : BaseBrowserFragment(), UserInteractionHandler {
             val backAction = BrowserToolbar.TwoStateButton(
                 primaryImage = AppCompatResources.getDrawable(
                     context,
-                    R.drawable.mozac_ic_back
+                    R.drawable.mozac_ic_back,
                 )!!,
                 primaryContentDescription = context.getString(R.string.browser_menu_back),
                 primaryImageTintResource = enableTint,
@@ -98,20 +99,20 @@ class BrowserFragment : BaseBrowserFragment(), UserInteractionHandler {
                 disableInSecondaryState = true,
                 longClickListener = {
                     browserToolbarInteractor.onBrowserToolbarMenuItemTapped(
-                        ToolbarMenu.Item.Back(viewHistory = true)
+                        ToolbarMenu.Item.Back(viewHistory = true),
                     )
                 },
                 listener = {
                     browserToolbarInteractor.onBrowserToolbarMenuItemTapped(
-                        ToolbarMenu.Item.Back(viewHistory = false)
+                        ToolbarMenu.Item.Back(viewHistory = false),
                     )
-                }
+                },
             )
             browserToolbarView.view.addNavigationAction(backAction)
             val forwardAction = BrowserToolbar.TwoStateButton(
                 primaryImage = AppCompatResources.getDrawable(
                     context,
-                    R.drawable.mozac_ic_forward
+                    R.drawable.mozac_ic_forward,
                 )!!,
                 primaryContentDescription = context.getString(R.string.browser_menu_forward),
                 primaryImageTintResource = enableTint,
@@ -120,20 +121,20 @@ class BrowserFragment : BaseBrowserFragment(), UserInteractionHandler {
                 disableInSecondaryState = true,
                 longClickListener = {
                     browserToolbarInteractor.onBrowserToolbarMenuItemTapped(
-                        ToolbarMenu.Item.Forward(viewHistory = true)
+                        ToolbarMenu.Item.Forward(viewHistory = true),
                     )
                 },
                 listener = {
                     browserToolbarInteractor.onBrowserToolbarMenuItemTapped(
-                        ToolbarMenu.Item.Forward(viewHistory = false)
+                        ToolbarMenu.Item.Forward(viewHistory = false),
                     )
-                }
+                },
             )
             browserToolbarView.view.addNavigationAction(forwardAction)
             val refreshAction = BrowserToolbar.TwoStateButton(
                 primaryImage = AppCompatResources.getDrawable(
                     context,
-                    R.drawable.mozac_ic_refresh
+                    R.drawable.mozac_ic_refresh,
                 )!!,
                 primaryContentDescription = context.getString(R.string.browser_menu_refresh),
                 primaryImageTintResource = enableTint,
@@ -142,13 +143,13 @@ class BrowserFragment : BaseBrowserFragment(), UserInteractionHandler {
                 },
                 secondaryImage = AppCompatResources.getDrawable(
                     context,
-                    R.drawable.mozac_ic_stop
+                    R.drawable.mozac_ic_stop,
                 )!!,
                 secondaryContentDescription = context.getString(R.string.browser_menu_stop),
                 disableInSecondaryState = false,
                 longClickListener = {
                     browserToolbarInteractor.onBrowserToolbarMenuItemTapped(
-                        ToolbarMenu.Item.Reload(bypassCache = true)
+                        ToolbarMenu.Item.Reload(bypassCache = true),
                     )
                 },
                 listener = {
@@ -156,10 +157,10 @@ class BrowserFragment : BaseBrowserFragment(), UserInteractionHandler {
                         browserToolbarInteractor.onBrowserToolbarMenuItemTapped(ToolbarMenu.Item.Stop)
                     } else {
                         browserToolbarInteractor.onBrowserToolbarMenuItemTapped(
-                            ToolbarMenu.Item.Reload(bypassCache = false)
+                            ToolbarMenu.Item.Reload(bypassCache = false),
                         )
                     }
-                }
+                },
             )
             browserToolbarView.view.addNavigationAction(refreshAction)
         }
@@ -168,12 +169,12 @@ class BrowserFragment : BaseBrowserFragment(), UserInteractionHandler {
             BrowserToolbar.ToggleButton(
                 image = AppCompatResources.getDrawable(
                     context,
-                    R.drawable.ic_readermode
+                    R.drawable.ic_readermode,
                 )!!,
                 imageSelected =
                 AppCompatResources.getDrawable(
                     context,
-                    R.drawable.ic_readermode_selected
+                    R.drawable.ic_readermode_selected,
                 )!!,
                 contentDescription = context.getString(R.string.browser_menu_read),
                 contentDescriptionSelected = context.getString(R.string.browser_menu_read_close),
@@ -183,7 +184,7 @@ class BrowserFragment : BaseBrowserFragment(), UserInteractionHandler {
                 selected = getCurrentTab()?.let {
                     activity?.components?.core?.store?.state?.findTab(it.id)?.readerState?.active
                 } ?: false,
-                listener = browserToolbarInteractor::onReaderModePressed
+                listener = browserToolbarInteractor::onReaderModePressed,
             )
 
         browserToolbarView.view.addPageAction(readerModeAction)
@@ -191,7 +192,7 @@ class BrowserFragment : BaseBrowserFragment(), UserInteractionHandler {
         thumbnailsFeature.set(
             feature = BrowserThumbnails(context, binding.engineView, components.core.store),
             owner = this,
-            view = view
+            view = view,
         )
 
         readerViewFeature.set(
@@ -200,10 +201,10 @@ class BrowserFragment : BaseBrowserFragment(), UserInteractionHandler {
                     context,
                     components.core.engine,
                     components.core.store,
-                    binding.readerViewControlsBar
+                    binding.readerViewControlsBar,
                 ) { available, active ->
                     if (available) {
-                        components.analytics.metrics.track(Event.ReaderModeAvailable)
+                        ReaderMode.available.record(NoExtras())
                     }
 
                     readerModeAvailable = available
@@ -212,16 +213,16 @@ class BrowserFragment : BaseBrowserFragment(), UserInteractionHandler {
                 }
             },
             owner = this,
-            view = view
+            view = view,
         )
 
         windowFeature.set(
             feature = WindowFeature(
                 store = components.core.store,
-                tabsUseCases = components.useCases.tabsUseCases
+                tabsUseCases = components.useCases.tabsUseCases,
             ),
             owner = this,
-            view = view
+            view = view,
         )
 
         if (context.settings().shouldShowOpenInAppCfr) {
@@ -234,10 +235,10 @@ class BrowserFragment : BaseBrowserFragment(), UserInteractionHandler {
                     settings = context.settings(),
                     appLinksUseCases = context.components.useCases.appLinksUseCases,
                     container = binding.browserLayout as ViewGroup,
-                    shouldScrollWithTopToolbar = !context.settings().shouldUseBottomToolbar
+                    shouldScrollWithTopToolbar = !context.settings().shouldUseBottomToolbar,
                 ),
                 owner = this,
-                view = view
+                view = view,
             )
         }
     }
@@ -253,7 +254,7 @@ class BrowserFragment : BaseBrowserFragment(), UserInteractionHandler {
                 lifecycleOwner = this,
                 navController = findNavController(),
                 settings = settings,
-                webAppUseCases = context.components.useCases.webAppUseCases
+                webAppUseCases = context.components.useCases.webAppUseCases,
             ).also {
                 it.start()
             }
@@ -309,7 +310,7 @@ class BrowserFragment : BaseBrowserFragment(), UserInteractionHandler {
                         gravity = getAppropriateLayoutGravity(),
                         certificateName = tab.content.securityInfo.issuer,
                         permissionHighlights = tab.content.permissionHighlights,
-                        isTrackingProtectionEnabled = isTrackingProtectionEnabled
+                        isTrackingProtectionEnabled = isTrackingProtectionEnabled,
                     )
                 nav(R.id.browserFragment, directions)
             }
@@ -320,7 +321,7 @@ class BrowserFragment : BaseBrowserFragment(), UserInteractionHandler {
         override fun onCollectionCreated(
             title: String,
             sessions: List<TabSessionState>,
-            id: Long?
+            id: Long?,
         ) {
             showTabSavedToCollectionSnackbar(sessions.size, true)
         }
@@ -331,7 +332,7 @@ class BrowserFragment : BaseBrowserFragment(), UserInteractionHandler {
 
         private fun showTabSavedToCollectionSnackbar(
             tabSize: Int,
-            isNewCollection: Boolean = false
+            isNewCollection: Boolean = false,
         ) {
             view?.let { view ->
                 val messageStringRes = when {
@@ -348,12 +349,15 @@ class BrowserFragment : BaseBrowserFragment(), UserInteractionHandler {
                 FenixSnackbar.make(
                     view = binding.browserLayout,
                     duration = Snackbar.LENGTH_SHORT,
-                    isDisplayedWithBrowserToolbar = true
+                    isDisplayedWithBrowserToolbar = true,
                 )
                     .setText(view.context.getString(messageStringRes))
                     .setAction(requireContext().getString(R.string.create_collection_view)) {
                         findNavController().navigate(
-                            BrowserFragmentDirections.actionGlobalHome(focusOnAddressBar = false)
+                            BrowserFragmentDirections.actionGlobalHome(
+                                focusOnAddressBar = false,
+                                scrollToCollection = true,
+                            ),
                         )
                     }
                     .show()
@@ -363,11 +367,11 @@ class BrowserFragment : BaseBrowserFragment(), UserInteractionHandler {
 
     override fun getContextMenuCandidates(
         context: Context,
-        view: View
+        view: View,
     ): List<ContextMenuCandidate> {
         val contextMenuCandidateAppLinksUseCases = AppLinksUseCases(
             requireContext(),
-            { true }
+            { true },
         )
 
         return ContextMenuCandidate.defaultCandidates(
@@ -375,10 +379,10 @@ class BrowserFragment : BaseBrowserFragment(), UserInteractionHandler {
             context.components.useCases.tabsUseCases,
             context.components.useCases.contextMenuUseCases,
             view,
-            FenixSnackbarDelegate(view)
+            FenixSnackbarDelegate(view),
         ) + ContextMenuCandidate.createOpenInExternalAppCandidate(
             requireContext(),
-            contextMenuCandidateAppLinksUseCases
+            contextMenuCandidateAppLinksUseCases,
         )
     }
 

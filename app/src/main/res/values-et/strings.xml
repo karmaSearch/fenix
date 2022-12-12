@@ -16,6 +16,8 @@
     <string name="content_description_disable_private_browsing_button">Keela privaatne veebilehitsemine</string>
     <!-- Placeholder text shown in the search bar before a user enters text -->
     <string name="search_hint">Otsi või sisesta aadress</string>
+    <!-- Placeholder text shown in the search bar when using application search engines -->
+    <string name="application_search_hint">Sisesta otsitav fraas</string>
     <!-- No Open Tabs Message Description -->
     <string name="no_open_tabs_description">Siin kuvatakse sinu avatud kaarte.</string>
 
@@ -40,8 +42,6 @@
     <!-- Home - Recently saved bookmarks -->
     <!-- Title for the home screen section with recently saved bookmarks. -->
     <string name="recent_bookmarks_title">Hiljutised järjehoidjad</string>
-    <!-- Content description for the recently saved bookmarks section on the home screen. -->
-    <string moz:removedIn="100" name="recently_saved_bookmarks_content_description" tools:ignore="UnusedResources">Hiljuti salvestatud järjehoidjad</string>
     <!-- Title for the button which navigates the user to show all of their saved bookmarks. -->
     <string moz:removedIn="101" name="recently_saved_show_all" tools:ignore="UnusedResources">Kuva kõiki</string>
     <!-- Content description for the button which navigates the user to show all of their saved bookmarks. -->
@@ -70,8 +70,6 @@
 
 
     <!-- Open in App "contextual feature recommendation" (CFR) -->
-    <!-- Text for the info message. 'Firefox' intentionally hardcoded here.-->
-    <string moz:RemovedIn="99" name="open_in_app_cfr_info_message" tools:ignore="UnusedResources">Saad seadistada Firefoxi linke avama teistes äppides.</string>
     <!-- Text for the info message. The first parameter is the name of the application.-->
     <string name="open_in_app_cfr_info_message_2">Saad seadistada %1$si linke automaatselt avama teistes äppides.</string>
     <!-- Text for the positive action button -->
@@ -99,8 +97,6 @@
     <string name="tab_tray_inactive_onboarding_button_text">Lülita see sätetes välja</string>
     <!-- Text for title for the auto-close dialog of the inactive tabs. -->
     <string name="tab_tray_inactive_auto_close_title">Kas sulgeda automaatselt kuu aja pärast?</string>
-    <!-- Text for the body for the auto-close dialog of the inactive tabs. -->
-    <string moz:RemovedIn="99" name="tab_tray_inactive_auto_close_body" tools:ignore="UnusedResources">Firefox saab sulgeda kaardid, mida sa pole viimase kuu jooksul vaadanud.</string>
     <!-- Text for the body for the auto-close dialog of the inactive tabs.
         The first parameter is the name of the application.-->
     <string name="tab_tray_inactive_auto_close_body_2">%1$s saab sulgeda kaardid, mida sa pole viimase kuu jooksul vaadanud.</string>
@@ -243,23 +239,20 @@
     <string name="search_suggestions_onboarding_title">Kas lubada privaatse veebilehitsemise režiimis otsingusoovitusi?</string>
     <!-- Search suggestion onboarding hint description text, first parameter is the name of the app defined in app_name (for example: Fenix)-->
     <string name="search_suggestions_onboarding_text">%s jagab vaikeotsingumootoriga kõike, mida aadressiribale sisestad.</string>
-    <!-- Search suggestion onboarding hint Learn more link text -->
-    <string moz:RemovedIn="100" name="search_suggestions_onboarding_learn_more_link" tools:ignore="UnusedResources">Rohkem teavet</string>
 
     <!-- Search engine suggestion title text. The first parameter is the name of teh suggested engine-->
     <string name="search_engine_suggestions_title">Otsi otsingumootoriga %s</string>
     <!-- Search engine suggestion description text -->
     <string name="search_engine_suggestions_description">Otsi otse aadressiribalt</string>
 
+    <!-- Menu option in the search selector menu to open the search settings -->
+    <string name="search_settings_menu_item">Otsingusätted</string>
+
     <!-- Home onboarding -->
-    <!-- Onboarding home screen dialog title text. Firefox is intentionally hardcoded. -->
-    <string moz:removedIn="99" name="onboarding_home_screen_title_2" tools:ignore="UnusedResources">Mis on uut Firefoxis</string>
     <!-- Onboarding home screen dialog title text. The first parameter is the name of the application.-->
     <string name="onboarding_home_screen_title_3">Mis on uut %1$sis</string>
     <!-- Onboarding home screen dialog description text. -->
     <string name="onboarding_home_screen_description_2">Nüüd on lihtsam jätkata sealt, kus pooleli jäi.</string>
-    <!-- Onboarding home screen dialog title text for the home section. Firefox is intentionally hardcoded. -->
-    <string moz:RemovedIn="99" name="onboarding_home_screen_section_home_title_2" tools:ignore="UnusedResources">Isikupärastatud Firefoxi avaleht</string>
 
     <!-- Onboarding home screen dialog title text for the home section. The first parameter is the name of the application.-->
     <string name="onboarding_home_screen_section_home_title_3">Isikupärastatud %1$si avaleht</string>
@@ -278,8 +271,6 @@
     <string name="onboarding_home_screen_jump_back_contextual_hint" tools:ignore="UnusedResources">Isikupärastatud Firefoxi avaleht teeb lihtsamaks jätkamise sealt, kus pooleli jäi. Leia oma hiljutised kaardid, järjehoidjad ja otsingutulemused.</string>
 
     <!-- Search Widget -->
-    <!-- Content description for searching with a widget. Firefox is intentionally hardcoded.-->
-    <string moz:RemovedIn="99" name="search_widget_content_description" tools:ignore="UnusedResources">Ava uus Firefoxi kaart</string>
     <!-- Content description for searching with a widget. The first parameter is the name of the application.-->
     <string name="search_widget_content_description_2">Ava uus kaart %1$sis</string>
     <!-- Text preview for smaller sized widgets -->
@@ -438,6 +429,8 @@
     <string name="customize_toggle_recently_visited">Hiljuti külastatud</string>
     <!-- Title for the customize home screen section with Pocket. -->
     <string name="customize_toggle_pocket">Pocket</string>
+    <!-- Title for the customize home screen section with sponsored Pocket stories. -->
+    <string name="customize_toggle_pocket_sponsored">Sponsitud lood</string>
     <!-- Title for the opening wallpaper settings screen -->
     <string name="customize_wallpapers">Taustapildid</string>
     <!-- Title for the customize home screen section with sponsored shortcuts. -->
@@ -451,11 +444,7 @@
     <!-- Snackbar label for action to view selected wallpaper -->
     <string name="wallpaper_updated_snackbar_action">Vaata</string>
     <!-- Label for switch which toggles the "tap-to-switch" behavior on home screen logo -->
-    <string moz:removedIn="99" name="wallpaper_tap_to_change_switch_label" tools:ignore="UnusedResources">Taustapildi vahetamiseks puuduta logo</string>
-    <!-- Label for switch which toggles the "tap-to-switch" behavior on home screen logo -->
     <string name="wallpaper_tap_to_change_switch_label_1">Taustapildi muutmiseks puuduta Firefoxi logo avalehel</string>
-    <!-- Description for switch which toggles the "tap-to-switch" behavior on home screen logo -->
-    <string moz:removedIn="99" name="wallpaper_tap_to_change_switch_description" tools:ignore="UnusedResources">Sirvi läbi ja uuenda pilti avalehelt lahkumata.</string>
     <!-- This is the accessibility content description for the wallpapers functionality. Users are
     able to tap on the app logo in the home screen and can switch to different wallpapers by tapping. -->
     <string name="wallpaper_logo_content_description">Firefoxi logo - taustapildi muutmise nupp</string>
@@ -682,8 +671,6 @@
     <string name="studies_remove">Eemalda</string>
     <!-- Title of the active section on the studies list -->
     <string name="studies_active">Praegu toimuvad</string>
-    <!-- Description for studies, it indicates why Firefox use studies -->
-    <string moz:RemovedIn="99" name="studies_description" tools:ignore="UnusedResources">Firefox võib aegajalt paigaldada ja käivitada uuringuid.</string>
     <!-- Description for studies, it indicates why Firefox use studies. The first parameter is the name of the application. -->
     <string name="studies_description_2">%1$s võib aegajalt paigaldada ja käivitada uuringuid.</string>
     <!-- Learn more link for studies, links to an article for more information about studies. -->
@@ -746,7 +733,7 @@
     <!-- Open tabs menu item to save tabs to collection -->
     <string name="tabs_menu_save_to_collection1">Salvesta kaardid kollektsiooni</string>
     <!-- Content description (not visible, for screen readers etc.): Opens the tab menu when pressed -->
-    <string name="tab_menu">Kaartide menüü</string>
+    <string moz:RemovedIn="103" name="tab_menu" tools:ignore="UnusedResources">Kaartide menüü</string>
     <!-- Text for the menu button to delete a collection -->
     <string name="collection_delete">Kustuta kollektsioon</string>
     <!-- Text for the menu button to rename a collection -->
@@ -768,8 +755,6 @@
     <string name="tab_tray_header_title_1">Teised kaardid</string>
 
     <!-- History -->
-    <!-- Text for the button to search all history -->
-    <string moz:removedIn="99" name="history_search" tools:ignore="UnusedResources">Sisesta otsitav fraas</string>
     <!-- Text for the button to search all history -->
     <string name="history_search_1">Sisesta otsitav fraas</string>
     <!-- Text for the button to clear all history -->
@@ -796,6 +781,11 @@
     <!-- Text shown when no history exists -->
     <string name="history_empty_message">Ajalugu puudub</string>
 
+
+    <!-- Text for the button inside History screen that opens Synced History screen. History that is coming from other devices -->
+    <string name="history_synced_from_other_devices">Sünkroniseeritud teistest seadmetest</string>
+    <!-- The page title for browsing history coming from other devices. -->
+    <string name="history_from_other_devices">Teistest seadmetest</string>
 
     <!-- Downloads -->
     <!-- Text for the snackbar to confirm that multiple downloads items have been removed -->
@@ -1181,44 +1171,22 @@
     <!-- Text for the snackbar to show the user that the deletion of browsing data is in progress -->
     <string name="deleting_browsing_data_in_progress">Lehitsemisandmete kustutamine…</string>
 
-    <!-- Tips -->
-    <!-- text for firefox preview moving tip header "Firefox Preview" and "Firefox Nightly" are intentionally hardcoded -->
-    <string moz:RemovedIn="100" name="tip_firefox_preview_moved_header" tools:ignore="UnusedResources">Firefox Preview on nüüd Firefox Nightly</string>
-
-    <!-- text for firefox preview moving tip description -->
-    <string moz:RemovedIn="100" name="tip_firefox_preview_moved_description" tools:ignore="UnusedResources">
-Firefox Nightlyt uuendatakse igal ööl ning see sisaldab uusi eksperimetaalseid funktsionaalsusi.
-Samas võib see olla vähem stabiilne. Stabiilsema kogemuse saamiseks võid alla laadida meie brauseri beeta versiooni.</string>
-    <!-- text for firefox preview moving tip button. "Firefox for Android Beta" is intentionally hardcoded -->
-    <string moz:RemovedIn="100" name="tip_firefox_preview_moved_button_2" tools:ignore="UnusedResources">Hangi Firefox Androidile beeta</string>
-
-    <!-- text for firefox preview moving tip header. "Firefox Nightly" is intentionally hardcoded -->
-    <string moz:RemovedIn="100" name="tip_firefox_preview_moved_header_preview_installed" tools:ignore="UnusedResources">Firefox Nightly on liikunud</string>
-    <!-- text for firefox preview moving tip description -->
-    <string moz:RemovedIn="100" name="tip_firefox_preview_moved_description_preview_installed" tools:ignore="UnusedResources">
-        This app will no longer receive security updates. Stop using this app and switch to the new Nightly.
-        \n\nTo transfer your bookmarks, logins, and history to another app, create a Firefox account.</string>
-    <!-- text for firefox preview moving tip button  -->
-    <string moz:RemovedIn="100" name="tip_firefox_preview_moved_button_preview_installed" tools:ignore="UnusedResources">Lülitu uuele Nightlyle</string>
-
-    <!-- text for firefox preview moving tip header. "Firefox Nightly" is intentionally hardcoded -->
-    <string moz:RemovedIn="100" name="tip_firefox_preview_moved_header_preview_not_installed" tools:ignore="UnusedResources">Firefox Nightly on liikunud</string>
-    <!-- text for firefox preview moving tip description -->
-    <string moz:RemovedIn="100" name="tip_firefox_preview_moved_description_preview_not_installed" tools:ignore="UnusedResources">
-See äpp ei saa enam turvauuendusi. Hangi uus Nightly ja lõpeta selle äpi kasutamine.
-\n\nOma järjehoidjate, kasutajakontode ja ajaloo teise äppi liigutamiseks loo Firefoxi konto.</string>
-    <!-- text for firefox preview moving tip button  -->
-    <string moz:RemovedIn="100" name="tip_firefox_preview_moved_button_preview_not_installed" tools:ignore="UnusedResources">Hangi uus Nightly</string>
+    <!-- Dialog message to the user asking to delete all history items inside the opened group. -->
+    <string name="delete_history_group_prompt_message">See kustutab kõik asjad.</string>
+    <!-- Text for the cancel button for the history group deletion dialog -->
+    <string name="delete_history_group_prompt_cancel">Loobu</string>
+    <!-- Text for the allow button for the history group dialog -->
+    <string name="delete_history_group_prompt_allow">Kustuta</string>
+    <!-- Text for the snackbar confirmation that the history group was deleted -->
+    <string name="delete_history_group_snackbar">Grupp kustutatud</string>
 
     <!-- Onboarding -->
     <!-- Text for onboarding welcome message
-    The first parameter is the name of the app (e.g. KARMA Preview) -->
+    The first parameter is the name of the app (e.g. Firefox Preview) -->
     <string name="onboarding_header">Tere tulemast %si!</string>
 
     <!-- text for the Firefox account onboarding sign in card header. The word "Firefox" should not be translated -->
     <string name="onboarding_account_sign_in_header_1">Sünkroniseeri Firefox seadmete vahel</string>
-    <!-- text for the Firefox account onboarding sign in card header. The first parameter is the name of the application.-->
-    <string moz:RemovedIn="100" name="onboarding_account_sign_in_header_2" tools:ignore="UnusedResources">Sünkroniseeri %1$s seadmete vahel</string>
     <!-- Text for the button to learn more about signing in to your Firefox account. The first parameter is the name of the application.-->
     <string name="onboarding_manual_sign_in_description_2">Too järjehoidjad, ajalugu ja paroolid %1$si selles seadmes.</string>
     <!-- text for the button to manually sign into Firefox account. -->
@@ -1228,8 +1196,6 @@ See äpp ei saa enam turvauuendusi. Hangi uus Nightly ja lõpeta selle äpi kasu
 
     <!-- text for the tracking protection onboarding card header -->
     <string name="onboarding_tracking_protection_header_3">Alati sisse lülitatud privaatsus</string>
-    <!-- text for the tracking protection card description. 'Firefox' intentionally hardcoded here -->
-    <string moz:RemovedIn="99" name="onboarding_tracking_protection_description_3" tools:ignore="UnusedResources">Firefox takistab automaatselt ettevõtetel sinu salajase jälitamise.</string>
     <!-- text for the tracking protection card description. The first parameter is the name of the application.-->
     <string name="onboarding_tracking_protection_description_4">%1$s takistab automaatselt ettevõtetel sinu salajase jälitamise.</string>
     <!-- text for tracking protection radio button option for standard level of blocking -->
@@ -1281,7 +1247,7 @@ See äpp ei saa enam turvauuendusi. Hangi uus Nightly ja lõpeta selle äpi kasu
     <!-- Title of QR Pairing Fragment -->
     <string name="sync_scan_code">Koodi skannimine</string>
     <!-- Instructions on how to access pairing -->
-    <string name="sign_in_instructions"><![CDATA[Ava KARMA oma arvutis ja mine aadressile <b>https://firefox.com/pair</b>]]></string>
+    <string name="sign_in_instructions"><![CDATA[Ava Firefox oma arvutis ja mine aadressile <b>https://firefox.com/pair</b>]]></string>
     <!-- Text shown for sign in pairing when ready -->
     <string name="sign_in_ready_for_scan">Skannimiseks valmis</string>
     <!-- Text shown for settings option for sign with pairing -->
@@ -1539,7 +1505,11 @@ See äpp ei saa enam turvauuendusi. Hangi uus Nightly ja lõpeta selle äpi kasu
     <!-- Content description (not visible, for screen readers etc.): Sort saved logins dropdown menu chevron icon -->
     <string name="saved_logins_menu_dropdown_chevron_icon_content_description">Sordi kasutajatunnuseid</string>
 
-    <!-- Credit Cards Autofill -->
+    <!-- Autofill -->
+    <!-- Preference and title for managing the autofill settings -->
+    <string name="preferences_autofill">Automaatne täitmine</string>
+    <!-- Preference and title for managing the settings for addresses -->
+    <string name="preferences_addresses">Aadressid</string>
     <!-- Preference and title for managing the settings for credit cards -->
     <string name="preferences_credit_cards">Krediitkaardid</string>
 
@@ -1555,6 +1525,15 @@ See äpp ei saa enam turvauuendusi. Hangi uus Nightly ja lõpeta selle äpi kasu
     <string name="preferences_credit_cards_add_credit_card">Lisa krediitkaart</string>
     <!-- Preference option for managing saved credit cards -->
     <string name="preferences_credit_cards_manage_saved_cards">Halda salvestatud kaarte</string>
+    <!-- Preference option for adding an address -->
+    <string name="preferences_addresses_add_address">Lisa aadress</string>
+    <!-- Preference option for managing saved addresses -->
+    <string name="preferences_addresses_manage_addresses">Halda aadresse</string>
+    <!-- Preference for saving and autofilling addresses -->
+    <string name="preferences_addresses_save_and_autofill_addresses">Aadressid salvestatakse ja täidetakse automaatselt</string>
+    <!-- Preference summary for saving and autofilling address data -->
+    <string name="preferences_addresses_save_and_autofill_addresses_summary">Lisa ka teave nagu numbrid, e-post ja postitamise aadress</string>
+
     <!-- Title of the "Add card" screen -->
     <string name="credit_cards_add_card">Kaardi lisamine</string>
     <!-- Title of the "Edit card" screen -->
@@ -1605,6 +1584,55 @@ See äpp ei saa enam turvauuendusi. Hangi uus Nightly ja lõpeta selle äpi kasu
     <!-- Message displayed in biometric prompt for authentication, before allowing users to use their stored credit card information -->
     <string name="credit_cards_biometric_prompt_unlock_message">Salvestatud krediitkaardi andmete vaatamiseks ava lukk</string>
 
+    <!-- Title of the "Add address" screen -->
+    <string name="addresses_add_address">Aadressi lisamine</string>
+    <!-- Title of the "Edit address" screen -->
+    <string name="addresses_edit_address">Aadressi muutmine</string>
+    <!-- Title of the "Manage addresses" screen -->
+    <string name="addresses_manage_addresses">Aadressi haldamine</string>
+    <!-- The header for the full name of an address -->
+    <string moz:removedIn="102" name="addresses_full_name" tools:ignore="UnusedResources">Täisnimi</string>
+    <!-- The header for the first name of an address -->
+    <string name="addresses_first_name">Eesnimi</string>
+    <!-- The header for the middle name of an address -->
+    <string name="addresses_middle_name">Teine nimi</string>
+    <!-- The header for the last name of an address -->
+    <string name="addresses_last_name">Perekonnanimi</string>
+    <!-- The header for the street address of an address -->
+    <string name="addresses_street_address">Tänava aadress</string>
+    <!-- The header for the city of an address -->
+    <string name="addresses_city">Linn</string>
+    <!-- The header for the subregion of an address when "state" should be used -->
+    <string name="addresses_state">Maakond</string>
+    <!-- The header for the subregion of an address when "province" should be used -->
+    <string name="addresses_province">Maakond</string>
+    <!-- The header for the zip code of an address -->
+    <string name="addresses_zip">Postiindeks</string>
+    <!-- The header for the country or region of an address -->
+    <string name="addresses_country">Riik või piirkond</string>
+    <!-- The header for the phone number of an address -->
+    <string name="addresses_phone">Telefon</string>
+    <!-- The header for the email of an address -->
+    <string name="addresses_email">E-post</string>
+    <!-- The text for the "Save" button for saving an address -->
+    <string name="addresses_save_button">Salvesta</string>
+    <!-- The text for the "Cancel" button for cancelling adding, updating or deleting an address -->
+    <string name="addresses_cancel_button">Loobu</string>
+    <!-- The text for the "Delete address" button for deleting an address -->
+    <string name="addressess_delete_address_button">Kustuta aadress</string>
+
+    <!-- The title for the "Delete address" confirmation dialog -->
+    <string name="addressess_confirm_dialog_message">Kas oled kindel, et soovid selle aadressi kustutada?</string>
+
+    <!-- The text for the positive button on "Delete address" dialog -->
+    <string name="addressess_confirm_dialog_ok_button">Kustuta</string>
+    <!-- The text for the negative button on "Delete address" dialog -->
+    <string name="addressess_confirm_dialog_cancel_button">Loobu</string>
+    <!-- The text for the "Save address" menu item for saving an address -->
+    <string name="address_menu_save_address">Salvesta aadress</string>
+    <!-- The text for the "Delete address" menu item for deleting an address -->
+    <string name="address_menu_delete_address">Kustuta aadress</string>
+
     <!-- Title of the Add search engine screen -->
     <string name="search_engine_add_custom_search_engine_title">Otsingumootori lisamine</string>
     <!-- Title of the Edit search engine screen -->
@@ -1644,21 +1672,6 @@ See äpp ei saa enam turvauuendusi. Hangi uus Nightly ja lõpeta selle äpi kasu
     <string name="search_edit_custom_engine_success_message">Otsingumootori %s muudatused salvestati</string>
     <!-- Text shown when a user successfully deletes a custom search engine -->
     <string name="search_delete_search_engine_success_message">Otsingumootor %s kustutati</string>
-
-    <!-- Title text shown for the migration screen to the new browser. Placeholder replaced with app name -->
-    <string moz:removedIn="100" name="migration_title" tools:ignore="UnusedResources">Tere tulemast täiesti uude %si</string>
-    <!-- Description text followed by a list of things migrating (e.g. Bookmarks, History). Placeholder replaced with app name-->
-    <string moz:removedIn="100" name="migration_description" tools:ignore="UnusedResources">Täielikult ümberehitatud brauser koos täiustatud jõudluse ja funktsioonidega ootab, et aidata sul internetis veel rohkem ära teha.\n\nPalun oota, kuni uuendame %si sinu</string>
-
-    <!-- Text on the disabled button while in progress. Placeholder replaced with app name -->
-    <string moz:removedIn="100" name="migration_updating_app_button_text" tools:ignore="UnusedResources">%si uuendamine…</string>
-    <!-- Text on the enabled button. Placeholder replaced with app name-->
-    <string moz:removedIn="100" name="migration_update_app_button" tools:ignore="UnusedResources">Käivita %s</string>
-
-    <!-- Accessibility description text for a completed migration item -->
-    <string moz:removedIn="100" name="migration_icon_description" tools:ignore="UnusedResources">Migreerimine lõpetati</string>
-    <!--Text on list of migrated items (e.g. Settings, History, etc.)-->
-    <string moz:removedIn="100" name="migration_text_passwords" tools:ignore="UnusedResources">paroole</string>
 
     <!-- Heading for the instructions to allow a permission -->
     <string name="phone_feature_blocked_intro">Lubamiseks:</string>
@@ -1752,11 +1765,9 @@ See äpp ei saa enam turvauuendusi. Hangi uus Nightly ja lõpeta selle äpi kasu
     <string name="synced_tabs_enable_tab_syncing">Palun luba kaartide sünkroniseerimine.</string>
     <!-- Text displayed when user has no tabs that have been synced -->
     <string name="synced_tabs_no_tabs">Sul pole teistes seadmetes olevates Firefoxides kaarte avatud.</string>
-    <!-- Text displayed when user has no tabs that have been synced. The first parameter is the name of the application.-->
-    <string moz:RemovedIn="100" name="synced_tabs_no_tabs_2" tools:ignore="UnusedResources">Sul pole teistes seadmetes olevates %1$sides kaarte avatud.</string>
     <!-- Text displayed in the synced tabs screen when a user is not signed in to Firefox Sync describing Synced Tabs -->
     <string name="synced_tabs_sign_in_message">Vaata teistes seadmetes avatud kaartide nimekirja.</string>
-    <!-- Text displayed on a button in the synced tabs screen to link users to sign in when a user is not signed in to KARMA Sync -->
+    <!-- Text displayed on a button in the synced tabs screen to link users to sign in when a user is not signed in to Firefox Sync -->
     <string name="synced_tabs_sign_in_button">Sünkroniseerimiseks logi sisse</string>
 
     <!-- The text displayed when a synced device has no tabs to show in the list of Synced Tabs. -->
@@ -1802,6 +1813,11 @@ See äpp ei saa enam turvauuendusi. Hangi uus Nightly ja lõpeta selle äpi kasu
     <!-- Content description for closing all inactive tabs -->
     <string name="inactive_tabs_delete_all">Sulge kõik mitteaktiivsed kaardid</string>
 
+    <!-- Content description for expanding the inactive tabs section. -->
+    <string name="inactive_tabs_expand_content_description">Laienda mitteaktiivsed kaardid</string>
+    <!-- Content description for collapsing the inactive tabs section. -->
+    <string name="inactive_tabs_collapse_content_description">Ahenda mitteaktiivsed kaardid</string>
+
     <!-- Inactive tabs auto-close message in the tabs tray -->
     <!-- The header text of the auto-close message when the user is asked if they want to turn on the auto-closing of inactive tabs. -->
     <string name="inactive_tabs_auto_close_message_header" tools:ignore="UnusedResources">Kas sulgeda automaatselt kuu aja pärast?</string>
@@ -1811,24 +1827,6 @@ See äpp ei saa enam turvauuendusi. Hangi uus Nightly ja lõpeta selle äpi kasu
     <string name="inactive_tabs_auto_close_message_action" tools:ignore="UnusedResources">LÜLITA SISSE AUTOMAATNE SULGEMINE</string>
     <!-- Text for the snackbar to confirm auto-close is enabled for inactive tabs -->
     <string name="inactive_tabs_auto_close_message_snackbar">Automaatne sulgemine on lubatud</string>
-
-    <!-- Inactive tabs survey -->
-    <!-- Header text for the inactive tabs survey asking for feedback to improve the inactive tabs feature. -->
-    <string moz:RemovedIn="99" name="inactive_tabs_survey_header_1" tools:ignore="UnusedResources">Aita Firefoxi paremaks teha</string>
-    <!-- Content text for the inactive tabs survey asking the primary survey feedback question. -->
-    <string moz:RemovedIn="99" name="inactive_tabs_survey_content" tools:ignore="UnusedResources">Miks sa keelasid mitteaktiivsed kaardid?</string>
-    <!-- One of the feedback option that can be selected as a responses to the inactive tabs survey question. -->
-    <string moz:RemovedIn="99" name="inactive_tabs_survey_do_not_understand" tools:ignore="UnusedResources">Ma ei saa aru, kuidas see töötab</string>
-    <!-- One of the feedback option that can be selected as a responses to the inactive tabs survey question. -->
-    <string moz:RemovedIn="99" name="inactive_tabs_survey_do_it_myself" tools:ignore="UnusedResources">Mulle meeldib ise vanu kaarte sulgeda</string>
-    <!-- One of the feedback option that can be selected as a responses to the inactive tabs survey question. -->
-    <string moz:RemovedIn="99" name="inactive_tabs_survey_time_too_long_option_1" tools:ignore="UnusedResources">Kahenädalane ajavahemik on liiga pikk</string>
-    <!-- One of the feedback option that can be selected as a responses to the inactive tabs survey question. -->
-    <string moz:RemovedIn="99" name="inactive_tabs_survey_time_too_short_option_1" tools:ignore="UnusedResources">Kahenädalane ajavahemik on liiga lühike</string>
-    <!-- Confirmation button text to submit the feedback for the inactive tabs survey. -->
-    <string moz:RemovedIn="99" name="inactive_tabs_survey_send_button" tools:ignore="UnusedResources">Saada</string>
-    <!-- Content description for inactive tabs survey close button -->
-    <string moz:RemovedIn="99" name="inactive_tabs_survey_close_button_content_description" tools:ignore="UnusedResources">Sulge</string>
 
     <!-- Default browser experiment -->
     <string name="default_browser_experiment_card_text">Määra Firefox automaatselt avama linke, e-posti ja sõnumeid.</string>
@@ -1858,6 +1856,9 @@ See äpp ei saa enam turvauuendusi. Hangi uus Nightly ja lõpeta selle äpi kasu
     <string name="pocket_stories_feature_caption">Osa Firefoxi perekonnast. %s</string>
     <!-- Clickable text for opening an external link for more information about Pocket. -->
     <string name="pocket_stories_feature_learn_more">Rohkem teavet</string>
+
+    <!-- Text indicating that the Pocket story that also displays this text is a sponsored story by other 3rd party entity. -->
+    <string name="pocket_stories_sponsor_indication">Sponsitud</string>
 
     <!-- Snackbar message for enrolling in a Nimbus experiment from the secret settings when Studies preference is Off.-->
     <string name="experiments_snackbar">Andmete saatmiseks luba telemeetria.</string>

@@ -8,7 +8,7 @@ import android.content.Context
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import mozilla.appservices.places.BookmarkRoot
 import mozilla.components.concept.storage.BookmarkNode
 import mozilla.components.concept.storage.BookmarkNodeType
@@ -35,7 +35,7 @@ class DesktopFoldersTest {
         position = 0u,
         url = null,
         dateAdded = 0,
-        children = null
+        children = null,
     )
 
     @Before
@@ -63,7 +63,7 @@ class DesktopFoldersTest {
     }
 
     @Test
-    fun `withOptionalDesktopFolders other node`() = runBlocking {
+    fun `withOptionalDesktopFolders other node`() = runTest {
         val node = basicNode.copy(guid = "12345")
         val desktopFolders = DesktopFolders(context, showMobileRoot = true)
 

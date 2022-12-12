@@ -4,133 +4,24 @@
 
 package org.mozilla.fenix.home.sessioncontrol
 
-import androidx.recyclerview.widget.RecyclerView
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.verify
-import karma.service.learnandact.LearnAndAct
 import mozilla.components.feature.tab.collections.TabCollection
 import mozilla.components.feature.top.sites.TopSite
-import mozilla.components.service.pocket.PocketRecommendedStory
-import mozilla.components.support.test.robolectric.testContext
+import mozilla.components.service.pocket.PocketStory
+import mozilla.components.service.pocket.PocketStory.PocketRecommendedStory
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mozilla.fenix.components.appstate.AppState
-import org.mozilla.fenix.ext.components
+import org.mozilla.fenix.gleanplumb.Message
 import org.mozilla.fenix.helpers.FenixRobolectricTestRunner
 import org.mozilla.fenix.home.recentbookmarks.RecentBookmark
-import org.mozilla.fenix.home.recenttabs.RecentTab
 import org.mozilla.fenix.home.recentvisits.RecentlyVisitedItem.RecentHistoryGroup
 import org.mozilla.fenix.utils.Settings
 
 @RunWith(FenixRobolectricTestRunner::class)
 class SessionControlViewTest {
-
-    @Test
-    fun `GIVEN recent Bookmarks WHEN calling shouldShowHomeOnboardingDialog THEN show the dialog `() {
-        val recentBookmarks = listOf(RecentBookmark())
-        val settings: Settings = mockk()
-
-        every { settings.hasShownHomeOnboardingDialog } returns false
-
-        val state = AppState(recentBookmarks = recentBookmarks)
-
-        assertTrue(state.shouldShowHomeOnboardingDialog(settings))
-    }
-
-    @Test
-    fun `GIVEN recentTabs WHEN calling shouldShowHomeOnboardingDialog THEN show the dialog `() {
-        val recentTabs = listOf<RecentTab>(mockk())
-        val settings: Settings = mockk()
-
-        every { settings.hasShownHomeOnboardingDialog } returns false
-
-        val state = AppState(recentTabs = recentTabs)
-
-        assertTrue(state.shouldShowHomeOnboardingDialog(settings))
-    }
-
-    @Test
-    fun `GIVEN historyMetadata WHEN calling shouldShowHomeOnboardingDialog THEN show the dialog `() {
-        val historyMetadata = listOf(RecentHistoryGroup("title", emptyList()))
-        val settings: Settings = mockk()
-
-        every { settings.hasShownHomeOnboardingDialog } returns false
-
-        val state = AppState(recentHistory = historyMetadata)
-
-        assertTrue(state.shouldShowHomeOnboardingDialog(settings))
-    }
-
-    @Test
-    fun `GIVEN pocketArticles WHEN calling shouldShowHomeOnboardingDialog THEN show the dialog `() {
-        val pocketArticles = listOf(PocketRecommendedStory("", "", "", "", "", 0, 0))
-        val settings: Settings = mockk()
-
-        every { settings.hasShownHomeOnboardingDialog } returns false
-
-        val state = AppState(pocketStories = pocketArticles)
-
-        assertTrue(state.shouldShowHomeOnboardingDialog(settings))
-    }
-
-    @Test
-    fun `GIVEN the home onboading dialog has been shown before WHEN calling shouldShowHomeOnboardingDialog THEN DO NOT showthe dialog `() {
-        val pocketArticles = listOf(PocketRecommendedStory("", "", "", "", "", 0, 0))
-        val settings: Settings = mockk()
-
-        every { settings.hasShownHomeOnboardingDialog } returns true
-
-        val state = AppState(pocketStories = pocketArticles)
-
-        assertFalse(state.shouldShowHomeOnboardingDialog(settings))
-    }
-
-    @Test
-    fun `GIVENs updates WHEN sections recentTabs, recentBookmarks, historyMetadata or pocketArticles are available THEN show the dialog`() {
-        every { testContext.components.settings } returns mockk(relaxed = true)
-        val interactor = mockk<SessionControlInteractor>(relaxed = true)
-        val view = RecyclerView(testContext)
-        val controller = SessionControlView(
-            mockk(relaxed = true),
-            view,
-            mockk(relaxed = true),
-            interactor
-        )
-        val recentTabs = listOf<RecentTab>(mockk(relaxed = true))
-
-        val state = AppState(recentTabs = recentTabs)
-
-        controller.update(state)
-
-        verify {
-            interactor.showOnboardingDialog()
-        }
-    }
-
-    @Test
-    fun `GIVENs updates WHEN sections recentTabs, recentBookmarks, historyMetadata or pocketArticles are NOT available THEN DO NOT show the dialog`() {
-        every { testContext.components.settings } returns mockk(relaxed = true)
-        val interactor = mockk<SessionControlInteractor>(relaxed = true)
-        val view = RecyclerView(testContext)
-        val controller = SessionControlView(
-            mockk(relaxed = true),
-            view,
-            mockk(relaxed = true),
-            interactor
-        )
-
-        val state = AppState()
-
-        controller.update(state)
-
-        verify(exactly = 0) {
-            interactor.showOnboardingDialog()
-        }
-    }
 
     @Test
     fun `GIVEN recent Bookmarks WHEN normalModeAdapterItems is called THEN add a customize home button`() {
@@ -139,10 +30,8 @@ class SessionControlViewTest {
         val collections = emptyList<TabCollection>()
         val expandedCollections = emptySet<Long>()
         val recentBookmarks = listOf(RecentBookmark())
-        val recentTabs = emptyList<RecentTab.Tab>()
         val historyMetadata = emptyList<RecentHistoryGroup>()
-        val pocketArticles = emptyList<PocketRecommendedStory>()
-        val learnAndAct = emptyList<LearnAndAct>()
+        val pocketStories = emptyList<PocketStory>()
 
         every { settings.showTopSitesFeature } returns true
         every { settings.showRecentTabsFeature } returns true
@@ -157,11 +46,11 @@ class SessionControlViewTest {
             expandedCollections,
             recentBookmarks,
             false,
+            null,
             false,
-            recentTabs,
-            historyMetadata,
-            pocketArticles,
-            learnAndAct
+            showRecentSyncedTab = false,
+            recentVisits = historyMetadata,
+            pocketStories = pocketStories,
         )
 
         assertTrue(results[0] is AdapterItem.TopPlaceholderItem)
@@ -171,16 +60,15 @@ class SessionControlViewTest {
     }
 
     @Test
-    fun `GIVEN recent tabs WHEN normalModeAdapterItems is called THEN add a customize home button`() {
+    fun `GIVEN a nimbusMessageCard WHEN normalModeAdapterItems is called THEN add a NimbusMessageCard`() {
         val settings: Settings = mockk()
         val topSites = emptyList<TopSite>()
         val collections = emptyList<TabCollection>()
         val expandedCollections = emptySet<Long>()
-        val recentBookmarks = listOf<RecentBookmark>()
-        val recentTabs = listOf<RecentTab.Tab>(mockk())
+        val recentBookmarks = listOf(RecentBookmark())
         val historyMetadata = emptyList<RecentHistoryGroup>()
-        val pocketArticles = emptyList<PocketRecommendedStory>()
-        val learnAndAct = emptyList<LearnAndAct>()
+        val pocketStories = emptyList<PocketStory>()
+        val nimbusMessageCard: Message = mockk()
 
         every { settings.showTopSitesFeature } returns true
         every { settings.showRecentTabsFeature } returns true
@@ -195,11 +83,44 @@ class SessionControlViewTest {
             expandedCollections,
             recentBookmarks,
             false,
+            nimbusMessageCard,
             false,
-            recentTabs,
+            showRecentSyncedTab = false,
             historyMetadata,
-            pocketArticles,
-            learnAndAct
+            pocketStories,
+        )
+
+        assertTrue(results.contains(AdapterItem.NimbusMessageCard(nimbusMessageCard)))
+    }
+
+    @Test
+    fun `GIVEN recent tabs WHEN normalModeAdapterItems is called THEN add a customize home button`() {
+        val settings: Settings = mockk()
+        val topSites = emptyList<TopSite>()
+        val collections = emptyList<TabCollection>()
+        val expandedCollections = emptySet<Long>()
+        val recentBookmarks = listOf<RecentBookmark>()
+        val historyMetadata = emptyList<RecentHistoryGroup>()
+        val pocketStories = emptyList<PocketStory>()
+
+        every { settings.showTopSitesFeature } returns true
+        every { settings.showRecentTabsFeature } returns true
+        every { settings.showRecentBookmarksFeature } returns true
+        every { settings.historyMetadataUIFeature } returns true
+        every { settings.showPocketRecommendationsFeature } returns true
+
+        val results = normalModeAdapterItems(
+            settings,
+            topSites,
+            collections,
+            expandedCollections,
+            recentBookmarks,
+            false,
+            null,
+            true,
+            showRecentSyncedTab = false,
+            historyMetadata,
+            pocketStories,
         )
 
         assertTrue(results[0] is AdapterItem.TopPlaceholderItem)
@@ -215,10 +136,8 @@ class SessionControlViewTest {
         val collections = emptyList<TabCollection>()
         val expandedCollections = emptySet<Long>()
         val recentBookmarks = listOf<RecentBookmark>()
-        val recentTabs = emptyList<RecentTab.Tab>()
         val historyMetadata = listOf(RecentHistoryGroup("title", emptyList()))
-        val pocketArticles = emptyList<PocketRecommendedStory>()
-        val learnAndAct = emptyList<LearnAndAct>()
+        val pocketStories = emptyList<PocketStory>()
 
         every { settings.showTopSitesFeature } returns true
         every { settings.showRecentTabsFeature } returns true
@@ -233,11 +152,11 @@ class SessionControlViewTest {
             expandedCollections,
             recentBookmarks,
             false,
+            null,
             false,
-            recentTabs,
+            showRecentSyncedTab = false,
             historyMetadata,
-            pocketArticles,
-            learnAndAct
+            pocketStories,
         )
 
         assertTrue(results[0] is AdapterItem.TopPlaceholderItem)
@@ -253,10 +172,8 @@ class SessionControlViewTest {
         val collections = emptyList<TabCollection>()
         val expandedCollections = emptySet<Long>()
         val recentBookmarks = listOf<RecentBookmark>()
-        val recentTabs = emptyList<RecentTab.Tab>()
         val historyMetadata = emptyList<RecentHistoryGroup>()
-        val pocketArticles = listOf(PocketRecommendedStory("", "", "", "", "", 1, 1))
-        val learnAndAct = emptyList<LearnAndAct>()
+        val pocketStories = listOf(PocketRecommendedStory("", "", "", "", "", 1, 1))
 
         every { settings.showTopSitesFeature } returns true
         every { settings.showRecentTabsFeature } returns true
@@ -271,11 +188,12 @@ class SessionControlViewTest {
             expandedCollections,
             recentBookmarks,
             false,
+            null,
             false,
-            recentTabs,
+            showRecentSyncedTab = false,
             historyMetadata,
-            pocketArticles,
-            learnAndAct
+            pocketStories,
+            true,
         )
 
         assertTrue(results[0] is AdapterItem.TopPlaceholderItem)
@@ -283,6 +201,25 @@ class SessionControlViewTest {
         assertTrue(results[2] is AdapterItem.PocketCategoriesItem)
         assertTrue(results[3] is AdapterItem.PocketRecommendationsFooterItem)
         assertTrue(results[4] is AdapterItem.CustomizeHomeButton)
+
+        // When the first frame has not yet drawn don't add pocket.
+        val results2 = normalModeAdapterItems(
+            settings,
+            topSites,
+            collections,
+            expandedCollections,
+            recentBookmarks,
+            false,
+            null,
+            false,
+            showRecentSyncedTab = false,
+            historyMetadata,
+            pocketStories,
+            false,
+        )
+
+        assertTrue(results2[0] is AdapterItem.TopPlaceholderItem)
+        assertTrue(results2[1] is AdapterItem.BottomSpacer)
     }
 
     @Test
@@ -292,10 +229,8 @@ class SessionControlViewTest {
         val collections = emptyList<TabCollection>()
         val expandedCollections = emptySet<Long>()
         val recentBookmarks = listOf<RecentBookmark>()
-        val recentTabs = emptyList<RecentTab.Tab>()
         val historyMetadata = emptyList<RecentHistoryGroup>()
-        val pocketArticles = emptyList<PocketRecommendedStory>()
-        val learnAndAct = emptyList<LearnAndAct>()
+        val pocketStories = emptyList<PocketStory>()
 
         every { settings.showTopSitesFeature } returns true
         every { settings.showRecentTabsFeature } returns true
@@ -310,11 +245,11 @@ class SessionControlViewTest {
             expandedCollections,
             recentBookmarks,
             false,
+            null,
             false,
-            recentTabs,
+            showRecentSyncedTab = false,
             historyMetadata,
-            pocketArticles,
-            learnAndAct
+            pocketStories,
         )
         assertEquals(results.size, 2)
         assertTrue(results[0] is AdapterItem.TopPlaceholderItem)
@@ -330,9 +265,8 @@ class SessionControlViewTest {
         val collections = listOf(collection)
         val expandedCollections = emptySet<Long>()
         val recentBookmarks = listOf<RecentBookmark>(mockk())
-        val recentTabs = listOf<RecentTab.Tab>(mockk())
         val historyMetadata = listOf<RecentHistoryGroup>(mockk())
-        val pocketArticles = listOf<PocketRecommendedStory>(mockk())
+        val pocketStories = listOf<PocketStory>(mockk())
 
         every { settings.showTopSitesFeature } returns true
         every { settings.showRecentTabsFeature } returns true
@@ -347,10 +281,11 @@ class SessionControlViewTest {
             expandedCollections,
             recentBookmarks,
             false,
-            false,
-            recentTabs,
+            null,
+            true,
+            showRecentSyncedTab = true,
             historyMetadata,
-            pocketArticles
+            pocketStories,
         )
 
         assertTrue(results[0] is AdapterItem.TopPlaceholderItem)

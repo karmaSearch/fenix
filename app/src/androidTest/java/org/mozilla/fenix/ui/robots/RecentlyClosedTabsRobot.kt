@@ -17,6 +17,7 @@ import org.hamcrest.Matchers
 import org.hamcrest.Matchers.allOf
 import org.mozilla.fenix.R
 import org.mozilla.fenix.helpers.TestAssetHelper
+import org.mozilla.fenix.helpers.TestHelper.mDevice
 import org.mozilla.fenix.helpers.TestHelper.packageName
 import org.mozilla.fenix.helpers.click
 
@@ -29,7 +30,7 @@ class RecentlyClosedTabsRobot {
     fun waitForListToExist() =
         mDevice.findObject(UiSelector().resourceId("$packageName:id/recently_closed_list"))
             .waitForExists(
-                TestAssetHelper.waitingTime
+                TestAssetHelper.waitingTime,
             )
 
     fun verifyRecentlyClosedTabsMenuView() = assertRecentlyClosedTabsMenuView()
@@ -57,11 +58,11 @@ private fun assertRecentlyClosedTabsMenuView() {
     onView(
         allOf(
             withText("Recently closed tabs"),
-            withParent(withId(R.id.navigationToolbar))
-        )
+            withParent(withId(R.id.navigationToolbar)),
+        ),
     )
         .check(
-            matches(withEffectiveVisibility(Visibility.VISIBLE))
+            matches(withEffectiveVisibility(Visibility.VISIBLE)),
         )
 }
 
@@ -71,8 +72,8 @@ private fun assertEmptyRecentlyClosedTabsList() {
     onView(
         allOf(
             withId(R.id.recently_closed_empty_view),
-            withText(R.string.recently_closed_empty_message)
-        )
+            withText(R.string.recently_closed_empty_message),
+        ),
     ).check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
 }
 
@@ -80,19 +81,19 @@ private fun assertPageUrl(expectedUrl: Uri) = onView(
     allOf(
         withId(R.id.url),
         withEffectiveVisibility(
-            Visibility.VISIBLE
-        )
-    )
+            Visibility.VISIBLE,
+        ),
+    ),
 )
     .check(
-        matches(withText(Matchers.containsString(expectedUrl.toString())))
+        matches(withText(Matchers.containsString(expectedUrl.toString()))),
     )
 
 private fun recentlyClosedTabsPageTitle(title: String) = onView(
     allOf(
         withId(R.id.title),
-        withText(title)
-    )
+        withText(title),
+    ),
 )
 
 private fun assertRecentlyClosedTabsPageTitle(title: String) {
@@ -105,7 +106,7 @@ private fun recentlyClosedTabsDeleteButton() =
         allOf(
             withId(R.id.overflow_menu),
             withEffectiveVisibility(
-                Visibility.VISIBLE
-            )
-        )
+                Visibility.VISIBLE,
+            ),
+        ),
     )

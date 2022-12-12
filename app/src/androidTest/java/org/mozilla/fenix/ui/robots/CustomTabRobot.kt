@@ -18,6 +18,7 @@ import org.mozilla.fenix.R
 import org.mozilla.fenix.helpers.Constants.LONG_CLICK_DURATION
 import org.mozilla.fenix.helpers.TestAssetHelper.waitingTime
 import org.mozilla.fenix.helpers.TestHelper.appName
+import org.mozilla.fenix.helpers.TestHelper.mDevice
 import org.mozilla.fenix.helpers.TestHelper.packageName
 import org.mozilla.fenix.helpers.TestHelper.waitForObjects
 
@@ -37,7 +38,7 @@ class CustomTabRobot {
     fun verifyPoweredByTextIsDisplayed() {
         assertTrue(
             mDevice.findObject(UiSelector().textContains("POWERED BY $appName"))
-                .waitForExists(waitingTime)
+                .waitForExists(waitingTime),
         )
     }
 
@@ -60,20 +61,25 @@ class CustomTabRobot {
     }
 
     fun verifyCustomTabToolbarTitle(title: String) {
+        waitForPageToLoad()
+
         mDevice.waitForObjects(
             mDevice.findObject(
                 UiSelector()
                     .resourceId("$packageName:id/mozac_browser_toolbar_title_view")
-                    .textContains(title)
+                    .textContains(title),
             )
+                .getFromParent(
+                    UiSelector().resourceId("$packageName:id/mozac_browser_toolbar_origin_view"),
+                ),
         )
 
         assertTrue(
             mDevice.findObject(
                 UiSelector()
                     .resourceId("$packageName:id/mozac_browser_toolbar_title_view")
-                    .textContains(title)
-            ).waitForExists(waitingTime)
+                    .textContains(title),
+            ).waitForExists(waitingTime),
         )
     }
 
@@ -172,7 +178,7 @@ private fun customTabToolbar() = mDevice.findObject(By.res("$packageName:id/tool
 
 private val progressBar =
     mDevice.findObject(
-        UiSelector().resourceId("$packageName:id/mozac_browser_toolbar_progress")
+        UiSelector().resourceId("$packageName:id/mozac_browser_toolbar_progress"),
     )
 
 private val submitLoginButton =
@@ -181,5 +187,5 @@ private val submitLoginButton =
             .resourceId("submit")
             .textContains("Submit Query")
             .className("android.widget.Button")
-            .packageName("$packageName")
+            .packageName("$packageName"),
     )

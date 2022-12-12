@@ -8,6 +8,7 @@ import mozilla.components.lib.state.Action
 import mozilla.components.lib.state.State
 import mozilla.components.lib.state.Store
 import org.mozilla.fenix.library.history.History
+import org.mozilla.fenix.library.history.PendingDeletionHistory
 
 /**
  * The [Store] for holding the [HistoryMetadataGroupFragmentState] and applying
@@ -16,7 +17,7 @@ import org.mozilla.fenix.library.history.History
 class HistoryMetadataGroupFragmentStore(initialState: HistoryMetadataGroupFragmentState) :
     Store<HistoryMetadataGroupFragmentState, HistoryMetadataGroupFragmentAction>(
         initialState,
-        ::historyStateReducer
+        ::historyStateReducer,
     )
 
 /**
@@ -28,9 +29,21 @@ sealed class HistoryMetadataGroupFragmentAction : Action {
         HistoryMetadataGroupFragmentAction()
     data class Select(val item: History.Metadata) : HistoryMetadataGroupFragmentAction()
     data class Deselect(val item: History.Metadata) : HistoryMetadataGroupFragmentAction()
+
+    /**
+     * Updates the set of items marked for removal from the [org.mozilla.fenix.components.AppStore]
+     * to the [HistoryMetadataGroupFragmentStore], to be hidden from the UI.
+     */
+    data class UpdatePendingDeletionItems(val pendingDeletionItems: Set<PendingDeletionHistory>) :
+        HistoryMetadataGroupFragmentAction()
     object DeselectAll : HistoryMetadataGroupFragmentAction()
     data class Delete(val item: History.Metadata) : HistoryMetadataGroupFragmentAction()
     object DeleteAll : HistoryMetadataGroupFragmentAction()
+
+    /**
+     * Updates the empty state of [org.mozilla.fenix.library.historymetadata.view.HistoryMetadataGroupView].
+     */
+    data class ChangeEmptyState(val isEmpty: Boolean) : HistoryMetadataGroupFragmentAction()
 }
 
 /**
@@ -39,7 +52,9 @@ sealed class HistoryMetadataGroupFragmentAction : Action {
  * @property items The list of [History.Metadata] to display.
  */
 data class HistoryMetadataGroupFragmentState(
-    val items: List<History.Metadata> = emptyList()
+    val items: List<History.Metadata>,
+    val pendingDeletionItems: Set<PendingDeletionHistory>,
+    val isEmpty: Boolean,
 ) : State
 
 /**
@@ -52,7 +67,7 @@ data class HistoryMetadataGroupFragmentState(
  */
 private fun historyStateReducer(
     state: HistoryMetadataGroupFragmentState,
-    action: HistoryMetadataGroupFragmentAction
+    action: HistoryMetadataGroupFragmentAction,
 ): HistoryMetadataGroupFragmentState {
     return when (action) {
         is HistoryMetadataGroupFragmentAction.UpdateHistoryItems ->
@@ -66,7 +81,7 @@ private fun historyStateReducer(
                         } else {
                             it
                         }
-                    }
+                    },
             )
         is HistoryMetadataGroupFragmentAction.Deselect ->
             state.copy(
@@ -77,12 +92,12 @@ private fun historyStateReducer(
                         } else {
                             it
                         }
-                    }
+                    },
             )
         is HistoryMetadataGroupFragmentAction.DeselectAll ->
             state.copy(
                 items = state.items.toMutableList()
-                    .map { it.copy(selected = false) }
+                    .map { it.copy(selected = false) },
             )
         is HistoryMetadataGroupFragmentAction.Delete -> {
             val items = state.items.toMutableList()
@@ -91,5 +106,10 @@ private fun historyStateReducer(
         }
         is HistoryMetadataGroupFragmentAction.DeleteAll ->
             state.copy(items = emptyList())
+        is HistoryMetadataGroupFragmentAction.UpdatePendingDeletionItems ->
+            state.copy(pendingDeletionItems = action.pendingDeletionItems)
+        is HistoryMetadataGroupFragmentAction.ChangeEmptyState -> state.copy(
+            isEmpty = action.isEmpty,
+        )
     }
 }

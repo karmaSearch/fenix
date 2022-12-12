@@ -19,12 +19,14 @@ import org.mozilla.fenix.home.recenttabs.interactor.RecentTabInteractor
  * View holder for a recent tab item.
  *
  * @param composeView [ComposeView] which will be populated with Jetpack Compose UI content.
- * @param interactor [RecentTabInteractor] which will have delegated to all user interactions.
+ * @param recentTabInteractor [RecentTabInteractor] which will have delegated to all user recent
+ * tab interactions.
+ * recent synced tab interactions.
  */
 class RecentTabViewHolder(
     composeView: ComposeView,
     viewLifecycleOwner: LifecycleOwner,
-    private val interactor: RecentTabInteractor
+    private val recentTabInteractor: RecentTabInteractor,
 ) : ComposeViewHolder(composeView, viewLifecycleOwner) {
 
     init {
@@ -43,14 +45,14 @@ class RecentTabViewHolder(
 
         RecentTabs(
             recentTabs = recentTabs.value ?: emptyList(),
-            onRecentTabClick = { interactor.onRecentTabClicked(it) },
-            onRecentSearchGroupClick = { interactor.onRecentSearchGroupClicked(it) },
+            onRecentTabClick = { recentTabInteractor.onRecentTabClicked(it) },
+            onRecentTabLongClick = { recentTabInteractor.onRecentTabLongClicked() },
             menuItems = listOf(
                 RecentTabMenuItem(
                     title = stringResource(id = R.string.recent_tab_menu_item_remove),
-                    onClick = { tab -> interactor.onRemoveRecentTab(tab) }
-                )
-            )
+                    onClick = { tab -> recentTabInteractor.onRemoveRecentTab(tab) },
+                ),
+            ),
         )
     }
 }

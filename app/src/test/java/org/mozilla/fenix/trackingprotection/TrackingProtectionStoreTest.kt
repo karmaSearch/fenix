@@ -5,7 +5,7 @@
 package org.mozilla.fenix.trackingprotection
 
 import io.mockk.mockk
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import mozilla.components.browser.state.state.SessionState
 import mozilla.components.concept.engine.content.blocking.TrackerLog
 import org.junit.Assert.assertEquals
@@ -17,27 +17,27 @@ class TrackingProtectionStoreTest {
     val tab: SessionState = mockk(relaxed = true)
 
     @Test
-    fun enterDetailsMode() = runBlocking {
+    fun enterDetailsMode() = runTest {
         val initialState = defaultState()
         val store = TrackingProtectionStore(initialState)
 
         store.dispatch(
             TrackingProtectionAction.EnterDetailsMode(
                 TrackingProtectionCategory.FINGERPRINTERS,
-                true
-            )
+                true,
+            ),
         )
             .join()
         assertNotSame(initialState, store.state)
         assertEquals(
             store.state.mode,
-            TrackingProtectionState.Mode.Details(TrackingProtectionCategory.FINGERPRINTERS, true)
+            TrackingProtectionState.Mode.Details(TrackingProtectionCategory.FINGERPRINTERS, true),
         )
         assertEquals(store.state.lastAccessedCategory, TrackingProtectionCategory.FINGERPRINTERS.name)
     }
 
     @Test
-    fun exitDetailsMode() = runBlocking {
+    fun exitDetailsMode() = runTest {
         val initialState = detailsState()
         val store = TrackingProtectionStore(initialState)
 
@@ -45,13 +45,13 @@ class TrackingProtectionStoreTest {
         assertNotSame(initialState, store.state)
         assertEquals(
             store.state.mode,
-            TrackingProtectionState.Mode.Normal
+            TrackingProtectionState.Mode.Normal,
         )
         assertEquals(store.state.lastAccessedCategory, initialState.lastAccessedCategory)
     }
 
     @Test
-    fun trackerListChanged() = runBlocking {
+    fun trackerListChanged() = runTest {
         val initialState = defaultState()
         val store = TrackingProtectionStore(initialState)
         val tracker = TrackerLog("url", listOf())
@@ -60,12 +60,12 @@ class TrackingProtectionStoreTest {
         assertNotSame(initialState, store.state)
         assertEquals(
             listOf(tracker),
-            store.state.listTrackers
+            store.state.listTrackers,
         )
     }
 
     @Test
-    fun urlChanged() = runBlocking {
+    fun urlChanged() = runTest {
         val initialState = defaultState()
         val store = TrackingProtectionStore(initialState)
 
@@ -73,12 +73,12 @@ class TrackingProtectionStoreTest {
         assertNotSame(initialState, store.state)
         assertEquals(
             "newURL",
-            store.state.url
+            store.state.url,
         )
     }
 
     @Test
-    fun onChange() = runBlocking {
+    fun onChange() = runTest {
         val initialState = defaultState()
         val store = TrackingProtectionStore(initialState)
         val tracker = TrackerLog("url", listOf(), listOf(), cookiesHasBeenBlocked = false)
@@ -90,26 +90,26 @@ class TrackingProtectionStoreTest {
                 listOf(tracker),
                 TrackingProtectionState.Mode.Details(
                     TrackingProtectionCategory.FINGERPRINTERS,
-                    true
-                )
-            )
+                    true,
+                ),
+            ),
         ).join()
         assertNotSame(initialState, store.state)
         assertEquals(
             "newURL",
-            store.state.url
+            store.state.url,
         )
         assertEquals(
             false,
-            store.state.isTrackingProtectionEnabled
+            store.state.isTrackingProtectionEnabled,
         )
         assertEquals(
             listOf(tracker),
-            store.state.listTrackers
+            store.state.listTrackers,
         )
         assertEquals(
             TrackingProtectionState.Mode.Details(TrackingProtectionCategory.FINGERPRINTERS, true),
-            store.state.mode
+            store.state.mode,
         )
     }
 
@@ -119,7 +119,7 @@ class TrackingProtectionStoreTest {
         isTrackingProtectionEnabled = true,
         listTrackers = listOf(),
         mode = TrackingProtectionState.Mode.Normal,
-        lastAccessedCategory = ""
+        lastAccessedCategory = "",
     )
 
     private fun detailsState(): TrackingProtectionState = TrackingProtectionState(
@@ -128,6 +128,6 @@ class TrackingProtectionStoreTest {
         isTrackingProtectionEnabled = true,
         listTrackers = listOf(),
         mode = TrackingProtectionState.Mode.Details(TrackingProtectionCategory.CRYPTOMINERS, true),
-        lastAccessedCategory = TrackingProtectionCategory.CRYPTOMINERS.name
+        lastAccessedCategory = TrackingProtectionCategory.CRYPTOMINERS.name,
     )
 }

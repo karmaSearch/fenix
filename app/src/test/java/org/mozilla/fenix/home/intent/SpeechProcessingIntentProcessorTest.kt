@@ -21,7 +21,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mozilla.fenix.BrowserDirection
 import org.mozilla.fenix.HomeActivity
-import org.mozilla.fenix.components.metrics.MetricController
 import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.helpers.FenixRobolectricTestRunner
 import org.mozilla.fenix.helpers.perf.TestStrictModeManager
@@ -33,12 +32,11 @@ class SpeechProcessingIntentProcessorTest {
     private val activity: HomeActivity = mockk(relaxed = true)
     private val navController: NavController = mockk(relaxed = true)
     private val out: Intent = mockk(relaxed = true)
-    private val metrics: MetricController = mockk(relaxed = true)
 
     private val searchEngine = createSearchEngine(
         name = "Test",
         url = "https://www.example.org/?q={searchTerms}",
-        icon = mockk()
+        icon = mockk(),
     )
 
     private lateinit var store: BrowserStore
@@ -52,9 +50,9 @@ class SpeechProcessingIntentProcessorTest {
                 search = SearchState(
                     customSearchEngines = listOf(searchEngine),
                     userSelectedSearchEngineId = searchEngine.id,
-                    complete = true
-                )
-            )
+                    complete = true,
+                ),
+            ),
         )
 
         every { activity.applicationContext } returns ApplicationProvider.getApplicationContext()
@@ -62,13 +60,12 @@ class SpeechProcessingIntentProcessorTest {
 
     @Test
     fun `do not process blank intents`() {
-        val processor = SpeechProcessingIntentProcessor(activity, store, metrics)
+        val processor = SpeechProcessingIntentProcessor(activity, store)
         processor.process(Intent(), navController, out)
 
         verify { activity wasNot Called }
         verify { navController wasNot Called }
         verify { out wasNot Called }
-        verify { metrics wasNot Called }
     }
 
     @Test
@@ -76,13 +73,12 @@ class SpeechProcessingIntentProcessorTest {
         val intent = Intent().apply {
             putExtra(HomeActivity.OPEN_TO_BROWSER_AND_LOAD, false)
         }
-        val processor = SpeechProcessingIntentProcessor(activity, store, metrics)
+        val processor = SpeechProcessingIntentProcessor(activity, store)
         processor.process(intent, navController, out)
 
         verify { activity wasNot Called }
         verify { navController wasNot Called }
         verify { out wasNot Called }
-        verify { metrics wasNot Called }
     }
 
     @Test
@@ -93,7 +89,7 @@ class SpeechProcessingIntentProcessorTest {
             putExtra(SPEECH_PROCESSING, "hello world")
         }
 
-        val processor = SpeechProcessingIntentProcessor(activity, store, metrics)
+        val processor = SpeechProcessingIntentProcessor(activity, store)
         processor.process(intent, mockk(), mockk(relaxed = true))
 
         verify {
@@ -102,7 +98,7 @@ class SpeechProcessingIntentProcessorTest {
                 newTab = true,
                 from = BrowserDirection.FromGlobal,
                 forceSearch = true,
-                engine = searchEngine
+                engine = searchEngine,
             )
         }
     }

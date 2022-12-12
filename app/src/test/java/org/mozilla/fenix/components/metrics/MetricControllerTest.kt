@@ -6,15 +6,25 @@ package org.mozilla.fenix.components.metrics
 
 import io.mockk.MockKAnnotations
 import io.mockk.every
-import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.verify
 import io.mockk.verifyAll
+import io.mockk.impl.annotations.MockK
+import mozilla.components.feature.autofill.facts.AutofillFacts
 import mozilla.components.feature.awesomebar.facts.AwesomeBarFacts
-import mozilla.components.feature.customtabs.CustomTabsFacts
+import mozilla.components.feature.awesomebar.provider.BookmarksStorageSuggestionProvider
+import mozilla.components.feature.awesomebar.provider.ClipboardSuggestionProvider
+import mozilla.components.feature.awesomebar.provider.HistoryStorageSuggestionProvider
+import mozilla.components.feature.awesomebar.provider.SearchSuggestionProvider
+import mozilla.components.feature.awesomebar.provider.SessionSuggestionProvider
+import mozilla.components.feature.contextmenu.facts.ContextMenuFacts
+import mozilla.components.feature.media.facts.MediaFacts
 import mozilla.components.feature.prompts.dialog.LoginDialogFacts
 import mozilla.components.feature.prompts.facts.CreditCardAutofillDialogFacts
 import mozilla.components.feature.pwa.ProgressiveWebAppFacts
+import mozilla.components.feature.search.telemetry.ads.AdsTelemetry
+import mozilla.components.feature.search.telemetry.incontent.InContentTelemetry
+import mozilla.components.feature.sitepermissions.SitePermissionsFacts
 import mozilla.components.feature.syncedtabs.facts.SyncedTabsFacts
 import mozilla.components.feature.top.sites.facts.TopSitesFacts
 import mozilla.components.support.base.Component
@@ -25,13 +35,28 @@ import mozilla.components.support.test.robolectric.testContext
 import mozilla.components.support.webextensions.facts.WebExtensionFacts
 import mozilla.telemetry.glean.testing.GleanTestRule
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mozilla.fenix.GleanMetrics.AndroidAutofill
+import org.mozilla.fenix.GleanMetrics.Awesomebar
+import org.mozilla.fenix.GleanMetrics.BrowserSearch
+import org.mozilla.fenix.GleanMetrics.ContextualMenu
+import org.mozilla.fenix.GleanMetrics.CreditCards
 import org.mozilla.fenix.GleanMetrics.LoginDialog
+import org.mozilla.fenix.GleanMetrics.MediaNotification
+import org.mozilla.fenix.GleanMetrics.PerfAwesomebar
+import org.mozilla.fenix.GleanMetrics.ProgressiveWebApp
+import org.mozilla.fenix.GleanMetrics.SitePermissions
+import org.mozilla.fenix.GleanMetrics.SyncedTabs
+import org.mozilla.fenix.components.metrics.ReleaseMetricController.Companion
 import org.mozilla.fenix.helpers.FenixRobolectricTestRunner
+import org.mozilla.fenix.search.awesomebar.ShortcutsSuggestionProvider
 import org.mozilla.fenix.utils.Settings
+import mozilla.components.compose.browser.awesomebar.AwesomeBarFacts as ComposeAwesomeBarFacts
 
 @RunWith(FenixRobolectricTestRunner::class)
 class MetricControllerTest {
@@ -39,10 +64,17 @@ class MetricControllerTest {
     @get:Rule
     val gleanTestRule = GleanTestRule(testContext)
 
-    @MockK(relaxUnitFun = true) private lateinit var dataService1: MetricsService
-    @MockK(relaxUnitFun = true) private lateinit var dataService2: MetricsService
-    @MockK(relaxUnitFun = true) private lateinit var marketingService1: MetricsService
-    @MockK(relaxUnitFun = true) private lateinit var marketingService2: MetricsService
+    @MockK(relaxUnitFun = true)
+    private lateinit var dataService1: MetricsService
+
+    @MockK(relaxUnitFun = true)
+    private lateinit var dataService2: MetricsService
+
+    @MockK(relaxUnitFun = true)
+    private lateinit var marketingService1: MetricsService
+
+    @MockK(relaxUnitFun = true)
+    private lateinit var marketingService2: MetricsService
 
     @Before
     fun setup() {
@@ -64,9 +96,6 @@ class MetricControllerTest {
 
         controller.stop(MetricServiceType.Data)
         verify { logger.debug("DebugMetricController: stop") }
-
-        controller.track(Event.OpenedAppFirstRun)
-        verify { logger.debug("DebugMetricController: track event: ${Event.OpenedAppFirstRun}") }
     }
 
     @Test
@@ -76,7 +105,7 @@ class MetricControllerTest {
             services = listOf(dataService1, marketingService1, dataService2, marketingService2),
             isDataTelemetryEnabled = { enabled },
             isMarketingDataTelemetryEnabled = { enabled },
-            mockk()
+            mockk(),
         )
 
         controller.start(MetricServiceType.Data)
@@ -103,7 +132,7 @@ class MetricControllerTest {
             services = listOf(dataService1),
             isDataTelemetryEnabled = { false },
             isMarketingDataTelemetryEnabled = { true },
-            mockk()
+            mockk(),
         )
 
         controller.start(MetricServiceType.Data)
@@ -120,7 +149,7 @@ class MetricControllerTest {
             services = listOf(dataService1),
             isDataTelemetryEnabled = { enabled },
             isMarketingDataTelemetryEnabled = { true },
-            mockk()
+            mockk(),
         )
 
         controller.start(MetricServiceType.Data)
@@ -135,13 +164,120 @@ class MetricControllerTest {
     }
 
     @Test
+    fun `WHEN AwesomeBar duration fact is processed THEN the correct metric is recorded`() {
+        val controller = ReleaseMetricController(emptyList(), { true }, { true }, mockk())
+        val action = mockk<Action>()
+        val duration = 1000L
+        var metadata = mapOf<String, Pair<*, Long>>(
+            ComposeAwesomeBarFacts.MetadataKeys.DURATION_PAIR to Pair(
+                mockk<HistoryStorageSuggestionProvider>(),
+                duration,
+            ),
+        )
+        var fact = Fact(
+            Component.COMPOSE_AWESOMEBAR,
+            action,
+            ComposeAwesomeBarFacts.Items.PROVIDER_DURATION,
+            metadata = metadata,
+        )
+        // Verify history based suggestions
+        assertNull(PerfAwesomebar.historySuggestions.testGetValue())
+
+        with(controller) {
+            fact.process()
+        }
+
+        assertNotNull(PerfAwesomebar.historySuggestions.testGetValue())
+
+        // Verify bookmark based suggestions
+        metadata = mapOf(
+            ComposeAwesomeBarFacts.MetadataKeys.DURATION_PAIR to Pair(
+                mockk<BookmarksStorageSuggestionProvider>(),
+                duration,
+            ),
+        )
+        fact = fact.copy(metadata = metadata)
+        assertNull(PerfAwesomebar.bookmarkSuggestions.testGetValue())
+
+        with(controller) {
+            fact.process()
+        }
+
+        assertNotNull(PerfAwesomebar.bookmarkSuggestions.testGetValue())
+
+        // Verify session based suggestions
+        metadata = mapOf(
+            ComposeAwesomeBarFacts.MetadataKeys.DURATION_PAIR to Pair(
+                mockk<SessionSuggestionProvider>(),
+                duration,
+            ),
+        )
+        fact = fact.copy(metadata = metadata)
+        assertNull(PerfAwesomebar.sessionSuggestions.testGetValue())
+
+        with(controller) {
+            fact.process()
+        }
+
+        assertNotNull(PerfAwesomebar.sessionSuggestions.testGetValue())
+
+        // Verify search engine suggestions
+        metadata = mapOf(
+            ComposeAwesomeBarFacts.MetadataKeys.DURATION_PAIR to Pair(
+                mockk<SearchSuggestionProvider>(),
+                duration,
+            ),
+        )
+        fact = fact.copy(metadata = metadata)
+        assertNull(PerfAwesomebar.searchEngineSuggestions.testGetValue())
+
+        with(controller) {
+            fact.process()
+        }
+
+        assertNotNull(PerfAwesomebar.searchEngineSuggestions.testGetValue())
+
+        // Verify clipboard based suggestions
+        metadata = mapOf(
+            ComposeAwesomeBarFacts.MetadataKeys.DURATION_PAIR to Pair(
+                mockk<ClipboardSuggestionProvider>(),
+                duration,
+            ),
+        )
+        fact = fact.copy(metadata = metadata)
+        assertNull(PerfAwesomebar.clipboardSuggestions.testGetValue())
+
+        with(controller) {
+            fact.process()
+        }
+
+        assertNotNull(PerfAwesomebar.clipboardSuggestions.testGetValue())
+
+        // Verify shortcut based suggestions
+        metadata = mapOf(
+            ComposeAwesomeBarFacts.MetadataKeys.DURATION_PAIR to Pair(
+                mockk<ShortcutsSuggestionProvider>(),
+                duration,
+            ),
+        )
+        fact = fact.copy(metadata = metadata)
+        assertNull(PerfAwesomebar.shortcutsSuggestions.testGetValue())
+
+        with(controller) {
+            fact.process()
+        }
+
+        assertNotNull(PerfAwesomebar.shortcutsSuggestions.testGetValue())
+    }
+
+    @Test
     fun `release metric controller starts and stops all marketing services`() {
         var enabled = true
         val controller = ReleaseMetricController(
             services = listOf(dataService1, marketingService1, dataService2, marketingService2),
             isDataTelemetryEnabled = { enabled },
             isMarketingDataTelemetryEnabled = { enabled },
-            mockk()
+            mockk(),
         )
 
         controller.start(MetricServiceType.Marketing)
@@ -163,41 +299,6 @@ class MetricControllerTest {
     }
 
     @Test
-    fun `tracking events should be sent to matching service`() {
-        val controller = ReleaseMetricController(
-            listOf(dataService1, marketingService1),
-            isDataTelemetryEnabled = { true },
-            isMarketingDataTelemetryEnabled = { true },
-            mockk()
-        )
-        every { dataService1.shouldTrack(Event.TabMediaPause) } returns false
-        every { marketingService1.shouldTrack(Event.TabMediaPause) } returns true
-
-        controller.start(MetricServiceType.Marketing)
-        controller.track(Event.TabMediaPause)
-        verify { marketingService1.track(Event.TabMediaPause) }
-    }
-
-    @Test
-    fun `tracking events should be sent to enabled service`() {
-        var enabled = true
-        val controller = ReleaseMetricController(
-            listOf(dataService1, marketingService1),
-            isDataTelemetryEnabled = { enabled },
-            isMarketingDataTelemetryEnabled = { true },
-            mockk()
-        )
-        every { dataService1.shouldTrack(Event.TabMediaPause) } returns true
-        every { marketingService1.shouldTrack(Event.TabMediaPause) } returns true
-
-        controller.start(MetricServiceType.Marketing)
-        enabled = false
-
-        controller.track(Event.TabMediaPause)
-        verify { marketingService1.track(Event.TabMediaPause) }
-    }
-
-    @Test
     fun `topsites fact should set value in SharedPreference`() {
         val enabled = true
         val settings: Settings = mockk(relaxed = true)
@@ -205,122 +306,21 @@ class MetricControllerTest {
             services = listOf(dataService1),
             isDataTelemetryEnabled = { enabled },
             isMarketingDataTelemetryEnabled = { enabled },
-            settings
+            settings,
         )
 
         val fact = Fact(
             Component.FEATURE_TOP_SITES,
             Action.INTERACTION,
             TopSitesFacts.Items.COUNT,
-            "1"
+            "1",
         )
 
         verify(exactly = 0) { settings.topSitesSize = any() }
-        controller.factToEvent(fact)
+        with(controller) {
+            fact.process()
+        }
         verify(exactly = 1) { settings.topSitesSize = any() }
-    }
-
-    @Test
-    fun `tracking synced tab event should be sent to enabled service`() {
-        val controller = ReleaseMetricController(
-            listOf(marketingService1),
-            isDataTelemetryEnabled = { true },
-            isMarketingDataTelemetryEnabled = { true },
-            mockk()
-        )
-        every { marketingService1.shouldTrack(Event.SyncedTabSuggestionClicked) } returns true
-        controller.start(MetricServiceType.Marketing)
-
-        controller.track(Event.SyncedTabSuggestionClicked)
-        verify { marketingService1.track(Event.SyncedTabSuggestionClicked) }
-    }
-
-    @Test
-    fun `tracking awesomebar events should be sent to enabled service`() {
-        val controller = ReleaseMetricController(
-            listOf(marketingService1),
-            isDataTelemetryEnabled = { true },
-            isMarketingDataTelemetryEnabled = { true },
-            mockk()
-        )
-        every { marketingService1.shouldTrack(Event.BookmarkSuggestionClicked) } returns true
-        every { marketingService1.shouldTrack(Event.ClipboardSuggestionClicked) } returns true
-        every { marketingService1.shouldTrack(Event.HistorySuggestionClicked) } returns true
-        every { marketingService1.shouldTrack(Event.SearchActionClicked) } returns true
-        every { marketingService1.shouldTrack(Event.SearchSuggestionClicked) } returns true
-        every { marketingService1.shouldTrack(Event.OpenedTabSuggestionClicked) } returns true
-        controller.start(MetricServiceType.Marketing)
-
-        controller.track(Event.BookmarkSuggestionClicked)
-        verify { marketingService1.track(Event.BookmarkSuggestionClicked) }
-
-        controller.track(Event.ClipboardSuggestionClicked)
-        verify { marketingService1.track(Event.ClipboardSuggestionClicked) }
-
-        controller.track(Event.HistorySuggestionClicked)
-        verify { marketingService1.track(Event.HistorySuggestionClicked) }
-
-        controller.track(Event.SearchActionClicked)
-        verify { marketingService1.track(Event.SearchActionClicked) }
-
-        controller.track(Event.SearchSuggestionClicked)
-        verify { marketingService1.track(Event.SearchSuggestionClicked) }
-
-        controller.track(Event.OpenedTabSuggestionClicked)
-        verify { marketingService1.track(Event.OpenedTabSuggestionClicked) }
-    }
-
-    @Test
-    fun `history events should be sent to enabled service`() {
-        val controller = ReleaseMetricController(
-            listOf(marketingService1),
-            isDataTelemetryEnabled = { true },
-            isMarketingDataTelemetryEnabled = { true },
-            mockk()
-        )
-        every { marketingService1.shouldTrack(Event.HistoryOpenedInNewTab) } returns true
-        every { marketingService1.shouldTrack(Event.HistoryOpenedInNewTabs) } returns true
-        every { marketingService1.shouldTrack(Event.HistoryOpenedInPrivateTab) } returns true
-        every { marketingService1.shouldTrack(Event.HistoryOpenedInPrivateTabs) } returns true
-        every { marketingService1.shouldTrack(Event.HistoryItemRemoved) } returns true
-        every { marketingService1.shouldTrack(Event.HistoryAllItemsRemoved) } returns true
-        every { marketingService1.shouldTrack(Event.HistoryRecentSearchesTapped("2")) } returns true
-        every { marketingService1.shouldTrack(Event.HistorySearchTermGroupTapped) } returns true
-        every { marketingService1.shouldTrack(Event.HistorySearchTermGroupOpenTab) } returns true
-        every { marketingService1.shouldTrack(Event.HistorySearchTermGroupRemoveTab) } returns true
-        every { marketingService1.shouldTrack(Event.HistorySearchTermGroupRemoveAll) } returns true
-        every { marketingService1.shouldTrack(Event.HistorySearchIconTapped) } returns true
-        every { marketingService1.shouldTrack(Event.HistorySearchResultTapped) } returns true
-
-        controller.start(MetricServiceType.Marketing)
-
-        controller.track(Event.HistoryOpenedInNewTab)
-        controller.track(Event.HistoryOpenedInNewTabs)
-        controller.track(Event.HistoryOpenedInPrivateTab)
-        controller.track(Event.HistoryOpenedInPrivateTabs)
-        controller.track(Event.HistoryItemRemoved)
-        controller.track(Event.HistoryAllItemsRemoved)
-        controller.track(Event.HistoryRecentSearchesTapped("2"))
-        controller.track(Event.HistorySearchTermGroupTapped)
-        controller.track(Event.HistorySearchTermGroupOpenTab)
-        controller.track(Event.HistorySearchTermGroupRemoveTab)
-        controller.track(Event.HistorySearchTermGroupRemoveAll)
-        controller.track(Event.HistorySearchIconTapped)
-        controller.track(Event.HistorySearchResultTapped)
-
-        verify { marketingService1.track(Event.HistoryOpenedInNewTab) }
-        verify { marketingService1.track(Event.HistoryOpenedInNewTabs) }
-        verify { marketingService1.track(Event.HistoryOpenedInPrivateTab) }
-        verify { marketingService1.track(Event.HistoryOpenedInPrivateTabs) }
-        verify { marketingService1.track(Event.HistoryItemRemoved) }
-        verify { marketingService1.track(Event.HistoryAllItemsRemoved) }
-        verify { marketingService1.track(Event.HistoryRecentSearchesTapped("2")) }
-        verify { marketingService1.track(Event.HistorySearchTermGroupTapped) }
-        verify { marketingService1.track(Event.HistorySearchTermGroupOpenTab) }
-        verify { marketingService1.track(Event.HistorySearchTermGroupRemoveTab) }
-        verify { marketingService1.track(Event.HistorySearchTermGroupRemoveAll) }
-        verify { marketingService1.track(Event.HistorySearchIconTapped) }
-        verify { marketingService1.track(Event.HistorySearchResultTapped) }
     }
 
     @Test
@@ -331,7 +331,7 @@ class MetricControllerTest {
             services = listOf(dataService1),
             isDataTelemetryEnabled = { enabled },
             isMarketingDataTelemetryEnabled = { enabled },
-            settings
+            settings,
         )
         val fact = Fact(
             Component.SUPPORT_WEBEXTENSIONS,
@@ -339,15 +339,17 @@ class MetricControllerTest {
             WebExtensionFacts.Items.WEB_EXTENSIONS_INITIALIZED,
             metadata = mapOf(
                 "installed" to listOf("test1", "test2", "test3", "test4"),
-                "enabled" to listOf("test2", "test4")
-            )
+                "enabled" to listOf("test2", "test4"),
+            ),
         )
 
         assertEquals(settings.installedAddonsCount, 0)
         assertEquals(settings.installedAddonsList, "")
         assertEquals(settings.enabledAddonsCount, 0)
         assertEquals(settings.enabledAddonsList, "")
-        controller.factToEvent(fact)
+        with(controller) {
+            fact.process()
+        }
         assertEquals(settings.installedAddonsCount, 4)
         assertEquals(settings.installedAddonsList, "test1,test2,test3,test4")
         assertEquals(settings.enabledAddonsCount, 2)
@@ -355,142 +357,241 @@ class MetricControllerTest {
     }
 
     @Test
-    fun `credit card fact should trigger event`() {
-        val enabled = true
-        val settings: Settings = mockk(relaxed = true)
-        val controller = ReleaseMetricController(
-            services = listOf(dataService1),
-            isDataTelemetryEnabled = { enabled },
-            isMarketingDataTelemetryEnabled = { enabled },
-            settings
-        )
-
-        var fact = Fact(
-            Component.FEATURE_PROMPTS,
-            Action.INTERACTION,
-            CreditCardAutofillDialogFacts.Items.AUTOFILL_CREDIT_CARD_FORM_DETECTED
-        )
-
-        var event = controller.factToEvent(fact)
-        assertEquals(event, Event.CreditCardFormDetected)
-
-        fact = Fact(
-            Component.FEATURE_PROMPTS,
-            Action.INTERACTION,
-            CreditCardAutofillDialogFacts.Items.AUTOFILL_CREDIT_CARD_SUCCESS
-        )
-
-        event = controller.factToEvent(fact)
-        assertEquals(event, Event.CreditCardAutofilled)
-
-        fact = Fact(
-            Component.FEATURE_PROMPTS,
-            Action.INTERACTION,
-            CreditCardAutofillDialogFacts.Items.AUTOFILL_CREDIT_CARD_PROMPT_SHOWN
-        )
-
-        event = controller.factToEvent(fact)
-        assertEquals(event, Event.CreditCardAutofillPromptShown)
-
-        fact = Fact(
-            Component.FEATURE_PROMPTS,
-            Action.INTERACTION,
-            CreditCardAutofillDialogFacts.Items.AUTOFILL_CREDIT_CARD_PROMPT_EXPANDED
-        )
-
-        event = controller.factToEvent(fact)
-        assertEquals(event, Event.CreditCardAutofillPromptExpanded)
-
-        fact = Fact(
-            Component.FEATURE_PROMPTS,
-            Action.INTERACTION,
-            CreditCardAutofillDialogFacts.Items.AUTOFILL_CREDIT_CARD_PROMPT_DISMISSED
-        )
-
-        event = controller.factToEvent(fact)
-        assertEquals(event, Event.CreditCardAutofillPromptDismissed)
-    }
-
-    @Test
-    fun `credit card events should be sent to enabled service`() {
-        val controller = ReleaseMetricController(
-            listOf(dataService1),
-            isDataTelemetryEnabled = { true },
-            isMarketingDataTelemetryEnabled = { true },
-            mockk()
-        )
-        every { dataService1.shouldTrack(Event.CreditCardSaved) } returns true
-        every { dataService1.shouldTrack(Event.CreditCardDeleted) } returns true
-        every { dataService1.shouldTrack(Event.CreditCardModified) } returns true
-        every { dataService1.shouldTrack(Event.CreditCardFormDetected) } returns true
-        every { dataService1.shouldTrack(Event.CreditCardAutofilled) } returns true
-        every { dataService1.shouldTrack(Event.CreditCardAutofillPromptShown) } returns true
-        every { dataService1.shouldTrack(Event.CreditCardAutofillPromptExpanded) } returns true
-        every { dataService1.shouldTrack(Event.CreditCardAutofillPromptDismissed) } returns true
-        every { dataService1.shouldTrack(Event.CreditCardManagementAddTapped) } returns true
-        every { dataService1.shouldTrack(Event.CreditCardManagementCardTapped) } returns true
-
-        controller.start(MetricServiceType.Data)
-
-        controller.track(Event.CreditCardSaved)
-        controller.track(Event.CreditCardDeleted)
-        controller.track(Event.CreditCardModified)
-        controller.track(Event.CreditCardFormDetected)
-        controller.track(Event.CreditCardAutofilled)
-        controller.track(Event.CreditCardAutofillPromptShown)
-        controller.track(Event.CreditCardAutofillPromptExpanded)
-        controller.track(Event.CreditCardAutofillPromptDismissed)
-        controller.track(Event.CreditCardManagementAddTapped)
-        controller.track(Event.CreditCardManagementCardTapped)
-
-        verify { dataService1.track(Event.CreditCardSaved) }
-        verify { dataService1.track(Event.CreditCardDeleted) }
-        verify { dataService1.track(Event.CreditCardModified) }
-        verify { dataService1.track(Event.CreditCardFormDetected) }
-        verify { dataService1.track(Event.CreditCardAutofilled) }
-        verify { dataService1.track(Event.CreditCardAutofillPromptShown) }
-        verify { dataService1.track(Event.CreditCardAutofillPromptExpanded) }
-        verify { dataService1.track(Event.CreditCardAutofillPromptDismissed) }
-        verify { dataService1.track(Event.CreditCardManagementAddTapped) }
-        verify { dataService1.track(Event.CreditCardManagementCardTapped) }
-    }
-
-    @Test
-    fun `WHEN changing Fact(component, item) without additional vals to events THEN it returns the right event`() {
-        // This naive test was added for a refactoring. It only covers the comparisons that were easy to add.
+    fun `WHEN processing a fact with FEATURE_PROMPTS component THEN the right metric is recorded with no extras`() {
         val controller = ReleaseMetricController(emptyList(), { true }, { true }, mockk())
+        val action = mockk<Action>()
 
-        val simpleMappings = listOf(
-            // CreditCardAutofillDialogFacts.Items is already tested.
-            Triple(Component.FEATURE_CUSTOMTABS, CustomTabsFacts.Items.CLOSE, Event.CustomTabsClosed),
-            Triple(Component.FEATURE_CUSTOMTABS, CustomTabsFacts.Items.ACTION_BUTTON, Event.CustomTabsActionTapped),
-            Triple(Component.FEATURE_PWA, ProgressiveWebAppFacts.Items.HOMESCREEN_ICON_TAP, Event.ProgressiveWebAppOpenFromHomescreenTap),
-            Triple(Component.FEATURE_PWA, ProgressiveWebAppFacts.Items.INSTALL_SHORTCUT, Event.ProgressiveWebAppInstallAsShortcut),
-            Triple(Component.FEATURE_SYNCEDTABS, SyncedTabsFacts.Items.SYNCED_TABS_SUGGESTION_CLICKED, Event.SyncedTabSuggestionClicked),
-            Triple(Component.FEATURE_AWESOMEBAR, AwesomeBarFacts.Items.BOOKMARK_SUGGESTION_CLICKED, Event.BookmarkSuggestionClicked),
-            Triple(Component.FEATURE_AWESOMEBAR, AwesomeBarFacts.Items.CLIPBOARD_SUGGESTION_CLICKED, Event.ClipboardSuggestionClicked),
-            Triple(Component.FEATURE_AWESOMEBAR, AwesomeBarFacts.Items.HISTORY_SUGGESTION_CLICKED, Event.HistorySuggestionClicked),
-            Triple(Component.FEATURE_AWESOMEBAR, AwesomeBarFacts.Items.SEARCH_ACTION_CLICKED, Event.SearchActionClicked),
-            Triple(Component.FEATURE_AWESOMEBAR, AwesomeBarFacts.Items.SEARCH_SUGGESTION_CLICKED, Event.SearchSuggestionClicked),
-            Triple(Component.FEATURE_AWESOMEBAR, AwesomeBarFacts.Items.OPENED_TAB_SUGGESTION_CLICKED, Event.OpenedTabSuggestionClicked),
+        // Verify display interaction
+        assertNull(LoginDialog.displayed.testGetValue())
+        var fact = Fact(Component.FEATURE_PROMPTS, action, LoginDialogFacts.Items.DISPLAY)
+
+        controller.run {
+            fact.process()
+        }
+
+        assertNotNull(LoginDialog.displayed.testGetValue())
+        assertEquals(1, LoginDialog.displayed.testGetValue()!!.size)
+        assertNull(LoginDialog.displayed.testGetValue()!!.single().extra)
+
+        // Verify cancel interaction
+        assertNull(LoginDialog.cancelled.testGetValue())
+        fact = Fact(Component.FEATURE_PROMPTS, action, LoginDialogFacts.Items.CANCEL)
+
+        controller.run {
+            fact.process()
+        }
+
+        assertNotNull(LoginDialog.cancelled.testGetValue())
+        assertEquals(1, LoginDialog.cancelled.testGetValue()!!.size)
+        assertNull(LoginDialog.cancelled.testGetValue()!!.single().extra)
+
+        // Verify never save interaction
+        assertNull(LoginDialog.neverSave.testGetValue())
+        fact = Fact(Component.FEATURE_PROMPTS, action, LoginDialogFacts.Items.NEVER_SAVE)
+
+        controller.run {
+            fact.process()
+        }
+
+        assertNotNull(LoginDialog.neverSave.testGetValue())
+        assertEquals(1, LoginDialog.neverSave.testGetValue()!!.size)
+        assertNull(LoginDialog.neverSave.testGetValue()!!.single().extra)
+
+        // Verify save interaction
+        assertNull(LoginDialog.saved.testGetValue())
+        fact = Fact(Component.FEATURE_PROMPTS, action, LoginDialogFacts.Items.SAVE)
+
+        controller.run {
+            fact.process()
+        }
+
+        assertNotNull(LoginDialog.saved.testGetValue())
+        assertEquals(1, LoginDialog.saved.testGetValue()!!.size)
+        assertNull(LoginDialog.saved.testGetValue()!!.single().extra)
+    }
+
+    @Test
+    fun `WHEN processing a FEATURE_MEDIA NOTIFICATION fact THEN the right metric is recorded`() {
+        val controller = ReleaseMetricController(emptyList(), { true }, { true }, mockk())
+        // Verify the play action
+        var fact = Fact(Component.FEATURE_MEDIA, Action.PLAY, MediaFacts.Items.NOTIFICATION)
+        assertNull(MediaNotification.play.testGetValue())
+
+        controller.run {
+            fact.process()
+        }
+
+        assertNotNull(MediaNotification.play.testGetValue())
+        assertEquals(1, MediaNotification.play.testGetValue()!!.size)
+        assertNull(MediaNotification.play.testGetValue()!!.single().extra)
+
+        // Verify the pause action
+        fact = Fact(Component.FEATURE_MEDIA, Action.PAUSE, MediaFacts.Items.NOTIFICATION)
+        assertNull(MediaNotification.pause.testGetValue())
+
+        controller.run {
+            fact.process()
+        }
+
+        assertNotNull(MediaNotification.pause.testGetValue())
+        assertEquals(1, MediaNotification.pause.testGetValue()!!.size)
+        assertNull(MediaNotification.pause.testGetValue()!!.single().extra)
+    }
+
+    @Test
+    fun `WHEN processing a FEATURE_AUTOFILL fact THEN the right metric is recorded`() {
+        val controller = ReleaseMetricController(emptyList(), { true }, { true }, mockk())
+        var fact = Fact(
+            Component.FEATURE_AUTOFILL,
+            mockk(relaxed = true),
+            AutofillFacts.Items.AUTOFILL_REQUEST,
+            metadata = mapOf(AutofillFacts.Metadata.HAS_MATCHING_LOGINS to true),
         )
 
-        simpleMappings.forEach { (component, item, expectedEvent) ->
-            val fact = Fact(component, Action.CANCEL, item)
-            val message = "$expectedEvent $component $item"
-            assertEquals(message, expectedEvent, controller.factToEvent(fact))
+        with(controller) {
+            assertNull(AndroidAutofill.requestMatchingLogins.testGetValue())
+
+            fact.process()
+
+            assertNotNull(AndroidAutofill.requestMatchingLogins.testGetValue())
+
+            fact = fact.copy(metadata = mapOf(AutofillFacts.Metadata.HAS_MATCHING_LOGINS to false))
+            assertNull(AndroidAutofill.requestNoMatchingLogins.testGetValue())
+
+            fact.process()
+
+            assertNotNull(AndroidAutofill.requestNoMatchingLogins.testGetValue())
+
+            fact = fact.copy(item = AutofillFacts.Items.AUTOFILL_SEARCH, action = Action.DISPLAY, metadata = null)
+            assertNull(AndroidAutofill.searchDisplayed.testGetValue())
+
+            fact.process()
+
+            assertNotNull(AndroidAutofill.searchDisplayed.testGetValue())
+
+            fact = fact.copy(action = Action.SELECT)
+            assertNull(AndroidAutofill.searchItemSelected.testGetValue())
+
+            fact.process()
+
+            assertNotNull(AndroidAutofill.searchItemSelected.testGetValue())
+
+            fact = fact.copy(item = AutofillFacts.Items.AUTOFILL_CONFIRMATION, action = Action.CONFIRM)
+            assertNull(AndroidAutofill.confirmSuccessful.testGetValue())
+
+            fact.process()
+
+            assertNotNull(AndroidAutofill.confirmSuccessful.testGetValue())
+
+            fact = fact.copy(action = Action.DISPLAY)
+            assertNull(AndroidAutofill.confirmCancelled.testGetValue())
+
+            fact.process()
+
+            assertNotNull(AndroidAutofill.confirmCancelled.testGetValue())
+
+            fact = fact.copy(item = AutofillFacts.Items.AUTOFILL_LOCK, action = Action.CONFIRM)
+            assertNull(AndroidAutofill.unlockSuccessful.testGetValue())
+
+            fact.process()
+
+            assertNotNull(AndroidAutofill.unlockSuccessful.testGetValue())
+
+            fact = fact.copy(action = Action.DISPLAY)
+            assertNull(AndroidAutofill.unlockCancelled.testGetValue())
+
+            fact.process()
+
+            assertNotNull(AndroidAutofill.unlockCancelled.testGetValue())
         }
     }
 
     @Test
-    fun `WHEN processing a fact with FEATURE_PROMPTS component THEN the right metric is recorded with no extras`() {
+    fun `WHEN processing a ContextualMenu fact THEN the right metric is recorded`() {
+        val controller = ReleaseMetricController(emptyList(), { true }, { true }, mockk())
+        val action = mockk<Action>()
+        // Verify copy button interaction
+        var fact = Fact(
+            Component.FEATURE_CONTEXTMENU,
+            action,
+            ContextMenuFacts.Items.TEXT_SELECTION_OPTION,
+            metadata = mapOf("textSelectionOption" to Companion.CONTEXT_MENU_COPY),
+        )
+        assertNull(ContextualMenu.copyTapped.testGetValue())
+
+        with(controller) {
+            fact.process()
+        }
+
+        assertNotNull(ContextualMenu.copyTapped.testGetValue())
+        assertEquals(1, ContextualMenu.copyTapped.testGetValue()!!.size)
+        assertNull(ContextualMenu.copyTapped.testGetValue()!!.single().extra)
+
+        // Verify search button interaction
+        fact = Fact(
+            Component.FEATURE_CONTEXTMENU,
+            action,
+            ContextMenuFacts.Items.TEXT_SELECTION_OPTION,
+            metadata = mapOf("textSelectionOption" to Companion.CONTEXT_MENU_SEARCH),
+        )
+        assertNull(ContextualMenu.searchTapped.testGetValue())
+
+        with(controller) {
+            fact.process()
+        }
+
+        assertNotNull(ContextualMenu.searchTapped.testGetValue())
+        assertEquals(1, ContextualMenu.searchTapped.testGetValue()!!.size)
+        assertNull(ContextualMenu.searchTapped.testGetValue()!!.single().extra)
+
+        // Verify select all button interaction
+        fact = Fact(
+            Component.FEATURE_CONTEXTMENU,
+            action,
+            ContextMenuFacts.Items.TEXT_SELECTION_OPTION,
+            metadata = mapOf("textSelectionOption" to Companion.CONTEXT_MENU_SELECT_ALL),
+        )
+        assertNull(ContextualMenu.selectAllTapped.testGetValue())
+
+        with(controller) {
+            fact.process()
+        }
+
+        assertNotNull(ContextualMenu.selectAllTapped.testGetValue())
+        assertEquals(1, ContextualMenu.selectAllTapped.testGetValue()!!.size)
+        assertNull(ContextualMenu.selectAllTapped.testGetValue()!!.single().extra)
+
+        // Verify share button interaction
+        fact = Fact(
+            Component.FEATURE_CONTEXTMENU,
+            action,
+            ContextMenuFacts.Items.TEXT_SELECTION_OPTION,
+            metadata = mapOf("textSelectionOption" to Companion.CONTEXT_MENU_SHARE),
+        )
+        assertNull(ContextualMenu.shareTapped.testGetValue())
+
+        with(controller) {
+            fact.process()
+        }
+
+        assertNotNull(ContextualMenu.shareTapped.testGetValue())
+        assertEquals(1, ContextualMenu.shareTapped.testGetValue()!!.size)
+        assertNull(ContextualMenu.shareTapped.testGetValue()!!.single().extra)
+    }
+
+    @Test
+    fun `WHEN processing a CreditCardAutofillDialog fact THEN the right metric is recorded`() {
         val controller = ReleaseMetricController(emptyList(), { true }, { true }, mockk())
         val action = mockk<Action>(relaxed = true)
         val itemsToEvents = listOf(
-            LoginDialogFacts.Items.DISPLAY to LoginDialog.displayed,
-            LoginDialogFacts.Items.CANCEL to LoginDialog.cancelled,
-            LoginDialogFacts.Items.NEVER_SAVE to LoginDialog.neverSave,
-            LoginDialogFacts.Items.SAVE to LoginDialog.saved,
+            CreditCardAutofillDialogFacts.Items.AUTOFILL_CREDIT_CARD_FORM_DETECTED to CreditCards.formDetected,
+            CreditCardAutofillDialogFacts.Items.AUTOFILL_CREDIT_CARD_SUCCESS to CreditCards.autofilled,
+            CreditCardAutofillDialogFacts.Items.AUTOFILL_CREDIT_CARD_PROMPT_SHOWN to CreditCards.autofillPromptShown,
+            CreditCardAutofillDialogFacts.Items.AUTOFILL_CREDIT_CARD_PROMPT_EXPANDED to CreditCards.autofillPromptExpanded,
+            CreditCardAutofillDialogFacts.Items.AUTOFILL_CREDIT_CARD_PROMPT_DISMISSED to CreditCards.autofillPromptDismissed,
+            CreditCardAutofillDialogFacts.Items.AUTOFILL_CREDIT_CARD_CREATED to CreditCards.savePromptCreate,
+            CreditCardAutofillDialogFacts.Items.AUTOFILL_CREDIT_CARD_UPDATED to CreditCards.savePromptUpdate,
+            CreditCardAutofillDialogFacts.Items.AUTOFILL_CREDIT_CARD_SAVE_PROMPT_SHOWN to CreditCards.savePromptShown,
         )
 
         itemsToEvents.forEach { (item, event) ->
@@ -499,32 +600,226 @@ class MetricControllerTest {
                 fact.process()
             }
 
-            assertEquals(true, event.testHasValue())
-            assertEquals(1, event.testGetValue().size)
-            assertEquals(null, event.testGetValue().single().extra)
+            assertEquals(1, event.testGetValue()!!.size)
+            assertEquals(null, event.testGetValue()!!.single().extra)
         }
     }
 
     @Test
-    fun `search term group events should be sent to enabled service`() {
-        val controller = ReleaseMetricController(
-            listOf(dataService1),
-            isDataTelemetryEnabled = { true },
-            isMarketingDataTelemetryEnabled = { true },
-            mockk()
+    fun `GIVEN pwa facts WHEN they are processed THEN the right metric is recorded`() {
+        val controller = ReleaseMetricController(emptyList(), { true }, { true }, mockk())
+        val action = mockk<Action>(relaxed = true)
+
+        // a PWA shortcut from homescreen was opened
+        val openPWA = Fact(
+            Component.FEATURE_PWA,
+            action,
+            ProgressiveWebAppFacts.Items.HOMESCREEN_ICON_TAP,
         )
-        every { dataService1.shouldTrack(Event.SearchTermGroupCount(5)) } returns true
-        every { dataService1.shouldTrack(Event.AverageTabsPerSearchTermGroup(2.5)) } returns true
-        every { dataService1.shouldTrack(Event.JumpBackInGroupTapped) } returns true
 
-        controller.start(MetricServiceType.Data)
+        assertNull(ProgressiveWebApp.homescreenTap.testGetValue())
+        controller.run {
+            openPWA.process()
+        }
+        assertNotNull(ProgressiveWebApp.homescreenTap.testGetValue())
 
-        controller.track(Event.SearchTermGroupCount(5))
-        controller.track(Event.AverageTabsPerSearchTermGroup(2.5))
-        controller.track(Event.JumpBackInGroupTapped)
+        // a PWA shortcut was installed
+        val installPWA = Fact(
+            Component.FEATURE_PWA,
+            action,
+            ProgressiveWebAppFacts.Items.INSTALL_SHORTCUT,
+        )
 
-        verify { dataService1.track(Event.SearchTermGroupCount(5)) }
-        verify { dataService1.track(Event.AverageTabsPerSearchTermGroup(2.5)) }
-        verify { dataService1.track(Event.JumpBackInGroupTapped) }
+        assertNull(ProgressiveWebApp.installTap.testGetValue())
+
+        controller.run {
+            installPWA.process()
+        }
+
+        assertNotNull(ProgressiveWebApp.installTap.testGetValue())
+    }
+
+    @Test
+    fun `WHEN processing a suggestion fact THEN the right metric is recorded`() {
+        val controller = ReleaseMetricController(emptyList(), { true }, { true }, mockk())
+
+        // Verify synced tabs suggestion clicked
+        assertNull(SyncedTabs.syncedTabsSuggestionClicked.testGetValue())
+        var fact = Fact(Component.FEATURE_SYNCEDTABS, Action.CANCEL, SyncedTabsFacts.Items.SYNCED_TABS_SUGGESTION_CLICKED)
+
+        with(controller) {
+            fact.process()
+        }
+
+        assertNotNull(SyncedTabs.syncedTabsSuggestionClicked.testGetValue())
+
+        // Verify bookmark suggestion clicked
+        assertNull(Awesomebar.bookmarkSuggestionClicked.testGetValue())
+        fact = Fact(Component.FEATURE_AWESOMEBAR, Action.CANCEL, AwesomeBarFacts.Items.BOOKMARK_SUGGESTION_CLICKED)
+
+        with(controller) {
+            fact.process()
+        }
+
+        assertNotNull(Awesomebar.bookmarkSuggestionClicked.testGetValue())
+
+        // Verify clipboard suggestion clicked
+        assertNull(Awesomebar.clipboardSuggestionClicked.testGetValue())
+        fact = Fact(Component.FEATURE_AWESOMEBAR, Action.CANCEL, AwesomeBarFacts.Items.CLIPBOARD_SUGGESTION_CLICKED)
+
+        with(controller) {
+            fact.process()
+        }
+
+        assertNotNull(Awesomebar.clipboardSuggestionClicked.testGetValue())
+
+        // Verify history suggestion clicked
+        assertNull(Awesomebar.historySuggestionClicked.testGetValue())
+        fact = Fact(Component.FEATURE_AWESOMEBAR, Action.CANCEL, AwesomeBarFacts.Items.HISTORY_SUGGESTION_CLICKED)
+
+        with(controller) {
+            fact.process()
+        }
+
+        assertNotNull(Awesomebar.historySuggestionClicked.testGetValue())
+
+        // Verify search action clicked
+        assertNull(Awesomebar.searchActionClicked.testGetValue())
+        fact = Fact(Component.FEATURE_AWESOMEBAR, Action.CANCEL, AwesomeBarFacts.Items.SEARCH_ACTION_CLICKED)
+
+        with(controller) {
+            fact.process()
+        }
+
+        assertNotNull(Awesomebar.searchActionClicked.testGetValue())
+
+        // Verify bookmark opened tab suggestion clicked
+        assertNull(Awesomebar.openedTabSuggestionClicked.testGetValue())
+        fact = Fact(Component.FEATURE_AWESOMEBAR, Action.CANCEL, AwesomeBarFacts.Items.OPENED_TAB_SUGGESTION_CLICKED)
+
+        with(controller) {
+            fact.process()
+        }
+
+        assertNotNull(Awesomebar.openedTabSuggestionClicked.testGetValue())
+    }
+
+    @Test
+    fun `GIVEN advertising search facts WHEN the list is processed THEN the right metric is recorded`() {
+        val controller = ReleaseMetricController(emptyList(), { true }, { false }, mockk())
+        val action = mockk<Action>()
+
+        // an ad was clicked in a Search Engine Result Page
+        val addClickedInSearchFact = Fact(
+            Component.FEATURE_SEARCH,
+            action,
+            AdsTelemetry.SERP_ADD_CLICKED,
+            "provider",
+        )
+
+        assertNull(BrowserSearch.adClicks["provider"].testGetValue())
+        controller.run {
+            addClickedInSearchFact.process()
+        }
+        assertNotNull(BrowserSearch.adClicks["provider"].testGetValue())
+        assertEquals(1, BrowserSearch.adClicks["provider"].testGetValue())
+
+        // the user opened a Search Engine Result Page of one of our search providers which contains ads
+        val searchWithAdsOpenedFact = Fact(
+            Component.FEATURE_SEARCH,
+            action,
+            AdsTelemetry.SERP_SHOWN_WITH_ADDS,
+            "provider",
+        )
+
+        assertNull(BrowserSearch.withAds["provider"].testGetValue())
+
+        controller.run {
+            searchWithAdsOpenedFact.process()
+        }
+
+        assertNotNull(BrowserSearch.withAds["provider"].testGetValue())
+        assertEquals(1, BrowserSearch.withAds["provider"].testGetValue())
+
+        // the user performed a search
+        val inContentSearchFact = Fact(
+            Component.FEATURE_SEARCH,
+            action,
+            InContentTelemetry.IN_CONTENT_SEARCH,
+            "provider",
+        )
+
+        assertNull(BrowserSearch.inContent["provider"].testGetValue())
+
+        controller.run {
+            inContentSearchFact.process()
+        }
+
+        assertNotNull(BrowserSearch.inContent["provider"].testGetValue())
+        assertEquals(1, BrowserSearch.inContent["provider"].testGetValue())
+
+        // the user performed another search
+        controller.run {
+            inContentSearchFact.process()
+        }
+
+        assertEquals(2, BrowserSearch.inContent["provider"].testGetValue())
+    }
+
+    @Test
+    fun `GIVEN a site permissions prompt is shown WHEN processing the fact THEN the right metric is recorded`() {
+        val controller = ReleaseMetricController(emptyList(), { true }, { true }, mockk())
+        val fact = Fact(
+            component = Component.FEATURE_SITEPERMISSIONS,
+            action = Action.DISPLAY,
+            item = SitePermissionsFacts.Items.PERMISSIONS,
+            value = "test",
+        )
+        assertNull(SitePermissions.promptShown.testGetValue())
+
+        controller.run {
+            fact.process()
+        }
+
+        assertEquals(1, SitePermissions.promptShown.testGetValue()!!.size)
+        assertEquals("test", SitePermissions.promptShown.testGetValue()!!.single().extra!!["permissions"])
+    }
+
+    @Test
+    fun `GIVEN site permissions are allowed WHEN processing the fact THEN the right metric is recorded`() {
+        val controller = ReleaseMetricController(emptyList(), { true }, { true }, mockk())
+        val fact = Fact(
+            component = Component.FEATURE_SITEPERMISSIONS,
+            action = Action.CONFIRM,
+            item = SitePermissionsFacts.Items.PERMISSIONS,
+            value = "allow",
+        )
+        assertNull(SitePermissions.promptShown.testGetValue())
+
+        controller.run {
+            fact.process()
+        }
+
+        assertEquals(1, SitePermissions.permissionsAllowed.testGetValue()!!.size)
+        assertEquals("allow", SitePermissions.permissionsAllowed.testGetValue()!!.single().extra!!["permissions"])
+    }
+
+    @Test
+    fun `GIVEN site permissions are denied WHEN processing the fact THEN the right metric is recorded`() {
+        val controller = ReleaseMetricController(emptyList(), { true }, { true }, mockk())
+        val fact = Fact(
+            component = Component.FEATURE_SITEPERMISSIONS,
+            action = Action.CANCEL,
+            item = SitePermissionsFacts.Items.PERMISSIONS,
+            value = "deny",
+        )
+        assertNull(SitePermissions.promptShown.testGetValue())
+
+        controller.run {
+            fact.process()
+        }
+
+        assertEquals(1, SitePermissions.permissionsDenied.testGetValue()!!.size)
+        assertEquals("deny", SitePermissions.permissionsDenied.testGetValue()!!.single().extra!!["permissions"])
     }
 }

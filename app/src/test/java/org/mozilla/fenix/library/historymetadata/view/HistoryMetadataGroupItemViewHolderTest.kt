@@ -36,7 +36,7 @@ class HistoryMetadataGroupItemViewHolderTest {
         visitedAt = 0,
         historyTimeGroup = HistoryItemTimeGroup.timeGroupForTimestamp(0),
         totalViewTime = 0,
-        historyMetadataKey = HistoryMetadataKey("http://www.mozilla.com", "mozilla", null)
+        historyMetadataKey = HistoryMetadataKey("http://www.mozilla.com", "mozilla", null),
     )
 
     @Before
@@ -50,7 +50,7 @@ class HistoryMetadataGroupItemViewHolderTest {
     @Test
     fun `GIVEN a history metadata item on bind THEN set the title and url text`() {
         every { testContext.components.core.icons } returns BrowserIcons(testContext, mockk(relaxed = true))
-        HistoryMetadataGroupItemViewHolder(binding.root, interactor, selectionHolder).bind(item)
+        HistoryMetadataGroupItemViewHolder(binding.root, interactor, selectionHolder).bind(item, isPendingDeletion = false)
 
         assertEquals(item.title, binding.historyLayout.titleView.text)
         assertEquals(item.url, binding.historyLayout.urlView.text)

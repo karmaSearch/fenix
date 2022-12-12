@@ -16,7 +16,7 @@ import java.util.Locale
 class LocaleViewHolder(
     view: View,
     selectedLocale: Locale,
-    private val interactor: LocaleSettingsViewInteractor
+    private val interactor: LocaleSettingsViewInteractor,
 ) : BaseLocaleViewHolder(view, selectedLocale) {
 
     private val binding = LocaleSettingsItemBinding.bind(view)
@@ -148,6 +148,7 @@ class LocaleViewHolder(
             "ru" to "русский",
             "sat" to "ᱥᱟᱱᱛᱟᱲᱤ",
             "sk" to "Slovak",
+            "skr" to "سرائیکی",
             "sl" to "Slovenian",
             "sn" to "ChiShona",
             "sq" to "Shqip",
@@ -159,6 +160,7 @@ class LocaleViewHolder(
             "tg" to "тоҷикӣ, toçikī, تاجیکی‎",
             "th" to "ไทย",
             "tl" to "Wikang Tagalog",
+            "tok" to "Toki Pona",
             "tr" to "Türkçe",
             "trs" to "Triqui",
             "tt" to "татарча",
@@ -169,7 +171,7 @@ class LocaleViewHolder(
             "vec" to "Vèneto",
             "vi" to "Tiếng Việt",
             "wo" to "Wolof",
-            "zam" to "DíɁztè"
+            "zam" to "DíɁztè",
         )
 
         val LOCALE_TO_DISPLAY_ENGLISH_NAME_MAP: Map<String, String> = mapOf(
@@ -246,6 +248,7 @@ class LocaleViewHolder(
             "ru" to "Russian",
             "sat" to "Santali",
             "sk" to "Slovak",
+            "skr" to "Saraiki",
             "sl" to "Slovenian",
             "sq" to "Albanian",
             "sr" to "Serbian",
@@ -256,13 +259,14 @@ class LocaleViewHolder(
             "tg" to "Tajik",
             "th" to "Thai",
             "tl" to "Tagalog",
+            "tok" to "Toki Pona",
             "tr" to "Turkish",
             "trs" to "Triqui",
             "uk" to "Ukrainian",
             "ur" to "Urdu",
             "uz" to "Uzbek",
             "vec" to "Venitian",
-            "vi" to "Vietnamese"
+            "vi" to "Vietnamese",
         )
     }
 }
@@ -270,7 +274,7 @@ class LocaleViewHolder(
 class SystemLocaleViewHolder(
     view: View,
     selectedLocale: Locale,
-    private val interactor: LocaleSettingsViewInteractor
+    private val interactor: LocaleSettingsViewInteractor,
 ) : BaseLocaleViewHolder(view, selectedLocale) {
 
     private val binding = LocaleSettingsItemBinding.bind(view)
@@ -296,7 +300,7 @@ class SystemLocaleViewHolder(
 
 abstract class BaseLocaleViewHolder(
     view: View,
-    private val selectedLocale: Locale
+    private val selectedLocale: Locale,
 ) : RecyclerView.ViewHolder(view) {
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)

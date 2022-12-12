@@ -24,18 +24,6 @@ class SecretSettingsFragment : PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.secret_settings_preferences, rootKey)
 
-        requirePreference<SwitchPreference>(R.string.pref_key_show_address_feature).apply {
-            isVisible = FeatureFlags.addressesFeature
-            isChecked = context.settings().addressFeature
-            onPreferenceChangeListener = SharedPreferenceUpdater()
-        }
-
-        requirePreference<SwitchPreference>(R.string.pref_key_enable_contile).apply {
-            isVisible = FeatureFlags.contileFeature
-            isChecked = context.settings().showContileFeature
-            onPreferenceChangeListener = SharedPreferenceUpdater()
-        }
-
         requirePreference<SwitchPreference>(R.string.pref_key_allow_third_party_root_certs).apply {
             isVisible = true
             isChecked = context.settings().allowThirdPartyRootCerts

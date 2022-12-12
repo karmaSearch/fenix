@@ -11,6 +11,7 @@ import mozilla.components.support.test.robolectric.testContext
 import mozilla.telemetry.glean.testing.GleanTestRule
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -71,11 +72,11 @@ class OnboardingToolbarPositionPickerViewHolderTest {
 
         binding.toolbarTopImage.performClick()
 
-        assertTrue(Onboarding.prefToggledToolbarPosition.testHasValue())
+        assertNotNull(Onboarding.prefToggledToolbarPosition.testGetValue())
         assertEquals(
             OnboardingToolbarPositionPickerViewHolder.Companion.Position.TOP.name,
-            Onboarding.prefToggledToolbarPosition.testGetValue()
-                .last().extra?.get("position")
+            Onboarding.prefToggledToolbarPosition.testGetValue()!!
+                .last().extra?.get("position"),
         )
     }
 
@@ -86,11 +87,11 @@ class OnboardingToolbarPositionPickerViewHolderTest {
 
         binding.toolbarBottomImage.performClick()
 
-        assertTrue(Onboarding.prefToggledToolbarPosition.testHasValue())
+        assertNotNull(Onboarding.prefToggledToolbarPosition.testGetValue())
         assertEquals(
             OnboardingToolbarPositionPickerViewHolder.Companion.Position.BOTTOM.name,
-            Onboarding.prefToggledToolbarPosition.testGetValue()
-                .last().extra?.get("position")
+            Onboarding.prefToggledToolbarPosition.testGetValue()!!
+                .last().extra?.get("position"),
         )
     }
 }

@@ -51,10 +51,10 @@ fun CoroutineScope.allowUndo(
     message: String,
     undoActionTitle: String,
     onCancel: suspend () -> Unit = {},
-    operation: suspend () -> Unit,
+    operation: suspend (context: Context) -> Unit,
     anchorView: View? = null,
     elevation: Float? = null,
-    paddedForBottomToolbar: Boolean = false
+    paddedForBottomToolbar: Boolean = false,
 ) {
     // By using an AtomicBoolean, we achieve memory effects of reading and
     // writing a volatile variable.
@@ -66,7 +66,7 @@ fun CoroutineScope.allowUndo(
             .make(
                 view = view,
                 duration = FenixSnackbar.LENGTH_INDEFINITE,
-                isDisplayedWithBrowserToolbar = false
+                isDisplayedWithBrowserToolbar = false,
             )
             .setText(message)
             .setAnchorView(anchorView)
@@ -99,7 +99,7 @@ fun CoroutineScope.allowUndo(
                 toolbarHeight
             } else {
                 0
-            }
+            },
         )
 
         snackbar.show()
@@ -111,7 +111,7 @@ fun CoroutineScope.allowUndo(
 
             if (!requestedUndo.get()) {
                 snackbar.dismiss()
-                operation.invoke()
+                operation.invoke(view.context)
             }
         }
     }

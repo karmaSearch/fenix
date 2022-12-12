@@ -29,7 +29,7 @@ import org.mozilla.fenix.utils.Settings
 
 class DefaultBrowserNotificationWorker(
     val context: Context,
-    workerParameters: WorkerParameters
+    workerParameters: WorkerParameters,
 ) : Worker(context, workerParameters) {
 
     override fun doWork(): Result {
@@ -58,7 +58,7 @@ class DefaultBrowserNotificationWorker(
             applicationContext,
             SharedIdsHelper.getNextIdForTag(applicationContext, NOTIFICATION_PENDING_INTENT_TAG),
             intent,
-            IntentUtils.defaultIntentPendingFlags
+            IntentUtils.defaultIntentPendingFlags,
         )
 
         with(applicationContext) {
@@ -96,7 +96,7 @@ class DefaultBrowserNotificationWorker(
             val channel = NotificationChannel(
                 NOTIFICATION_CHANNEL_ID,
                 applicationContext.getString(R.string.notification_marketing_channel_name),
-                NotificationManager.IMPORTANCE_DEFAULT
+                NotificationManager.IMPORTANCE_DEFAULT,
             )
 
             notificationManager.createNotificationChannel(channel)

@@ -29,7 +29,7 @@ import org.mozilla.fenix.home.recentbookmarks.interactor.RecentBookmarksInteract
 class RecentBookmarksHeaderViewHolder(
     composeView: ComposeView,
     viewLifecycleOwner: LifecycleOwner,
-    private val interactor: RecentBookmarksInteractor
+    private val interactor: RecentBookmarksInteractor,
 ) : ComposeViewHolder(composeView, viewLifecycleOwner) {
 
     init {
@@ -51,12 +51,12 @@ class RecentBookmarksHeaderViewHolder(
             Spacer(modifier = Modifier.height(40.dp))
 
             HomeSectionHeader(
-                headerText = stringResource(R.string.recent_bookmarks_title),
+                headerText = stringResource(R.string.recently_saved_title),
                 description = stringResource(R.string.recently_saved_show_all_content_description_2),
                 onShowAllClick = {
                     dismissSearchDialogIfDisplayed()
                     interactor.onShowAllBookmarksClicked()
-                }
+                },
             )
 
             Spacer(Modifier.height(16.dp))

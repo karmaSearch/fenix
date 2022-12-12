@@ -24,7 +24,7 @@ interface ReviewSettings {
  * Wraps `Settings` to conform to `ReviewSettings`.
  */
 class FenixReviewSettings(
-    val settings: Settings
+    val settings: Settings,
 ) : ReviewSettings {
     override var numberOfAppLaunches: Int
         get() = settings.numberOfAppLaunches
@@ -53,10 +53,11 @@ class ReviewPromptController(
                 }
             }
         }
-    }
+    },
 ) {
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    @Volatile var reviewPromptIsReady = false
+    @Volatile
+    var reviewPromptIsReady = false
 
     suspend fun promptReview(activity: Activity) {
         if (shouldShowPrompt()) {
@@ -94,6 +95,6 @@ class ReviewPromptController(
     companion object {
         private const val APPRX_MONTH_IN_MILLIS: Long = 1000L * 60L * 60L * 24L * 30L
         private const val NUMBER_OF_LAUNCHES_REQUIRED = 5
-        private const val NUMBER_OF_MONTHS_TO_PASS = 4
+        private const val NUMBER_OF_MONTHS_TO_PASS = 1
     }
 }

@@ -23,6 +23,7 @@ import org.mozilla.fenix.helpers.click
 import org.mozilla.fenix.helpers.ext.waitNotNull
 import org.hamcrest.Matchers.allOf
 import org.mozilla.fenix.helpers.TestAssetHelper
+import org.mozilla.fenix.helpers.TestHelper.mDevice
 import org.mozilla.fenix.helpers.TestHelper.packageName
 
 /*
@@ -57,9 +58,9 @@ class LibrarySubMenusMultipleSelectionToolbarRobot {
 
         mDevice.waitNotNull(
             Until.findObject(
-                By.text("ALL ACTIONS")
+                By.text("ALL ACTIONS"),
             ),
-            waitingTime
+            waitingTime,
         )
     }
 
@@ -68,9 +69,9 @@ class LibrarySubMenusMultipleSelectionToolbarRobot {
 
         mDevice.waitNotNull(
             Until.findObject(
-                By.text("ALL ACTIONS")
+                By.text("ALL ACTIONS"),
             ),
-            waitingTime
+            waitingTime,
         )
     }
 
@@ -80,7 +81,6 @@ class LibrarySubMenusMultipleSelectionToolbarRobot {
 
     class Transition {
         fun closeShareDialogReturnToPage(interact: BrowserRobot.() -> Unit): BrowserRobot.Transition {
-
             BrowserRobot().interact()
             return BrowserRobot.Transition()
         }
@@ -103,7 +103,7 @@ class LibrarySubMenusMultipleSelectionToolbarRobot {
             openInNewTabButton().click()
             mDevice.waitNotNull(
                 Until.findObject(By.res("$packageName:id/tab_layout")),
-                waitingTime
+                waitingTime,
             )
 
             TabDrawerRobot().interact()
@@ -114,7 +114,7 @@ class LibrarySubMenusMultipleSelectionToolbarRobot {
             openInPrivateTabButton().click()
             mDevice.waitNotNull(
                 Until.findObject(By.res("$packageName:id/tab_layout")),
-                waitingTime
+                waitingTime,
             )
 
             TabDrawerRobot().interact()
@@ -124,7 +124,6 @@ class LibrarySubMenusMultipleSelectionToolbarRobot {
 }
 
 fun multipleSelectionToolbar(interact: LibrarySubMenusMultipleSelectionToolbarRobot.() -> Unit): LibrarySubMenusMultipleSelectionToolbarRobot.Transition {
-
     LibrarySubMenusMultipleSelectionToolbarRobot().interact()
     return LibrarySubMenusMultipleSelectionToolbarRobot.Transition()
 }
@@ -155,8 +154,8 @@ private fun assertMultiSelectionCheckmark(url: Uri) =
             // the match above is finding two checkmark views - one visible, one hidden, which is throwing off
             // the matcher. This 'isDisplayed' check is a hacky workaround for this, we're explicitly ignoring
             // the hidden one. Why are there two to begin with, though?
-            isDisplayed()
-        )
+            isDisplayed(),
+        ),
     )
         .check(matches(isDisplayed()))
 
@@ -176,7 +175,7 @@ private fun assertShareAppsLayout() = {
     val sendToDeviceTitle = mDevice.findObject(
         UiSelector()
             .instance(0)
-            .className(TextView::class.java)
+            .className(TextView::class.java),
     )
     sendToDeviceTitle.waitForExists(TestAssetHelper.waitingTime)
 }

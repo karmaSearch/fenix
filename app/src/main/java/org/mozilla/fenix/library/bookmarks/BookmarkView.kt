@@ -107,11 +107,13 @@ interface BookmarkViewInteractor : SelectionInteractor<BookmarkNode> {
 class BookmarkView(
     container: ViewGroup,
     val interactor: BookmarkViewInteractor,
-    private val navController: NavController
+    private val navController: NavController,
 ) : LibraryPageView(container), UserInteractionHandler {
 
     val binding = ComponentBookmarkBinding.inflate(
-        LayoutInflater.from(container.context), container, true
+        LayoutInflater.from(container.context),
+        container,
+        true,
     )
 
     private var mode: BookmarkFragmentState.Mode = BookmarkFragmentState.Mode.Normal()
@@ -147,9 +149,12 @@ class BookmarkView(
                 setUiForSelectingMode(
                     context.getString(
                         R.string.bookmarks_multi_select_title,
-                        mode.selectedItems.size
-                    )
+                        mode.selectedItems.size,
+                    ),
                 )
+            }
+            else -> {
+                // no-op
             }
         }
         binding.bookmarksProgressBar.isVisible = state.isLoading
@@ -173,7 +178,7 @@ class BookmarkView(
 
     private fun setUiForNormalMode(root: BookmarkNode?) {
         super.setUiForNormalMode(
-            if (BookmarkRoot.Mobile.id == root?.guid) context.getString(R.string.library_bookmarks) else root?.title
+            if (BookmarkRoot.Mobile.id == root?.guid) context.getString(R.string.library_bookmarks) else root?.title,
         )
     }
 }

@@ -4,21 +4,28 @@
 
 package org.mozilla.fenix.library.historymetadata.controller
 
+import android.content.Context
 import androidx.navigation.NavController
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import mozilla.components.browser.state.action.HistoryMetadataAction
 import mozilla.components.browser.state.store.BrowserStore
 import mozilla.components.browser.storage.sync.PlacesHistoryStorage
 import mozilla.components.concept.engine.prompt.ShareData
 import mozilla.components.feature.tabs.TabsUseCases
-import org.mozilla.fenix.components.metrics.Event
-import org.mozilla.fenix.components.metrics.MetricController
 import org.mozilla.fenix.R
+import org.mozilla.fenix.components.AppStore
+import org.mozilla.fenix.components.appstate.AppAction
+import org.mozilla.fenix.ext.components
+import mozilla.components.service.glean.private.NoExtras
 import org.mozilla.fenix.library.history.History
+import org.mozilla.fenix.library.history.toPendingDeletionHistory
+import org.mozilla.fenix.library.historymetadata.HistoryMetadataGroupFragment.DeleteAllConfirmationDialogFragment
 import org.mozilla.fenix.library.historymetadata.HistoryMetadataGroupFragmentAction
 import org.mozilla.fenix.library.historymetadata.HistoryMetadataGroupFragmentDirections
 import org.mozilla.fenix.library.historymetadata.HistoryMetadataGroupFragmentStore
+import org.mozilla.fenix.GleanMetrics.History as GleanHistory
 
 /**
  * An interface that handles the view manipulation of the history metadata group in the History
@@ -67,29 +74,42 @@ interface HistoryMetadataGroupController {
     fun handleDelete(items: Set<History.Metadata>)
 
     /**
-     * Deletes all the history metadata items in this group.
+     * Displays a [DeleteAllConfirmationDialogFragment] prompt.
      */
     fun handleDeleteAll()
+
+    /**
+     * Deletes history metadata items in this group.
+     */
+    fun handleDeleteAllConfirmed()
 }
 
 /**
  * The default implementation of [HistoryMetadataGroupController].
  */
+@Suppress("LongParameterList")
 class DefaultHistoryMetadataGroupController(
     private val historyStorage: PlacesHistoryStorage,
     private val browserStore: BrowserStore,
+    private val appStore: AppStore,
     private val store: HistoryMetadataGroupFragmentStore,
     private val selectOrAddUseCase: TabsUseCases.SelectOrAddUseCase,
-    private val metrics: MetricController,
     private val navController: NavController,
     private val scope: CoroutineScope,
     private val searchTerm: String,
+    private val deleteSnackbar: (
+        items: Set<History.Metadata>,
+        undo: suspend (Set<History.Metadata>) -> Unit,
+        delete: (Set<History.Metadata>) -> suspend (context: Context) -> Unit,
+    ) -> Unit,
+    private val promptDeleteAll: () -> Unit,
+    private val allDeletedSnackbar: () -> Unit,
 ) : HistoryMetadataGroupController {
 
     override fun handleOpen(item: History.Metadata) {
         selectOrAddUseCase.invoke(item.url, item.historyMetadataKey)
         navController.navigate(R.id.browserFragment)
-        metrics.track(Event.HistorySearchTermGroupOpenTab)
+        GleanHistory.searchTermGroupOpenTab.record(NoExtras())
     }
 
     override fun handleSelect(item: History.Metadata) {
@@ -112,39 +132,60 @@ class DefaultHistoryMetadataGroupController(
     override fun handleShare(items: Set<History.Metadata>) {
         navController.navigate(
             HistoryMetadataGroupFragmentDirections.actionGlobalShareFragment(
-                data = items.map { ShareData(url = it.url, title = it.title) }.toTypedArray()
-            )
+                data = items.map { ShareData(url = it.url, title = it.title) }.toTypedArray(),
+            ),
         )
     }
 
     override fun handleDelete(items: Set<History.Metadata>) {
-        scope.launch {
-            val isDeletingLastItem = items.containsAll(store.state.items)
-            items.forEach {
-                store.dispatch(HistoryMetadataGroupFragmentAction.Delete(it))
-                historyStorage.deleteVisitsFor(it.url)
-                metrics.track(Event.HistorySearchTermGroupRemoveTab)
-            }
-            // The method is called for both single and multiple items.
-            // In case all items have been deleted, we have to disband the search group.
-            if (isDeletingLastItem) {
-                browserStore.dispatch(
-                    HistoryMetadataAction.DisbandSearchGroupAction(searchTerm = searchTerm)
-                )
+        val pendingDeletionItems = items.map { it.toPendingDeletionHistory() }.toSet()
+        appStore.dispatch(AppAction.AddPendingDeletionSet(pendingDeletionItems))
+        deleteSnackbar.invoke(items, ::undo, ::delete)
+    }
+
+    private fun undo(items: Set<History.Metadata>) {
+        val pendingDeletionItems = items.map { it.toPendingDeletionHistory() }.toSet()
+        appStore.dispatch(AppAction.UndoPendingDeletionSet(pendingDeletionItems))
+    }
+
+    private fun delete(items: Set<History.Metadata>): suspend (context: Context) -> Unit {
+        return { context ->
+            scope.launch {
+                val isDeletingLastItem = items.containsAll(store.state.items)
+                items.forEach {
+                    store.dispatch(HistoryMetadataGroupFragmentAction.Delete(it))
+                    context.components.core.historyStorage.deleteVisitsFor(it.url)
+                    GleanHistory.searchTermGroupRemoveTab.record(NoExtras())
+                }
+                // The method is called for both single and multiple items.
+                // In case all items have been deleted, we have to disband the search group.
+                if (isDeletingLastItem) {
+                    context.components.core.store.dispatch(
+                        HistoryMetadataAction.DisbandSearchGroupAction(searchTerm = searchTerm),
+                    )
+                }
             }
         }
     }
 
     override fun handleDeleteAll() {
+        promptDeleteAll.invoke()
+    }
+
+    override fun handleDeleteAllConfirmed() {
         scope.launch {
             store.dispatch(HistoryMetadataGroupFragmentAction.DeleteAll)
             store.state.items.forEach {
                 historyStorage.deleteVisitsFor(it.url)
             }
             browserStore.dispatch(
-                HistoryMetadataAction.DisbandSearchGroupAction(searchTerm = searchTerm)
+                HistoryMetadataAction.DisbandSearchGroupAction(searchTerm = searchTerm),
             )
-            metrics.track(Event.HistorySearchTermGroupRemoveAll)
+            GleanHistory.searchTermGroupRemoveAll.record(NoExtras())
+            allDeletedSnackbar.invoke()
+            launch(Main) {
+                navController.popBackStack(R.id.historyFragment, false)
+            }
         }
     }
 }

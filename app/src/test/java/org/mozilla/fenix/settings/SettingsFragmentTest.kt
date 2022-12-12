@@ -9,10 +9,15 @@ import androidx.preference.Preference
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkObject
+import io.mockk.unmockkObject
+import io.mockk.verify
+import kotlinx.coroutines.test.advanceUntilIdle
 import mozilla.components.concept.fetch.Client
-import mozilla.components.service.nimbus.NimbusDisabled
+import mozilla.components.service.fxa.manager.FxaAccountManager
 import mozilla.components.support.test.robolectric.testContext
 import mozilla.components.support.test.rule.MainCoroutineRule
+import mozilla.components.support.test.rule.runTestOnMain
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -21,14 +26,12 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mozilla.fenix.Config
+import org.mozilla.fenix.FeatureFlags
 import org.mozilla.fenix.R
-import org.mozilla.fenix.ReleaseChannel
 import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.ext.getPreferenceKey
 import org.mozilla.fenix.ext.settings
 import org.mozilla.fenix.helpers.FenixRobolectricTestRunner
-import org.mozilla.fenix.nimbus.FxNimbus
 import org.mozilla.fenix.utils.Settings
 import org.robolectric.Robolectric
 import java.io.IOException
@@ -38,7 +41,6 @@ class SettingsFragmentTest {
 
     @get:Rule
     val coroutinesTestRule = MainCoroutineRule()
-    private val testDispatcher = coroutinesTestRule.testDispatcher
     private val settingsFragment = SettingsFragment()
 
     @Before
@@ -47,15 +49,13 @@ class SettingsFragmentTest {
         val client = mockk<Client>()
         every { client.fetch(any()) } throws IOException("test")
 
+        every { testContext.components.core.engine.profiler } returns mockk(relaxed = true)
         every { testContext.components.core.client } returns client
         every { testContext.components.settings } returns mockk(relaxed = true)
         every { testContext.components.analytics } returns mockk(relaxed = true)
         every { testContext.components.backgroundServices } returns mockk(relaxed = true)
 
-        mockkObject(Config)
-        every { Config.channel } returns ReleaseChannel.Nightly
-
-        FxNimbus.api = NimbusDisabled(testContext)
+        mockkObject(FeatureFlags)
 
         val activity = Robolectric.buildActivity(FragmentActivity::class.java).create().get()
         activity.supportFragmentManager.beginTransaction()
@@ -64,7 +64,7 @@ class SettingsFragmentTest {
     }
 
     @Test
-    fun `Add-on collection override pref is visible if debug menu active`() {
+    fun `Add-on collection override pref is visible if debug menu active and feature is enabled`() = runTestOnMain {
         val settingsFragment = SettingsFragment()
         val activity = Robolectric.buildActivity(FragmentActivity::class.java).create().get()
 
@@ -72,10 +72,12 @@ class SettingsFragmentTest {
             .add(settingsFragment, "test")
             .commitNow()
 
-        testDispatcher.advanceUntilIdle()
+        advanceUntilIdle()
+
+        every { FeatureFlags.customExtensionCollectionFeature } returns true
 
         val preferenceAmoCollectionOverride = settingsFragment.findPreference<Preference>(
-            settingsFragment.getPreferenceKey(R.string.pref_key_override_amo_collection)
+            settingsFragment.getPreferenceKey(R.string.pref_key_override_amo_collection),
         )
 
         settingsFragment.setupAmoCollectionOverridePreference(mockk(relaxed = true))
@@ -89,7 +91,7 @@ class SettingsFragmentTest {
     }
 
     @Test
-    fun `Add-on collection override pref is visible if already configured`() {
+    fun `Add-on collection override pref is visible if already configured and feature is enabled`() = runTestOnMain {
         val settingsFragment = SettingsFragment()
         val activity = Robolectric.buildActivity(FragmentActivity::class.java).create().get()
 
@@ -97,10 +99,12 @@ class SettingsFragmentTest {
             .add(settingsFragment, "test")
             .commitNow()
 
-        testDispatcher.advanceUntilIdle()
+        advanceUntilIdle()
+
+        every { FeatureFlags.customExtensionCollectionFeature } returns true
 
         val preferenceAmoCollectionOverride = settingsFragment.findPreference<Preference>(
-            settingsFragment.getPreferenceKey(R.string.pref_key_override_amo_collection)
+            settingsFragment.getPreferenceKey(R.string.pref_key_override_amo_collection),
         )
 
         settingsFragment.setupAmoCollectionOverridePreference(mockk(relaxed = true))
@@ -120,9 +124,37 @@ class SettingsFragmentTest {
     }
 
     @Test
+    fun `Add-on collection override pref is not visible if feature is disabled`() = runTestOnMain {
+        val settingsFragment = SettingsFragment()
+        val activity = Robolectric.buildActivity(FragmentActivity::class.java).create().get()
+
+        activity.supportFragmentManager.beginTransaction()
+            .add(settingsFragment, "test")
+            .commitNow()
+
+        advanceUntilIdle()
+
+        every { FeatureFlags.customExtensionCollectionFeature } returns false
+
+        val preferenceAmoCollectionOverride = settingsFragment.findPreference<Preference>(
+            settingsFragment.getPreferenceKey(R.string.pref_key_override_amo_collection),
+        )
+
+        val settings: Settings = mockk(relaxed = true)
+        settingsFragment.setupAmoCollectionOverridePreference(settings)
+        assertNotNull(preferenceAmoCollectionOverride)
+        assertFalse(preferenceAmoCollectionOverride!!.isVisible)
+
+        every { settings.showSecretDebugMenuThisSession } returns true
+        every { settings.amoCollectionOverrideConfigured() } returns true
+        settingsFragment.setupAmoCollectionOverridePreference(settings)
+        assertFalse(preferenceAmoCollectionOverride.isVisible)
+    }
+
+    @Test
     fun `GIVEN the HttpsOnly is enabled THEN set the appropriate preference summary`() {
         val httpsOnlyPreference = settingsFragment.findPreference<Preference>(
-            settingsFragment.getPreferenceKey(R.string.pref_key_https_only_settings)
+            settingsFragment.getPreferenceKey(R.string.pref_key_https_only_settings),
         )!!
         every { testContext.settings().shouldUseHttpsOnly } returns true
         assertTrue(httpsOnlyPreference.summary.isNullOrEmpty())
@@ -136,7 +168,7 @@ class SettingsFragmentTest {
     @Test
     fun `GIVEN the HttpsOnly is disabled THEN set the appropriate preference summary`() {
         val httpsOnlyPreference = settingsFragment.findPreference<Preference>(
-            settingsFragment.getPreferenceKey(R.string.pref_key_https_only_settings)
+            settingsFragment.getPreferenceKey(R.string.pref_key_https_only_settings),
         )!!
         every { testContext.settings().shouldUseHttpsOnly } returns false
         assertTrue(httpsOnlyPreference.summary.isNullOrEmpty())
@@ -145,5 +177,30 @@ class SettingsFragmentTest {
         settingsFragment.setupHttpsOnlyPreferences()
 
         assertEquals(summary, httpsOnlyPreference.summary)
+    }
+
+    @Test
+    fun `GIVEN an account observer WHEN the fragment is visible THEN register it for updates`() {
+        val accountManager: FxaAccountManager = mockk(relaxed = true)
+        every { testContext.components.backgroundServices.accountManager } returns accountManager
+
+        settingsFragment.onStart()
+
+        verify { accountManager.register(settingsFragment.accountObserver, settingsFragment, true) }
+    }
+
+    @Test
+    fun `GIVEN an account observer WHEN the fragment stops being visible THEN unregister it for updates`() {
+        val accountManager: FxaAccountManager = mockk(relaxed = true)
+        every { testContext.components.backgroundServices.accountManager } returns accountManager
+
+        settingsFragment.onStop()
+
+        verify { accountManager.unregister(settingsFragment.accountObserver) }
+    }
+
+    @After
+    fun tearDown() {
+        unmockkObject(FeatureFlags)
     }
 }

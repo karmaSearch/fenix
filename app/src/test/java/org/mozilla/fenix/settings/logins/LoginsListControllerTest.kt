@@ -7,11 +7,16 @@ package org.mozilla.fenix.settings.logins
 import androidx.navigation.NavController
 import io.mockk.mockk
 import io.mockk.verifyAll
+import mozilla.components.service.glean.testing.GleanTestRule
+import mozilla.components.support.test.robolectric.testContext
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mozilla.fenix.BrowserDirection
-import org.mozilla.fenix.components.metrics.Event
-import org.mozilla.fenix.components.metrics.MetricController
+import org.mozilla.fenix.GleanMetrics.Logins
 import org.mozilla.fenix.helpers.FenixRobolectricTestRunner
 import org.mozilla.fenix.settings.SupportUtils
 import org.mozilla.fenix.settings.logins.controller.LoginsListController
@@ -20,19 +25,20 @@ import org.mozilla.fenix.utils.Settings
 
 @RunWith(FenixRobolectricTestRunner::class)
 class LoginsListControllerTest {
+    @get:Rule
+    val gleanTestRule = GleanTestRule(testContext)
+
     private val store: LoginsFragmentStore = mockk(relaxed = true)
     private val settings: Settings = mockk(relaxed = true)
     private val sortingStrategy: SortingStrategy = SortingStrategy.Alphabetically
     private val navController: NavController = mockk(relaxed = true)
     private val browserNavigator: (String, Boolean, BrowserDirection) -> Unit = mockk(relaxed = true)
-    private val metrics: MetricController = mockk(relaxed = true)
     private val controller =
         LoginsListController(
             loginsFragmentStore = store,
             navController = navController,
             browserNavigator = browserNavigator,
             settings = settings,
-            metrics = metrics
         )
 
     @Test
@@ -48,16 +54,20 @@ class LoginsListControllerTest {
     @Test
     fun `handle login item clicked`() {
         val login: SavedLogin = mockk(relaxed = true)
+        assertNull(Logins.openIndividualLogin.testGetValue())
 
         controller.handleItemClicked(login)
 
         verifyAll {
             store.dispatch(LoginsAction.LoginSelected(login))
-            metrics.track(Event.OpenOneLogin)
             navController.navigate(
-                SavedLoginsFragmentDirections.actionSavedLoginsFragmentToLoginDetailFragment(login.guid)
+                SavedLoginsFragmentDirections.actionSavedLoginsFragmentToLoginDetailFragment(login.guid),
             )
         }
+
+        assertNotNull(Logins.openIndividualLogin.testGetValue())
+        assertEquals(1, Logins.openIndividualLogin.testGetValue()!!.size)
+        assertNull(Logins.openIndividualLogin.testGetValue()!!.single().extra)
     }
 
     @Test
@@ -68,7 +78,7 @@ class LoginsListControllerTest {
             browserNavigator.invoke(
                 SupportUtils.getGenericSumoURLForTopic(SupportUtils.SumoTopic.SYNC_SETUP),
                 true,
-                BrowserDirection.FromSavedLoginsFragment
+                BrowserDirection.FromSavedLoginsFragment,
             )
         }
     }
@@ -79,7 +89,7 @@ class LoginsListControllerTest {
 
         verifyAll {
             navController.navigate(
-                SavedLoginsFragmentDirections.actionSavedLoginsFragmentToAddLoginFragment()
+                SavedLoginsFragmentDirections.actionSavedLoginsFragmentToAddLoginFragment(),
             )
         }
     }

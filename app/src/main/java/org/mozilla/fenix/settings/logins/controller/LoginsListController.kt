@@ -5,9 +5,9 @@
 package org.mozilla.fenix.settings.logins.controller
 
 import androidx.navigation.NavController
+import mozilla.components.service.glean.private.NoExtras
 import org.mozilla.fenix.BrowserDirection
-import org.mozilla.fenix.components.metrics.Event
-import org.mozilla.fenix.components.metrics.MetricController
+import org.mozilla.fenix.GleanMetrics.Logins
 import org.mozilla.fenix.settings.SupportUtils
 import org.mozilla.fenix.settings.logins.LoginsAction
 import org.mozilla.fenix.settings.logins.LoginsFragmentStore
@@ -23,7 +23,6 @@ import org.mozilla.fenix.utils.Settings
  * @param navController NavController manages app navigation within a NavHost.
  * @param browserNavigator Controller allowing browser navigation to any Uri.
  * @param settings SharedPreferences wrapper for easier usage.
- * @param metrics Controller that handles telemetry events.
  */
 class LoginsListController(
     private val loginsFragmentStore: LoginsFragmentStore,
@@ -31,23 +30,22 @@ class LoginsListController(
     private val browserNavigator: (
         searchTermOrURL: String,
         newTab: Boolean,
-        from: BrowserDirection
+        from: BrowserDirection,
     ) -> Unit,
     private val settings: Settings,
-    private val metrics: MetricController
 ) {
 
     fun handleItemClicked(item: SavedLogin) {
         loginsFragmentStore.dispatch(LoginsAction.LoginSelected(item))
-        metrics.track(Event.OpenOneLogin)
+        Logins.openIndividualLogin.record(NoExtras())
         navController.navigate(
-            SavedLoginsFragmentDirections.actionSavedLoginsFragmentToLoginDetailFragment(item.guid)
+            SavedLoginsFragmentDirections.actionSavedLoginsFragmentToLoginDetailFragment(item.guid),
         )
     }
 
     fun handleAddLoginClicked() {
         navController.navigate(
-            SavedLoginsFragmentDirections.actionSavedLoginsFragmentToAddLoginFragment()
+            SavedLoginsFragmentDirections.actionSavedLoginsFragmentToAddLoginFragment(),
         )
     }
 
@@ -55,15 +53,15 @@ class LoginsListController(
         browserNavigator.invoke(
             SupportUtils.getGenericSumoURLForTopic(SupportUtils.SumoTopic.SYNC_SETUP),
             true,
-            BrowserDirection.FromSavedLoginsFragment
+            BrowserDirection.FromSavedLoginsFragment,
         )
     }
 
     fun handleSort(sortingStrategy: SortingStrategy) {
         loginsFragmentStore.dispatch(
             LoginsAction.SortLogins(
-                sortingStrategy
-            )
+                sortingStrategy,
+            ),
         )
         settings.savedLoginsSortingStrategy = sortingStrategy
     }

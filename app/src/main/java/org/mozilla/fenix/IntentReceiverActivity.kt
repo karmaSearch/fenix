@@ -15,10 +15,10 @@ import mozilla.components.feature.intent.ext.sanitize
 import mozilla.components.feature.intent.processing.IntentProcessor
 import mozilla.components.support.utils.EXTRA_ACTIVITY_REFERRER_CATEGORY
 import mozilla.components.support.utils.EXTRA_ACTIVITY_REFERRER_PACKAGE
+import org.mozilla.fenix.GleanMetrics.Events
 import org.mozilla.fenix.HomeActivity.Companion.PRIVATE_BROWSING_MODE
 import org.mozilla.fenix.components.IntentProcessorType
 import org.mozilla.fenix.components.getType
-import org.mozilla.fenix.components.metrics.Event
 import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.ext.settings
 import org.mozilla.fenix.perf.MarkersActivityLifecycleCallbacks
@@ -48,7 +48,9 @@ class IntentReceiverActivity : Activity() {
         processIntent(intent)
 
         components.core.engine.profiler?.addMarker(
-            MarkersActivityLifecycleCallbacks.MARKER_NAME, startTimeProfiler, "IntentReceiverActivity.onCreate"
+            MarkersActivityLifecycleCallbacks.MARKER_NAME,
+            startTimeProfiler,
+            "IntentReceiverActivity.onCreate",
         )
         StartupTimeline.onActivityCreateEndIntentReceiver() // DO NOT MOVE ANYTHING BELOW HERE.
     }
@@ -58,9 +60,9 @@ class IntentReceiverActivity : Activity() {
         val private = settings().openLinksInAPrivateTab
         intent.putExtra(PRIVATE_BROWSING_MODE, private)
         if (private) {
-            components.analytics.metrics.track(Event.OpenedLink(Event.OpenedLink.Mode.PRIVATE))
+            Events.openedLink.record(Events.OpenedLinkExtra("PRIVATE"))
         } else {
-            components.analytics.metrics.track(Event.OpenedLink(Event.OpenedLink.Mode.NORMAL))
+            Events.openedLink.record(Events.OpenedLinkExtra("NORMAL"))
         }
 
         addReferrerInformation(intent)
@@ -71,13 +73,14 @@ class IntentReceiverActivity : Activity() {
         launch(intent, intentProcessorType)
     }
 
-    private fun launch(intent: Intent, intentProcessorType: IntentProcessorType) {
+    @VisibleForTesting
+    internal fun launch(intent: Intent, intentProcessorType: IntentProcessorType) {
         intent.setClassName(applicationContext, intentProcessorType.activityClassName)
 
         if (!intent.hasExtra(HomeActivity.OPEN_TO_BROWSER)) {
             intent.putExtra(
                 HomeActivity.OPEN_TO_BROWSER,
-                intentProcessorType.shouldOpenToBrowser(intent)
+                intentProcessorType.shouldOpenToBrowser(intent),
             )
         }
         // StrictMode violation on certain devices such as Samsung
@@ -91,19 +94,20 @@ class IntentReceiverActivity : Activity() {
         val modeDependentProcessors = if (private) {
             listOf(
                 components.intentProcessors.privateCustomTabIntentProcessor,
-                components.intentProcessors.privateIntentProcessor
+                components.intentProcessors.privateIntentProcessor,
             )
         } else {
-            components.analytics.metrics.track(Event.OpenedLink(Event.OpenedLink.Mode.NORMAL))
+            Events.openedLink.record(Events.OpenedLinkExtra("NORMAL"))
             listOf(
                 components.intentProcessors.customTabIntentProcessor,
-                components.intentProcessors.intentProcessor
+                components.intentProcessors.intentProcessor,
             )
         }
 
         return components.intentProcessors.externalAppIntentProcessors +
             components.intentProcessors.fennecPageShortcutIntentProcessor +
             components.intentProcessors.externalDeepLinkIntentProcessor +
+            components.intentProcessors.webNotificationsIntentProcessor +
             modeDependentProcessors +
             NewTabShortcutIntentProcessor()
     }

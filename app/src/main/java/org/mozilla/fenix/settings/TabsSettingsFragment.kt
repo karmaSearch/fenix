@@ -9,12 +9,11 @@ import android.view.View
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreference
+import mozilla.telemetry.glean.private.NoExtras
 import org.mozilla.fenix.FeatureFlags
+import org.mozilla.fenix.GleanMetrics.Events
+import org.mozilla.fenix.GleanMetrics.Tabs
 import org.mozilla.fenix.R
-import org.mozilla.fenix.components.metrics.Event
-import org.mozilla.fenix.components.metrics.Event.TabViewSettingChanged
-import org.mozilla.fenix.components.metrics.Event.TabViewSettingChanged.Type
-import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.ext.settings
 import org.mozilla.fenix.ext.showToolbar
 import org.mozilla.fenix.utils.view.addToRadioGroup
@@ -31,7 +30,6 @@ class TabsSettingsFragment : PreferenceFragmentCompat() {
     private lateinit var radioOneMonth: RadioButtonPreference
     private lateinit var inactiveTabsCategory: PreferenceCategory
     private lateinit var inactiveTabs: SwitchPreference
-    private lateinit var searchTermTabGroups: SwitchPreference
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.tabs_preferences, rootKey)
@@ -39,7 +37,7 @@ class TabsSettingsFragment : PreferenceFragmentCompat() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        view.context.components.analytics.metrics.track(Event.TabSettingsOpened)
+        Tabs.settingOpened.record(NoExtras())
     }
 
     override fun onResume() {
@@ -57,11 +55,6 @@ class TabsSettingsFragment : PreferenceFragmentCompat() {
         // pref_key_tab_view_grid and look into using the native RadioGroup in the future.
         listRadioButton = requirePreference(R.string.pref_key_tab_view_list_do_not_use)
         gridRadioButton = requirePreference(R.string.pref_key_tab_view_grid)
-        searchTermTabGroups = requirePreference<SwitchPreference>(R.string.pref_key_search_term_tab_groups).also {
-            it.isVisible = FeatureFlags.tabGroupFeature
-            it.isChecked = it.context.settings().searchTermTabGroupsAreEnabled
-            it.onPreferenceChangeListener = SharedPreferenceUpdater()
-        }
 
         radioManual = requirePreference(R.string.pref_key_close_tabs_manually)
         radioOneMonth = requirePreference(R.string.pref_key_close_tabs_after_one_month)
@@ -92,24 +85,22 @@ class TabsSettingsFragment : PreferenceFragmentCompat() {
     private fun setupRadioGroups() {
         addToRadioGroup(
             listRadioButton,
-            gridRadioButton
+            gridRadioButton,
         )
 
         addToRadioGroup(
             radioManual,
             radioOneDay,
             radioOneMonth,
-            radioOneWeek
+            radioOneWeek,
         )
     }
 
     private fun sendTabViewTelemetry() {
-        val metrics = requireContext().components.analytics.metrics
-
         if (listRadioButton.isChecked && !gridRadioButton.isChecked) {
-            metrics.track(TabViewSettingChanged(Type.LIST))
+            Events.tabViewChanged.record(Events.TabViewChangedExtra("list"))
         } else {
-            metrics.track(TabViewSettingChanged(Type.GRID))
+            Events.tabViewChanged.record(Events.TabViewChangedExtra("grid"))
         }
     }
 

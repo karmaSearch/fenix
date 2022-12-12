@@ -9,7 +9,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.mozilla.fenix.helpers.FenixRobolectricTestRunner
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import mozilla.components.lib.crash.CrashReporter
 import mozilla.components.service.fxa.manager.FxaAccountManager
 import mozilla.components.support.test.robolectric.testContext
@@ -30,7 +30,7 @@ class AccountAbnormalitiesTest {
         val accountAbnormalities = AccountAbnormalities(
             testContext,
             crashReporter,
-            TestStrictModeManager() as StrictModeManager
+            TestStrictModeManager() as StrictModeManager,
         )
 
         try {
@@ -54,13 +54,13 @@ class AccountAbnormalitiesTest {
     }
 
     @Test
-    fun `LogoutWithoutAuth detected`() = runBlocking {
+    fun `LogoutWithoutAuth detected`() = runTest {
         val crashReporter: CrashReporter = mockk(relaxed = true)
 
         val accountAbnormalities = AccountAbnormalities(
             testContext,
             crashReporter,
-            TestStrictModeManager() as StrictModeManager
+            TestStrictModeManager() as StrictModeManager,
         )
         accountAbnormalities.onReady(mockk(relaxed = true))
 
@@ -70,13 +70,13 @@ class AccountAbnormalitiesTest {
     }
 
     @Test
-    fun `OverlappingFxaLogoutRequest detected`() = runBlocking {
+    fun `OverlappingFxaLogoutRequest detected`() = runTest {
         val crashReporter: CrashReporter = mockk(relaxed = true)
 
         val accountAbnormalities = AccountAbnormalities(
             testContext,
             crashReporter,
-            TestStrictModeManager() as StrictModeManager
+            TestStrictModeManager() as StrictModeManager,
         )
         accountAbnormalities.onReady(mockk(relaxed = true))
 
@@ -91,13 +91,13 @@ class AccountAbnormalitiesTest {
     }
 
     @Test
-    fun `callback logout abnormalities detected`() = runBlocking {
+    fun `callback logout abnormalities detected`() = runTest {
         val crashReporter: CrashReporter = mockk(relaxed = true)
 
         val accountAbnormalities = AccountAbnormalities(
             testContext,
             crashReporter,
-            TestStrictModeManager() as StrictModeManager
+            TestStrictModeManager() as StrictModeManager,
         )
         accountAbnormalities.onReady(mockk(relaxed = true))
 
@@ -107,14 +107,14 @@ class AccountAbnormalitiesTest {
     }
 
     @Test
-    fun `login happy case + disappearing account detected`() = runBlocking {
+    fun `login happy case + disappearing account detected`() = runTest {
         val crashReporter: CrashReporter = mockk(relaxed = true)
         val accountManager: FxaAccountManager = mockk(relaxed = true)
 
         val accountAbnormalities = AccountAbnormalities(
             testContext,
             crashReporter,
-            TestStrictModeManager() as StrictModeManager
+            TestStrictModeManager() as StrictModeManager,
         )
         accountAbnormalities.onReady(null)
 
@@ -126,7 +126,7 @@ class AccountAbnormalitiesTest {
         val accountAbnormalities2 = AccountAbnormalities(
             testContext,
             crashReporter,
-            TestStrictModeManager() as StrictModeManager
+            TestStrictModeManager() as StrictModeManager,
         )
         // mock accountManager doesn't have an account, but we expect it to have one since we
         // were authenticated before our "restart".
@@ -136,13 +136,13 @@ class AccountAbnormalitiesTest {
     }
 
     @Test
-    fun `logout happy case`() = runBlocking {
+    fun `logout happy case`() = runTest {
         val crashReporter: CrashReporter = mockk()
 
         val accountAbnormalities = AccountAbnormalities(
             testContext,
             crashReporter,
-            TestStrictModeManager() as StrictModeManager
+            TestStrictModeManager() as StrictModeManager,
         )
         accountAbnormalities.onReady(mockk(relaxed = true))
 

@@ -28,6 +28,8 @@ import mozilla.components.service.glean.testing.GleanTestRule
 import mozilla.components.support.test.robolectric.testContext
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -36,11 +38,8 @@ import org.junit.runner.RunWith
 import org.mozilla.fenix.GleanMetrics.TabsTray
 import org.mozilla.fenix.R
 import org.mozilla.fenix.browser.browsingmode.BrowsingModeManager
-import org.mozilla.fenix.components.metrics.MetricController
-import org.mozilla.fenix.home.HomeFragment
-import org.mozilla.fenix.ext.maxActiveTime
-import org.mozilla.fenix.ext.potentialInactiveTabs
 import org.mozilla.fenix.helpers.FenixRobolectricTestRunner
+import org.mozilla.fenix.home.HomeFragment
 
 @RunWith(FenixRobolectricTestRunner::class) // for gleanTestRule
 class DefaultTabsTrayControllerTest {
@@ -63,9 +62,6 @@ class DefaultTabsTrayControllerTest {
     private lateinit var navigationInteractor: NavigationInteractor
 
     @MockK(relaxed = true)
-    private lateinit var metrics: MetricController
-
-    @MockK(relaxed = true)
     private lateinit var tabsUseCases: TabsUseCases
 
     @get:Rule
@@ -82,21 +78,21 @@ class DefaultTabsTrayControllerTest {
             every { getProfilerTime() } returns Double.MAX_VALUE
         }
 
-        assertFalse(TabsTray.newPrivateTabTapped.testHasValue())
+        assertNull(TabsTray.newPrivateTabTapped.testGetValue())
 
         createController().handleOpeningNewTab(true)
 
-        assertTrue(TabsTray.newPrivateTabTapped.testHasValue())
+        assertNotNull(TabsTray.newPrivateTabTapped.testGetValue())
 
         verifyOrder {
             profiler.getProfilerTime()
             navController.navigate(
-                TabsTrayFragmentDirections.actionGlobalHome(focusOnAddressBar = true)
+                TabsTrayFragmentDirections.actionGlobalHome(focusOnAddressBar = true),
             )
             navigationInteractor.onTabTrayDismissed()
             profiler.addMarker(
                 "DefaultTabTrayController.onNewTabTapped",
-                Double.MAX_VALUE
+                Double.MAX_VALUE,
             )
         }
     }
@@ -112,38 +108,38 @@ class DefaultTabsTrayControllerTest {
         verifyOrder {
             profiler.getProfilerTime()
             navController.navigate(
-                TabsTrayFragmentDirections.actionGlobalHome(focusOnAddressBar = true)
+                TabsTrayFragmentDirections.actionGlobalHome(focusOnAddressBar = true),
             )
             navigationInteractor.onTabTrayDismissed()
             profiler.addMarker(
                 "DefaultTabTrayController.onNewTabTapped",
-                Double.MAX_VALUE
+                Double.MAX_VALUE,
             )
         }
     }
 
     @Test
     fun `GIVEN private mode WHEN handleOpeningNewTab is called THEN Event#NewPrivateTabTapped is added to telemetry`() {
-        assertFalse(TabsTray.newPrivateTabTapped.testHasValue())
+        assertNull(TabsTray.newPrivateTabTapped.testGetValue())
 
         createController().handleOpeningNewTab(true)
 
-        assertTrue(TabsTray.newPrivateTabTapped.testHasValue())
+        assertNotNull(TabsTray.newPrivateTabTapped.testGetValue())
     }
 
     @Test
     fun `GIVEN private mode WHEN handleOpeningNewTab is called THEN Event#NewTabTapped is added to telemetry`() {
-        assertFalse(TabsTray.newTabTapped.testHasValue())
+        assertNull(TabsTray.newTabTapped.testGetValue())
 
         createController().handleOpeningNewTab(false)
 
-        assertTrue(TabsTray.newTabTapped.testHasValue())
+        assertNotNull(TabsTray.newTabTapped.testGetValue())
     }
 
     @Test
     fun `WHEN handleTabDeletion is called THEN Event#ClosedExistingTab is added to telemetry`() {
         val tab: TabSessionState = mockk { every { content.private } returns true }
-        assertFalse(TabsTray.closedExistingTab.testHasValue())
+        assertNull(TabsTray.closedExistingTab.testGetValue())
 
         every { browserStore.state } returns mockk()
         try {
@@ -152,7 +148,7 @@ class DefaultTabsTrayControllerTest {
             every { browserStore.state.getNormalOrPrivateTabs(any()) } returns listOf(tab)
 
             createController().handleTabDeletion("testTabId", "unknown")
-            assertTrue(TabsTray.closedExistingTab.testHasValue())
+            assertNotNull(TabsTray.closedExistingTab.testGetValue())
         } finally {
             unmockkStatic("mozilla.components.browser.state.selector.SelectorsKt")
         }
@@ -165,8 +161,8 @@ class DefaultTabsTrayControllerTest {
             createController(
                 showCancelledDownloadWarning = { _, _, _ ->
                     showCancelledDownloadWarningInvoked = true
-                }
-            )
+                },
+            ),
         )
         val tab: TabSessionState = mockk { every { content.private } returns true }
         every { browserStore.state } returns mockk()
@@ -175,8 +171,8 @@ class DefaultTabsTrayControllerTest {
                 "https://mozilla.org/download",
                 private = true,
                 destinationDirectory = "Download",
-                status = DownloadState.Status.DOWNLOADING
-            )
+                status = DownloadState.Status.DOWNLOADING,
+            ),
         )
         try {
             mockkStatic("mozilla.components.browser.state.selector.SelectorsKt")
@@ -199,7 +195,7 @@ class DefaultTabsTrayControllerTest {
                 assertEquals(3, position)
                 assertTrue(smoothScroll)
                 selectTabPositionInvoked = true
-            }
+            },
         ).handleTrayScrollingToPosition(3, true)
 
         assertTrue(selectTabPositionInvoked)
@@ -228,7 +224,7 @@ class DefaultTabsTrayControllerTest {
 
         assertTrue(dismissTrayInvoked)
         verify(exactly = 0) { navController.popBackStack() }
-        verify(exactly = 0) { navController.popBackStack(any(), any()) }
+        verify(exactly = 0) { navController.popBackStack(any<Int>(), any()) }
         verify(exactly = 0) { navController.navigate(any<Int>()) }
         verify(exactly = 0) { navController.navigate(any<NavDirections>()) }
         verify(exactly = 0) { navController.navigate(any<NavDirections>(), any<NavOptions>()) }
@@ -291,7 +287,7 @@ class DefaultTabsTrayControllerTest {
                 showUndoSnackbarForTab = {
                     assertTrue(it)
                     showUndoSnackbarForTabInvoked = true
-                }
+                },
             ).handleTabDeletion("22")
 
             verify { tabsUseCases.removeTab("22") }
@@ -333,8 +329,8 @@ class DefaultTabsTrayControllerTest {
                 showUndoSnackbarForTab = {
                     assertTrue(it)
                     showUndoSnackbarForTabInvoked = true
-                }
-            )
+                },
+            ),
         )
 
         val privateTab = createTab(url = "url", private = true)
@@ -346,8 +342,8 @@ class DefaultTabsTrayControllerTest {
 
             controller.handleMultipleTabsDeletion(listOf(privateTab, mockk()))
 
-            assertTrue(TabsTray.closeSelectedTabs.testHasValue())
-            val snapshot = TabsTray.closeSelectedTabs.testGetValue()
+            assertNotNull(TabsTray.closeSelectedTabs.testGetValue())
+            val snapshot = TabsTray.closeSelectedTabs.testGetValue()!!
             assertEquals(1, snapshot.size)
             assertEquals("2", snapshot.single().extra?.getValue("tab_count"))
 
@@ -367,8 +363,8 @@ class DefaultTabsTrayControllerTest {
                 showUndoSnackbarForTab = {
                     assertFalse(it)
                     showUndoSnackbarForTabInvoked = true
-                }
-            )
+                },
+            ),
         )
 
         val normalTab = createTab(url = "url", private = false)
@@ -380,8 +376,8 @@ class DefaultTabsTrayControllerTest {
 
             controller.handleMultipleTabsDeletion(listOf(normalTab, normalTab))
 
-            assertTrue(TabsTray.closeSelectedTabs.testHasValue())
-            val snapshot = TabsTray.closeSelectedTabs.testGetValue()
+            assertNotNull(TabsTray.closeSelectedTabs.testGetValue())
+            val snapshot = TabsTray.closeSelectedTabs.testGetValue()!!
             assertEquals(1, snapshot.size)
             assertEquals("2", snapshot.single().extra?.getValue("tab_count"))
 
@@ -406,8 +402,8 @@ class DefaultTabsTrayControllerTest {
 
             controller.handleMultipleTabsDeletion(listOf(privateTab))
 
-            assertTrue(TabsTray.closeSelectedTabs.testHasValue())
-            val snapshot = TabsTray.closeSelectedTabs.testGetValue()
+            assertNotNull(TabsTray.closeSelectedTabs.testGetValue())
+            val snapshot = TabsTray.closeSelectedTabs.testGetValue()!!
             assertEquals(1, snapshot.size)
             assertEquals("1", snapshot.single().extra?.getValue("tab_count"))
 
@@ -432,8 +428,8 @@ class DefaultTabsTrayControllerTest {
 
             controller.handleMultipleTabsDeletion(listOf(privateTab))
 
-            assertTrue(TabsTray.closeSelectedTabs.testHasValue())
-            val snapshot = TabsTray.closeSelectedTabs.testGetValue()
+            assertNotNull(TabsTray.closeSelectedTabs.testGetValue())
+            val snapshot = TabsTray.closeSelectedTabs.testGetValue()!!
             assertEquals(1, snapshot.size)
             assertEquals("1", snapshot.single().extra?.getValue("tab_count"))
 
@@ -449,16 +445,16 @@ class DefaultTabsTrayControllerTest {
     fun `GIVEN private mode selected WHEN sendNewTabEvent is called THEN NewPrivateTabTapped is tracked in telemetry`() {
         createController().sendNewTabEvent(true)
 
-        assertTrue(TabsTray.newPrivateTabTapped.testHasValue())
+        assertNotNull(TabsTray.newPrivateTabTapped.testGetValue())
     }
 
     @Test
     fun `GIVEN normal mode selected WHEN sendNewTabEvent is called THEN NewTabTapped is tracked in telemetry`() {
-        assertFalse(TabsTray.newTabTapped.testHasValue())
+        assertNull(TabsTray.newTabTapped.testGetValue())
 
         createController().sendNewTabEvent(false)
 
-        assertTrue(TabsTray.newTabTapped.testHasValue())
+        assertNotNull(TabsTray.newTabTapped.testGetValue())
     }
 
     @Test
@@ -472,68 +468,11 @@ class DefaultTabsTrayControllerTest {
             navigateToHomeAndDeleteSession = {
                 assertEquals("randomId", it)
                 navigateToHomeAndDeleteSessionInvoked = true
-            }
+            },
         ).dismissTabsTrayAndNavigateHome("randomId")
 
         assertTrue(dismissTrayInvoked)
         assertTrue(navigateToHomeAndDeleteSessionInvoked)
-    }
-
-    @Test
-    fun `WHEN deleteAllInactiveTabs is called THEN that it uses tabsUseCases#removeTabs and shows an undo snackbar`() {
-        var showUndoSnackbarForTabInvoked = false
-        val controller = spyk(
-            createController(
-                showUndoSnackbarForTab = {
-                    showUndoSnackbarForTabInvoked = true
-                }
-            )
-        )
-        val inactiveTab: TabSessionState = mockk {
-            every { lastAccess } returns maxActiveTime
-            every { createdAt } returns 0
-            every { id } returns "24"
-            every { content } returns mockk {
-                every { private } returns false
-            }
-        }
-        every { browserStore.state } returns mockk()
-        try {
-            mockkStatic("mozilla.components.browser.state.selector.SelectorsKt")
-            every { browserStore.state.potentialInactiveTabs } returns listOf(inactiveTab)
-
-            controller.handleDeleteAllInactiveTabs()
-
-            verify { tabsUseCases.removeTabs(listOf("24")) }
-            assertTrue(showUndoSnackbarForTabInvoked)
-        } finally {
-            unmockkStatic("mozilla.components.browser.state.selector.SelectorsKt")
-        }
-    }
-
-    @Test
-    fun `WHEN handleDeleteAllInactiveTabs is called THEN Event#TabsTrayCloseAllInactiveTabs and Event#TabsTrayCloseInactiveTab are added to telemetry`() {
-        val inactiveTab: TabSessionState = mockk {
-            every { lastAccess } returns maxActiveTime
-            every { createdAt } returns 0
-            every { id } returns "24"
-            every { content } returns mockk {
-                every { private } returns false
-            }
-        }
-        every { browserStore.state } returns mockk()
-        assertFalse(TabsTray.closeAllInactiveTabs.testHasValue())
-
-        try {
-            mockkStatic("mozilla.components.browser.state.selector.SelectorsKt")
-            every { browserStore.state.potentialInactiveTabs } returns listOf(inactiveTab)
-
-            createController().handleDeleteAllInactiveTabs()
-
-            assertTrue(TabsTray.closeAllInactiveTabs.testHasValue())
-        } finally {
-            unmockkStatic("mozilla.components.browser.state.selector.SelectorsKt")
-        }
     }
 
     private fun createController(
@@ -541,7 +480,7 @@ class DefaultTabsTrayControllerTest {
         selectTabPosition: (Int, Boolean) -> Unit = { _, _ -> },
         dismissTray: () -> Unit = { },
         showUndoSnackbarForTab: (Boolean) -> Unit = { _ -> },
-        showCancelledDownloadWarning: (Int, String?, String?) -> Unit = { _, _, _ -> }
+        showCancelledDownloadWarning: (Int, String?, String?) -> Unit = { _, _, _ -> },
     ): DefaultTabsTrayController {
         return DefaultTabsTrayController(
             trayStore,
@@ -551,12 +490,11 @@ class DefaultTabsTrayControllerTest {
             navigateToHomeAndDeleteSession,
             profiler,
             navigationInteractor,
-            metrics,
             tabsUseCases,
             selectTabPosition,
             dismissTray,
             showUndoSnackbarForTab,
-            showCancelledDownloadWarning = showCancelledDownloadWarning
+            showCancelledDownloadWarning = showCancelledDownloadWarning,
         )
     }
 }

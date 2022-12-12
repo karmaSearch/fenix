@@ -35,9 +35,13 @@ import org.mozilla.fenix.settings.logins.fragment.SavedLoginsAuthFragmentDirecti
 class SyncPreferenceViewTest {
 
     @MockK private lateinit var syncPreference: SyncPreference
+
     @MockK private lateinit var lifecycleOwner: LifecycleOwner
+
     @MockK private lateinit var accountManager: FxaAccountManager
-    @MockK(relaxed = true) private lateinit var navController: NavController
+
+    @MockK(relaxed = true)
+    private lateinit var navController: NavController
     private lateinit var accountObserver: CapturingSlot<AccountObserver>
     private lateinit var preferenceChangeListener: CapturingSlot<Preference.OnPreferenceChangeListener>
     private lateinit var widgetVisibilitySlot: CapturingSlot<Boolean>
@@ -92,7 +96,7 @@ class SyncPreferenceViewTest {
         assertFalse(preferenceChangeListener.captured.onPreferenceChange(syncPreference, any()))
         verify {
             navController.navigate(
-                SavedLoginsAuthFragmentDirections.actionGlobalAccountProblemFragment()
+                SavedLoginsAuthFragmentDirections.actionGlobalAccountProblemFragment(),
             )
         }
     }
@@ -109,7 +113,7 @@ class SyncPreferenceViewTest {
         assertFalse(preferenceChangeListener.captured.onPreferenceChange(syncPreference, any()))
         verify {
             navController.navigate(
-                SavedLoginsAuthFragmentDirections.actionGlobalAccountProblemFragment()
+                SavedLoginsAuthFragmentDirections.actionGlobalAccountProblemFragment(),
             )
         }
     }
@@ -126,7 +130,7 @@ class SyncPreferenceViewTest {
         assertFalse(preferenceChangeListener.captured.onPreferenceChange(syncPreference, any()))
         verify {
             navController.navigate(
-                SavedLoginsAuthFragmentDirections.actionSavedLoginsAuthFragmentToTurnOnSyncFragment()
+                SavedLoginsAuthFragmentDirections.actionSavedLoginsAuthFragmentToTurnOnSyncFragment(),
             )
         }
     }
@@ -136,7 +140,7 @@ class SyncPreferenceViewTest {
         every { accountManager.authenticatedAccount() } returns mockk()
         every { accountManager.accountNeedsReauth() } returns false
         every { anyConstructed<SyncEnginesStorage>().getStatus() } returns mapOf(
-            SyncEngine.Passwords to true
+            SyncEngine.Passwords to true,
         )
         every { anyConstructed<SyncEnginesStorage>().setStatus(any(), any()) } just Runs
         every { syncPreference.setSwitchCheckedState(any()) } just Runs
@@ -155,7 +159,7 @@ class SyncPreferenceViewTest {
         every { accountManager.authenticatedAccount() } returns mockk()
         every { accountManager.accountNeedsReauth() } returns false
         every { anyConstructed<SyncEnginesStorage>().getStatus() } returns mapOf(
-            SyncEngine.Passwords to false
+            SyncEngine.Passwords to false,
         )
         every { anyConstructed<SyncEnginesStorage>().setStatus(any(), any()) } just Runs
         every { syncPreference.setSwitchCheckedState(any()) } just Runs
@@ -185,7 +189,7 @@ class SyncPreferenceViewTest {
             val directions =
                 SavedLoginsAuthFragmentDirections.actionGlobalAccountProblemFragment()
             navController.navigate(directions)
-        }
+        },
     )
 
     companion object {

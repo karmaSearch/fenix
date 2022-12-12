@@ -13,43 +13,28 @@ import org.mozilla.fenix.HomeActivity
 import org.mozilla.fenix.NavGraphDirections
 import org.mozilla.fenix.R
 import org.mozilla.fenix.components.metrics.Event
-import org.mozilla.fenix.components.metrics.MetricController
+import org.mozilla.fenix.components.metrics.MetricsUtils
 import org.mozilla.fenix.ext.nav
 
 /**
  * When the search widget is tapped, Fenix should open to the search fragment.
  * Tapping the private browsing mode launcher icon should also open to the search fragment.
  */
-class StartSearchIntentProcessor(
-    private val metrics: MetricController
-) : HomeIntentProcessor {
+class StartSearchIntentProcessor : HomeIntentProcessor {
 
     override fun process(intent: Intent, navController: NavController, out: Intent): Boolean {
-        if (intent.action == SEARCH_ACTION) {
-            val directions = NavGraphDirections.actionGlobalSearchDialog(
-                    sessionId = null,
-                    searchAccessPoint = Event.PerformedSearch.SearchAccessPoint.ACTION
-                )
-
-            val options = navOptions {
-                popUpTo = R.id.homeFragment
-            }
-            navController.nav(null, directions, options)
-
-            return true
-        }
-
         val event = intent.extras?.getString(HomeActivity.OPEN_TO_SEARCH)
         return if (event != null) {
             val source = when (event) {
                 SEARCH_WIDGET -> {
                     SearchWidget.newTabButton.record(NoExtras())
-                    Event.PerformedSearch.SearchAccessPoint.WIDGET
+                    MetricsUtils.Source.WIDGET
                 }
                 STATIC_SHORTCUT_NEW_TAB,
                 STATIC_SHORTCUT_NEW_PRIVATE_TAB,
-                PRIVATE_BROWSING_PINNED_SHORTCUT -> {
-                    Event.PerformedSearch.SearchAccessPoint.SHORTCUT
+                PRIVATE_BROWSING_PINNED_SHORTCUT,
+                -> {
+                    MetricsUtils.Source.SHORTCUT
                 }
                 else -> null
             }
@@ -59,12 +44,12 @@ class StartSearchIntentProcessor(
             val directions = source?.let {
                 NavGraphDirections.actionGlobalSearchDialog(
                     sessionId = null,
-                    searchAccessPoint = it
+                    searchAccessPoint = it,
                 )
             }
             directions?.let {
                 val options = navOptions {
-                    popUpTo = R.id.homeFragment
+                    popUpTo(R.id.homeFragment)
                 }
                 navController.nav(null, it, options)
             }

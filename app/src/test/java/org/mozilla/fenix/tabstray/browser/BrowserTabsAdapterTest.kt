@@ -33,15 +33,15 @@ class BrowserTabsAdapterTest {
     @Test
     fun `WHEN bind with payloads is called THEN update the holder`() {
         every { testContext.components.core.thumbnailStorage } returns mockk()
-        val adapter = BrowserTabsAdapter(context, interactor, store, "Test")
+        val adapter = BrowserTabsAdapter(context, interactor, store, "Test", mockk())
         val holder = mockk<AbstractBrowserTabViewHolder>(relaxed = true)
 
         adapter.updateTabs(
             listOf(
-                createTab(url = "url", id = "tab1")
+                createTab(url = "url", id = "tab1"),
             ),
             null,
-            selectedTabId = "tab1"
+            selectedTabId = "tab1",
         )
 
         adapter.onBindViewHolder(holder, 0, listOf(PAYLOAD_HIGHLIGHT_SELECTED_ITEM))
@@ -59,7 +59,7 @@ class BrowserTabsAdapterTest {
         every { testContext.components.core.store } returns BrowserStore()
         every { testContext.components.analytics } returns mockk(relaxed = true)
         every { testContext.components.settings } returns mockk(relaxed = true)
-        val adapter = BrowserTabsAdapter(context, interactor, store, "Test")
+        val adapter = BrowserTabsAdapter(context, interactor, store, "Test", mockk())
         val binding = TabTrayItemBinding.inflate(LayoutInflater.from(testContext))
         val holder = spyk(
             BrowserTabViewHolder.ListViewHolder(
@@ -68,8 +68,8 @@ class BrowserTabsAdapterTest {
                 store = store,
                 selectionHolder = null,
                 itemView = binding.root,
-                featureName = "Test"
-            )
+                featureName = "Test",
+            ),
         )
         val tab = createTab(url = "url", id = "tab1")
 
@@ -81,7 +81,7 @@ class BrowserTabsAdapterTest {
         adapter.updateTabs(
             listOf(tab),
             null,
-            selectedTabId = "tab1"
+            selectedTabId = "tab1",
         )
 
         adapter.onBindViewHolder(holder, 0, listOf(PAYLOAD_DONT_HIGHLIGHT_SELECTED_ITEM))

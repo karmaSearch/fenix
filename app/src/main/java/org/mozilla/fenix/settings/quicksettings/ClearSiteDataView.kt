@@ -18,7 +18,6 @@ import androidx.navigation.NavController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.mozilla.fenix.FeatureFlags
 import org.mozilla.fenix.R
 import org.mozilla.fenix.databinding.QuicksettingsClearSiteDataBinding
 import org.mozilla.fenix.ext.components
@@ -46,7 +45,7 @@ class ClearSiteDataView(
     val containerView: ViewGroup,
     val containerDivider: View,
     val interactor: ClearSiteDataViewInteractor,
-    val navController: NavController
+    val navController: NavController,
 ) {
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -55,15 +54,10 @@ class ClearSiteDataView(
     val binding = QuicksettingsClearSiteDataBinding.inflate(
         LayoutInflater.from(context),
         containerView,
-        true
+        true,
     )
 
     fun update(webInfoState: WebsiteInfoState) {
-        if (!FeatureFlags.showClearSiteData) {
-            setVisibility(false)
-            return
-        }
-
         websiteUrl = webInfoState.websiteUrl
 
         setVisibility(true)
@@ -80,7 +74,6 @@ class ClearSiteDataView(
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     internal fun askToClear() {
-
         ioScope.launch {
             val publicSuffixList = context.components.publicSuffixList
             val host = websiteUrl.toUri().host.orEmpty()
@@ -100,10 +93,10 @@ class ClearSiteDataView(
                 HtmlCompat.fromHtml(
                     context.getString(
                         R.string.confirm_clear_site_data,
-                        baseDomain
+                        baseDomain,
                     ),
-                    HtmlCompat.FROM_HTML_MODE_LEGACY
-                )
+                    HtmlCompat.FROM_HTML_MODE_LEGACY,
+                ),
             )
 
             setNegativeButton(R.string.delete_browsing_data_prompt_cancel) { it: DialogInterface, _ ->

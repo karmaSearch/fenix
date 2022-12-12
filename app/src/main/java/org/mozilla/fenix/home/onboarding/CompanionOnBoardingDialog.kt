@@ -16,7 +16,7 @@ import org.mozilla.fenix.databinding.OnboardingDialogCustomHomeBinding
 import org.mozilla.fenix.databinding.OnboardingDialogLearnandactBinding
 import org.mozilla.fenix.databinding.OnboardingDialogSearchbarBinding
 import org.mozilla.fenix.ext.settings
-import org.mozilla.fenix.home.learnandact.viewholders.LearnAndActViewHolder
+import org.mozilla.fenix.home.learnandact.viewholders.LearnAndActHeaderViewHolder
 
 class CompanionOnBoardingDialog(private val searchBar: View, private val recyclerView: RecyclerView) {
     /**
@@ -130,8 +130,8 @@ class CompanionOnBoardingDialog(private val searchBar: View, private val recycle
 
         for (index in 0..count) {
             val viewHolder = recyclerView.findViewHolderForAdapterPosition(index)
-            if (viewHolder is LearnAndActViewHolder) {
-                return viewHolder.containerView
+            if (viewHolder is LearnAndActHeaderViewHolder) {
+                return viewHolder.itemView
             }
         }
         return null
