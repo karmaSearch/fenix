@@ -1,5 +1,7 @@
 package org.mozilla.fenix.home.learnandact.viewholders
 
+import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import android.view.View
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -8,11 +10,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.booleanResource
@@ -27,14 +30,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.LifecycleOwner
+import com.squareup.picasso.Picasso
 import karma.service.learnandact.LearnAndAct
-import mozilla.components.support.images.compose.loader.Fallback
-import mozilla.components.support.images.compose.loader.ImageLoader
-import mozilla.components.support.images.compose.loader.Placeholder
-import mozilla.components.support.images.compose.loader.WithImage
 import mozilla.components.ui.colors.PhotonColors
 import org.mozilla.fenix.R
-import org.mozilla.fenix.components.components
 import org.mozilla.fenix.compose.ComposeViewHolder
 import org.mozilla.fenix.home.learnandact.LearnAndActInteractor
 import org.mozilla.fenix.theme.FirefoxTheme
@@ -133,37 +132,12 @@ fun LearnAndActItem(item: LearnAndAct,
             ) {
 
                 if (item.imageUrl.startsWith("http")) {
-                    ImageLoader(
-                        url = item.imageUrl,
-                        client = components.core.client,
-                    ) {
-                        WithImage { painter ->
-                            Image(
-                                painter = painter,
-                                modifier = Modifier.weight(8f, true),
-                                contentDescription = null,
-                                contentScale = ContentScale.FillWidth,
-                            )
-                        }
 
-                        Placeholder {
-                            Image(
-                                painter = painterResource(id = defaultImageName),
-                                modifier = Modifier.weight(8f, true),
-                                contentDescription = null,
-                                contentScale = ContentScale.FillWidth,
-                            )
-                        }
-
-                        Fallback {
-                            Image(
-                                painter = painterResource(id = defaultImageName),
-                                modifier = Modifier.weight(8f, true),
-                                contentDescription = null,
-                                contentScale = ContentScale.FillWidth,
-                            )
-                        }
-                    }
+                    NetworkImage(
+                        url = item.imageUrl, defaultImageName,
+                        modifier = Modifier.weight(8f, true),
+                        contentScale = ContentScale.FillWidth
+                    )
                 } else {
                     Image(
                         painter = painterResource(id = defaultImageName),
@@ -172,7 +146,6 @@ fun LearnAndActItem(item: LearnAndAct,
                         contentScale = ContentScale.FillWidth,
                     )
                 }
-
                 Column(
                     modifier = Modifier.weight(10f, true),
                 ) {
@@ -187,7 +160,25 @@ fun LearnAndActItem(item: LearnAndAct,
             Column(verticalArrangement = Arrangement.spacedBy(0.dp),
             modifier = Modifier.fillMaxHeight(1f)) {
 
-                LearnAndActImage(item = item)
+                if (item.imageUrl.startsWith("http")) {
+
+                    NetworkImage(
+                        url = item.imageUrl, defaultImageName,
+                        modifier = Modifier
+                            .height(193.dp)
+                            .fillMaxWidth(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Image(
+                        painter = painterResource(id = defaultImageName),
+                        modifier = Modifier
+                            .height(193.dp)
+                            .fillMaxWidth(),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                    )
+                }
                 LearnAndActType(item = item, offset = -12.dp)
                 LearnAndActTextsColumn(item = item, y = -10.dp)
 
@@ -196,64 +187,6 @@ fun LearnAndActItem(item: LearnAndAct,
     }
 }
 
-
-@Composable
-fun LearnAndActImage(
-    item: LearnAndAct
-) {
-    val defaultImageName =
-        if (item.type.lowercase() == "learn" || item.type.lowercase() == "comprendre") R.drawable.ic_learn_placeholder else R.drawable.ic_act_placeholder
-
-    if (item.imageUrl.startsWith("http")) {
-
-        ImageLoader(
-            url = item.imageUrl,
-            client = components.core.client,
-        ) {
-            WithImage { painter ->
-                Image(
-                    painter = painter,
-                    modifier = Modifier
-                        .height(193.dp)
-                        .fillMaxWidth(),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                )
-            }
-
-            Placeholder {
-                Image(
-                    painter = painterResource(id = defaultImageName),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .height(193.dp)
-                        .fillMaxWidth(),
-                    contentScale = ContentScale.Crop,
-                )
-            }
-
-            Fallback {
-                Image(
-                    painter = painterResource(id = defaultImageName),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .height(193.dp)
-                        .fillMaxWidth(),
-                    contentScale = ContentScale.Crop,
-                )
-            }
-        }
-    } else {
-        Image(
-            painter = painterResource(id = defaultImageName),
-            contentDescription = null,
-            modifier = Modifier
-                .height(193.dp)
-                .fillMaxWidth(),
-            contentScale = ContentScale.Crop,
-        )
-    }
-}
 
 @Composable
 fun LearnAndActType(
@@ -339,6 +272,56 @@ fun LearnAndActTextsColumn(
         )
     }
 
+}
+
+
+@Composable
+fun NetworkImage(url: String?, defaultImageName: Int, modifier: Modifier, contentScale: ContentScale) {
+
+    var image by remember { mutableStateOf<ImageBitmap?>(null) }
+    var drawable by remember { mutableStateOf<Drawable?>(null) }
+
+    DisposableEffect(url) {
+        val picasso = Picasso.get()
+
+        val target = object : com.squareup.picasso.Target {
+            override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
+                drawable = placeHolderDrawable
+            }
+
+            override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
+                drawable = errorDrawable
+            }
+
+            override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
+                image = bitmap?.asImageBitmap()
+            }
+        }
+
+        picasso
+            .load(url)
+            .placeholder(defaultImageName)
+            .error(defaultImageName)
+            .into(target)
+
+
+        onDispose {
+            image = null
+            drawable = null
+            picasso.cancelRequest(target)
+        }
+    }
+
+    if (image != null) {
+        Image(bitmap = image!!, contentDescription = null, modifier = modifier, contentScale = contentScale)
+    } else  {
+        Image(
+            painter = painterResource(id = defaultImageName),
+            contentDescription = null,
+            modifier = modifier,
+            contentScale = contentScale,
+        )
+    }
 }
 
 @Preview
