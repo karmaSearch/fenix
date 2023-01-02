@@ -1,9 +1,29 @@
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="25dp"
-    android:height="25dp"
-    android:viewportWidth="25"
-    android:viewportHeight="25">
-  <path
-      android:pathData="M24.792,6.364C24.792,6.364 22.547,7.01 17.416,7.01C15.413,7.01 13.621,7.802 12.414,9.05C11.208,7.802 9.415,7.01 7.412,7.01C2.281,7.01 0.036,6.364 0.036,6.364C0.036,6.364 -0.318,11.149 1.182,14.693C2.139,16.956 4.519,18.636 7.412,18.636C9.415,18.636 11.208,17.844 12.414,16.597C13.621,17.844 15.413,18.636 17.416,18.636C20.309,18.636 22.689,16.956 23.646,14.693C25.146,11.149 24.792,6.364 24.792,6.364ZM6.894,13.883C5.383,13.883 4.159,12.489 4.159,12.489C4.159,12.489 5.383,11.177 6.894,11.177C8.405,11.177 9.63,12.489 9.63,12.489C9.63,12.489 8.405,13.883 6.894,13.883ZM17.934,13.883C16.423,13.883 15.198,12.489 15.198,12.489C15.198,12.489 16.423,11.177 17.934,11.177C19.445,11.177 20.67,12.489 20.67,12.489C20.67,12.489 19.445,13.883 17.934,13.883Z"
-      android:fillColor="#000000"/>
-</vector>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="oval">
+            <size
+                android:width="40dp"
+                android:height="40dp" />
+            <solid android:color="?privateBrowsingButtonBackground" />
+        </shape>
+    </item>
+    <item
+        android:bottom="8dp"
+        android:left="8dp"
+        android:right="8dp"
+        android:top="8dp">
+        <vector
+            android:width="24dp"
+            android:height="24dp"
+            android:viewportWidth="24"
+            android:viewportHeight="24">
+          <path
+              android:pathData="M24.792,6.364C24.792,6.364 22.547,7.01 17.416,7.01C15.413,7.01 13.621,7.802 12.414,9.05C11.208,7.802 9.415,7.01 7.412,7.01C2.281,7.01 0.036,6.364 0.036,6.364C0.036,6.364 -0.318,11.149 1.182,14.693C2.139,16.956 4.519,18.636 7.412,18.636C9.415,18.636 11.208,17.844 12.414,16.597C13.621,17.844 15.413,18.636 17.416,18.636C20.309,18.636 22.689,16.956 23.646,14.693C25.146,11.149 24.792,6.364 24.792,6.364ZM6.894,13.883C5.383,13.883 4.159,12.489 4.159,12.489C4.159,12.489 5.383,11.177 6.894,11.177C8.405,11.177 9.63,12.489 9.63,12.489C9.63,12.489 8.405,13.883 6.894,13.883ZM17.934,13.883C16.423,13.883 15.198,12.489 15.198,12.489C15.198,12.489 16.423,11.177 17.934,11.177C19.445,11.177 20.67,12.489 20.67,12.489C20.67,12.489 19.445,13.883 17.934,13.883Z"
+              android:fillColor="?attr/privateBrowsingButtonAccent"/>
+        </vector>
+    </item>
+</layer-list>

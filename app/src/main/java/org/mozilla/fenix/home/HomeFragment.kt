@@ -540,17 +540,9 @@ class HomeFragment : Fragment() {
                 ConstraintSet().apply {
                     clone(binding.toolbarLayout)
                     clear(binding.bottomBar.id, BOTTOM)
-                    //clear(binding.bottomBarShadow.id, BOTTOM)
                     connect(binding.bottomBar.id, TOP, PARENT_ID, TOP)
-                    //connect(binding.bottomBarShadow.id, TOP, binding.bottomBar.id, BOTTOM)
-                    //connect(binding.bottomBarShadow.id, BOTTOM, PARENT_ID, BOTTOM)
                     applyTo(binding.toolbarLayout)
                 }
-
-                binding.bottomBar.background = AppCompatResources.getDrawable(
-                    view.context,
-                    view.context.theme.resolveAttribute(R.attr.bottomBarBackgroundTop),
-                )
 
                 binding.homeAppBar.updateLayoutParams<ViewGroup.MarginLayoutParams> {
                     topMargin =
@@ -560,7 +552,6 @@ class HomeFragment : Fragment() {
             }
             ToolbarPosition.BOTTOM -> {
                 binding.toolbarLayout.setBackgroundColor(ContextCompat.getColor(view.context, R.color.fx_mobile_layer_color_1))
-                //binding.toolbarLayout.setBackgroundColor(android.graphics.Color.TRANSPARENT)
             }
         }
     }

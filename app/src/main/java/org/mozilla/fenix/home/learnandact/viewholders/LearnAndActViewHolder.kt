@@ -61,6 +61,7 @@ class LearnAndActHeaderViewHolder(composeView: ComposeView,
                     .padding(start = 10.dp)
                     .height(45.dp)
             )
+            Spacer(Modifier.height(8.dp))
             Text(
                 stringResource(R.string.learn_and_act_subtitle),
                 fontSize = 15.sp,
@@ -71,7 +72,7 @@ class LearnAndActHeaderViewHolder(composeView: ComposeView,
                     .padding(start = 10.dp)
             )
 
-            Spacer(Modifier.height(10.dp))
+            Spacer(Modifier.height(8.dp))
         }
     }
 
