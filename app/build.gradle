@@ -719,6 +719,12 @@ if (project.hasProperty("coverage")) {
                 testCoverageEnabled true
             }
         }
+
+        bundle {
+            language {
+                enableSplit = false
+            }
+        }
     }
 }
 
