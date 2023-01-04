@@ -55,6 +55,7 @@ import mozilla.components.feature.contextmenu.DefaultSelectionActionDelegate
 import mozilla.components.feature.media.ext.findActiveMediaTab
 import mozilla.components.feature.privatemode.notification.PrivateNotificationFeature
 import mozilla.components.feature.search.BrowserStoreSearchAdapter
+import mozilla.components.feature.session.TrackingProtectionUseCases
 import mozilla.components.service.fxa.sync.SyncReason
 import mozilla.components.support.base.feature.ActivityResultHandler
 import mozilla.components.support.base.feature.UserInteractionHandler
@@ -931,6 +932,7 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
             }
         } else {
             if (newTab) {
+                components.useCases.trackingProtectionUseCases.addException(components.core.store.state.selectedTabId.toString())
                 components.useCases.searchUseCases.newTabSearch
                     .invoke(
                         searchTermOrURL,
