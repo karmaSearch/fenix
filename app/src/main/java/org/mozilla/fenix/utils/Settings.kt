@@ -90,7 +90,7 @@ class Settings(private val appContext: Context) : PreferencesHolder {
         const val SEARCH_GROUP_MINIMUM_SITES: Int = 2
 
         // The maximum number of top sites to display.
-        const val TOP_SITES_MAX_COUNT = 16
+        const val TOP_SITES_MAX_COUNT = 8
 
         /**
          * Only fetch top sites from the [ContileTopSitesProvider] when the number of default and

@@ -104,7 +104,7 @@ class DockNotificationWorker(
         private const val NOTIFICATION_WORK_NAME = "org.mozilla.fenix.dock.work"
         private val NOTIFICATIONS_DELAY = listOf(
             Settings.HOURS_MS,
-            Settings.THREE_DAYS_MS,
+            Settings.ONE_DAY_MS*2,
         )
 
         fun isDockNotificationIntent(intent: Intent) =

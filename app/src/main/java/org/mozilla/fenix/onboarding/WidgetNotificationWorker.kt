@@ -108,7 +108,7 @@ class WidgetNotificationWorker(
         fun setWidgetNotificationIfNeeded(context: Context) {
             val instanceWorkManager = WorkManager.getInstance(context)
 
-            if (context.settings().shouldShowNotificationWidget()) {
+            if (!context.settings().shouldShowNotificationWidget()) {
                 return
             }
 

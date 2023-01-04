@@ -109,7 +109,7 @@ class AddonsManagementFragment : Fragment(R.layout.fragment_add_ons_management) 
             try {
                 val addons = requireContext().components.addonManager.getAddons(allowCache = allowCache)
                 // Add-ons that should be excluded in Mozilla Online builds
-                val excludedAddonIDs = if (Config.channel.isMozillaOnline &&
+                val excludedAddonIDs = if (
                     !BuildConfig.MOZILLA_ONLINE_ADDON_EXCLUSIONS.isNullOrEmpty()
                 ) {
                     BuildConfig.MOZILLA_ONLINE_ADDON_EXCLUSIONS.toList()

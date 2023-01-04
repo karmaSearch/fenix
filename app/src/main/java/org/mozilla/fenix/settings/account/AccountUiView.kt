@@ -91,6 +91,13 @@ class AccountUiView(
             preferenceFirefoxAccountAuthError.isVisible = false
             accountPreferenceCategory.isVisible = false
         }
+
+
+        //Override KARMA
+        preferenceSignIn.isVisible = false
+        preferenceFirefoxAccount.isVisible = false
+        preferenceFirefoxAccountAuthError.isVisible = false
+        accountPreferenceCategory.isVisible = false
     }
 
     /**
