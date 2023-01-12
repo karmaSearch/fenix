@@ -25,6 +25,9 @@ class WidgetNotificationWorker(
 ) : Worker(context, workerParameters) {
 
     override fun doWork(): Result {
+        if (!context.settings().shouldShowNotificationWidget()) {
+            return Result.success()
+        }
         ensureChannelExists()
         NotificationManagerCompat.from(applicationContext)
             .notify(NOTIFICATION_TAG, NOTIFICATION_ID, buildNotification())
