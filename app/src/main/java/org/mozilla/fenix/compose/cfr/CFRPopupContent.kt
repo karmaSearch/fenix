@@ -104,7 +104,7 @@ fun CFRPopupContent(
                     modifier = Modifier.padding(
                         end = 24.dp, // 8.dp extra padding to the "X" icon
                     ),
-                    color = FirefoxTheme.colors.textPrimary,
+                    color = colorResource(id = R.color.companion_text),
                     style = FirefoxTheme.typography.body1,
                 )
 
