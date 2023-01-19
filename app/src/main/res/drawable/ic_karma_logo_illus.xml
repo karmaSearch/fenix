@@ -11,18 +11,18 @@
         android:fillColor="@color/photonGreen50"/>
     <path
         android:pathData="M46.326,28.733L40.436,20.737L46.08,13.794H40.548L36.628,19.393V13.794H32.104V28.733H36.628V24.589L37.457,23.47L40.817,28.733H46.326Z"
-        android:fillColor="@color/karma_logo_illust"/>
+        android:fillColor="?attr/karmaLogoIllustColor"/>
     <path
         android:pathData="M62.226,28.733L56.716,13.794H51.027L45.518,28.733H50.423L51.005,26.807H56.738L57.321,28.733H62.226ZM55.574,23.044H52.169L53.872,17.781L55.574,23.044Z"
-        android:fillColor="@color/karma_logo_illust"/>
+        android:fillColor="?attr/karmaLogoIllustColor"/>
     <path
         android:pathData="M76.402,28.733L73.692,23.447C74.879,22.865 76.38,21.499 76.38,18.923C76.38,16.123 74.499,13.794 71.005,13.794H63.031V28.733H67.555V23.94H69.19L71.251,28.733H76.402ZM71.788,18.856C71.788,19.684 71.072,20.177 70.31,20.177H67.555V17.557H70.31C71.072,17.557 71.788,18.049 71.788,18.856Z"
-        android:fillColor="@color/karma_logo_illust"/>
+        android:fillColor="?attr/karmaLogoIllustColor"/>
     <path
         android:pathData="M95.949,28.733V13.794H89.7L87.08,21.409L84.459,13.794H78.211V28.733H82.735V19.304L86.072,28.733H88.088L91.425,19.304V28.733H95.949Z"
-        android:fillColor="@color/karma_logo_illust"/>
+        android:fillColor="?attr/karmaLogoIllustColor"/>
     <path
         android:pathData="M113.472,28.733L107.963,13.794H102.274L96.764,28.733H101.669L102.251,26.807H107.985L108.567,28.733H113.472ZM106.82,23.044H103.416L105.118,17.781L106.82,23.044Z"
-        android:fillColor="@color/karma_logo_illust"/>
+        android:fillColor="?attr/karmaLogoIllustColor"/>
   </group>
 </vector>

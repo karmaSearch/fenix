@@ -551,7 +551,10 @@ class HomeFragment : Fragment() {
                 binding.toolbarLayout.setBackgroundColor(android.graphics.Color.TRANSPARENT)
             }
             ToolbarPosition.BOTTOM -> {
-                binding.toolbarLayout.setBackgroundColor(ContextCompat.getColor(view.context, R.color.fx_mobile_layer_color_1))
+                if (!browsingModeManager.mode.isPrivate) {
+                    binding.toolbarLayout.setBackgroundColor(ContextCompat.getColor(view.context,
+                        R.color.fx_mobile_layer_color_1))
+                }
             }
         }
     }
