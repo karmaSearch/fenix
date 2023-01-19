@@ -50,7 +50,6 @@ class LearnAndActHeaderViewHolder(composeView: ComposeView,
     @Composable
     override fun Content() {
         Column {
-            Spacer(Modifier.height(16.dp))
             Text(
                 stringResource(R.string.learn_and_act_title),
                 fontSize = 45.sp,
@@ -59,9 +58,7 @@ class LearnAndActHeaderViewHolder(composeView: ComposeView,
                 fontFamily = FontFamily(Font(R.font.amithen)),
                 modifier = Modifier
                     .padding(start = 10.dp)
-                    .height(45.dp)
             )
-            Spacer(Modifier.height(8.dp))
             Text(
                 stringResource(R.string.learn_and_act_subtitle),
                 fontSize = 15.sp,
@@ -69,10 +66,9 @@ class LearnAndActHeaderViewHolder(composeView: ComposeView,
                 fontFamily = FontFamily(Font(R.font.proximanova)),
                 color = FirefoxTheme.colors.textSecondary,
                 modifier = Modifier
+                    .offset(y= -8.dp)
                     .padding(start = 10.dp)
             )
-
-            Spacer(Modifier.height(8.dp))
         }
     }
 
