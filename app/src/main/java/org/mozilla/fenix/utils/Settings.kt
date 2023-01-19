@@ -337,7 +337,7 @@ class Settings(private val appContext: Context) : PreferencesHolder {
 
     val shouldShowHistorySuggestions by booleanPreference(
         appContext.getPreferenceKey(R.string.pref_key_search_browsing_history),
-        default = false,
+        default = true,
     )
 
     val shouldShowBookmarkSuggestions by booleanPreference(
