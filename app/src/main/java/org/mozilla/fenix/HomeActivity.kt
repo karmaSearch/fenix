@@ -55,7 +55,6 @@ import mozilla.components.feature.contextmenu.DefaultSelectionActionDelegate
 import mozilla.components.feature.media.ext.findActiveMediaTab
 import mozilla.components.feature.privatemode.notification.PrivateNotificationFeature
 import mozilla.components.feature.search.BrowserStoreSearchAdapter
-import mozilla.components.feature.session.TrackingProtectionUseCases
 import mozilla.components.service.fxa.sync.SyncReason
 import mozilla.components.support.base.feature.ActivityResultHandler
 import mozilla.components.support.base.feature.UserInteractionHandler
@@ -249,11 +248,7 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
         // Unless the activity is recreated, navigate to home first (without rendering it)
         // to add it to the back stack.
         if (savedInstanceState == null) {
-            if (!getSettings().hasShownHomeOnboardingDialog) {
-                navigateToOnBoarding()
-            }   else {
-                navigateToHome()
-            }
+            navigateToHome()
         }
 
         if (!shouldStartOnHome() && shouldNavigateToBrowserOnColdStart(savedInstanceState)) {
@@ -262,8 +257,10 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
             StartOnHome.enterHomeScreen.record(NoExtras())
         }
 
-        if (settings().showHomeOnboardingDialog && onboarding.userHasBeenOnboarded()) {
-            navHost.navController.navigate(NavGraphDirections.actionGlobalHomeOnboardingDialog())
+        if (!settings().hasShownHomeOnboardingDialog) {
+            navigateToOnBoarding()
+        } else if (!settings().hasShownDefaultBrowserDialog) {
+            navigateToOnDefaultBrowser()
         }
 
         Performance.processIntentIfPerformanceTest(intent, this)

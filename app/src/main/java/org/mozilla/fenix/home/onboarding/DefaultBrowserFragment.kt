@@ -42,7 +42,8 @@ class DefaultBrowserFragment: Fragment() {
         super.onResume()
         context?.settings()?.let {
             if(!it.shouldShowSetAsDefaultBrowserOnBoarding()) {
-                findNavController().navigateUp()
+                val directions = NavGraphDirections.actionGlobalHome()
+                findNavController().navigate(directions)
             }
         }
     }
