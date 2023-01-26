@@ -194,6 +194,8 @@ fun LearnAndActType(
     val backgroundColor =
         if (item.type.lowercase() == "learn") KarmaColors.learnHeader else KarmaColors.actHeader
     val icon = if (item.type.lowercase() == "learn") R.drawable.ic_learn else R.drawable.ic_act
+    val textColor = if (item.type.lowercase() == "learn") KarmaColors.learnTitleHeader else KarmaColors.actTitleHeader
+
     Row(horizontalArrangement = Arrangement.Center,
         modifier = Modifier
             .offset(y = offset)
@@ -213,7 +215,7 @@ fun LearnAndActType(
             lineHeight = 22.sp,
             fontSize = 16.sp,
             fontWeight = FontWeight.SemiBold,
-            color = Color.Black,
+            color = textColor,
             fontFamily = FontFamily(Font(R.font.proximanova_semibold)),
         )
     }

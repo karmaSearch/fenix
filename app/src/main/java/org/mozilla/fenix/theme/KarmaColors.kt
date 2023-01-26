@@ -10,6 +10,9 @@ object KarmaColors {
     val DarkGrey70 = Color(0xFF2E2E30)
 
     val learnHeader = Color(0xFFD4FCD4)
-    val actHeader = Color(0xFFFEE1AE)
+    val learnTitleHeader = Color(0xFF086250)
+
+    val actHeader = Color(0xFFFFDDCC)
+    val actTitleHeader = Color(0xFFDB0012)
 
 }
