@@ -259,7 +259,7 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
 
         if (!settings().hasShownHomeOnboardingDialog) {
             navigateToOnBoarding()
-        } else if (!settings().hasShownDefaultBrowserDialog) {
+        }  else if (settings().shouldShowSetAsDefaultBrowserOnBoarding()) {
             navigateToOnDefaultBrowser()
         }
 
