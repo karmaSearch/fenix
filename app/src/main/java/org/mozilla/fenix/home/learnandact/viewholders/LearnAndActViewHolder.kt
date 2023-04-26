@@ -13,7 +13,6 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
@@ -32,6 +31,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.LifecycleOwner
 import com.squareup.picasso.Picasso
 import karma.service.learnandact.LearnAndAct
+import karma.service.learnandact.LearnAndActContentType
+
 import mozilla.components.ui.colors.PhotonColors
 import org.mozilla.fenix.R
 import org.mozilla.fenix.compose.ComposeViewHolder
@@ -79,7 +80,7 @@ class LearnAndActItemViewHolder(composeView: ComposeView,
                                 viewLifecycleOwner: LifecycleOwner,
                                 val interactor: LearnAndActInteractor) : ComposeViewHolder(composeView, viewLifecycleOwner)   {
 
-    private var item = LearnAndAct("", "", "", "", "", "", "")
+    private var item = LearnAndAct(0, LearnAndActContentType.UNDEFINED, "", "", "", "", "")
 
     companion object {
         val LAYOUT_ID = View.generateViewId()
@@ -116,8 +117,7 @@ fun LearnAndActItem(item: LearnAndAct,
             .padding(start = 10.dp, end = 10.dp),
     ) {
 
-        val defaultImageName =
-            if (item.type.lowercase() == "learn" || item.type.lowercase() == "comprendre") R.drawable.ic_learn_placeholder else R.drawable.ic_act_placeholder
+        val defaultImageName = if (item.type == LearnAndActContentType.LEARN) R.drawable.ic_learn_placeholder else R.drawable.ic_act_placeholder
 
         if (booleanResource(id = R.bool.learn_and_act_large_view)) {
 
@@ -191,10 +191,9 @@ fun LearnAndActType(
     offset: Dp = 0.dp
 ) {
 
-    val backgroundColor =
-        if (item.type.lowercase() == "learn") KarmaColors.learnHeader else KarmaColors.actHeader
-    val icon = if (item.type.lowercase() == "learn") R.drawable.ic_learn else R.drawable.ic_act
-    val textColor = if (item.type.lowercase() == "learn") KarmaColors.learnTitleHeader else KarmaColors.actTitleHeader
+    val backgroundColor = KarmaColors.contentTypeColor(item.type)
+    val icon = KarmaColors.contentTypeDrawable(item.type)
+    val textColor = KarmaColors.contentTypeTitleColor(item.type)
 
     Row(horizontalArrangement = Arrangement.Center,
         modifier = Modifier
@@ -211,7 +210,7 @@ fun LearnAndActType(
         )
         Spacer(Modifier.width(10.dp))
         Text(
-            text = item.type.uppercase(),
+            text = item.type.toString(),
             lineHeight = 22.sp,
             fontSize = 16.sp,
             fontWeight = FontWeight.SemiBold,
@@ -241,16 +240,6 @@ fun LearnAndActTextsColumn(
             color = FirefoxTheme.colors.textPrimary,
             fontFamily = FontFamily(Font(R.font.proximanova_semibold)),
         )
-        if (item.duration.isNotEmpty()) {
-            Text(
-                text = item.duration,
-                lineHeight = 17.sp,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Medium,
-                color = Color.LightGray,
-                fontFamily = FontFamily(Font(R.font.proximanova_medium)),
-            )
-        }
         Text(
             text = item.description,
             lineHeight = 20.sp,
@@ -329,11 +318,11 @@ private fun LearnAndActBlocPreview() {
     FirefoxTheme {
         LearnAndActItem(
             LearnAndAct(
-                "LEARN",
+                0,
+                LearnAndActContentType.LEARN,
                 "The State of Biodiversity and how we’ll get better",
                 "The IPBES (Intergovernmental Science-Policy Platform on Biodiversity and Ecosystem Services) just released...",
                 "Learn more",
-                "",
                 "",
                 "https://karmasearch.org/images/home/LearnAct2_FR.webp"
             ),

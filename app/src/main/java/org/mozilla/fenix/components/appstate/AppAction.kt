@@ -106,6 +106,7 @@ sealed class AppAction : Action {
     data class PocketStoriesCategoriesChange(val storiesCategories: List<PocketRecommendedStoriesCategory>) :
         AppAction()
     data class LearnAndActShown(val learnAndAct: List<LearnAndAct>) : AppAction()
+    data class LearnAndActNewPageShown(val learnAndAct: List<LearnAndAct>) : AppAction()
 
     /**
      * Restores the list of Pocket recommended stories categories selections.

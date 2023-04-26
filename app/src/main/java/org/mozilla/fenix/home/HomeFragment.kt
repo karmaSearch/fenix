@@ -192,6 +192,9 @@ class HomeFragment : Fragment() {
     @VisibleForTesting
     internal var getMenuButton: () -> MenuButton? = { binding.menuButton }
 
+    private var learnAndActPageNumber: Int = 1
+    private var canCallLearnAndAct: Boolean = true
+
     override fun onCreate(savedInstanceState: Bundle?) {
         // DO NOT ADD ANYTHING ABOVE THIS getProfilerTime CALL!
         val profilerStartTime = requireComponents.core.engine.profiler?.getProfilerTime()
@@ -285,16 +288,6 @@ class HomeFragment : Fragment() {
                     view = binding.root,
                 )
             }
-        }
-
-        lifecycleScope.launch(IO) {
-            if (requireContext().settings().showLearnAndAct) {
-                val blocs = components.core.learnAndActService.getLearnAndAct()
-                components.appStore.dispatch(AppAction.LearnAndActShown(blocs))
-            } else {
-                components.appStore.dispatch(AppAction.LearnAndActShown(kotlin.collections.emptyList()))
-            }
-
         }
 
         if (requireContext().settings().showRecentTabsFeature) {
@@ -664,6 +657,17 @@ class HomeFragment : Fragment() {
             profilerStartTime,
             "HomeFragment.onViewCreated",
         )
+
+        lifecycleScope.launch(IO) {
+            if (requireContext().settings().showLearnAndAct) {
+                val blocs = requireComponents.core.learnAndActService.getLearnAndAct()
+                requireComponents.appStore.dispatch(AppAction.LearnAndActShown(blocs))
+                addScrollListenerForPaging()
+            } else {
+                requireComponents.appStore.dispatch(AppAction.LearnAndActShown(kotlin.collections.emptyList()))
+            }
+
+        }
     }
 
     private fun observeSearchEngineChanges() {
@@ -983,6 +987,30 @@ class HomeFragment : Fragment() {
         nav(R.id.homeFragment, directions, getToolbarNavOptions(requireContext()))
 
         Events.searchBarTapped.record(Events.SearchBarTappedExtra("HOME"))
+    }
+
+    private fun addScrollListenerForPaging() {
+        val recyclerView = sessionControlView!!.view
+        val listener = object : RecyclerView.OnScrollListener() {
+
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                if (!recyclerView.canScrollVertically(1) && requireContext().settings().showLearnAndAct && canCallLearnAndAct) {
+                    canCallLearnAndAct = false
+                    lifecycleScope.launch(IO) {
+                        learnAndActPageNumber = learnAndActPageNumber + 1
+                        val blocs = requireComponents.core.learnAndActService.getNextLearnAndAct(learnAndActPageNumber)
+                        if (!blocs.isEmpty()) {
+                            canCallLearnAndAct = true
+                            requireComponents.appStore.dispatch(AppAction.LearnAndActNewPageShown(blocs))
+                        }
+                    }
+
+                } else {
+                    super.onScrolled(recyclerView, dx, dy)
+                }
+            }
+        }
+        recyclerView.addOnScrollListener(listener)
     }
 
     private fun subscribeToTabCollections(): Observer<List<TabCollection>> {
