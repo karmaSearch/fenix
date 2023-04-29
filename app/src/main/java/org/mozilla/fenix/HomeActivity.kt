@@ -4,6 +4,7 @@
 
 package org.mozilla.fenix
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_MAIN
@@ -15,13 +16,10 @@ import android.os.StrictMode
 import android.os.SystemClock
 import android.text.format.DateUtils
 import android.util.AttributeSet
-import android.view.ActionMode
-import android.view.KeyEvent
-import android.view.LayoutInflater
-import android.view.MotionEvent
-import android.view.View
-import android.view.ViewConfiguration
+import android.util.Log
+import android.view.*
 import android.view.WindowManager.LayoutParams.FLAG_SECURE
+import android.widget.Toast
 import androidx.annotation.CallSuper
 import androidx.annotation.IdRes
 import androidx.annotation.VisibleForTesting
@@ -34,12 +32,17 @@ import androidx.navigation.NavDirections
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
-import kotlinx.coroutines.CoroutineScope
+import com.google.android.play.core.appupdate.AppUpdateManager
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory
+import com.google.android.play.core.appupdate.testing.FakeAppUpdateManager
+import com.google.android.play.core.install.InstallStateUpdatedListener
+import com.google.android.play.core.install.model.ActivityResult
+import com.google.android.play.core.install.model.ActivityResult.RESULT_IN_APP_UPDATE_FAILED
+import com.google.android.play.core.install.model.AppUpdateType
+import com.google.android.play.core.install.model.InstallStatus
+import com.google.android.play.core.install.model.UpdateAvailability
+import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import mozilla.appservices.places.BookmarkRoot
 import mozilla.components.browser.state.action.ContentAction
 import mozilla.components.browser.state.search.SearchEngine
@@ -197,7 +200,8 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
 
     private val startupPathProvider = StartupPathProvider()
     private lateinit var startupTypeTelemetry: StartupTypeTelemetry
-
+    private lateinit var appUpdateManager : AppUpdateManager
+    private var installStateUpdatedListener: InstallStateUpdatedListener? = null
     final override fun onCreate(savedInstanceState: Bundle?) {
         // DO NOT MOVE ANYTHING ABOVE THIS getProfilerTime CALL.
         val startTimeProfiler = components.core.engine.profiler?.getProfilerTime()
@@ -333,6 +337,46 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
             "HomeActivity.onCreate",
         )
         StartupTimeline.onActivityCreateEndHome(this) // DO NOT MOVE ANYTHING BELOW HERE.
+
+        checkUpdate()
+    }
+
+    private fun checkUpdate() {
+
+        appUpdateManager = AppUpdateManagerFactory.create(applicationContext)
+
+        val appUpdateInfoTask = appUpdateManager.appUpdateInfo
+        val requestCode: Int = 454544
+        appUpdateInfoTask.addOnSuccessListener { appUpdateInfo ->
+            if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
+                && (appUpdateInfo.clientVersionStalenessDays() ?: -1) >= 10
+            ) {
+                appUpdateManager.startUpdateFlowForResult(
+                    appUpdateInfo,
+                    if (appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE) && appUpdateInfo.updatePriority() < 4) AppUpdateType.FLEXIBLE else { AppUpdateType.IMMEDIATE},
+                    this,
+                    requestCode,
+                )
+
+            }
+        }
+       installStateUpdatedListener =
+            InstallStateUpdatedListener { state ->
+                Toast.makeText(applicationContext, state.installStatus(), Toast.LENGTH_LONG).show()
+                 if (state.installStatus() == InstallStatus.INSTALLED) {
+                    updateAndRestart()
+                }
+            }
+
+        appUpdateManager.registerListener(installStateUpdatedListener!!);
+
+    }
+
+    private fun updateAndRestart() {
+        if (installStateUpdatedListener!= null) {
+            appUpdateManager.completeUpdate()
+            appUpdateManager.unregisterListener(installStateUpdatedListener!!)
+        }
     }
 
     private fun checkAndExitPiP() {
