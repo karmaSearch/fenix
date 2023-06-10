@@ -93,7 +93,7 @@ class LearnAndActItemViewHolder(composeView: ComposeView,
                 item,
                 interactor::onBlockClicked
             )
-            Spacer(modifier = Modifier.height(25.dp))
+            Spacer(modifier = Modifier.height(14.dp))
         }
 
     }
