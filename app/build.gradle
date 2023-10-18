@@ -609,8 +609,6 @@ dependencies {
     implementation Deps.google_play_review
     implementation Deps.google_play_review_ktx
 
-    implementation 'com.squareup.picasso:picasso:2.71828'
-
     androidTestImplementation Deps.uiautomator
     androidTestImplementation "tools.fastlane:screengrab:2.0.0"
     // This Falcon version is added to maven central now required for Screengrab
