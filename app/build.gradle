@@ -603,7 +603,7 @@ dependencies {
     implementation Deps.adjust
     implementation Deps.installreferrer // Required by Adjust
 
-    implementation Deps.google_ads_id // Required for the Google Advertising ID
+    //implementation Deps.google_ads_id // Required for the Google Advertising ID
 
     // Required for in-app reviews
     implementation Deps.google_play_review

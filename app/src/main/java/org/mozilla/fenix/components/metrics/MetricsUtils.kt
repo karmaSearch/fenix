@@ -7,7 +7,6 @@ package org.mozilla.fenix.components.metrics
 import android.content.Context
 import android.util.Base64
 import androidx.annotation.VisibleForTesting
-import com.google.android.gms.ads.identifier.AdvertisingIdClient
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException
 import com.google.android.gms.common.GooglePlayServicesRepairableException
 import kotlinx.coroutines.Dispatchers
@@ -74,7 +73,7 @@ object MetricsUtils {
     @Suppress("TooGenericExceptionCaught")
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     internal fun getAdvertisingID(context: Context): String? {
-        return try {
+        /*return try {
             AdvertisingIdClient.getAdvertisingIdInfo(context).id
         } catch (e: GooglePlayServicesNotAvailableException) {
             Logger.debug("ActivationPing - Google Play not installed on the device")
@@ -92,7 +91,9 @@ object MetricsUtils {
         } catch (e: NullPointerException) {
             Logger.debug("ActivationPing - no Google Advertising ID available")
             null
-        }
+        }*/
+        print(context)
+        return null
     }
 
     /**
