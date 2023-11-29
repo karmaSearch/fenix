@@ -95,7 +95,7 @@ class DefaultBrowserNotificationWorker(
 
             val channel = NotificationChannel(
                 NOTIFICATION_CHANNEL_ID,
-                applicationContext.getString(R.string.notification_marketing_channel_name),
+                applicationContext.getString(R.string.channel_karma_update),
                 NotificationManager.IMPORTANCE_DEFAULT,
             )
 
@@ -106,7 +106,7 @@ class DefaultBrowserNotificationWorker(
     }
 
     companion object {
-        private const val NOTIFICATION_CHANNEL_ID = "org.mozilla.fenix.default.browser.channel"
+        private const val NOTIFICATION_CHANNEL_ID = "com.karmasearch.channel.update"
         private const val NOTIFICATION_ID = 1
         private const val NOTIFICATION_PENDING_INTENT_TAG = "org.mozilla.fenix.default.browser"
         private const val INTENT_DEFAULT_BROWSER_NOTIFICATION = "org.mozilla.fenix.default.browser.intent"

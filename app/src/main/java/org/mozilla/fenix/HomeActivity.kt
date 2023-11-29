@@ -41,6 +41,8 @@ import com.google.android.play.core.install.model.ActivityResult.RESULT_IN_APP_U
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.InstallStatus
 import com.google.android.play.core.install.model.UpdateAvailability
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.ktx.messaging
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import mozilla.appservices.places.BookmarkRoot
@@ -78,6 +80,7 @@ import org.mozilla.fenix.GleanMetrics.Metrics
 import org.mozilla.fenix.GleanMetrics.StartOnHome
 import org.mozilla.fenix.addons.AddonDetailsFragmentDirections
 import org.mozilla.fenix.addons.AddonPermissionsDetailsFragmentDirections
+import org.mozilla.fenix.browser.BrowserFragmentDirections
 import org.mozilla.fenix.browser.browsingmode.BrowsingMode
 import org.mozilla.fenix.browser.browsingmode.BrowsingModeManager
 import org.mozilla.fenix.browser.browsingmode.DefaultBrowsingModeManager
@@ -186,7 +189,8 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
             OpenSpecificTabIntentProcessor(this),
             DefaultBrowserIntentProcessor(this),
             WidgetIntentProcessor(this),
-            DockIntentProcessor(this)
+            DockIntentProcessor(this),
+            FirebaseIntentProcessor(this)
         )
     }
 
@@ -339,6 +343,16 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
         StartupTimeline.onActivityCreateEndHome(this) // DO NOT MOVE ANYTHING BELOW HERE.
 
         checkUpdate()
+
+        Firebase.messaging.subscribeToTopic("KarmaPushNotification")
+            .addOnCompleteListener { task ->
+                var msg = "Subscribed"
+                if (!task.isSuccessful) {
+                    msg = "Subscribe failed"
+                }
+                Log.d("HomeActivity", msg)
+                Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+            }
     }
 
     private fun checkUpdate() {
@@ -430,6 +444,7 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
             DefaultBrowserNotificationWorker.setDefaultBrowserNotificationIfNeeded(applicationContext)
             WidgetNotificationWorker.setWidgetNotificationIfNeeded(applicationContext)
             DockNotificationWorker.setDockNotificationIfNeeded(applicationContext)
+            FirebaseNotificationWorker.ensureChannelExists(applicationContext)
 
         }
     }

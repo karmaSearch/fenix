@@ -85,7 +85,7 @@ class DockNotificationWorker(
 
             val channel = NotificationChannel(
                 NOTIFICATION_CHANNEL_ID,
-                applicationContext.getString(R.string.notification_marketing_channel_name),
+                applicationContext.getString(R.string.channel_karma_update),
                 NotificationManager.IMPORTANCE_DEFAULT
             )
 
@@ -96,7 +96,7 @@ class DockNotificationWorker(
     }
 
     companion object {
-        private const val NOTIFICATION_CHANNEL_ID = "org.mozilla.fenix.dock.channel"
+        private const val NOTIFICATION_CHANNEL_ID = "com.karmasearch.channel.update"
         private const val NOTIFICATION_ID = 3
         private const val NOTIFICATION_PENDING_INTENT_TAG = "org.mozilla.dock.widget"
         private const val INTENT_DOCK_NOTIFICATION = "org.mozilla.fenix.dock.intent"

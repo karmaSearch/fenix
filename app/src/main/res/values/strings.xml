@@ -1933,5 +1933,7 @@
     <string name="learn_and_act_title">Learn &amp; Act</string>
 
     <string name="learn_and_act_subtitle">Our selection to get involved!</string>
+    <string name="channel_karma_update">"KARMA updates</string>
+    <string name="channel_learnandact">Learn &amp; Act</string>
 
 </resources>

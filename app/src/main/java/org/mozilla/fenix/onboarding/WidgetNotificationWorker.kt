@@ -86,7 +86,7 @@ class WidgetNotificationWorker(
 
             val channel = NotificationChannel(
                 NOTIFICATION_CHANNEL_ID,
-                applicationContext.getString(R.string.notification_marketing_channel_name),
+                applicationContext.getString(R.string.channel_karma_update),
                 NotificationManager.IMPORTANCE_DEFAULT
             )
 
@@ -97,7 +97,7 @@ class WidgetNotificationWorker(
     }
 
     companion object {
-        private const val NOTIFICATION_CHANNEL_ID = "org.mozilla.fenix.widget.channel"
+        private const val NOTIFICATION_CHANNEL_ID = "com.karmasearch.channel.update"
         private const val NOTIFICATION_ID = 2
         private const val NOTIFICATION_PENDING_INTENT_TAG = "org.mozilla.fenix.widget"
         private const val INTENT_WIDGET_NOTIFICATION = "org.mozilla.fenix.widget.intent"
