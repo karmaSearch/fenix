@@ -5,6 +5,8 @@ import org.mozilla.fenix.gradle.tasks.GithubDetailsTask
 buildscript {
     // This logic is duplicated in the allprojects block: I don't know how to fix that.
     repositories {
+        google()  // Google's Maven repository
+        mavenCentral()
         maven {
             name "Mozilla Nightly"
             url "https://nightly.maven.mozilla.org/maven2"
@@ -69,7 +71,8 @@ buildscript {
         classpath Deps.tools_benchmarkgradle
         classpath Deps.androidx_safeargs
         classpath Deps.osslicenses_plugin
-
+        //classpath 'com.google.gms:google-services:4.4.0'
+        classpath 'com.google.gms:google-services:4.3.5'
         classpath "org.mozilla.components:tooling-glean-gradle:${Versions.mozilla_android_components}"
         classpath "org.mozilla.components:tooling-nimbus-gradle:${Versions.mozilla_android_components}"
 
@@ -85,6 +88,9 @@ plugins {
 allprojects {
     // This logic is duplicated in the buildscript block: I don't know how to fix that.
     repositories {
+        google()  // Google's Maven repository
+        mavenCentral()
+
         maven {
             name "Mozilla Nightly"
             url "https://nightly.maven.mozilla.org/maven2"

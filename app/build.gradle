@@ -3,6 +3,7 @@ import org.mozilla.fenix.gradle.tasks.ApkSizeTask
 plugins {
     id "com.jetbrains.python.envs" version "0.0.26"
     id "com.google.protobuf" version "0.8.19"
+    id 'com.google.gms.google-services'
 }
 
 apply plugin: 'com.android.application'
@@ -12,7 +13,7 @@ apply plugin: 'jacoco'
 apply plugin: 'androidx.navigation.safeargs.kotlin'
 apply plugin: 'com.google.android.gms.oss-licenses-plugin'
 apply plugin: 'androidx.benchmark'
-
+apply plugin: 'com.google.gms.google-services'
 
 import com.android.build.OutputFile
 import groovy.json.JsonOutput
@@ -466,6 +467,7 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
 }
 
 dependencies {
+    implementation 'com.google.firebase:firebase-messaging-ktx:23.0.2'
     jnaForTest Deps.jna
     testImplementation files(configurations.jnaForTest.copyRecursive().files)
     implementation 'com.android.support:multidex:1.0.0'
@@ -543,6 +545,9 @@ dependencies {
 
     implementation Deps.mozilla_service_pocket
     implementation Deps.karma_service_learnandact
+    implementation platform('com.google.firebase:firebase-bom:31.5.0')
+    implementation("com.google.firebase:firebase-messaging")
+    implementation 'com.google.firebase:firebase-analytics'
 
     implementation Deps.mozilla_service_contile
     implementation Deps.mozilla_service_digitalassetlinks
