@@ -27,8 +27,6 @@ class FirebaseIntentProcessor(
             }
             true
         } else if (isFirebaseNotificationIntentNewTab(intent)) {
-            //activity.openToBrowser(BrowserDirection.FromHome)
-            //activity.openToBrowserAndLoad("about:blank",true, BrowserDirection.F)
             activity.navigateToHome()
             false
         } else {
