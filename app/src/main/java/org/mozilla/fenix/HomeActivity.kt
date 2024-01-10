@@ -34,6 +34,7 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
+import com.google.android.play.core.appupdate.AppUpdateOptions
 import com.google.android.play.core.appupdate.testing.FakeAppUpdateManager
 import com.google.android.play.core.install.InstallStateUpdatedListener
 import com.google.android.play.core.install.model.ActivityResult
@@ -355,10 +356,11 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
             if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
                 && (appUpdateInfo.clientVersionStalenessDays() ?: -1) >= 10
             ) {
+
                 appUpdateManager.startUpdateFlowForResult(
                     appUpdateInfo,
-                    if (appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE) && appUpdateInfo.updatePriority() < 4) AppUpdateType.FLEXIBLE else { AppUpdateType.IMMEDIATE},
                     this,
+                    if (appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE) && appUpdateInfo.updatePriority() < 4) AppUpdateOptions.defaultOptions(AppUpdateType.FLEXIBLE) else { AppUpdateOptions.defaultOptions(AppUpdateType.IMMEDIATE)},
                     requestCode,
                 )
 
