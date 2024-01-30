@@ -368,7 +368,6 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
         }
        installStateUpdatedListener =
             InstallStateUpdatedListener { state ->
-                Toast.makeText(applicationContext, state.installStatus(), Toast.LENGTH_LONG).show()
                  if (state.installStatus() == InstallStatus.INSTALLED) {
                     updateAndRestart()
                 }
