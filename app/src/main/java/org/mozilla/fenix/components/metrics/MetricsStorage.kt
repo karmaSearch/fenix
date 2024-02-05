@@ -11,6 +11,7 @@ import kotlinx.coroutines.withContext
 import org.mozilla.fenix.ext.settings
 import org.mozilla.fenix.nimbus.FxNimbus
 import org.mozilla.fenix.utils.Settings
+import mozilla.components.support.utils.ext.getPackageInfoCompat
 
 /**
  * Interface defining functions around persisted local state for certain metrics.
@@ -76,7 +77,7 @@ internal class DefaultMetricsStorage(
 
         fun shouldSendGenerally(context: Context): Boolean {
             val installedTime = context.packageManager
-                .getPackageInfo(context.packageName, 0)
+                .getPackageInfoCompat(context.packageName, 0)
                 .firstInstallTime
             val timeDifference = System.currentTimeMillis() - installedTime
             val withinWindow = timeDifference in windowStartMillis..windowEndMillis

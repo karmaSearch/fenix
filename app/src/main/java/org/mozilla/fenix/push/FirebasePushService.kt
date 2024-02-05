@@ -16,6 +16,7 @@ import mozilla.components.feature.push.AutoPushFeature
 import mozilla.components.lib.push.firebase.AbstractFirebasePushService
 import org.mozilla.fenix.HomeActivity
 import org.mozilla.fenix.R
+import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.perf.Performance.logger
 
 
@@ -70,8 +71,9 @@ class FirebasePushService : AbstractFirebasePushService()
                     .setContentIntent(pendingIntent)
                     .build()
 
-                NotificationManagerCompat.from(applicationContext)
-                    .notify(4, builder)
+                    applicationContext.components.notificationsDelegate
+                        .notify(message.messageId, 4, builder)
+
             }
         }
 

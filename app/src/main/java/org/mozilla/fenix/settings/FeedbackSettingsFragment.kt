@@ -11,6 +11,7 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.recyclerview.widget.RecyclerView
 import mozilla.components.support.locale.LocaleManager
+import mozilla.components.support.utils.ext.getPackageInfoCompat
 import org.mozilla.fenix.BrowserDirection
 import org.mozilla.fenix.BuildConfig
 import org.mozilla.fenix.HomeActivity
@@ -45,7 +46,7 @@ class FeedbackSettingsFragment: PreferenceFragmentCompat() {
             resources.getString(R.string.pref_key_contact) -> {
                 val intent = Intent(Intent.ACTION_VIEW)
                 val packageInfo =
-                    requireContext().packageManager.getPackageInfo(requireContext().packageName, 0)
+                    requireContext().packageManager.getPackageInfoCompat(requireContext().packageName, 0)
                 val versionCode = PackageInfoCompat.getLongVersionCode(packageInfo).toString()
                 val data = Uri.parse(
                     "mailto:"

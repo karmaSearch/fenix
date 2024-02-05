@@ -16,6 +16,7 @@ import android.view.ViewGroup
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.MenuProvider
+import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -104,6 +105,7 @@ class LoginDetailFragment : SecureFragment(R.layout.fragment_login_detail), Menu
             setUpPasswordReveal()
         }
         togglePasswordReveal(binding.passwordText, binding.revealPasswordButton)
+
     }
 
     /**

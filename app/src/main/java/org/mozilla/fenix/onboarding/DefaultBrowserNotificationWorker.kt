@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit
 import mozilla.components.support.base.ids.SharedIdsHelper
 import org.mozilla.fenix.HomeActivity
 import org.mozilla.fenix.R
+import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.ext.settings
 import org.mozilla.fenix.utils.IntentUtils
 import org.mozilla.fenix.utils.Settings
@@ -37,7 +38,7 @@ class DefaultBrowserNotificationWorker(
             return Result.success()
         }
         ensureChannelExists()
-        NotificationManagerCompat.from(applicationContext)
+        applicationContext.components.notificationsDelegate
             .notify(NOTIFICATION_TAG, NOTIFICATION_ID, buildNotification())
 
         // default browser notification should only happen once

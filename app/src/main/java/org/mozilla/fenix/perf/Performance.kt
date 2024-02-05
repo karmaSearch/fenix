@@ -8,10 +8,12 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager
+import androidx.core.content.ContextCompat
 import mozilla.components.support.base.log.logger.Logger
 import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.onboarding.FenixOnboarding
 import android.provider.Settings as AndroidSettings
+import mozilla.components.support.utils.ext.registerReceiverCompat
 
 /**
  * A collection of objects related to app performance.
@@ -47,7 +49,11 @@ object Performance {
             return false
         }
 
-        val batteryStatus = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+        val batteryStatus = context.registerReceiverCompat(
+            null,
+            IntentFilter(Intent.ACTION_BATTERY_CHANGED),
+            ContextCompat.RECEIVER_NOT_EXPORTED,
+        )
         batteryStatus?.let {
             // We only run perf tests when the device is connected to USB. However, AC may be reported
             // instead if the device is connected through a USB hub so we check both states.

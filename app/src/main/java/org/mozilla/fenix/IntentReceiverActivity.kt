@@ -24,6 +24,7 @@ import org.mozilla.fenix.ext.settings
 import org.mozilla.fenix.perf.MarkersActivityLifecycleCallbacks
 import org.mozilla.fenix.perf.StartupTimeline
 import org.mozilla.fenix.shortcut.NewTabShortcutIntentProcessor
+import mozilla.components.support.utils.ext.getApplicationInfoCompat
 
 /**
  * Processes incoming intents and sends them to the corresponding activity.
@@ -125,7 +126,7 @@ class IntentReceiverActivity : Activity() {
             // Category is supported for API>=26.
             r.host?.let { host ->
                 try {
-                    val category = packageManager.getApplicationInfo(host, 0).category
+                    val category = packageManager.getApplicationInfoCompat(host, 0).category
                     intent.putExtra(EXTRA_ACTIVITY_REFERRER_CATEGORY, category)
                 } catch (e: PackageManager.NameNotFoundException) {
                     // At least we tried.

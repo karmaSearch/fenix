@@ -6,6 +6,7 @@ package org.mozilla.fenix.media
 
 import mozilla.components.browser.state.store.BrowserStore
 import mozilla.components.feature.media.service.AbstractMediaSessionService
+import mozilla.components.support.base.android.NotificationsDelegate
 import org.mozilla.fenix.ext.components
 
 /**
@@ -13,4 +14,6 @@ import org.mozilla.fenix.ext.components
  */
 class MediaSessionService : AbstractMediaSessionService() {
     override val store: BrowserStore by lazy { components.core.store }
+    override val notificationsDelegate: NotificationsDelegate by lazy { components.notificationsDelegate }
+
 }

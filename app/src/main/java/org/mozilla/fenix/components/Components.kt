@@ -11,6 +11,7 @@ import android.content.Intent
 import android.os.StrictMode
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.net.toUri
 import com.google.android.play.core.review.ReviewManagerFactory
 import mozilla.components.feature.addons.AddonManager
@@ -51,6 +52,7 @@ import org.mozilla.fenix.utils.Settings
 import org.mozilla.fenix.wallpapers.WallpaperManager
 import org.mozilla.fenix.wifi.WifiConnectionMonitor
 import java.util.concurrent.TimeUnit
+import mozilla.components.support.base.android.NotificationsDelegate
 
 private const val AMO_COLLECTION_MAX_CACHE_AGE = 2 * 24 * 60L // Two days in minutes
 
@@ -94,6 +96,13 @@ class Components(private val context: Context) {
         )
     }
 
+    private val notificationManagerCompat = NotificationManagerCompat.from(context)
+
+    val notificationsDelegate: NotificationsDelegate by lazy {
+        NotificationsDelegate(
+            notificationManagerCompat,
+        )
+    }
     val intentProcessors by lazyMonitored {
         IntentProcessors(
             context,

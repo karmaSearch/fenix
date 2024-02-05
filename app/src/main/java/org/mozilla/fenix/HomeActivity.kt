@@ -341,6 +341,7 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
             startTimeProfiler,
             "HomeActivity.onCreate",
         )
+        components.notificationsDelegate.bindToActivity(this)
         StartupTimeline.onActivityCreateEndHome(this) // DO NOT MOVE ANYTHING BELOW HERE.
 
         checkUpdate()
@@ -432,10 +433,15 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
             // that we should not rely on the application being killed between user sessions.
             components.appStore.dispatch(AppAction.ResumedMetricsAction)
 
-            DefaultBrowserNotificationWorker.setDefaultBrowserNotificationIfNeeded(applicationContext)
-            WidgetNotificationWorker.setWidgetNotificationIfNeeded(applicationContext)
-            DockNotificationWorker.setDockNotificationIfNeeded(applicationContext)
-            FirebaseNotificationWorker.ensureChannelExists(applicationContext)
+            components.notificationsDelegate.requestNotificationPermission(
+                onPermissionGranted = {
+                    DefaultBrowserNotificationWorker.setDefaultBrowserNotificationIfNeeded(applicationContext)
+                    WidgetNotificationWorker.setWidgetNotificationIfNeeded(applicationContext)
+                    DockNotificationWorker.setDockNotificationIfNeeded(applicationContext)
+                    FirebaseNotificationWorker.ensureChannelExists(applicationContext)
+                },
+            )
+
 
         }
     }
@@ -547,6 +553,8 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
         components.core.learnAndActService.stopPeriodicLearnAndActRefresh()
 
         privateNotificationObserver?.stop()
+        components.notificationsDelegate.unBindActivity(this)
+
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -679,7 +687,7 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
                 return
             }
         }
-        super.onBackPressed()
+        super.getOnBackPressedDispatcher().onBackPressed()
     }
 
     @Suppress("DEPRECATION")
@@ -811,7 +819,7 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
      * Returns the [supportActionBar], inflating it if necessary.
      * Everyone should call this instead of supportActionBar.
      */
-    override fun getSupportActionBarAndInflateIfNecessary(): ActionBar {
+    final override fun getSupportActionBarAndInflateIfNecessary(): ActionBar {
         if (!isToolbarInflated) {
             navigationToolbar = binding.navigationToolbarStub.inflate() as Toolbar
 
@@ -826,7 +834,7 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
     }
 
     @Suppress("SpreadOperator")
-    fun setupNavigationToolbar(vararg topLevelDestinationIds: Int) {
+    private fun setupNavigationToolbar(vararg topLevelDestinationIds: Int) {
         NavigationUI.setupWithNavController(
             navigationToolbar,
             navHost.navController,
@@ -837,6 +845,7 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
             onBackPressed()
         }
     }
+
 
     protected open fun getIntentSessionId(intent: SafeIntent): String? = null
 
