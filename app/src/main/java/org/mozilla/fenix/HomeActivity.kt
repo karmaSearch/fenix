@@ -32,6 +32,7 @@ import androidx.navigation.NavDirections
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
+import androidx.preference.PreferenceManager
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.appupdate.AppUpdateOptions
@@ -89,12 +90,7 @@ import org.mozilla.fenix.components.appstate.AppAction
 import org.mozilla.fenix.components.metrics.BreadcrumbsRecorder
 import org.mozilla.fenix.databinding.ActivityHomeBinding
 import org.mozilla.fenix.exceptions.trackingprotection.TrackingProtectionExceptionsFragmentDirections
-import org.mozilla.fenix.ext.alreadyOnDestination
-import org.mozilla.fenix.ext.breadcrumb
-import org.mozilla.fenix.ext.components
-import org.mozilla.fenix.ext.nav
-import org.mozilla.fenix.ext.setNavigationIcon
-import org.mozilla.fenix.ext.settings
+import org.mozilla.fenix.ext.*
 import org.mozilla.fenix.home.HomeFragmentDirections
 import org.mozilla.fenix.home.intent.*
 import org.mozilla.fenix.library.bookmarks.BookmarkFragmentDirections
@@ -433,14 +429,19 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
             // that we should not rely on the application being killed between user sessions.
             components.appStore.dispatch(AppAction.ResumedMetricsAction)
 
-            components.notificationsDelegate.requestNotificationPermission(
-                onPermissionGranted = {
-                    DefaultBrowserNotificationWorker.setDefaultBrowserNotificationIfNeeded(applicationContext)
-                    WidgetNotificationWorker.setWidgetNotificationIfNeeded(applicationContext)
-                    DockNotificationWorker.setDockNotificationIfNeeded(applicationContext)
-                    FirebaseNotificationWorker.ensureChannelExists(applicationContext)
-                },
-            )
+            if (!PreferenceManager.getDefaultSharedPreferences(applicationContext).getBoolean("IsPermissionAskedForMarketing", false)) {
+                PreferenceManager.getDefaultSharedPreferences(applicationContext).edit().putBoolean("IsPermissionAskedForMarketing", true).apply()
+
+                components.notificationsDelegate.requestNotificationPermission(
+                    onPermissionGranted = {
+                        DefaultBrowserNotificationWorker.setDefaultBrowserNotificationIfNeeded(
+                            applicationContext)
+                        WidgetNotificationWorker.setWidgetNotificationIfNeeded(applicationContext)
+                        DockNotificationWorker.setDockNotificationIfNeeded(applicationContext)
+                        FirebaseNotificationWorker.ensureChannelExists(applicationContext)
+                    },
+                )
+            }
 
 
         }
