@@ -52,6 +52,7 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import mozilla.components.browser.menu.view.MenuButton
 import mozilla.components.browser.state.selector.findTab
 import mozilla.components.browser.state.selector.normalTabs
@@ -117,6 +118,8 @@ import org.mozilla.fenix.home.sessioncontrol.DefaultSessionControlController
 import org.mozilla.fenix.home.sessioncontrol.SessionControlInteractor
 import org.mozilla.fenix.home.sessioncontrol.SessionControlView
 import org.mozilla.fenix.home.sessioncontrol.viewholders.CollectionHeaderViewHolder
+import org.mozilla.fenix.home.affiliatesites.AffiliateSitesFeature
+import org.mozilla.fenix.home.affiliatesites.DefaultAffiliateSitesView
 import org.mozilla.fenix.home.topsites.DefaultTopSitesView
 import org.mozilla.fenix.nimbus.FxNimbus
 import org.mozilla.fenix.onboarding.FenixOnboarding
@@ -183,6 +186,7 @@ class HomeFragment : Fragment() {
     private var lastAppliedWallpaperName: String = Wallpaper.defaultName
 
     private val topSitesFeature = ViewBoundFeatureWrapper<TopSitesFeature>()
+    private val affiliateSitesFeature = ViewBoundFeatureWrapper<AffiliateSitesFeature>()
     private val messagingFeature = ViewBoundFeatureWrapper<MessagingFeature>()
     private val recentTabsListFeature = ViewBoundFeatureWrapper<RecentTabsListFeature>()
     private val recentSyncedTabFeature = ViewBoundFeatureWrapper<RecentSyncedTabFeature>()
@@ -289,6 +293,15 @@ class HomeFragment : Fragment() {
                 )
             }
         }
+
+        // Initialize affiliate sites feature (simplified, just for background refresh)
+        affiliateSitesFeature.set(
+            feature = AffiliateSitesFeature(
+                affiliateSitesService = components.core.affiliateSitesService
+            ),
+            owner = viewLifecycleOwner,
+            view = binding.root,
+        )
 
         if (requireContext().settings().showRecentTabsFeature) {
             recentTabsListFeature.set(
@@ -413,7 +426,42 @@ class HomeFragment : Fragment() {
             interactor = sessionControlInteractor,
         )
 
-        updateSessionControlView()
+        // Load affiliate sites BEFORE updating the view so they appear immediately
+        // Only load if the preference is enabled
+        if (requireContext().settings().showAffiliateSites) {
+            lifecycleScope.launch(IO) {
+                // Load affiliate sites using the same pattern as LearnAndAct
+                try {
+                    // First try to get cached sites
+                    var affiliateSites = requireComponents.core.affiliateSitesService.getAffiliateSites()
+                    
+                    // If empty, force a refresh and try again
+                    if (affiliateSites.isEmpty()) {
+                        val refreshSuccess = requireComponents.core.affiliateSitesService.refreshAffiliateSites()
+                        if (refreshSuccess) {
+                            affiliateSites = requireComponents.core.affiliateSitesService.getAffiliateSites()
+                        }
+                    }
+                    
+                    withContext(Main) {
+                        requireComponents.appStore.dispatch(AppAction.AffiliateSitesChange(affiliateSites))
+                        // Update the view after the data is loaded
+                        updateSessionControlView()
+                    }
+                } catch (e: Exception) {
+                    withContext(Main) {
+                        // If loading fails, dispatch empty list
+                        requireComponents.appStore.dispatch(AppAction.AffiliateSitesChange(emptyList()))
+                        // Update the view even if loading failed
+                        updateSessionControlView()
+                    }
+                }
+            }
+        } else {
+            // If preference is disabled, dispatch empty list and update view
+            requireComponents.appStore.dispatch(AppAction.AffiliateSitesChange(emptyList()))
+            updateSessionControlView()
+        }
 
         appBarLayout = binding.homeAppBar
         val appBarOffsetChangedListener = object : OnOffsetChangedListener {
@@ -666,7 +714,15 @@ class HomeFragment : Fragment() {
             } else {
                 requireComponents.appStore.dispatch(AppAction.LearnAndActShown(kotlin.collections.emptyList()))
             }
-
+            
+            // Load affiliate sites using the same pattern as LearnAndAct
+            try {
+                val affiliateSites = requireComponents.core.affiliateSitesService.getAffiliateSites()
+                requireComponents.appStore.dispatch(AppAction.AffiliateSitesChange(affiliateSites))
+            } catch (e: Exception) {
+                // If loading fails, dispatch empty list
+                requireComponents.appStore.dispatch(AppAction.AffiliateSitesChange(emptyList()))
+            }
         }
     }
 

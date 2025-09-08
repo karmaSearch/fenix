@@ -131,6 +131,16 @@ interface SessionControlController {
     fun handleSelectTopSite(topSite: TopSite, position: Int)
 
     /**
+     * @see [AffiliateSiteInteractor.onSelectAffiliateSite]
+     */
+    fun handleSelectAffiliateSite(affiliateSite: karma.service.affiliatesites.AffiliateSite, position: Int)
+
+    /**
+     * @see [AffiliateSiteInteractor.onOpenInPrivateTabClicked]
+     */
+    fun handleOpenInPrivateTabClicked(affiliateSite: karma.service.affiliatesites.AffiliateSite)
+
+    /**
      * @see [TopSiteInteractor.onSettingsClicked]
      */
     fun handleTopSiteSettingsClicked()
@@ -230,7 +240,7 @@ class DefaultSessionControlController(
     private val registerCollectionStorageObserver: () -> Unit,
     private val removeCollectionWithUndo: (tabCollection: TabCollection) -> Unit,
     private val showTabTray: () -> Unit,
-) : SessionControlController {
+) : SessionControlController, AffiliateSiteInteractor {
 
     override fun handleCollectionAddTabTapped(collection: TabCollection) {
         Collections.addTabButton.record(NoExtras())
@@ -322,6 +332,18 @@ class DefaultSessionControlController(
             browsingModeManager.mode = BrowsingMode.Private
             openToBrowserAndLoad(
                 searchTermOrURL = topSite.url,
+                newTab = true,
+                from = BrowserDirection.FromHome,
+            )
+        }
+    }
+
+    override fun handleOpenInPrivateTabClicked(affiliateSite: karma.service.affiliatesites.AffiliateSite) {
+        // Record metrics for affiliate site private tab opening
+        with(activity) {
+            browsingModeManager.mode = BrowsingMode.Private
+            openToBrowserAndLoad(
+                searchTermOrURL = affiliateSite.url,
                 newTab = true,
                 from = BrowserDirection.FromHome,
             )
@@ -437,6 +459,32 @@ class DefaultSessionControlController(
             activity.handleRequestDesktopMode(tabId)
         }
         activity.openToBrowser(BrowserDirection.FromHome)
+    }
+
+    override fun handleSelectAffiliateSite(affiliateSite: karma.service.affiliatesites.AffiliateSite, position: Int) {
+        dismissSearchDialogIfDisplayed()
+
+        // Record metrics for affiliate site selection
+        // We could add specific affiliate site metrics here in the future
+
+        val tabId = addTabUseCase.invoke(
+            url = affiliateSite.url,
+            selectTab = true,
+            startLoading = true,
+        )
+
+        if (settings.openNextTabInDesktopMode) {
+            activity.handleRequestDesktopMode(tabId)
+        }
+        activity.openToBrowser(BrowserDirection.FromHome)
+    }
+
+    override fun onSelectAffiliateSite(affiliateSite: karma.service.affiliatesites.AffiliateSite, position: Int) {
+        handleSelectAffiliateSite(affiliateSite, position)
+    }
+
+    override fun onOpenInPrivateTabClicked(affiliateSite: karma.service.affiliatesites.AffiliateSite) {
+        handleOpenInPrivateTabClicked(affiliateSite)
     }
 
     @VisibleForTesting

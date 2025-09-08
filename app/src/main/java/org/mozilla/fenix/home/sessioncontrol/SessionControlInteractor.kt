@@ -236,6 +236,24 @@ interface TopSiteInteractor {
     fun onTopSiteMenuOpened()
 }
 
+interface AffiliateSiteInteractor {
+    /**
+     * Selects the given affiliate site. Called when a user clicks on an affiliate site.
+     *
+     * @param affiliateSite The affiliate site that was selected.
+     * @param position The position of the affiliate site.
+     */
+    fun onSelectAffiliateSite(affiliateSite: karma.service.affiliatesites.AffiliateSite, position: Int)
+    
+    /**
+     * Opens the given affiliate site in private mode. Called when an user clicks on the "Open in private
+     * tab" affiliate site menu item.
+     *
+     * @param affiliateSite The affiliate site that will be open in private mode.
+     */
+    fun onOpenInPrivateTabClicked(affiliateSite: karma.service.affiliatesites.AffiliateSite)
+}
+
 interface MessageCardInteractor {
     /**
      * Called when a [Message]'s button is clicked
@@ -266,6 +284,7 @@ class SessionControlInteractor(
 ) : CollectionInteractor,
     OnboardingInteractor,
     TopSiteInteractor,
+    AffiliateSiteInteractor,
     TabSessionInteractor,
     ToolbarInteractor,
     MessageCardInteractor,
@@ -319,6 +338,14 @@ class SessionControlInteractor(
 
     override fun onSelectTopSite(topSite: TopSite, position: Int) {
         controller.handleSelectTopSite(topSite, position)
+    }
+
+    override fun onSelectAffiliateSite(affiliateSite: karma.service.affiliatesites.AffiliateSite, position: Int) {
+        controller.handleSelectAffiliateSite(affiliateSite, position)
+    }
+
+    override fun onOpenInPrivateTabClicked(affiliateSite: karma.service.affiliatesites.AffiliateSite) {
+        controller.handleOpenInPrivateTabClicked(affiliateSite)
     }
 
     override fun onSettingsClicked() {

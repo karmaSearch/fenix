@@ -69,6 +69,8 @@ import mozilla.components.service.location.LocationService
 import mozilla.components.service.location.MozillaLocationService
 import mozilla.components.service.pocket.PocketStoriesConfig
 import karma.service.learnandact.LearnAndActConfig
+import karma.service.affiliatesites.AffiliateSitesConfig
+import karma.service.affiliatesites.AffiliateSitesService
 import karma.service.learnandact.LearnAndActService
 
 import mozilla.components.service.pocket.PocketStoriesService
@@ -397,8 +399,14 @@ class Core(
     val learnAndActConfig by lazyMonitored {
         LearnAndActConfig(client, Frequency(4, TimeUnit.HOURS))
     }
+
+    val affiliateSitesConfig by lazyMonitored {
+        AffiliateSitesConfig(client, Frequency(7, TimeUnit.DAYS))
+    }
+
     val pocketStoriesService by lazyMonitored { PocketStoriesService(context, pocketStoriesConfig) }
     val learnAndActService by lazyMonitored { LearnAndActService(context, learnAndActConfig) }
+    val affiliateSitesService by lazyMonitored { AffiliateSitesService(context, affiliateSitesConfig) }
 
     val contileTopSitesProvider by lazyMonitored {
         ContileTopSitesProvider(

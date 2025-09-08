@@ -4,6 +4,7 @@
 
 package org.mozilla.fenix.components.appstate
 
+import karma.service.affiliatesites.AffiliateSite
 import karma.service.learnandact.LearnAndAct
 import mozilla.components.feature.tab.collections.TabCollection
 import mozilla.components.feature.top.sites.TopSite
@@ -107,6 +108,7 @@ sealed class AppAction : Action {
         AppAction()
     data class LearnAndActShown(val learnAndAct: List<LearnAndAct>) : AppAction()
     data class LearnAndActNewPageShown(val learnAndAct: List<LearnAndAct>) : AppAction()
+    data class AffiliateSitesChange(val affiliateSites: List<AffiliateSite>) : AppAction()
 
     /**
      * Restores the list of Pocket recommended stories categories selections.

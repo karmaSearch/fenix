@@ -10,6 +10,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import karma.service.learnandact.LearnAndAct
+import karma.service.affiliatesites.AffiliateSite
 import mozilla.components.concept.storage.BookmarkNode
 import mozilla.components.feature.tab.collections.TabCollection
 import mozilla.components.feature.top.sites.TopSite
@@ -48,7 +49,8 @@ internal fun normalModeAdapterItems(
     recentVisits: List<RecentlyVisitedItem>,
     pocketStories: List<PocketStory>,
     firstFrameDrawn: Boolean = false,
-    learnAndAct: List<LearnAndAct>
+    learnAndAct: List<LearnAndAct>,
+    affiliateSites: List<AffiliateSite>
 ): List<AdapterItem> {
     val items = mutableListOf<AdapterItem>()
     var shouldShowCustomizeHome = false
@@ -62,6 +64,10 @@ internal fun normalModeAdapterItems(
 
     if (settings.showTopSitesFeature && topSites.isNotEmpty()) {
         items.add(AdapterItem.TopSitePager(topSites))
+    }
+
+    if (affiliateSites.isNotEmpty()) {
+        items.add(AdapterItem.AffiliateSitesPager(affiliateSites))
     }
 
     if (showRecentTab) {
@@ -187,7 +193,8 @@ private fun AppState.toAdapterList(settings: Settings): List<AdapterItem> = when
         recentHistory,
         pocketStories,
         firstFrameDrawn,
-        learnAndAct
+        learnAndAct,
+        affiliateSites
     )
     is Mode.Private -> privateModeAdapterItems()
     is Mode.Onboarding -> onboardingAdapterItems(mode.state)
