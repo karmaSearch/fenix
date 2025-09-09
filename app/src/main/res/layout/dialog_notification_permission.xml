@@ -29,7 +29,7 @@
         android:layout_marginStart="10dp"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="10dp"
-        android:text="@string/notification_permission_title"
+        android:text="@string/onboarding_notifications"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/notification_icon"
@@ -45,7 +45,7 @@
         android:layout_marginStart="10dp"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="10dp"
-        android:text="@string/notification_permission_message"
+        android:text="@string/onboarding_notifications_subtitle"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/notification_title" />
@@ -58,7 +58,7 @@
         android:layout_height="40dp"
         android:layout_marginEnd="15dp"
         android:layout_marginTop="30dp"
-        android:text="@string/notification_permission_continue"
+        android:text="@string/onboarding_notifications_enable"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/notification_message" />
@@ -69,7 +69,7 @@
         android:layout_width="wrap_content"
         android:layout_height="40dp"
         android:layout_marginEnd="16dp"
-        android:text="@string/notification_permission_decline"
+        android:text="@string/onboarding_notifications_no"
         app:layout_constraintEnd_toStartOf="@+id/notification_accept_button"
         app:layout_constraintTop_toTopOf="@+id/notification_accept_button" />
 

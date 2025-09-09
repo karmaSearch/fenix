@@ -1991,7 +1991,9 @@
     <!-- Action label for links to a website containing documentation about a wallpaper collection. Talkback will append this to say "Double tap to open link to learn more about this collection". -->
     <string name="a11y_action_label_wallpaper_collection_learn_more">ouvrir le lien pour en savoir plus sur cette collection</string>
 
-    <string name="affiliate_sites_preference">Sites partenaires</string>
+
+    <!-- KARMA -->
+    <string name="affiliate_sites_preference">Partenaires d’affiliation</string>
     <string name="preferences_category_about_karma">A propos</string>
     <string name="preferences_karma_mission">Notre Mission</string>
     <string name="preferences_karma_howitwork">Comment ça Marche</string>
@@ -2002,7 +2004,7 @@
 
     <string name="onboarding_next">Suivant</string>
     <string name="onboarding_title_1">Chaque recherche compte</string>
-    <string name="onboarding_subtitle_1">Vos recherches financent des associations engagées pour la protection du Vivant</string>
+    <string name="onboarding_subtitle_1">Vos recherches financent des associations engagées pour la protection des animaux et de la biodiversité</string>
     <string name="onboarding_title_2">Les (bonnes) réponses</string>
     <string name="onboarding_subtitle_2">Des résultats rapides et précis comme avec votre moteur actuel</string>
     <string name="onboarding_title_3">Comprendre et agir</string>
@@ -2019,11 +2021,10 @@
     <string name="add_a_widget">OK !</string>
     <string name="add_widget_later">Plus tard</string>
     <string name="onboarding_companion_searchbar">🔎 Recherchez ici pour protéger les animaux et la biodiversité !</string>
-    <string name="onboarding_companion_learn_and_act">✊ Parcourez notre fil d’actualités pour découvrir comment agir concrètement</string>
-    <string name="onboarding_companion_settings">Vous pouvez paramétrer la disposition de la page d’accueil KARMA en cliquant sur personnaliser la page d’accueil dans le menu de l’application</string>
     <string name="onboarding_companion_shortcut">Vous trouverez ici vos raccourcis et les sites les plus visités. Vous pouvez supprimer un raccourci en appuyant longuement sur l’icône</string>
     <string name="onboarding_companion_affiliate">💰 Vous générez également des dons pour nos associations partenaires quand vous utilisez ces services</string>
-
+    <string name="onboarding_companion_learn_and_act">✊ Parcourez notre fil d’actualités pour découvrir comment agir concrètement</string>
+    <string name="onboarding_companion_settings">⚙️ Vous pouvez configurer votre page d’accueil KARMA en cliquant ici</string>
     <string name="home_screen_top_sites_heading">Raccourcis</string>
     <string name="karma_notification_default_browser_title">Aidez-nous à protéger le Vivant ! 🌎 </string>
     <string name="karma_notification_default_browser_text">Définissez %1$s en tant que moteur de recherche par défaut afin de maximiser votre impact 💪 🦁</string>
