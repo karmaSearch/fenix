@@ -477,10 +477,11 @@ class Core(
     }
 
     /**
-     * Generate custom user agent string for Karma browser
+     * Generate custom user agent string for Karma browser with local Android version
      */
     private fun getUserAgent(): String {
-        return "Mozilla/5.0 (Mobile; rv:142.0) Gecko/20100101 Firefox/142.0 Karma/1.0"
+        val androidVersion = android.os.Build.VERSION.RELEASE
+        return "Mozilla/5.0 (Android/$androidVersion; Mobile; rv:142.0) Gecko/142.0 Firefox/142.0"
     }
 
     companion object {

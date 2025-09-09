@@ -933,6 +933,8 @@
     <string name="preference_phone_feature_location">Location</string>
     <!-- Preference for altering the notification access for all websites -->
     <string name="preference_phone_feature_notification">Notification</string>
+    <!-- Preference for altering the media storage access for all websites -->
+    <string name="preference_phone_feature_media_storage">Media Storage</string>
     <!-- Preference for altering the persistent storage access for all websites -->
     <string name="preference_phone_feature_persistent_storage">Persistent Storage</string>
     <!-- Preference for altering the storage access setting for all websites -->
