@@ -26,7 +26,7 @@
         app:allowDividerAbove="true"
         app:iconSpaceReserved="false">
         <org.mozilla.fenix.settings.RadioButtonPreference
-            android:defaultValue="true"
+            android:defaultValue="false"
             android:key="@string/pref_key_close_tabs_manually"
             android:title="@string/close_tabs_manually" />
 
@@ -41,7 +41,7 @@
             android:title="@string/close_tabs_after_one_week" />
 
         <org.mozilla.fenix.settings.RadioButtonPreference
-            android:defaultValue="false"
+            android:defaultValue="true"
             android:key="@string/pref_key_close_tabs_after_one_month"
             android:title="@string/close_tabs_after_one_month" />
     </androidx.preference.PreferenceCategory>

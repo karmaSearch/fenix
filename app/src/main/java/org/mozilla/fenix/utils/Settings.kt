@@ -137,8 +137,8 @@ class Settings(private val appContext: Context) : PreferencesHolder {
      */
     var showTopSitesFeature by lazyFeatureFlagPreference(
         appContext.getPreferenceKey(R.string.pref_key_show_top_sites),
-        featureFlag = false,
-        default = { homescreenSections[HomeScreenSection.TOP_SITES] == true },
+        featureFlag = true,
+        default = { false },
     )
 
     var showLearnAndAct by booleanPreference(
@@ -412,7 +412,7 @@ class Settings(private val appContext: Context) : PreferencesHolder {
 
     var manuallyCloseTabs by booleanPreference(
         appContext.getPreferenceKey(R.string.pref_key_close_tabs_manually),
-        default = true,
+        default = false,
     )
 
     var closeTabsAfterOneDay by booleanPreference(
@@ -427,7 +427,7 @@ class Settings(private val appContext: Context) : PreferencesHolder {
 
     var closeTabsAfterOneMonth by booleanPreference(
         appContext.getPreferenceKey(R.string.pref_key_close_tabs_after_one_month),
-        default = false,
+        default = true,
     )
 
     var allowThirdPartyRootCerts by booleanPreference(
