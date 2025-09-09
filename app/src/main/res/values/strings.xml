@@ -1891,6 +1891,7 @@
 
     <string name="karma_picture_preference">KARMA pictures</string>
     <string name="learn_and_act_preference">Learn &amp; Act</string>
+    <string name="affiliate_sites_preference">Partner Sites</string>
     <string name="preferences_category_about_karma">About KARMA</string>
     <string name="preferences_karma_mission">Our Mission</string>
     <string name="preferences_karma_howitwork">How it Works</string>
@@ -1900,6 +1901,12 @@
     <string name="preferences_karma_feedback">Your Feedback</string>
     <string name="preferences_feedback_forms">Give us your feedback</string>
     <string name="preferences_feedback_contact">Contact us</string>
+
+    <!-- Notification permission popup -->
+    <string name="notification_permission_title">Stay updated on your positive impact</string>
+    <string name="notification_permission_message">Get updates about the causes your searches are supporting. No spam, we promise!</string>
+    <string name="notification_permission_continue">Continue</string>
+    <string name="notification_permission_decline">No, thanks</string>
 
     <string name="onboarding_next">Continue</string>
     <string name="onboarding_title_1">Search with a purpose</string>
@@ -1924,7 +1931,6 @@
     <string name="onboarding_companion_settings">You can configure your KARMA home page through customize the home page in the application menu</string>
     <string name="onboarding_companion_shortcut">Here are your shortcuts and most visited websites. To delete a shortcut, just click on the icon and hold it down for a while.</string>
     <string name="home_screen_top_sites_heading">Shortcuts</string>
-    <string name="home_screen_affiliate_sites_heading">Partner Sites</string>
     <string name="karma_notification_default_browser_title">Help us to protect the biodiversity ! 🌎</string>
     <string name="karma_notification_default_browser_text">Set %1$s as your default browser to maximize your impact 💪 🦁</string>
     <string name="karma_notification_widget_title">Have you tried the KARMA widget? 🤓 📲</string>

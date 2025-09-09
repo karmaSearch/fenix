@@ -1991,7 +1991,7 @@
     <!-- Action label for links to a website containing documentation about a wallpaper collection. Talkback will append this to say "Double tap to open link to learn more about this collection". -->
     <string name="a11y_action_label_wallpaper_collection_learn_more">ouvrir le lien pour en savoir plus sur cette collection</string>
 
-
+    <string name="affiliate_sites_preference">Sites partenaires</string>
     <string name="preferences_category_about_karma">A propos</string>
     <string name="preferences_karma_mission">Notre Mission</string>
     <string name="preferences_karma_howitwork">Comment ça Marche</string>

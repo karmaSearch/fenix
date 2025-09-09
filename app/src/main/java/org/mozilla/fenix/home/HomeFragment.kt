@@ -38,6 +38,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
@@ -122,6 +123,7 @@ import org.mozilla.fenix.home.affiliatesites.AffiliateSitesFeature
 import org.mozilla.fenix.home.affiliatesites.DefaultAffiliateSitesView
 import org.mozilla.fenix.home.topsites.DefaultTopSitesView
 import org.mozilla.fenix.nimbus.FxNimbus
+import org.mozilla.fenix.notifications.NotificationPermissionDialog
 import org.mozilla.fenix.onboarding.FenixOnboarding
 import org.mozilla.fenix.perf.MarkersFragmentLifecycleCallbacks
 import org.mozilla.fenix.perf.runBlockingIncrement
@@ -609,6 +611,9 @@ class HomeFragment : Fragment() {
         HomeScreen.homeScreenDisplayed.record(NoExtras())
         HomeScreen.homeScreenViewCount.add()
 
+        // Check if we should show notification permission dialog after onboarding is complete
+        checkAndShowNotificationPermissionDialog()
+
         observeSearchEngineChanges()
         observeSearchEngineNameChanges()
         observeWallpaperUpdates()
@@ -926,6 +931,14 @@ class HomeFragment : Fragment() {
 
         hideToolbar()
 
+        // Reset notification dialog flag if the dialog was interrupted by backgrounding
+        (activity as? HomeActivity)?.let { homeActivity ->
+            if (homeActivity.isNotificationDialogShowing && 
+                requireContext().settings().hasShownNotificationPermissionDialog) {
+                homeActivity.isNotificationDialogShowing = false
+            }
+        }
+
         // Whenever a tab is selected its last access timestamp is automatically updated by A-C.
         // However, in the case of resuming the app to the home fragment, we already have an
         // existing selected tab, but its last access timestamp is outdated. No action is
@@ -1172,6 +1185,63 @@ class HomeFragment : Fragment() {
 
         binding.wordmarkText.imageTintList = tintColor
         binding.privateBrowsingButton.imageTintList = tintColor*/
+    }
+
+    private fun checkAndShowNotificationPermissionDialog() {
+        val activity = activity as? HomeActivity ?: return
+        
+        val settings = requireContext().settings()
+        val hasCompletedOnboarding = settings.hasShownHomeOnboardingDialog
+        val hasCompletedDefaultBrowserFlow = settings.hasShownDefaultBrowserDialog || 
+                                            !settings.shouldShowSetAsDefaultBrowserOnBoarding()
+        val shouldShow = hasCompletedOnboarding && 
+                        hasCompletedDefaultBrowserFlow &&
+                        !PreferenceManager.getDefaultSharedPreferences(requireContext())
+                            .getBoolean("IsPermissionAskedForMarketing", false) &&
+                        !settings.hasShownNotificationPermissionDialog
+        
+        if (shouldShow && !activity.isNotificationDialogShowing) {
+            activity.isNotificationDialogShowing = true
+            val dialog = NotificationPermissionDialog(
+                requireContext(),
+                onContinueClicked = {
+                    activity.isNotificationDialogShowing = false
+                    settings.hasShownNotificationPermissionDialog = true
+                    activity.components.notificationsDelegate.requestNotificationPermission()
+                },
+                onDeclineClicked = {
+                    activity.isNotificationDialogShowing = false
+                    settings.hasShownNotificationPermissionDialog = true
+                    PreferenceManager.getDefaultSharedPreferences(requireContext())
+                        .edit()
+                        .putBoolean("IsPermissionAskedForMarketing", true)
+                        .apply()
+                },
+                onDialogClosed = {
+                    // Trigger companions after dialog closes
+                    triggerCompanionsIfNeeded()
+                }
+            )
+            dialog.show()
+        }
+    }
+
+    private fun triggerCompanionsIfNeeded() {
+        sessionControlView?.view?.let { recyclerView ->
+            // Post a delayed runnable to allow the RecyclerView to complete its layout
+            // and then trigger the companion dialogs
+            recyclerView.post {
+                val layoutManager = recyclerView.layoutManager as? LinearLayoutManager
+                layoutManager?.let {
+                    // Force a layout completion to trigger companions by requesting layout
+                    recyclerView.requestLayout()
+                    // Post another runnable to ensure layout is complete
+                    recyclerView.post {
+                        it.onLayoutCompleted(null)
+                    }
+                }
+            }
+        }
     }
 
     private fun observeWallpaperUpdates() {

@@ -1,97 +1,83 @@
 package org.mozilla.fenix.home.onboarding
 
+import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.doOnLayout
+import android.widget.ImageView
+import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
-import androidx.viewpager2.widget.ViewPager2
-import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
 import org.mozilla.fenix.NavGraphDirections
+import org.mozilla.fenix.R
 import org.mozilla.fenix.databinding.FragmentOnBoardingBinding
-
 import org.mozilla.fenix.ext.settings
-
+import java.util.*
 
 /**
- * A simple [Fragment] subclass.
- * Use the [OnBoardingFragment.newInstance] factory method to
- * create an instance of this fragment.
+ * Simplified single-page onboarding fragment.
  */
 class OnBoardingFragment: Fragment() {
     private var _binding: FragmentOnBoardingBinding? = null
     private val binding get() = _binding!!
-    private lateinit var onBoardingSitesPagerAdapter: OnBoardingPagerAdapter
-    private lateinit var pageIndicator: TabLayout
-    private lateinit var viewModel: OnBoardingViewModel
-    private lateinit var interactor: OnBoardingInteractor
-
-    private var currentPage = 0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
+    ): View {
         _binding = FragmentOnBoardingBinding.inflate(inflater, container, false)
-        val view = binding.root
-
+        
+        // Mark onboarding as shown
         context?.settings()?.let { settings ->
             settings.hasShownHomeOnboardingDialog = true
         }
-        viewModel = OnBoardingViewModel()
-        interactor = OnBoardingInteractorImpl(
-            showNextPage = {
 
-                binding.onboardingPager.doOnLayout {
-                    if (currentPage < pageIndicator.tabCount-1) {
-                        currentPage += 1
-                        binding.onboardingPager.currentItem = currentPage
-                    } else {
-                        val directions = NavGraphDirections.actionStartupDefaultbrowser()
-                        findNavController().navigate(directions)
-                    }
-                }
-            }
-        )
-        onBoardingSitesPagerAdapter = OnBoardingPagerAdapter(viewModel.onBoardingPages, interactor)
+        setupOnboardingContent()
+        setupClickListeners()
+        
+        return binding.root
+    }
 
-        binding.onboardingPager.apply {
-            adapter = onBoardingSitesPagerAdapter
-            registerOnPageChangeCallback(onBoardingPageChangeCallback)
-            offscreenPageLimit = 1
+    private fun setupOnboardingContent() {
+        // Setup organization logos for French locale
+        if (Locale.getDefault().language == "fr") {
+            addOrganizationLogos(requireContext())
         }
-        pageIndicator = binding.pageIndicator
-        pageIndicator.addOnTabSelectedListener(onBoardingTabSelectedCallback)
-        TabLayoutMediator(pageIndicator, binding.onboardingPager) { _, _ ->}.attach()
+    }
 
-        binding.onboardingSkip.setOnClickListener {
+    private fun setupClickListeners() {
+        // Main button - navigate to default browser setup
+        binding.onboardingButton.setOnClickListener {
             val directions = NavGraphDirections.actionStartupDefaultbrowser()
             findNavController().navigate(directions)
         }
-        return view
     }
 
-    private val onBoardingPageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
-        override fun onPageSelected(position: Int) {
-            currentPage = position
-            binding.onboardingSkip.visibility = if (currentPage == viewModel.onBoardingPages.size -1) View.GONE else View.VISIBLE
+    private fun addOrganizationLogos(context: Context) {
+        val organizationLogos = listOf(
+            R.drawable.ic_logo_aspas,
+            R.drawable.ic_l214,
+            R.drawable.ic_naat
+        )
+
+        organizationLogos.forEach { logoResId ->
+            val logoImageView = ImageView(context).apply {
+                layoutParams = ViewGroup.MarginLayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                ).apply {
+                    setMargins(8, 0, 8, 0)
+                }
+                setImageDrawable(ContextCompat.getDrawable(context, logoResId))
+                scaleType = ImageView.ScaleType.FIT_CENTER
+            }
+            binding.onboardingOrganisationsLayout.addView(logoImageView)
         }
     }
 
-    private val onBoardingTabSelectedCallback = object : TabLayout.OnTabSelectedListener {
-        override fun onTabSelected(tab: TabLayout.Tab?) {
-            currentPage = tab!!.position
-            binding.onboardingSkip.visibility = if (currentPage == viewModel.onBoardingPages.size -1) View.GONE else View.VISIBLE
-        }
-
-        override fun onTabUnselected(tab: TabLayout.Tab?) {
-        }
-
-        override fun onTabReselected(tab: TabLayout.Tab?) {
-        }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

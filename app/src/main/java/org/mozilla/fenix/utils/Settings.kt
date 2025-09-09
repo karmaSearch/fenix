@@ -137,13 +137,23 @@ class Settings(private val appContext: Context) : PreferencesHolder {
      */
     var showTopSitesFeature by lazyFeatureFlagPreference(
         appContext.getPreferenceKey(R.string.pref_key_show_top_sites),
-        featureFlag = true,
+        featureFlag = false,
         default = { homescreenSections[HomeScreenSection.TOP_SITES] == true },
     )
 
     var showLearnAndAct by booleanPreference(
         appContext.getPreferenceKey(R.string.pref_key_enable_learn_and_act),
         default = true
+    )
+
+    var showAffiliateSites by booleanPreference(
+        appContext.getPreferenceKey(R.string.pref_key_enable_affiliate_sites),
+        default = true
+    )
+
+    var hasShownNotificationPermissionDialog by booleanPreference(
+        appContext.getPreferenceKey(R.string.pref_key_notification_permission_dialog_shown),
+        default = false
     )
 
     var numberOfAppLaunches by intPreference(

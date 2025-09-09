@@ -97,6 +97,7 @@ import org.mozilla.fenix.library.bookmarks.BookmarkFragmentDirections
 import org.mozilla.fenix.library.bookmarks.DesktopFolders
 import org.mozilla.fenix.library.history.HistoryFragmentDirections
 import org.mozilla.fenix.library.historymetadata.HistoryMetadataGroupFragmentDirections
+import org.mozilla.fenix.notifications.NotificationPermissionDialog
 import org.mozilla.fenix.library.recentlyclosed.RecentlyClosedFragmentDirections
 import org.mozilla.fenix.onboarding.DefaultBrowserNotificationWorker
 import org.mozilla.fenix.onboarding.DockNotificationWorker
@@ -160,6 +161,7 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
         null
 
     private var isToolbarInflated = false
+    var isNotificationDialogShowing = false
 
     private val webExtensionPopupFeature by lazy {
         WebExtensionPopupFeature(components.core.store, ::openPopup)
@@ -332,6 +334,9 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
 
         }
 
+        // Start affiliate sites service refresh
+        components.core.affiliateSitesService.startAffiliateSitesRefresh()
+
         components.core.engine.profiler?.addMarker(
             MarkersActivityLifecycleCallbacks.MARKER_NAME,
             startTimeProfiler,
@@ -429,19 +434,7 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
             // that we should not rely on the application being killed between user sessions.
             components.appStore.dispatch(AppAction.ResumedMetricsAction)
 
-            if (!PreferenceManager.getDefaultSharedPreferences(applicationContext).getBoolean("IsPermissionAskedForMarketing", false)) {
-                PreferenceManager.getDefaultSharedPreferences(applicationContext).edit().putBoolean("IsPermissionAskedForMarketing", true).apply()
-
-                components.notificationsDelegate.requestNotificationPermission(
-                    onPermissionGranted = {
-                        DefaultBrowserNotificationWorker.setDefaultBrowserNotificationIfNeeded(
-                            applicationContext)
-                        WidgetNotificationWorker.setWidgetNotificationIfNeeded(applicationContext)
-                        DockNotificationWorker.setDockNotificationIfNeeded(applicationContext)
-                        FirebaseNotificationWorker.ensureChannelExists(applicationContext)
-                    },
-                )
-            }
+            // Notification dialog is handled in onStart() only, never in onResume to avoid re-showing
 
 
         }
@@ -458,6 +451,16 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
         breadcrumb(
             message = "onStart()",
         )
+
+        // Check notification dialog after activity is fully started but only once per lifecycle
+        if (shouldShowNotificationPermissionDialog() && !isNotificationDialogShowing) {
+            settings().hasShownNotificationPermissionDialog = true
+            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                if (!isFinishing && !isDestroyed && !isNotificationDialogShowing) {
+                    showNotificationPermissionDialog()
+                }
+            }, 1000) // 1 second delay to ensure everything is loaded
+        }
 
         ProfilerMarkers.homeActivityOnStart(binding.rootContainer, components.core.engine.profiler)
         components.core.engine.profiler?.addMarker(
@@ -552,6 +555,7 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
         components.core.contileTopSitesUpdater.stopPeriodicWork()
         components.core.pocketStoriesService.stopPeriodicStoriesRefresh()
         components.core.learnAndActService.stopPeriodicLearnAndActRefresh()
+        components.core.affiliateSitesService.stopPeriodicAffiliateSitesRefresh()
 
         privateNotificationObserver?.stop()
         components.notificationsDelegate.unBindActivity(this)
@@ -1041,6 +1045,63 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
 
     open fun navigateToOnDefaultBrowser() {
         navHost.navController.navigate(NavGraphDirections.actionStartupDefaultbrowser())
+    }
+
+    private fun shouldShowNotificationPermissionDialog(): Boolean {
+        // Show notification dialog if onboarding is done AND default browser flow is done
+        // AND not currently showing and not already shown
+        val isDefaultBrowserFlowDone = settings().hasShownDefaultBrowserDialog || 
+                                       !settings().shouldShowSetAsDefaultBrowserOnBoarding()
+        
+        return settings().hasShownHomeOnboardingDialog &&
+                isDefaultBrowserFlowDone &&
+                !PreferenceManager.getDefaultSharedPreferences(applicationContext).getBoolean("IsPermissionAskedForMarketing", false) &&
+                !settings().hasShownNotificationPermissionDialog &&
+                !isNotificationDialogShowing
+    }
+
+    private fun isShowingDialog(): Boolean {
+        return isNotificationDialogShowing
+    }
+
+    private fun showNotificationPermissionDialog() {
+        if (isNotificationDialogShowing) return
+        
+        // Ensure dialog is created and shown on the main thread
+        runOnUiThread {
+            isNotificationDialogShowing = true
+            
+            val dialog = NotificationPermissionDialog(
+                context = this,
+                onContinueClicked = {
+                    isNotificationDialogShowing = false
+                    // Proceed with system permission request
+                    PreferenceManager.getDefaultSharedPreferences(applicationContext)
+                        .edit().putBoolean("IsPermissionAskedForMarketing", true).apply()
+                    
+                    components.notificationsDelegate.requestNotificationPermission(
+                        onPermissionGranted = {
+                            DefaultBrowserNotificationWorker.setDefaultBrowserNotificationIfNeeded(applicationContext)
+                            WidgetNotificationWorker.setWidgetNotificationIfNeeded(applicationContext)
+                            DockNotificationWorker.setDockNotificationIfNeeded(applicationContext)
+                            FirebaseNotificationWorker.ensureChannelExists(applicationContext)
+                        },
+                    )
+                },
+                onDeclineClicked = {
+                    isNotificationDialogShowing = false
+                    // Don't request system permission, just mark as asked
+                    PreferenceManager.getDefaultSharedPreferences(applicationContext)
+                        .edit().putBoolean("IsPermissionAskedForMarketing", true).apply()
+                }
+            )
+            
+            dialog.setOnDismissListener {
+                isNotificationDialogShowing = false
+            }
+            
+            dialog.show()
+        }
     }
 
     override fun attachBaseContext(base: Context) {
