@@ -1190,39 +1190,48 @@ class HomeFragment : Fragment() {
     private fun checkAndShowNotificationPermissionDialog() {
         val activity = activity as? HomeActivity ?: return
         
-        val settings = requireContext().settings()
-        val hasCompletedOnboarding = settings.hasShownHomeOnboardingDialog
-        val hasCompletedDefaultBrowserFlow = settings.hasShownDefaultBrowserDialog || 
-                                            !settings.shouldShowSetAsDefaultBrowserOnBoarding()
-        val shouldShow = hasCompletedOnboarding && 
-                        hasCompletedDefaultBrowserFlow &&
-                        !PreferenceManager.getDefaultSharedPreferences(requireContext())
-                            .getBoolean("IsPermissionAskedForMarketing", false) &&
-                        !settings.hasShownNotificationPermissionDialog
-        
-        if (shouldShow && !activity.isNotificationDialogShowing) {
-            activity.isNotificationDialogShowing = true
-            val dialog = NotificationPermissionDialog(
-                requireContext(),
-                onContinueClicked = {
-                    activity.isNotificationDialogShowing = false
-                    settings.hasShownNotificationPermissionDialog = true
-                    activity.components.notificationsDelegate.requestNotificationPermission()
-                },
-                onDeclineClicked = {
-                    activity.isNotificationDialogShowing = false
-                    settings.hasShownNotificationPermissionDialog = true
-                    PreferenceManager.getDefaultSharedPreferences(requireContext())
-                        .edit()
-                        .putBoolean("IsPermissionAskedForMarketing", true)
-                        .apply()
-                },
-                onDialogClosed = {
-                    // Trigger companions after dialog closes
-                    triggerCompanionsIfNeeded()
+        // Move SharedPreferences access to background thread to avoid StrictMode violation
+        lifecycleScope.launch(IO) {
+            val settings = requireContext().settings()
+            val hasCompletedOnboarding = settings.hasShownHomeOnboardingDialog
+            val hasCompletedDefaultBrowserFlow = settings.hasShownDefaultBrowserDialog || 
+                                                !settings.shouldShowSetAsDefaultBrowserOnBoarding()
+            val isPermissionAskedForMarketing = PreferenceManager.getDefaultSharedPreferences(requireContext())
+                .getBoolean("IsPermissionAskedForMarketing", false)
+            val shouldShow = hasCompletedOnboarding && 
+                            hasCompletedDefaultBrowserFlow &&
+                            !isPermissionAskedForMarketing &&
+                            !settings.hasShownNotificationPermissionDialog
+            
+            // Switch back to main thread for UI operations
+            withContext(Main) {
+                if (shouldShow && !activity.isNotificationDialogShowing) {
+                    activity.isNotificationDialogShowing = true
+                    val dialog = NotificationPermissionDialog(
+                        requireContext(),
+                        onContinueClicked = {
+                            activity.isNotificationDialogShowing = false
+                            settings.hasShownNotificationPermissionDialog = true
+                            activity.components.notificationsDelegate.requestNotificationPermission()
+                        },
+                        onDeclineClicked = {
+                            activity.isNotificationDialogShowing = false
+                            settings.hasShownNotificationPermissionDialog = true
+                            lifecycleScope.launch(IO) {
+                                PreferenceManager.getDefaultSharedPreferences(requireContext())
+                                    .edit()
+                                    .putBoolean("IsPermissionAskedForMarketing", true)
+                                    .apply()
+                            }
+                        },
+                        onDialogClosed = {
+                            // Trigger companions after dialog closes
+                            triggerCompanionsIfNeeded()
+                        }
+                    )
+                    dialog.show()
                 }
-            )
-            dialog.show()
+            }
         }
     }
 

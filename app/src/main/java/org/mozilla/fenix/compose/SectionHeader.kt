@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
@@ -31,8 +32,8 @@ fun SectionHeader(
         modifier = modifier,
         color = FirefoxTheme.colors.textPrimary,
         fontSize = 16.sp,
-        fontFamily = FontFamily(Font(R.font.proximanova_semibold)),
         lineHeight = 20.sp,
+        fontWeight = FontWeight.SemiBold,
         overflow = TextOverflow.Ellipsis,
         maxLines = 2
     )
