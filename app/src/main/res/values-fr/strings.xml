@@ -2018,10 +2018,12 @@
     <string name="add_widget_title">Ajoutez le widget KARMA pour rechercher directement depuis votre page d\'accueil !</string>
     <string name="add_a_widget">OK !</string>
     <string name="add_widget_later">Plus tard</string>
-    <string name="onboarding_companion_searchbar">Faites ici vos recherches et protégez le Vivant !</string>
-    <string name="onboarding_companion_learn_and_act">Les contenus du “Learn &amp; Act” vous donnent les informations essentielles et vous permettent d’agir concrètement autour de la sauvegarde de la biodiversité et la protection du bien-être animal</string>
+    <string name="onboarding_companion_searchbar">🔎 Recherchez ici pour protéger les animaux et la biodiversité !</string>
+    <string name="onboarding_companion_learn_and_act">✊ Parcourez notre fil d’actualités pour découvrir comment agir concrètement</string>
     <string name="onboarding_companion_settings">Vous pouvez paramétrer la disposition de la page d’accueil KARMA en cliquant sur personnaliser la page d’accueil dans le menu de l’application</string>
     <string name="onboarding_companion_shortcut">Vous trouverez ici vos raccourcis et les sites les plus visités. Vous pouvez supprimer un raccourci en appuyant longuement sur l’icône</string>
+    <string name="onboarding_companion_affiliate">💰 Vous générez également des dons pour nos associations partenaires quand vous utilisez ces services</string>
+
     <string name="home_screen_top_sites_heading">Raccourcis</string>
     <string name="karma_notification_default_browser_title">Aidez-nous à protéger le Vivant ! 🌎 </string>
     <string name="karma_notification_default_browser_text">Définissez %1$s en tant que moteur de recherche par défaut afin de maximiser votre impact 💪 🦁</string>

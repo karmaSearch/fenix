@@ -1532,4 +1532,9 @@ class Settings(private val appContext: Context) : PreferencesHolder {
         appContext.getPreferenceKey(R.string.pref_key_should_show_topsite_companion),
         default = true
     )
+
+    var shouldShowAffiliateSitesCFR by booleanPreference(
+        "pref_key_should_show_affiliate_sites_cfr",
+        default = true
+    )
 }

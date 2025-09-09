@@ -1,6 +1,5 @@
 package org.mozilla.fenix.home.onboarding
 
-import android.R
 import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
@@ -12,10 +11,14 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
-import org.mozilla.fenix.databinding.OnboardingDialogCustomHomeBinding
+import androidx.compose.ui.unit.dp
+import org.mozilla.fenix.R
+import org.mozilla.fenix.compose.cfr.CFRPopup
+import org.mozilla.fenix.compose.cfr.CFRPopupProperties
 import org.mozilla.fenix.databinding.OnboardingDialogLearnandactBinding
 import org.mozilla.fenix.databinding.OnboardingDialogSearchbarBinding
 import org.mozilla.fenix.ext.settings
+import org.mozilla.fenix.home.affiliatesites.AffiliateSitesPagerViewHolder
 import org.mozilla.fenix.home.learnandact.viewholders.LearnAndActHeaderViewHolder
 
 class CompanionOnBoardingDialog(private val searchBar: View, private val recyclerView: RecyclerView) {
@@ -24,31 +27,14 @@ class CompanionOnBoardingDialog(private val searchBar: View, private val recycle
      */
     private var searchBarCrf: Dialog?
     private var learnAndActCrf: Dialog? = null
-    private var customHomeCrf: Dialog
     private val context: Context = recyclerView.context
 
     val isShowing: Boolean
-        get() = searchBarCrf?.isShowing == true || learnAndActCrf?.isShowing == true || customHomeCrf.isShowing
+        get() = searchBarCrf?.isShowing == true || learnAndActCrf?.isShowing == true
 
 
     init {
         searchBarCrf = createSearchBarCRF(searchBar)
-
-        val tv = TypedValue()
-
-        var y = if (context.theme.resolveAttribute(R.attr.actionBarSize, tv, true)) {
-            val actionBarHeight = TypedValue.complexToDimensionPixelSize(
-                tv.data,
-                context.getResources()
-                    .getDisplayMetrics()
-            )
-            actionBarHeight / 2
-
-        } else {
-            20
-        }
-        customHomeCrf = createCustomHomeCRF(0, y)
-
     }
 
     fun showIfNeeded() {
@@ -57,30 +43,21 @@ class CompanionOnBoardingDialog(private val searchBar: View, private val recycle
         }
         context.settings().shouldShowCompanion = false
 
-        val customHomeOnCancelListener = DialogInterface.OnDismissListener {
-            customHomeCrf.setOnDismissListener {
-                TopSiteOnBoardingDialog(recyclerView).showIfNeeded()
-            }
-        }
-
         val learnAndActOnCancelListener = DialogInterface.OnDismissListener {
-            customHomeCrf.show()
-            customHomeCrf.setOnDismissListener {
-                TopSiteOnBoardingDialog(recyclerView).showIfNeeded()
-            }
-            customHomeCrf.setOnDismissListener(customHomeOnCancelListener)
+            // Show affiliate sites CFR after learn and act
+            showAffiliateSitesCFRIfNeeded()
         }
 
         val searchBarOnCancelListener = DialogInterface.OnDismissListener {
             val learnAndActView = findLearnAndActInView()
             if (learnAndActView == null) {
-                customHomeCrf.show()
+                // No learn and act found, show affiliate sites CFR directly
+                showAffiliateSitesCFRIfNeeded()
             } else {
                 learnAndActCrf = createLearnAndActCRF(learnAndActView)
                 learnAndActCrf?.setOnDismissListener(learnAndActOnCancelListener)
                 learnAndActCrf?.show()
             }
-
         }
 
         searchBarCrf?.show()
@@ -137,6 +114,36 @@ class CompanionOnBoardingDialog(private val searchBar: View, private val recycle
         return null
     }
 
+    private fun findAffiliateSitesInView(): View? {
+        val count = recyclerView.adapter?.itemCount ?: return null
+
+        for (index in 0..count) {
+            val viewHolder = recyclerView.findViewHolderForAdapterPosition(index)
+            if (viewHolder is AffiliateSitesPagerViewHolder) {
+                return viewHolder.itemView
+            }
+        }
+        return null
+    }
+
+    private fun showAffiliateSitesCFRIfNeeded() {
+        val affiliateSitesView = findAffiliateSitesInView()
+        if (affiliateSitesView != null && context.settings().shouldShowAffiliateSitesCFR) {
+            CFRPopup(
+                text = context.getString(org.mozilla.fenix.R.string.onboarding_companion_affiliate),
+                anchor = affiliateSitesView,
+                properties = CFRPopupProperties(
+                    indicatorDirection = CFRPopup.IndicatorDirection.DOWN,
+                    popupVerticalOffset = (-40).dp,
+                ),
+            ).show()
+            context.settings().shouldShowAffiliateSitesCFR = false
+        } else {
+            // If no affiliate sites or CFR already shown, show TopSite onboarding
+            TopSiteOnBoardingDialog(recyclerView).showIfNeeded()
+        }
+    }
+
     private fun createLearnAndActCRF(anchor: View): Dialog? {
         val context: Context = recyclerView.context
 
@@ -172,27 +179,4 @@ class CompanionOnBoardingDialog(private val searchBar: View, private val recycle
         return popup
     }
 
-    private fun createCustomHomeCRF(x: Int, y: Int): Dialog {
-        val popupBinding = OnboardingDialogCustomHomeBinding.inflate(LayoutInflater.from(context))
-        val popup = Dialog(context)
-
-        popup.apply {
-            setContentView(popupBinding.root)
-            setCancelable(false)
-            // removing title or setting it as an empty string does not prevent a11y services from assigning one
-            setTitle(" ")
-        }
-
-        popup.window?.apply {
-            val attr = attributes
-            setGravity(Gravity.END or Gravity.TOP)
-            attr.x = x
-            attr.y = y
-            attributes = attr
-            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        }
-
-        popup.setCanceledOnTouchOutside(true)
-        return popup
-    }
 }
