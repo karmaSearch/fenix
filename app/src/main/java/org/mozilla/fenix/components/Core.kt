@@ -136,6 +136,7 @@ class Core(
                 R.color.fx_mobile_layer_color_1,
             ),
             httpsOnlyMode = context.settings().getHttpsOnlyMode(),
+            userAgentString = getUserAgent(),
         )
 
         GeckoEngine(
@@ -473,6 +474,13 @@ class Core(
             inDark -> PreferredColorScheme.Dark
             else -> PreferredColorScheme.Light
         }
+    }
+
+    /**
+     * Generate custom user agent string for Karma browser
+     */
+    private fun getUserAgent(): String {
+        return "Mozilla/5.0 (Mobile; rv:142.0) Gecko/20100101 Firefox/142.0 Karma/1.0"
     }
 
     companion object {
