@@ -9,6 +9,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:id="@+id/rootContainer"
+    android:fitsSystemWindows="false"
     tools:context=".HomeActivity">
 
     <ViewStub

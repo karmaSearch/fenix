@@ -20,6 +20,9 @@ import android.util.Log
 import android.view.*
 import android.view.WindowManager.LayoutParams.FLAG_SECURE
 import android.widget.Toast
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.annotation.CallSuper
 import androidx.annotation.IdRes
 import androidx.annotation.VisibleForTesting
@@ -217,6 +220,11 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
             // Theme setup should always be called before super.onCreate
             setupThemeAndBrowsingMode(getModeFromIntentOrLastKnown(intent))
             super.onCreate(savedInstanceState)
+        }
+
+        // Enable edge-to-edge display on Android 12+ (API 31+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            enableEdgeToEdge()
         }
 
         // Checks if Activity is currently in PiP mode if launched from external intents, then exits it
@@ -1216,6 +1224,22 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
     private fun shouldNavigateToBrowserOnColdStart(savedInstanceState: Bundle?): Boolean {
         return isActivityColdStarted(intent, savedInstanceState) &&
             !processIntent(intent)
+    }
+
+    /**
+     * Enables edge-to-edge display for modern Android versions (API 31+).
+     * This allows the app content to extend behind the system bars while maintaining proper theming.
+     */
+    private fun enableEdgeToEdge() {
+        // Enable edge-to-edge content rendering
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        
+        // Configure window insets controller for proper system bar behavior
+        val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+        windowInsetsController.let { controller ->
+            // Ensure system bars remain visible and properly themed
+            controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_BARS_BY_TOUCH
+        }
     }
 
     companion object {

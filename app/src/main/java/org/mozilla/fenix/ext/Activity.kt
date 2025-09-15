@@ -15,6 +15,9 @@ import android.provider.Settings
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import mozilla.components.concept.engine.EngineSession
 import org.mozilla.fenix.BrowserDirection
 import org.mozilla.fenix.HomeActivity
@@ -22,29 +25,33 @@ import org.mozilla.fenix.R
 import org.mozilla.fenix.settings.SupportUtils
 
 /**
- * Attempts to call immersive mode using the View to hide the status bar and navigation buttons.
- *
- * We don't use the equivalent function from Android Components because the stable flag messes
- * with the toolbar. See #1998 and #3272.
+ * Enables modern immersive mode using WindowInsetsController for fullscreen content.
+ * This replaces the deprecated systemUiVisibility flags with the modern API for Android R+ (API 30+).
+ * For older versions, falls back to compatible behavior.
  */
-@Deprecated(
-    message = "Use the Android Component implementation instead.",
-    replaceWith = ReplaceWith(
-        "enterToImmersiveMode()",
-        "mozilla.components.support.ktx.android.view.enterToImmersiveMode",
-    ),
-)
 fun Activity.enterToImmersiveMode() {
     window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-    // This will be addressed on https://github.com/mozilla-mobile/fenix/issues/17804
-    @Suppress("DEPRECATION")
-    window.decorView.systemUiVisibility = (
-        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-            or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-            or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-            or View.SYSTEM_UI_FLAG_FULLSCREEN
-            or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+    
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        // Use modern WindowInsetsController for Android R+ (API 30+)
+        val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+        windowInsetsController.let { controller ->
+            // Hide both status bar and navigation bar
+            controller.hide(WindowInsetsCompat.Type.systemBars())
+            // Set immersive sticky behavior
+            controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
+    } else {
+        // Fallback for older Android versions (API < 30)
+        @Suppress("DEPRECATION")
+        window.decorView.systemUiVisibility = (
+            View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
         )
+    }
 }
 
 fun Activity.breadcrumb(
