@@ -481,7 +481,7 @@ class Core(
      */
     private fun getUserAgent(): String {
         val androidVersion = android.os.Build.VERSION.RELEASE
-        return "Mozilla/5.0 (Android/$androidVersion; Mobile; rv:142.0) Gecko/142.0 Firefox/142.0"
+        return "Mozilla/5.0 (Android $androidVersion; Mobile; rv:142.0) Gecko/142.0 Firefox/142.0"
     }
 
     companion object {
