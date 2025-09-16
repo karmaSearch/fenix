@@ -185,7 +185,7 @@ open class FenixApplication : LocaleAwareApplication(), Provider {
             val megazordSetup = setupMegazord()
 
             setDayNightTheme()
-            components.strictMode.enableStrictMode(true)
+            components.strictMode.enableStrictMode(false)
             warmBrowsersCache()
 
             // Make sure the engine is initialized and ready to use.
