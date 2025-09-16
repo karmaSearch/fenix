@@ -241,32 +241,25 @@ class SessionControlView(
 
                     if (!featureRecommended && !context.settings().showHomeOnboardingDialog) {
                         // Check if notification dialog is currently showing - if so, don't show companions yet
-                        val activity = context as? org.mozilla.fenix.HomeActivity
-                        val isNotificationDialogShowing = activity?.isNotificationDialogShowing == true
-                        
-                        if (!context.settings().showHomeOnboardingDialog && 
-                            !isNotificationDialogShowing && (
-                            context.settings().showSyncCFR ||
-                                context.settings().shouldShowJumpBackInCFR
-                            )
-                        ) {
-                            featureRecommended = HomeCFRPresenter(
-                                context = context,
-                                recyclerView = view,
-                                searchBar = searchBarView
-                            ).show()
-                        }
 
-                        if (!context.settings().shouldShowJumpBackInCFR &&
-                            context.settings().showWallpaperOnboarding &&
-                            !featureRecommended &&
-                            !isNotificationDialogShowing
-                        ) {
-                            featureRecommended = interactor.showWallpapersOnboardingDialog(
-                                context.components.appStore.state.wallpaperState,
-                            )
+                        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(
+                            {
+                                val activity = context as? org.mozilla.fenix.HomeActivity
+                                val isNotificationDialogShowing = activity?.isNotificationDialogShowing == true
+                                if (!context.settings().showHomeOnboardingDialog &&
+                                    !isNotificationDialogShowing && (
+                                            context.settings().showSyncCFR ||
+                                                    context.settings().shouldShowJumpBackInCFR
+                                            )
+                                ) {
+                                    featureRecommended = HomeCFRPresenter(
+                                        context = context,
+                                        recyclerView = view,
+                                        searchBar = searchBarView
+                                    ).show()
+                                }
+                            }, 500)
                         }
-                    }
 
                     // We want some parts of the home screen UI to be rendered first if they are
                     // the most prominent parts of the visible part of the screen.

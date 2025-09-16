@@ -125,7 +125,10 @@ class HomeCFRPresenter(
 
     private fun showCompanion() {
         val companion = CompanionOnBoardingDialog(searchBar, recyclerView)
-        companion.showIfNeeded()
+        // Only show if not already showing
+        if (!companion.isShowing) {
+            companion.showIfNeeded()
+        }
     }
 
     /**
@@ -156,7 +159,7 @@ class HomeCFRPresenter(
         }
 
         // Companion is checked last and doesn't require a specific viewHolder
-        if (result == Result.None && context.settings().shouldShowCompanion) {
+        if (result == Result.None && (context.settings().shouldShowCompanion || context.settings().shouldShowAffiliateSitesCFR)) {
             result = Result.Companion
         }
 

@@ -460,16 +460,6 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
             message = "onStart()",
         )
 
-        // Check notification dialog after activity is fully started but only once per lifecycle
-        if (shouldShowNotificationPermissionDialog() && !isNotificationDialogShowing) {
-            settings().hasShownNotificationPermissionDialog = true
-            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-                if (!isFinishing && !isDestroyed && !isNotificationDialogShowing) {
-                    showNotificationPermissionDialog()
-                }
-            }, 1000) // 1 second delay to ensure everything is loaded
-        }
-
         ProfilerMarkers.homeActivityOnStart(binding.rootContainer, components.core.engine.profiler)
         components.core.engine.profiler?.addMarker(
             MarkersActivityLifecycleCallbacks.MARKER_NAME,

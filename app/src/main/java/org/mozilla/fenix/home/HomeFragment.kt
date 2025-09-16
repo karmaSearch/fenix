@@ -1230,6 +1230,9 @@ class HomeFragment : Fragment() {
                         }
                     )
                     dialog.show()
+                } else {
+                    // No notification dialog to show, trigger companions immediately
+                    triggerCompanionsIfNeeded()
                 }
             }
         }
@@ -1237,17 +1240,19 @@ class HomeFragment : Fragment() {
 
     private fun triggerCompanionsIfNeeded() {
         sessionControlView?.view?.let { recyclerView ->
-            // Post a delayed runnable to allow the RecyclerView to complete its layout
-            // and then trigger the companion dialogs
-            recyclerView.post {
-                val layoutManager = recyclerView.layoutManager as? LinearLayoutManager
-                layoutManager?.let {
-                    // Force a layout completion to trigger companions by requesting layout
-                    recyclerView.requestLayout()
-                    // Post another runnable to ensure layout is complete
-                    recyclerView.post {
-                        it.onLayoutCompleted(null)
-                    }
+            // Check if we should show companions
+            val shouldShowCompanions = requireContext().settings().shouldShowCompanion || 
+                                     requireContext().settings().shouldShowAffiliateSitesCFR
+            
+            if (shouldShowCompanions) {
+                // Post a delayed runnable to allow the RecyclerView to complete its layout
+                recyclerView.post {
+                    // Import HomeCFRPresenter and show companions
+                    org.mozilla.fenix.onboarding.HomeCFRPresenter(
+                        context = requireContext(),
+                        searchBar = binding.toolbarWrapper,
+                        recyclerView = recyclerView
+                    ).show()
                 }
             }
         }

@@ -24,10 +24,11 @@ class CompanionOnBoardingDialog(private val searchBar: View, private val recycle
      */
     private var searchBarCrf: Dialog?
     private var learnAndActCrf: Dialog? = null
+    private var affiliatesCrf: Dialog? = null
     private val context: Context = recyclerView.context
 
     val isShowing: Boolean
-        get() = searchBarCrf?.isShowing == true || learnAndActCrf?.isShowing == true
+        get() = searchBarCrf?.isShowing == true || learnAndActCrf?.isShowing == true || affiliatesCrf?.isShowing == true
 
 
     init {
@@ -35,36 +36,64 @@ class CompanionOnBoardingDialog(private val searchBar: View, private val recycle
     }
 
     fun showIfNeeded() {
-        if (!context.settings().shouldShowCompanion) {
+        // Don't show if any companion is already showing
+        if (isShowing) {
             return
         }
-        context.settings().shouldShowCompanion = false
-
-        val affiliateSitesOnCancelListener = DialogInterface.OnDismissListener {
-            // Show learn and act CFR after affiliate sites
-            val learnAndActView = findLearnAndActInView()
-            if (learnAndActView != null) {
-                learnAndActCrf = createLearnAndActCRF(learnAndActView)
-                learnAndActCrf?.show()
-            }
+        
+        val shouldShowSearchBar = context.settings().shouldShowCompanion
+        val shouldShowAffiliates = context.settings().shouldShowAffiliateSitesCFR
+        
+        // Allow affiliates to show even if other companions have been shown
+        if (!shouldShowAffiliates && !shouldShowSearchBar) {
+            return
         }
 
-        val searchBarOnCancelListener = DialogInterface.OnDismissListener {
-            val affiliateSitesView = findAffiliateSitesInView()
-            if (affiliateSitesView == null) {
-                // No affiliate sites found, show learn and act CFR directly
+        val affiliateSitesOnCancelListener = DialogInterface.OnDismissListener {
+            // Show learn and act CFR after affiliate sites only for new users
+            if (shouldShowSearchBar) {
                 val learnAndActView = findLearnAndActInView()
                 if (learnAndActView != null) {
                     learnAndActCrf = createLearnAndActCRF(learnAndActView)
                     learnAndActCrf?.show()
                 }
-            } else {
+            }
+            // For existing users, don't show learn&act as they've already seen it
+        }
+
+        val searchBarOnCancelListener = DialogInterface.OnDismissListener {
+            val affiliateSitesView = findAffiliateSitesInView()
+            if (affiliateSitesView != null && shouldShowAffiliates) {
+                // Show affiliate sites after search bar
                 showAffiliateSitesCFRWithListener(affiliateSitesOnCancelListener)
+            } else {
+                // No affiliate sites to show, show learn and act CFR directly
+                val learnAndActView = findLearnAndActInView()
+                if (learnAndActView != null) {
+                    learnAndActCrf = createLearnAndActCRF(learnAndActView)
+                    learnAndActCrf?.show()
+                }
             }
         }
 
-        searchBarCrf?.show()
-        searchBarCrf?.setOnDismissListener(searchBarOnCancelListener)
+        // For new users: start with search bar first (if needed), then affiliates, then learn&act
+        if (shouldShowSearchBar) {
+            context.settings().shouldShowCompanion = false
+            searchBarCrf?.show()
+            searchBarCrf?.setOnDismissListener(searchBarOnCancelListener)
+            return
+        }
+        
+        // For existing users who only need to see affiliates (no learn&act after)
+        if (shouldShowAffiliates) {
+            val affiliateSitesView = findAffiliateSitesInView()
+            if (affiliateSitesView != null) {
+                val existingUserAffiliateListener = DialogInterface.OnDismissListener {
+                    // Do nothing - existing users don't see learn&act after affiliate
+                }
+                showAffiliateSitesCFRWithListener(existingUserAffiliateListener)
+            }
+        }
     }
 
 
@@ -132,9 +161,9 @@ class CompanionOnBoardingDialog(private val searchBar: View, private val recycle
     private fun showAffiliateSitesCFRWithListener(onDismissListener: DialogInterface.OnDismissListener) {
         val affiliateSitesView = findAffiliateSitesInView()
         if (affiliateSitesView != null && context.settings().shouldShowAffiliateSitesCFR) {
-            val affiliatesCRF = createAffiliatesCRF(affiliateSitesView)
-            affiliatesCRF?.setOnDismissListener(onDismissListener)
-            affiliatesCRF?.show()
+            affiliatesCrf = createAffiliatesCRF(affiliateSitesView)
+            affiliatesCrf?.setOnDismissListener(onDismissListener)
+            affiliatesCrf?.show()
             context.settings().shouldShowAffiliateSitesCFR = false
         } else {
             // If no affiliate sites or CFR already shown, call the dismiss listener to continue the flow
