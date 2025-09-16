@@ -1913,7 +1913,7 @@
     <string name="onboarding_default_browser_notnow">Not now</string>
     <string name="onboarding_notifications">Stay updated on your positive impact</string>
     <string name="onboarding_notifications_subtitle">Get updates about the causes your searches support and helpful browser notifications. No spam, we promise!</string>
-    <string name="onboarding_notifications_enable">Enable notifications</string>
+    <string name="onboarding_notifications_enable">Continue</string>
     <string name="onboarding_notifications_no">No, thanks</string>
     <string name="onboarding_title_4"></string>
     <string name="onboarding_subtitle_4"></string>

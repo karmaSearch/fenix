@@ -62,12 +62,12 @@ internal fun normalModeAdapterItems(
         items.add(AdapterItem.NimbusMessageCard(it))
     }
 
-    if (settings.showTopSitesFeature && topSites.isNotEmpty()) {
-        items.add(AdapterItem.TopSitePager(topSites))
-    }
-
     if (affiliateSites.isNotEmpty()) {
         items.add(AdapterItem.AffiliateSitesPager(affiliateSites))
+    }
+
+    if (settings.showTopSitesFeature && topSites.isNotEmpty()) {
+        items.add(AdapterItem.TopSitePager(topSites))
     }
 
     if (showRecentTab) {

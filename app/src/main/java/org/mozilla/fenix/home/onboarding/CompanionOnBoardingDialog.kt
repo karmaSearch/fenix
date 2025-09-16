@@ -5,16 +5,13 @@ import android.content.Context
 import android.content.DialogInterface
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
-import androidx.compose.ui.unit.dp
 import org.mozilla.fenix.R
-import org.mozilla.fenix.compose.cfr.CFRPopup
-import org.mozilla.fenix.compose.cfr.CFRPopupProperties
+import org.mozilla.fenix.databinding.OnboardingDialogAffiliatesBinding
 import org.mozilla.fenix.databinding.OnboardingDialogLearnandactBinding
 import org.mozilla.fenix.databinding.OnboardingDialogSearchbarBinding
 import org.mozilla.fenix.ext.settings
@@ -43,20 +40,26 @@ class CompanionOnBoardingDialog(private val searchBar: View, private val recycle
         }
         context.settings().shouldShowCompanion = false
 
-        val learnAndActOnCancelListener = DialogInterface.OnDismissListener {
-            // Show affiliate sites CFR after learn and act
-            showAffiliateSitesCFRIfNeeded()
+        val affiliateSitesOnCancelListener = DialogInterface.OnDismissListener {
+            // Show learn and act CFR after affiliate sites
+            val learnAndActView = findLearnAndActInView()
+            if (learnAndActView != null) {
+                learnAndActCrf = createLearnAndActCRF(learnAndActView)
+                learnAndActCrf?.show()
+            }
         }
 
         val searchBarOnCancelListener = DialogInterface.OnDismissListener {
-            val learnAndActView = findLearnAndActInView()
-            if (learnAndActView == null) {
-                // No learn and act found, show affiliate sites CFR directly
-                showAffiliateSitesCFRIfNeeded()
+            val affiliateSitesView = findAffiliateSitesInView()
+            if (affiliateSitesView == null) {
+                // No affiliate sites found, show learn and act CFR directly
+                val learnAndActView = findLearnAndActInView()
+                if (learnAndActView != null) {
+                    learnAndActCrf = createLearnAndActCRF(learnAndActView)
+                    learnAndActCrf?.show()
+                }
             } else {
-                learnAndActCrf = createLearnAndActCRF(learnAndActView)
-                learnAndActCrf?.setOnDismissListener(learnAndActOnCancelListener)
-                learnAndActCrf?.show()
+                showAffiliateSitesCFRWithListener(affiliateSitesOnCancelListener)
             }
         }
 
@@ -126,22 +129,53 @@ class CompanionOnBoardingDialog(private val searchBar: View, private val recycle
         return null
     }
 
-    private fun showAffiliateSitesCFRIfNeeded() {
+    private fun showAffiliateSitesCFRWithListener(onDismissListener: DialogInterface.OnDismissListener) {
         val affiliateSitesView = findAffiliateSitesInView()
         if (affiliateSitesView != null && context.settings().shouldShowAffiliateSitesCFR) {
-            CFRPopup(
-                text = context.getString(org.mozilla.fenix.R.string.onboarding_companion_affiliate),
-                anchor = affiliateSitesView,
-                properties = CFRPopupProperties(
-                    indicatorDirection = CFRPopup.IndicatorDirection.DOWN,
-                    popupVerticalOffset = (-40).dp,
-                ),
-            ).show()
+            val affiliatesCRF = createAffiliatesCRF(affiliateSitesView)
+            affiliatesCRF?.setOnDismissListener(onDismissListener)
+            affiliatesCRF?.show()
             context.settings().shouldShowAffiliateSitesCFR = false
         } else {
-            // If no affiliate sites or CFR already shown, show TopSite onboarding
-            TopSiteOnBoardingDialog(recyclerView).showIfNeeded()
+            // If no affiliate sites or CFR already shown, call the dismiss listener to continue the flow
+            onDismissListener.onDismiss(null)
         }
+    }
+
+    private fun createAffiliatesCRF(anchor: View): Dialog? {
+        val context: Context = recyclerView.context
+
+        val anchorPosition = IntArray(2)
+        val popupBinding = OnboardingDialogAffiliatesBinding.inflate(LayoutInflater.from(context))
+        val popup = Dialog(context)
+
+        popup.apply {
+            setContentView(popupBinding.root)
+            // removing title or setting it as an empty string does not prevent a11y services from assigning one
+            setTitle(" ")
+        }
+
+        anchor.getLocationOnScreen(anchorPosition)
+        val (x, y) = anchorPosition
+
+        if (x == 0 && y == 0) {
+            return null
+        }
+
+        popupBinding.root.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
+
+        popup.window?.apply {
+            val attr = attributes
+            setGravity(Gravity.START or Gravity.TOP)
+            attr.x = x
+            // Position at the top of the anchor instead of centered
+            attr.y = y - popupBinding.root.measuredHeight - 50
+            attributes = attr
+            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        }
+
+        popup.setCanceledOnTouchOutside(true)
+        return popup
     }
 
     private fun createLearnAndActCRF(anchor: View): Dialog? {
@@ -169,7 +203,8 @@ class CompanionOnBoardingDialog(private val searchBar: View, private val recycle
             val attr = attributes
             setGravity(Gravity.START or Gravity.TOP)
             attr.x = x
-            attr.y = y - popupBinding.root.measuredHeight
+            // Position at the top of the anchor instead of centered
+            attr.y = y - popupBinding.root.measuredHeight - 50
             attributes = attr
             setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         }

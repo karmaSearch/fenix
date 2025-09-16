@@ -5,6 +5,7 @@
 package org.mozilla.fenix.home.affiliatesites
 
 import android.annotation.SuppressLint
+import android.graphics.BitmapFactory
 import android.view.MotionEvent
 import android.view.View
 import androidx.lifecycle.LifecycleOwner
@@ -16,6 +17,8 @@ import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.ext.loadIntoView
 import org.mozilla.fenix.home.sessioncontrol.AffiliateSiteInteractor
 import org.mozilla.fenix.utils.view.ViewHolder
+import java.net.URL
+
 
 class AffiliateSiteItemViewHolder(
     view: View,
@@ -51,37 +54,37 @@ class AffiliateSiteItemViewHolder(
     fun bind(affiliateSite: AffiliateSite, position: Int) {
         this.affiliateSite = affiliateSite
         binding.affiliateSiteTitle.text = affiliateSite.siteName
-
         // Load favicon/image for the affiliate site
-        binding.affiliateSiteFavicon.context.components.core.icons.loadIntoView(
-            binding.affiliateSiteFavicon,
-            affiliateSite.url,
-        )
+        val url = URL(affiliateSite.imageUrl)
+        val bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream())
+        binding.affiliateSiteFavicon.setImageBitmap(bmp)
 
         itemView.setOnClickListener {
             interactor.onSelectAffiliateSite(affiliateSite, position)
         }
 
-        binding.affiliateSiteItem.setOnTouchListener(object : View.OnTouchListener {
-            @SuppressLint("ClickableViewAccessibility")
-            override fun onTouch(v: View, event: MotionEvent): Boolean {
-                if (event.action == MotionEvent.ACTION_DOWN) {
-                    v.background?.apply {
-                        mutate()
-                        alpha = PRESSED_BACKGROUND_ALPHA
+        binding.affiliateSiteItem.setOnTouchListener(
+            object : View.OnTouchListener {
+                @SuppressLint("ClickableViewAccessibility")
+                override fun onTouch(v: View, event: MotionEvent): Boolean {
+                    if (event.action == MotionEvent.ACTION_DOWN) {
+                        v.background?.apply {
+                            mutate()
+                            alpha = PRESSED_BACKGROUND_ALPHA
+                        }
+                    } else if (
+                        event.action == MotionEvent.ACTION_UP ||
+                        event.action == MotionEvent.ACTION_CANCEL
+                    ) {
+                        v.background?.apply {
+                            mutate()
+                            alpha = NORMAL_BACKGROUND_ALPHA
+                        }
                     }
-                } else if (
-                    event.action == MotionEvent.ACTION_UP ||
-                    event.action == MotionEvent.ACTION_CANCEL
-                ) {
-                    v.background?.apply {
-                        mutate()
-                        alpha = NORMAL_BACKGROUND_ALPHA
-                    }
+                    return false
                 }
-                return false
-            }
-        })
+            },
+        )
     }
 
     companion object {
