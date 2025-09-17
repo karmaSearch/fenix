@@ -5,7 +5,6 @@
 package org.mozilla.fenix.home.affiliatesites
 
 import android.annotation.SuppressLint
-import android.graphics.BitmapFactory
 import android.view.MotionEvent
 import android.view.View
 import androidx.lifecycle.LifecycleOwner
@@ -17,7 +16,6 @@ import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.ext.loadIntoView
 import org.mozilla.fenix.home.sessioncontrol.AffiliateSiteInteractor
 import org.mozilla.fenix.utils.view.ViewHolder
-import java.net.URL
 
 
 class AffiliateSiteItemViewHolder(
@@ -54,10 +52,10 @@ class AffiliateSiteItemViewHolder(
     fun bind(affiliateSite: AffiliateSite, position: Int) {
         this.affiliateSite = affiliateSite
         binding.affiliateSiteTitle.text = affiliateSite.siteName
-        // Load favicon/image for the affiliate site
-        val url = URL(affiliateSite.imageUrl)
-        val bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream())
-        binding.affiliateSiteFavicon.setImageBitmap(bmp)
+        binding.affiliateSiteFavicon.context.components.core.icons.loadIntoView(
+            binding.affiliateSiteFavicon,
+            affiliateSite.imageUrl,
+        )
 
         itemView.setOnClickListener {
             interactor.onSelectAffiliateSite(affiliateSite, position)
