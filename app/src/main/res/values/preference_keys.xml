@@ -126,6 +126,7 @@
     <string name="pref_key_phone_feature_camera" translatable="false">pref_key_phone_feature_camera</string>
     <string name="pref_key_phone_feature_location" translatable="false">pref_key_phone_feature_location</string>
     <string name="pref_key_phone_feature_microphone" translatable="false">pref_key_phone_feature_microphone</string>
+    <string name="pref_key_phone_feature_media_storage" translatable="false">pref_key_phone_feature_media_storage</string>
     <string name="pref_key_phone_feature_notification" translatable="false">pref_key_phone_feature_notification</string>
     <string name="pref_key_exceptions_clear_site_permissions" translatable="false">pref_key_exceptions_clear_site_permissions</string>
 
@@ -236,6 +237,8 @@
     <string name="pref_key_frecency_filter_query" translatable="false">pref_key_frecency_filter_query</string>
     
     <string name="pref_key_enable_learn_and_act" translatable="false">pref_key_enable_learn_and_act</string>
+    <string name="pref_key_enable_affiliate_sites" translatable="false">pref_key_enable_affiliate_sites</string>
+    <string name="pref_key_notification_permission_dialog_shown" translatable="false">pref_key_notification_permission_dialog_shown</string>
 
 
     <!-- A value  of `true` means the PWA dialog has been showed or user already has PWAs installed -->

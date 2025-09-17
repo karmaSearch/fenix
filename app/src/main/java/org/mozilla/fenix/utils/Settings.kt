@@ -138,12 +138,22 @@ class Settings(private val appContext: Context) : PreferencesHolder {
     var showTopSitesFeature by lazyFeatureFlagPreference(
         appContext.getPreferenceKey(R.string.pref_key_show_top_sites),
         featureFlag = true,
-        default = { homescreenSections[HomeScreenSection.TOP_SITES] == true },
+        default = { false },
     )
 
     var showLearnAndAct by booleanPreference(
         appContext.getPreferenceKey(R.string.pref_key_enable_learn_and_act),
         default = true
+    )
+
+    var showAffiliateSites by booleanPreference(
+        appContext.getPreferenceKey(R.string.pref_key_enable_affiliate_sites),
+        default = true
+    )
+
+    var hasShownNotificationPermissionDialog by booleanPreference(
+        appContext.getPreferenceKey(R.string.pref_key_notification_permission_dialog_shown),
+        default = false
     )
 
     var numberOfAppLaunches by intPreference(
@@ -402,7 +412,7 @@ class Settings(private val appContext: Context) : PreferencesHolder {
 
     var manuallyCloseTabs by booleanPreference(
         appContext.getPreferenceKey(R.string.pref_key_close_tabs_manually),
-        default = true,
+        default = false,
     )
 
     var closeTabsAfterOneDay by booleanPreference(
@@ -417,7 +427,7 @@ class Settings(private val appContext: Context) : PreferencesHolder {
 
     var closeTabsAfterOneMonth by booleanPreference(
         appContext.getPreferenceKey(R.string.pref_key_close_tabs_after_one_month),
-        default = false,
+        default = true,
     )
 
     var allowThirdPartyRootCerts by booleanPreference(
@@ -1520,6 +1530,11 @@ class Settings(private val appContext: Context) : PreferencesHolder {
 
     var shouldShowTopSiteCompanion by booleanPreference(
         appContext.getPreferenceKey(R.string.pref_key_should_show_topsite_companion),
+        default = true
+    )
+
+    var shouldShowAffiliateSitesCFR by booleanPreference(
+        "pref_key_should_show_affiliate_sites_cfr",
         default = true
     )
 }

@@ -38,6 +38,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
@@ -52,6 +53,7 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import mozilla.components.browser.menu.view.MenuButton
 import mozilla.components.browser.state.selector.findTab
 import mozilla.components.browser.state.selector.normalTabs
@@ -117,8 +119,11 @@ import org.mozilla.fenix.home.sessioncontrol.DefaultSessionControlController
 import org.mozilla.fenix.home.sessioncontrol.SessionControlInteractor
 import org.mozilla.fenix.home.sessioncontrol.SessionControlView
 import org.mozilla.fenix.home.sessioncontrol.viewholders.CollectionHeaderViewHolder
+import org.mozilla.fenix.home.affiliatesites.AffiliateSitesFeature
+import org.mozilla.fenix.home.affiliatesites.DefaultAffiliateSitesView
 import org.mozilla.fenix.home.topsites.DefaultTopSitesView
 import org.mozilla.fenix.nimbus.FxNimbus
+import org.mozilla.fenix.notifications.NotificationPermissionDialog
 import org.mozilla.fenix.onboarding.FenixOnboarding
 import org.mozilla.fenix.perf.MarkersFragmentLifecycleCallbacks
 import org.mozilla.fenix.perf.runBlockingIncrement
@@ -183,6 +188,7 @@ class HomeFragment : Fragment() {
     private var lastAppliedWallpaperName: String = Wallpaper.defaultName
 
     private val topSitesFeature = ViewBoundFeatureWrapper<TopSitesFeature>()
+    private val affiliateSitesFeature = ViewBoundFeatureWrapper<AffiliateSitesFeature>()
     private val messagingFeature = ViewBoundFeatureWrapper<MessagingFeature>()
     private val recentTabsListFeature = ViewBoundFeatureWrapper<RecentTabsListFeature>()
     private val recentSyncedTabFeature = ViewBoundFeatureWrapper<RecentSyncedTabFeature>()
@@ -289,6 +295,15 @@ class HomeFragment : Fragment() {
                 )
             }
         }
+
+        // Initialize affiliate sites feature (simplified, just for background refresh)
+        affiliateSitesFeature.set(
+            feature = AffiliateSitesFeature(
+                affiliateSitesService = components.core.affiliateSitesService
+            ),
+            owner = viewLifecycleOwner,
+            view = binding.root,
+        )
 
         if (requireContext().settings().showRecentTabsFeature) {
             recentTabsListFeature.set(
@@ -413,7 +428,42 @@ class HomeFragment : Fragment() {
             interactor = sessionControlInteractor,
         )
 
-        updateSessionControlView()
+        // Load affiliate sites BEFORE updating the view so they appear immediately
+        // Only load if the preference is enabled
+        if (requireContext().settings().showAffiliateSites) {
+            lifecycleScope.launch(IO) {
+                // Load affiliate sites using the same pattern as LearnAndAct
+                try {
+                    // First try to get cached sites
+                    var affiliateSites = requireComponents.core.affiliateSitesService.getAffiliateSites()
+                    
+                    // If empty, force a refresh and try again
+                    if (affiliateSites.isEmpty()) {
+                        val refreshSuccess = requireComponents.core.affiliateSitesService.refreshAffiliateSites()
+                        if (refreshSuccess) {
+                            affiliateSites = requireComponents.core.affiliateSitesService.getAffiliateSites()
+                        }
+                    }
+                    
+                    withContext(Main) {
+                        requireComponents.appStore.dispatch(AppAction.AffiliateSitesChange(affiliateSites))
+                        // Update the view after the data is loaded
+                        updateSessionControlView()
+                    }
+                } catch (e: Exception) {
+                    withContext(Main) {
+                        // If loading fails, dispatch empty list
+                        requireComponents.appStore.dispatch(AppAction.AffiliateSitesChange(emptyList()))
+                        // Update the view even if loading failed
+                        updateSessionControlView()
+                    }
+                }
+            }
+        } else {
+            // If preference is disabled, dispatch empty list and update view
+            requireComponents.appStore.dispatch(AppAction.AffiliateSitesChange(emptyList()))
+            updateSessionControlView()
+        }
 
         appBarLayout = binding.homeAppBar
         val appBarOffsetChangedListener = object : OnOffsetChangedListener {
@@ -561,6 +611,9 @@ class HomeFragment : Fragment() {
         HomeScreen.homeScreenDisplayed.record(NoExtras())
         HomeScreen.homeScreenViewCount.add()
 
+        // Check if we should show notification permission dialog after onboarding is complete
+        checkAndShowNotificationPermissionDialog()
+
         observeSearchEngineChanges()
         observeSearchEngineNameChanges()
         observeWallpaperUpdates()
@@ -666,7 +719,15 @@ class HomeFragment : Fragment() {
             } else {
                 requireComponents.appStore.dispatch(AppAction.LearnAndActShown(kotlin.collections.emptyList()))
             }
-
+            
+            // Load affiliate sites using the same pattern as LearnAndAct
+            try {
+                val affiliateSites = requireComponents.core.affiliateSitesService.getAffiliateSites()
+                requireComponents.appStore.dispatch(AppAction.AffiliateSitesChange(affiliateSites))
+            } catch (e: Exception) {
+                // If loading fails, dispatch empty list
+                requireComponents.appStore.dispatch(AppAction.AffiliateSitesChange(emptyList()))
+            }
         }
     }
 
@@ -869,6 +930,14 @@ class HomeFragment : Fragment() {
         }
 
         hideToolbar()
+
+        // Reset notification dialog flag if the dialog was interrupted by backgrounding
+        (activity as? HomeActivity)?.let { homeActivity ->
+            if (homeActivity.isNotificationDialogShowing && 
+                requireContext().settings().hasShownNotificationPermissionDialog) {
+                homeActivity.isNotificationDialogShowing = false
+            }
+        }
 
         // Whenever a tab is selected its last access timestamp is automatically updated by A-C.
         // However, in the case of resuming the app to the home fragment, we already have an
@@ -1116,6 +1185,77 @@ class HomeFragment : Fragment() {
 
         binding.wordmarkText.imageTintList = tintColor
         binding.privateBrowsingButton.imageTintList = tintColor*/
+    }
+
+    private fun checkAndShowNotificationPermissionDialog() {
+        val activity = activity as? HomeActivity ?: return
+        
+        // Move SharedPreferences access to background thread to avoid StrictMode violation
+        lifecycleScope.launch(IO) {
+            val settings = requireContext().settings()
+            val hasCompletedOnboarding = settings.hasShownHomeOnboardingDialog
+            val hasCompletedDefaultBrowserFlow = settings.hasShownDefaultBrowserDialog || 
+                                                !settings.shouldShowSetAsDefaultBrowserOnBoarding()
+            val isPermissionAskedForMarketing = PreferenceManager.getDefaultSharedPreferences(requireContext())
+                .getBoolean("IsPermissionAskedForMarketing", false)
+            val shouldShow = hasCompletedOnboarding && 
+                            hasCompletedDefaultBrowserFlow &&
+                            !isPermissionAskedForMarketing &&
+                            !settings.hasShownNotificationPermissionDialog
+            
+            // Switch back to main thread for UI operations
+            withContext(Main) {
+                if (shouldShow && !activity.isNotificationDialogShowing) {
+                    activity.isNotificationDialogShowing = true
+                    val dialog = NotificationPermissionDialog(
+                        requireContext(),
+                        onContinueClicked = {
+                            activity.isNotificationDialogShowing = false
+                            settings.hasShownNotificationPermissionDialog = true
+                            activity.components.notificationsDelegate.requestNotificationPermission()
+                        },
+                        onDeclineClicked = {
+                            activity.isNotificationDialogShowing = false
+                            settings.hasShownNotificationPermissionDialog = true
+                            lifecycleScope.launch(IO) {
+                                PreferenceManager.getDefaultSharedPreferences(requireContext())
+                                    .edit()
+                                    .putBoolean("IsPermissionAskedForMarketing", true)
+                                    .apply()
+                            }
+                        },
+                        onDialogClosed = {
+                            // Trigger companions after dialog closes
+                            triggerCompanionsIfNeeded()
+                        }
+                    )
+                    dialog.show()
+                } else {
+                    // No notification dialog to show, trigger companions immediately
+                    triggerCompanionsIfNeeded()
+                }
+            }
+        }
+    }
+
+    private fun triggerCompanionsIfNeeded() {
+        sessionControlView?.view?.let { recyclerView ->
+            // Check if we should show companions
+            val shouldShowCompanions = requireContext().settings().shouldShowCompanion || 
+                                     requireContext().settings().shouldShowAffiliateSitesCFR
+            
+            if (shouldShowCompanions) {
+                // Post a delayed runnable to allow the RecyclerView to complete its layout
+                recyclerView.post {
+                    // Import HomeCFRPresenter and show companions
+                    org.mozilla.fenix.onboarding.HomeCFRPresenter(
+                        context = requireContext(),
+                        searchBar = binding.toolbarWrapper,
+                        recyclerView = recyclerView
+                    ).show()
+                }
+            }
+        }
     }
 
     private fun observeWallpaperUpdates() {

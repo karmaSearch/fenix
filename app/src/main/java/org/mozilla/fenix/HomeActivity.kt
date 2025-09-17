@@ -20,6 +20,9 @@ import android.util.Log
 import android.view.*
 import android.view.WindowManager.LayoutParams.FLAG_SECURE
 import android.widget.Toast
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.annotation.CallSuper
 import androidx.annotation.IdRes
 import androidx.annotation.VisibleForTesting
@@ -97,6 +100,7 @@ import org.mozilla.fenix.library.bookmarks.BookmarkFragmentDirections
 import org.mozilla.fenix.library.bookmarks.DesktopFolders
 import org.mozilla.fenix.library.history.HistoryFragmentDirections
 import org.mozilla.fenix.library.historymetadata.HistoryMetadataGroupFragmentDirections
+import org.mozilla.fenix.notifications.NotificationPermissionDialog
 import org.mozilla.fenix.library.recentlyclosed.RecentlyClosedFragmentDirections
 import org.mozilla.fenix.onboarding.DefaultBrowserNotificationWorker
 import org.mozilla.fenix.onboarding.DockNotificationWorker
@@ -160,6 +164,7 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
         null
 
     private var isToolbarInflated = false
+    var isNotificationDialogShowing = false
 
     private val webExtensionPopupFeature by lazy {
         WebExtensionPopupFeature(components.core.store, ::openPopup)
@@ -215,6 +220,11 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
             // Theme setup should always be called before super.onCreate
             setupThemeAndBrowsingMode(getModeFromIntentOrLastKnown(intent))
             super.onCreate(savedInstanceState)
+        }
+
+        // Enable edge-to-edge display on Android 12+ (API 31+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            enableEdgeToEdge()
         }
 
         // Checks if Activity is currently in PiP mode if launched from external intents, then exits it
@@ -332,6 +342,9 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
 
         }
 
+        // Start affiliate sites service refresh
+        components.core.affiliateSitesService.startAffiliateSitesRefresh()
+
         components.core.engine.profiler?.addMarker(
             MarkersActivityLifecycleCallbacks.MARKER_NAME,
             startTimeProfiler,
@@ -429,19 +442,7 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
             // that we should not rely on the application being killed between user sessions.
             components.appStore.dispatch(AppAction.ResumedMetricsAction)
 
-            if (!PreferenceManager.getDefaultSharedPreferences(applicationContext).getBoolean("IsPermissionAskedForMarketing", false)) {
-                PreferenceManager.getDefaultSharedPreferences(applicationContext).edit().putBoolean("IsPermissionAskedForMarketing", true).apply()
-
-                components.notificationsDelegate.requestNotificationPermission(
-                    onPermissionGranted = {
-                        DefaultBrowserNotificationWorker.setDefaultBrowserNotificationIfNeeded(
-                            applicationContext)
-                        WidgetNotificationWorker.setWidgetNotificationIfNeeded(applicationContext)
-                        DockNotificationWorker.setDockNotificationIfNeeded(applicationContext)
-                        FirebaseNotificationWorker.ensureChannelExists(applicationContext)
-                    },
-                )
-            }
+            // Notification dialog is handled in onStart() only, never in onResume to avoid re-showing
 
 
         }
@@ -552,6 +553,7 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
         components.core.contileTopSitesUpdater.stopPeriodicWork()
         components.core.pocketStoriesService.stopPeriodicStoriesRefresh()
         components.core.learnAndActService.stopPeriodicLearnAndActRefresh()
+        components.core.affiliateSitesService.stopPeriodicAffiliateSitesRefresh()
 
         privateNotificationObserver?.stop()
         components.notificationsDelegate.unBindActivity(this)
@@ -1043,6 +1045,63 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
         navHost.navController.navigate(NavGraphDirections.actionStartupDefaultbrowser())
     }
 
+    private fun shouldShowNotificationPermissionDialog(): Boolean {
+        // Show notification dialog if onboarding is done AND default browser flow is done
+        // AND not currently showing and not already shown
+        val isDefaultBrowserFlowDone = settings().hasShownDefaultBrowserDialog || 
+                                       !settings().shouldShowSetAsDefaultBrowserOnBoarding()
+        
+        return settings().hasShownHomeOnboardingDialog &&
+                isDefaultBrowserFlowDone &&
+                !PreferenceManager.getDefaultSharedPreferences(applicationContext).getBoolean("IsPermissionAskedForMarketing", false) &&
+                !settings().hasShownNotificationPermissionDialog &&
+                !isNotificationDialogShowing
+    }
+
+    private fun isShowingDialog(): Boolean {
+        return isNotificationDialogShowing
+    }
+
+    private fun showNotificationPermissionDialog() {
+        if (isNotificationDialogShowing) return
+        
+        // Ensure dialog is created and shown on the main thread
+        runOnUiThread {
+            isNotificationDialogShowing = true
+            
+            val dialog = NotificationPermissionDialog(
+                context = this,
+                onContinueClicked = {
+                    isNotificationDialogShowing = false
+                    // Proceed with system permission request
+                    PreferenceManager.getDefaultSharedPreferences(applicationContext)
+                        .edit().putBoolean("IsPermissionAskedForMarketing", true).apply()
+                    
+                    components.notificationsDelegate.requestNotificationPermission(
+                        onPermissionGranted = {
+                            DefaultBrowserNotificationWorker.setDefaultBrowserNotificationIfNeeded(applicationContext)
+                            WidgetNotificationWorker.setWidgetNotificationIfNeeded(applicationContext)
+                            DockNotificationWorker.setDockNotificationIfNeeded(applicationContext)
+                            FirebaseNotificationWorker.ensureChannelExists(applicationContext)
+                        },
+                    )
+                },
+                onDeclineClicked = {
+                    isNotificationDialogShowing = false
+                    // Don't request system permission, just mark as asked
+                    PreferenceManager.getDefaultSharedPreferences(applicationContext)
+                        .edit().putBoolean("IsPermissionAskedForMarketing", true).apply()
+                }
+            )
+            
+            dialog.setOnDismissListener {
+                isNotificationDialogShowing = false
+            }
+            
+            dialog.show()
+        }
+    }
+
     override fun attachBaseContext(base: Context) {
         base.components.strictMode.resetAfter(StrictMode.allowThreadDiskReads()) {
             super.attachBaseContext(base)
@@ -1155,6 +1214,22 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
     private fun shouldNavigateToBrowserOnColdStart(savedInstanceState: Bundle?): Boolean {
         return isActivityColdStarted(intent, savedInstanceState) &&
             !processIntent(intent)
+    }
+
+    /**
+     * Enables edge-to-edge display for modern Android versions (API 31+).
+     * This allows the app content to extend behind the system bars while maintaining proper theming.
+     */
+    private fun enableEdgeToEdge() {
+        // Enable edge-to-edge content rendering
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        
+        // Configure window insets controller for proper system bar behavior
+        val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+        windowInsetsController.let { controller ->
+            // Ensure system bars remain visible and properly themed
+            controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_BARS_BY_TOUCH
+        }
     }
 
     companion object {

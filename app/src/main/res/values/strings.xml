@@ -933,6 +933,8 @@
     <string name="preference_phone_feature_location">Location</string>
     <!-- Preference for altering the notification access for all websites -->
     <string name="preference_phone_feature_notification">Notification</string>
+    <!-- Preference for altering the media storage access for all websites -->
+    <string name="preference_phone_feature_media_storage">Media Storage</string>
     <!-- Preference for altering the persistent storage access for all websites -->
     <string name="preference_phone_feature_persistent_storage">Persistent Storage</string>
     <!-- Preference for altering the storage access setting for all websites -->
@@ -1891,6 +1893,7 @@
 
     <string name="karma_picture_preference">KARMA pictures</string>
     <string name="learn_and_act_preference">Learn &amp; Act</string>
+    <string name="affiliate_sites_preference">Affiliation partners</string>
     <string name="preferences_category_about_karma">About KARMA</string>
     <string name="preferences_karma_mission">Our Mission</string>
     <string name="preferences_karma_howitwork">How it Works</string>
@@ -1902,27 +1905,28 @@
     <string name="preferences_feedback_contact">Contact us</string>
 
     <string name="onboarding_next">Continue</string>
-    <string name="onboarding_title_1">Search with a purpose</string>
-    <string name="onboarding_subtitle_1">Your searches fund non-profit organisations, for free</string>
-    <string name="onboarding_title_2">Find what you’re looking for</string>
-    <string name="onboarding_subtitle_2">KARMA works just like your usual search engine</string>
-    <string name="onboarding_title_3">Learn &amp; Act</string>
-    <string name="onboarding_subtitle_3">Get involved and keep up-to-date with the KARMA news feed</string>
+    <string name="onboarding_title_1">Every search\nmakes a difference</string>
+    <string name="onboarding_subtitle_1">Your searches help fund our trusted nonprofit partners — totally free!</string>
+    <string name="onboarding_default_browser_title">Make every\nsearch count</string>
+    <string name="onboarding_default_browser_subtitle">On the next screen, select KARMA as your default browser to turn all your searches into positive impact</string>
+    <string name="onboarding_default_browser_choose">Choose KARMA</string>
+    <string name="onboarding_default_browser_notnow">Not now</string>
+    <string name="onboarding_notifications">Stay updated on your positive impact</string>
+    <string name="onboarding_notifications_subtitle">Get updates about the causes your searches support and helpful browser notifications. No spam, we promise!</string>
+    <string name="onboarding_notifications_enable">Continue</string>
+    <string name="onboarding_notifications_no">No, thanks</string>
     <string name="onboarding_title_4"></string>
     <string name="onboarding_subtitle_4"></string>
     <string name="onboarding_skip">Skip</string>
     <string name="onboarding_finish">Start browsing</string>
-    <string name="onboarding_default_browser_title">Set up KARMA as your default browser!</string>
-    <string name="onboarding_default_browser_subtitle">Websites will be opened with KARMA so that you can help protect biodiversity and improve animal welfare</string>
-    <string name="onboarding_default_browser_choose">Choose KARMA</string>
-    <string name="onboarding_default_browser_notnow">Not now</string>
-    <string name="add_widget_title">Add the KARMA widget to search directly from your homepage !</string>
-    <string name="add_a_widget">OK !</string>
+    <string name="add_widget_title">Add the KARMA widget to your homescreen</string>
+    <string name="add_a_widget">Add</string>
     <string name="add_widget_later">Later</string>
-    <string name="onboarding_companion_searchbar">Search the web here and protect biodiversity and animal welfare!</string>
-    <string name="onboarding_companion_learn_and_act">With "Learn &amp; Act", we will keep you informed about biodiversity and animal welfare latest news, and you will learn how to take concrete action to protect them</string>
-    <string name="onboarding_companion_settings">You can configure your KARMA home page through customize the home page in the application menu</string>
     <string name="onboarding_companion_shortcut">Here are your shortcuts and most visited websites. To delete a shortcut, just click on the icon and hold it down for a while.</string>
+    <string name="onboarding_companion_searchbar">🔎Type your search here to help protect animals and biodiversity!</string>
+    <string name="onboarding_companion_affiliate">💰You also generate donations for our nonprofit partners whenever you use these services</string>
+    <string name="onboarding_companion_learn_and_act">✊Scroll through the newsfeed to discover concrete ways you can make a direct impact</string>
+    <string name="onboarding_companion_settings">⚙️​ You can configure the layout of your KARMA homepage by clicking here</string>
     <string name="home_screen_top_sites_heading">Shortcuts</string>
     <string name="karma_notification_default_browser_title">Help us to protect the biodiversity ! 🌎</string>
     <string name="karma_notification_default_browser_text">Set %1$s as your default browser to maximize your impact 💪 🦁</string>

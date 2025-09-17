@@ -64,7 +64,6 @@ class LearnAndActHeaderViewHolder(composeView: ComposeView,
                 stringResource(R.string.learn_and_act_subtitle),
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Normal,
-                fontFamily = FontFamily(Font(R.font.proximanova)),
                 color = FirefoxTheme.colors.textSecondary,
                 modifier = Modifier
                     .offset(y = -8.dp)
@@ -200,8 +199,7 @@ fun LearnAndActType(
             lineHeight = 22.sp,
             fontSize = 16.sp,
             fontWeight = FontWeight.SemiBold,
-            color = textColor,
-            fontFamily = FontFamily(Font(R.font.proximanova_semibold)),
+            color = textColor
         )
     }
 
@@ -223,8 +221,7 @@ fun LearnAndActTextsColumn(
             lineHeight = 19.sp,
             fontSize = 18.sp,
             fontWeight = FontWeight.SemiBold,
-            color = FirefoxTheme.colors.textPrimary,
-            fontFamily = FontFamily(Font(R.font.proximanova_semibold)),
+            color = FirefoxTheme.colors.textPrimary
         )
         Text(
             text = item.description,
@@ -233,7 +230,6 @@ fun LearnAndActTextsColumn(
             fontWeight = FontWeight.Medium,
             color = FirefoxTheme.colors.textSecondary,
             maxLines = 4,
-            fontFamily = FontFamily(Font(R.font.proximanova_medium)),
             overflow = TextOverflow.Ellipsis
         )
         Text(
@@ -242,7 +238,6 @@ fun LearnAndActTextsColumn(
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
             color = FirefoxTheme.colors.textAccent,
-            fontFamily = FontFamily(Font(R.font.proximanova_bold)),
         )
     }
 

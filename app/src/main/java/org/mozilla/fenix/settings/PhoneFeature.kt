@@ -21,6 +21,7 @@ import org.mozilla.fenix.settings.sitepermissions.AUTOPLAY_ALLOW_ON_WIFI
 import org.mozilla.fenix.settings.sitepermissions.AUTOPLAY_BLOCK_ALL
 import org.mozilla.fenix.settings.sitepermissions.AUTOPLAY_BLOCK_AUDIBLE
 import org.mozilla.fenix.utils.Settings
+import org.mozilla.fenix.utils.StoragePermissions
 import android.Manifest.permission.CAMERA as CAMERA_PERMISSION
 
 @Parcelize
@@ -28,6 +29,7 @@ enum class PhoneFeature(val androidPermissionsList: Array<String>) : Parcelable 
     CAMERA(arrayOf(CAMERA_PERMISSION)),
     LOCATION(arrayOf(ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION)),
     MICROPHONE(arrayOf(RECORD_AUDIO)),
+    MEDIA_STORAGE(StoragePermissions.getStoragePermissions(StoragePermissions.MediaType.ALL)),
     NOTIFICATION(emptyArray()),
     AUTOPLAY(emptyArray()),
     AUTOPLAY_AUDIBLE(emptyArray()),
@@ -38,7 +40,10 @@ enum class PhoneFeature(val androidPermissionsList: Array<String>) : Parcelable 
     ;
 
     fun isAndroidPermissionGranted(context: Context): Boolean {
-        return context.isPermissionGranted(androidPermissionsList.asIterable())
+        return when (this) {
+            MEDIA_STORAGE -> StoragePermissions.hasStoragePermissions(context, StoragePermissions.MediaType.ALL)
+            else -> context.isPermissionGranted(androidPermissionsList.asIterable())
+        }
     }
 
     @Suppress("ComplexMethod")
@@ -82,6 +87,7 @@ enum class PhoneFeature(val androidPermissionsList: Array<String>) : Parcelable 
             CAMERA -> context.getString(R.string.preference_phone_feature_camera)
             LOCATION -> context.getString(R.string.preference_phone_feature_location)
             MICROPHONE -> context.getString(R.string.preference_phone_feature_microphone)
+            MEDIA_STORAGE -> context.getString(R.string.preference_phone_feature_media_storage)
             NOTIFICATION -> context.getString(R.string.preference_phone_feature_notification)
             PERSISTENT_STORAGE -> context.getString(R.string.preference_phone_feature_persistent_storage)
             CROSS_ORIGIN_STORAGE_ACCESS ->
@@ -102,6 +108,7 @@ enum class PhoneFeature(val androidPermissionsList: Array<String>) : Parcelable 
             CAMERA -> R.string.pref_key_phone_feature_camera
             LOCATION -> R.string.pref_key_phone_feature_location
             MICROPHONE -> R.string.pref_key_phone_feature_microphone
+            MEDIA_STORAGE -> R.string.pref_key_phone_feature_media_storage
             NOTIFICATION -> R.string.pref_key_phone_feature_notification
             AUTOPLAY -> R.string.pref_key_browser_feature_autoplay_v2
             AUTOPLAY_AUDIBLE -> R.string.pref_key_browser_feature_autoplay_audible_v2

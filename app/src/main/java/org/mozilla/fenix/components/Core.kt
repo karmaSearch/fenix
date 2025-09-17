@@ -69,6 +69,8 @@ import mozilla.components.service.location.LocationService
 import mozilla.components.service.location.MozillaLocationService
 import mozilla.components.service.pocket.PocketStoriesConfig
 import karma.service.learnandact.LearnAndActConfig
+import karma.service.affiliatesites.AffiliateSitesConfig
+import karma.service.affiliatesites.AffiliateSitesService
 import karma.service.learnandact.LearnAndActService
 
 import mozilla.components.service.pocket.PocketStoriesService
@@ -134,6 +136,7 @@ class Core(
                 R.color.fx_mobile_layer_color_1,
             ),
             httpsOnlyMode = context.settings().getHttpsOnlyMode(),
+            userAgentString = getUserAgent(),
         )
 
         GeckoEngine(
@@ -397,8 +400,14 @@ class Core(
     val learnAndActConfig by lazyMonitored {
         LearnAndActConfig(client, Frequency(4, TimeUnit.HOURS))
     }
+
+    val affiliateSitesConfig by lazyMonitored {
+        AffiliateSitesConfig(client, Frequency(7, TimeUnit.DAYS))
+    }
+
     val pocketStoriesService by lazyMonitored { PocketStoriesService(context, pocketStoriesConfig) }
     val learnAndActService by lazyMonitored { LearnAndActService(context, learnAndActConfig) }
+    val affiliateSitesService by lazyMonitored { AffiliateSitesService(context, affiliateSitesConfig) }
 
     val contileTopSitesProvider by lazyMonitored {
         ContileTopSitesProvider(
@@ -465,6 +474,14 @@ class Core(
             inDark -> PreferredColorScheme.Dark
             else -> PreferredColorScheme.Light
         }
+    }
+
+    /**
+     * Generate custom user agent string for Karma browser with local Android version
+     */
+    private fun getUserAgent(): String {
+        val androidVersion = android.os.Build.VERSION.RELEASE
+        return "Mozilla/5.0 (Android $androidVersion; Mobile; rv:142.0) Gecko/142.0 Firefox/142.0"
     }
 
     companion object {

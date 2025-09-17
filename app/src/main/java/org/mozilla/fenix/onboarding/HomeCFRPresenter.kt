@@ -120,12 +120,15 @@ class HomeCFRPresenter(
             ),
         ).show()
         context.settings().shouldShowTopSiteCompanion = false
-
     }
+
 
     private fun showCompanion() {
         val companion = CompanionOnBoardingDialog(searchBar, recyclerView)
-        companion.showIfNeeded()
+        // Only show if not already showing
+        if (!companion.isShowing) {
+            companion.showIfNeeded()
+        }
     }
 
     /**
@@ -146,13 +149,18 @@ class HomeCFRPresenter(
                 viewHolder is RecentTabsHeaderViewHolder
             ) {
                 result = Result.JumpBackIn(view = viewHolder.composeView)
-            }  else if (context.settings().shouldShowCompanion) {
-                result = Result.Companion
+                break
             } else if(context.settings().shouldShowTopSiteCompanion &&
                 viewHolder is TopSitePagerViewHolder
             ) {
                 result = Result.TopSiteOnBoarding(view = viewHolder.itemView)
+                break
             }
+        }
+
+        // Companion is checked last and doesn't require a specific viewHolder
+        if (result == Result.None && (context.settings().shouldShowCompanion || context.settings().shouldShowAffiliateSitesCFR)) {
+            result = Result.Companion
         }
 
         return result

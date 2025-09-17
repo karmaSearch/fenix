@@ -27,6 +27,7 @@ fun SitePermissions.get(field: PhoneFeature) = when (field) {
     PhoneFeature.CAMERA -> camera
     PhoneFeature.LOCATION -> location
     PhoneFeature.MICROPHONE -> microphone
+    PhoneFeature.MEDIA_STORAGE -> localStorage
     PhoneFeature.NOTIFICATION -> notification
     PhoneFeature.AUTOPLAY_AUDIBLE -> autoplayAudible.toStatus()
     PhoneFeature.AUTOPLAY_INAUDIBLE -> autoplayInaudible.toStatus()
@@ -43,6 +44,7 @@ fun SitePermissions.update(field: PhoneFeature, value: SitePermissions.Status) =
     PhoneFeature.CAMERA -> copy(camera = value)
     PhoneFeature.LOCATION -> copy(location = value)
     PhoneFeature.MICROPHONE -> copy(microphone = value)
+    PhoneFeature.MEDIA_STORAGE -> copy(localStorage = value)
     PhoneFeature.NOTIFICATION -> copy(notification = value)
     PhoneFeature.AUTOPLAY_AUDIBLE -> copy(autoplayAudible = value.toAutoplayStatus())
     PhoneFeature.AUTOPLAY_INAUDIBLE -> copy(autoplayInaudible = value.toAutoplayStatus())

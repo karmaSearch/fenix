@@ -10,6 +10,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import karma.service.learnandact.LearnAndAct
+import karma.service.affiliatesites.AffiliateSite
 import mozilla.components.concept.storage.BookmarkNode
 import mozilla.components.feature.tab.collections.TabCollection
 import mozilla.components.feature.top.sites.TopSite
@@ -48,7 +49,8 @@ internal fun normalModeAdapterItems(
     recentVisits: List<RecentlyVisitedItem>,
     pocketStories: List<PocketStory>,
     firstFrameDrawn: Boolean = false,
-    learnAndAct: List<LearnAndAct>
+    learnAndAct: List<LearnAndAct>,
+    affiliateSites: List<AffiliateSite>
 ): List<AdapterItem> {
     val items = mutableListOf<AdapterItem>()
     var shouldShowCustomizeHome = false
@@ -58,6 +60,10 @@ internal fun normalModeAdapterItems(
 
     nimbusMessageCard?.let {
         items.add(AdapterItem.NimbusMessageCard(it))
+    }
+
+    if (affiliateSites.isNotEmpty()) {
+        items.add(AdapterItem.AffiliateSitesPager(affiliateSites))
     }
 
     if (settings.showTopSitesFeature && topSites.isNotEmpty()) {
@@ -187,7 +193,8 @@ private fun AppState.toAdapterList(settings: Settings): List<AdapterItem> = when
         recentHistory,
         pocketStories,
         firstFrameDrawn,
-        learnAndAct
+        learnAndAct,
+        affiliateSites
     )
     is Mode.Private -> privateModeAdapterItems()
     is Mode.Onboarding -> onboardingAdapterItems(mode.state)
@@ -233,27 +240,26 @@ class SessionControlView(
                     super.onLayoutCompleted(state)
 
                     if (!featureRecommended && !context.settings().showHomeOnboardingDialog) {
-                        if (!context.settings().showHomeOnboardingDialog && (
-                            context.settings().showSyncCFR ||
-                                context.settings().shouldShowJumpBackInCFR
-                            )
-                        ) {
-                            featureRecommended = HomeCFRPresenter(
-                                context = context,
-                                recyclerView = view,
-                                searchBar = searchBarView
-                            ).show()
-                        }
+                        // Check if notification dialog is currently showing - if so, don't show companions yet
 
-                        if (!context.settings().shouldShowJumpBackInCFR &&
-                            context.settings().showWallpaperOnboarding &&
-                            !featureRecommended
-                        ) {
-                            featureRecommended = interactor.showWallpapersOnboardingDialog(
-                                context.components.appStore.state.wallpaperState,
-                            )
+                        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(
+                            {
+                                val activity = context as? org.mozilla.fenix.HomeActivity
+                                val isNotificationDialogShowing = activity?.isNotificationDialogShowing == true
+                                if (!context.settings().showHomeOnboardingDialog &&
+                                    !isNotificationDialogShowing && (
+                                            context.settings().showSyncCFR ||
+                                                    context.settings().shouldShowJumpBackInCFR
+                                            )
+                                ) {
+                                    featureRecommended = HomeCFRPresenter(
+                                        context = context,
+                                        recyclerView = view,
+                                        searchBar = searchBarView
+                                    ).show()
+                                }
+                            }, 500)
                         }
-                    }
 
                     // We want some parts of the home screen UI to be rendered first if they are
                     // the most prominent parts of the visible part of the screen.

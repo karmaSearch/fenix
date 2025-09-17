@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import karma.service.learnandact.LearnAndAct
+import karma.service.affiliatesites.AffiliateSite
 import mozilla.components.feature.tab.collections.TabCollection
 import mozilla.components.feature.top.sites.TopSite
 import org.mozilla.fenix.components.Components
@@ -48,6 +49,7 @@ import org.mozilla.fenix.home.sessioncontrol.viewholders.onboarding.OnboardingTh
 import org.mozilla.fenix.home.sessioncontrol.viewholders.onboarding.OnboardingToolbarPositionPickerViewHolder
 import org.mozilla.fenix.home.sessioncontrol.viewholders.onboarding.OnboardingTrackingProtectionViewHolder
 import org.mozilla.fenix.home.topsites.TopSitePagerViewHolder
+import org.mozilla.fenix.home.affiliatesites.AffiliateSitesPagerViewHolder
 import mozilla.components.feature.tab.collections.Tab as ComponentTab
 
 sealed class AdapterItem(@LayoutRes val viewType: Int) {
@@ -105,6 +107,56 @@ sealed class AdapterItem(@LayoutRes val viewType: Int) {
                 }
             }
             return if (changed.isNotEmpty()) TopSitePagerPayload(changed) else null
+        }
+    }
+
+    /**
+     * Contains a set of [Pair]s where [Pair.first] is the index of the changed [AffiliateSite] and
+     * [Pair.second] is the new [AffiliateSite].
+     */
+    data class AffiliateSitesPagerPayload(
+        val changed: Set<Pair<Int, AffiliateSite>>,
+    )
+
+    data class AffiliateSitesPager(val affiliateSites: List<AffiliateSite>) :
+        AdapterItem(AffiliateSitesPagerViewHolder.LAYOUT_ID) {
+        override fun sameAs(other: AdapterItem): Boolean {
+            return other is AffiliateSitesPager
+        }
+
+        override fun contentsSameAs(other: AdapterItem): Boolean {
+            val newAffiliateSites = (other as? AffiliateSitesPager) ?: return false
+            if (newAffiliateSites.affiliateSites.size != this.affiliateSites.size) return false
+            val newSitesSequence = newAffiliateSites.affiliateSites.asSequence()
+            val oldAffiliateSites = this.affiliateSites.asSequence()
+            return newSitesSequence.zip(oldAffiliateSites).all { (new, old) -> new == old }
+        }
+
+        /**
+         * Returns a payload if there's been a change, or null if not, following the same pattern as TopSitePager.
+         */
+        @Suppress("ComplexCondition")
+        override fun getChangePayload(newItem: AdapterItem): Any? {
+            val newAffiliateSites = (newItem as? AffiliateSitesPager)
+            val oldAffiliateSites = (this as? AffiliateSitesPager)
+
+            if (newAffiliateSites == null || oldAffiliateSites == null ||
+                newAffiliateSites.affiliateSites.size > oldAffiliateSites.affiliateSites.size ||
+                (newAffiliateSites.affiliateSites.size > AffiliateSitesPagerViewHolder.AFFILIATE_SITES_PER_PAGE)
+                != (oldAffiliateSites.affiliateSites.size > AffiliateSitesPagerViewHolder.AFFILIATE_SITES_PER_PAGE)
+            ) {
+                return null
+            }
+
+            val changed = mutableSetOf<Pair<Int, AffiliateSite>>()
+
+            for ((index, item) in oldAffiliateSites.affiliateSites.withIndex()) {
+                val changedItem = newAffiliateSites.affiliateSites.getOrNull(index)
+                if (changedItem != item) {
+                    changedItem?.let { changed.add(Pair(index, it)) }
+                }
+            }
+            return if (changed.isNotEmpty()) AffiliateSitesPagerPayload(changed) else null
         }
     }
 
@@ -339,6 +391,12 @@ class SessionControlAdapter(
                 viewLifecycleOwner = viewLifecycleOwner,
                 interactor = interactor,
             )
+            AffiliateSitesPagerViewHolder.LAYOUT_ID -> AffiliateSitesPagerViewHolder(
+                view = view,
+                appStore = components.appStore,
+                viewLifecycleOwner = viewLifecycleOwner,
+                interactor = interactor,
+            )
             NoCollectionsMessageViewHolder.LAYOUT_ID ->
                 NoCollectionsMessageViewHolder(
                     view,
@@ -433,6 +491,12 @@ class SessionControlAdapter(
                         holder.update(payload)
                     }
                 }
+                is AffiliateSitesPagerViewHolder -> {
+                    if (payloads[0] is AdapterItem.AffiliateSitesPagerPayload) {
+                        val payload = payloads[0] as AdapterItem.AffiliateSitesPagerPayload
+                        holder.update(payload)
+                    }
+                }
             }
         }
     }
@@ -446,6 +510,9 @@ class SessionControlAdapter(
             }
             is TopSitePagerViewHolder -> {
                 holder.bind((item as AdapterItem.TopSitePager).topSites)
+            }
+            is AffiliateSitesPagerViewHolder -> {
+                holder.bind((item as AdapterItem.AffiliateSitesPager).affiliateSites)
             }
             is CollectionViewHolder -> {
                 val (collection, expanded) = item as AdapterItem.CollectionItem

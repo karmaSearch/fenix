@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+<resources>
+    <!-- Edge-to-edge support for Android 12+ (API 31+) -->
+    <style name="NormalTheme" parent="NormalThemeBase">
+        <!-- Enable edge-to-edge display -->
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+        <item name="android:enforceStatusBarContrast">false</item>
+        <item name="android:enforceNavigationBarContrast">false</item>
+        
+        <!-- Status bar styling inherited from v27 -->
+        <item name="android:windowLightStatusBar">@bool/theme_is_light</item>
+        
+        <!-- Navigation bar styling inherited from v27 -->
+        <item name="android:navigationBarDividerColor">@android:color/transparent</item>
+        <item name="android:windowLightNavigationBar">@bool/theme_is_light</item>
+    </style>
+
+    <style name="PrivateTheme" parent="PrivateThemeBase">
+        <!-- Enable edge-to-edge display -->
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+        <item name="android:enforceStatusBarContrast">false</item>
+        <item name="android:enforceNavigationBarContrast">false</item>
+        
+        <!-- Status bar styling inherited from v27 -->
+        <item name="android:windowLightStatusBar">false</item>
+        
+        <!-- Navigation bar styling inherited from v27 -->
+        <item name="android:navigationBarDividerColor">@android:color/transparent</item>
+        <item name="android:windowLightNavigationBar">false</item>
+    </style>
+
+    <style name="SplashTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="android:windowBackground">@drawable/splash_background</item>
+        <item name="android:colorAccent">@color/toggle_text_color</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        
+        <!-- Edge-to-edge for splash screen -->
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+        <item name="android:enforceStatusBarContrast">false</item>
+        <item name="android:enforceNavigationBarContrast">false</item>
+    </style>
+</resources>

@@ -199,6 +199,7 @@ internal object AppStoreReducer {
         }
         is AppAction.LearnAndActShown -> state.copy(learnAndAct = action.learnAndAct)
         is AppAction.LearnAndActNewPageShown -> state.copy(learnAndAct = (state.learnAndAct + action.learnAndAct).distinctBy { it.id })
+        is AppAction.AffiliateSitesChange -> state.copy(affiliateSites = action.affiliateSites)
 
         is AppAction.AddPendingDeletionSet ->
             state.copy(pendingDeletionHistoryItems = state.pendingDeletionHistoryItems + action.historyItems)

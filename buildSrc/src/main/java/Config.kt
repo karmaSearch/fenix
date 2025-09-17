@@ -13,7 +13,7 @@ object Config {
     // Synchronized build configuration for all modules
     const val compileSdkVersion = 34
     const val minSdkVersion = 21
-    const val targetSdkVersion = 34
+    const val targetSdkVersion = 35
 
     @JvmStatic
     private fun generateDebugVersionName(): String {
@@ -31,7 +31,7 @@ object Config {
         // ergonomically validate (sometimes IDEs default to a release variant and mysteriously fail due to the
         // validation, sometimes devs just need a release build and specifying project properties is annoying in IDEs),
         // so instead we'll allow the `versionName` to silently default to an empty string.
-        return if (project.hasProperty("versionName")) project.property("versionName") as String else "3.2.1"
+        return if (project.hasProperty("versionName")) project.property("versionName") as String else "3.3.0"
     }
 
     @JvmStatic

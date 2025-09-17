@@ -84,6 +84,22 @@ class HomeSettingsFragment : PreferenceFragmentCompat() {
             }
         }
 
+        requirePreference<SwitchPreference>(R.string.pref_key_enable_affiliate_sites).apply {
+            isChecked = context.settings().showAffiliateSites
+            onPreferenceChangeListener = object : SharedPreferenceUpdater() {
+                override fun onPreferenceChange(preference: Preference, newValue: Any?): Boolean {
+                    CustomizeHome.preferenceToggled.record(
+                        CustomizeHome.PreferenceToggledExtra(
+                            newValue as Boolean,
+                            "affiliate_sites"
+                        )
+                    )
+
+                    return super.onPreferenceChange(preference, newValue)
+                }
+            }
+        }
+
         requirePreference<SwitchPreference>(R.string.pref_key_recent_tabs).apply {
             isVisible = FeatureFlags.showRecentTabsFeature
             isChecked = context.settings().showRecentTabsFeature

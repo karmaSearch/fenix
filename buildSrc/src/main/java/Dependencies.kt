@@ -142,6 +142,7 @@ object Deps {
     const val mozilla_service_contile =
         "org.mozilla.components:service-contile:${Versions.mozilla_android_components}"
     const val karma_service_learnandact = "org.mozilla.components:service-learnandact:${Versions.mozilla_android_components}"
+    const val karma_service_affiliate_sites = "org.mozilla.components:service-affiliate-sites:${Versions.mozilla_android_components}"
 
     const val mozilla_service_digitalassetlinks =
         "org.mozilla.components:service-digitalassetlinks:${Versions.mozilla_android_components}"

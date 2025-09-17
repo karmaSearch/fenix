@@ -4,6 +4,7 @@
 
 package org.mozilla.fenix.components.appstate
 
+import karma.service.affiliatesites.AffiliateSite
 import karma.service.learnandact.LearnAndAct
 import mozilla.components.concept.storage.BookmarkNode
 import mozilla.components.feature.tab.collections.TabCollection
@@ -70,6 +71,7 @@ data class AppState(
     val pocketStoriesCategories: List<PocketRecommendedStoriesCategory> = emptyList(),
     val pocketStoriesCategoriesSelections: List<PocketRecommendedStoriesSelectedCategory> = emptyList(),
     val learnAndAct: List<LearnAndAct> = emptyList(),
+    val affiliateSites: List<AffiliateSite> = emptyList(),
     val pocketSponsoredStories: List<PocketSponsoredStory> = emptyList(),
     val messaging: MessagingState = MessagingState(),
     val pendingDeletionHistoryItems: Set<PendingDeletionHistory> = emptySet(),
