@@ -33,17 +33,9 @@ class OnBoardingFragment: Fragment() {
             settings.hasShownHomeOnboardingDialog = true
         }
 
-        setupOnboardingContent()
         setupClickListeners()
         
         return binding.root
-    }
-
-    private fun setupOnboardingContent() {
-        // Setup organization logos for French locale
-        if (Locale.getDefault().language == "fr") {
-            addOrganizationLogos(requireContext())
-        }
     }
 
     private fun setupClickListeners() {
@@ -51,28 +43,6 @@ class OnBoardingFragment: Fragment() {
         binding.onboardingButton.setOnClickListener {
             val directions = NavGraphDirections.actionStartupDefaultbrowser()
             findNavController().navigate(directions)
-        }
-    }
-
-    private fun addOrganizationLogos(context: Context) {
-        val organizationLogos = listOf(
-            R.drawable.ic_logo_aspas,
-            R.drawable.ic_l214,
-            R.drawable.ic_naat
-        )
-
-        organizationLogos.forEach { logoResId ->
-            val logoImageView = ImageView(context).apply {
-                layoutParams = ViewGroup.MarginLayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
-                ).apply {
-                    setMargins(8, 0, 8, 0)
-                }
-                setImageDrawable(ContextCompat.getDrawable(context, logoResId))
-                scaleType = ImageView.ScaleType.FIT_CENTER
-            }
-            binding.onboardingOrganisationsLayout.addView(logoImageView)
         }
     }
 

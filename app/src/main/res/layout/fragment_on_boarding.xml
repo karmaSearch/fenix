@@ -47,9 +47,9 @@
         android:id="@+id/onboarding_icon"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="10dp"
         app:layout_constraintTop_toBottomOf="@+id/onboarding_background"
         app:srcCompat="@drawable/onboarding_illus_1" />
 
@@ -61,8 +61,8 @@
         android:layout_marginLeft="@dimen/onboarding_margin_horizontal"
         android:layout_marginTop="@dimen/onboarding_margin_between"
         android:layout_marginRight="@dimen/onboarding_margin_horizontal"
-        android:textAlignment="center"
         android:text="@string/onboarding_title_1"
+        android:textAlignment="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/onboarding_icon" />
@@ -85,11 +85,39 @@
         android:id="@+id/onboarding_organisations_layout"
         android:layout_width="wrap_content"
         android:layout_height="45dp"
+        android:layout_marginTop="15dp"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="15dp"
-        app:layout_constraintTop_toBottomOf="@+id/onboarding_subTitle" />
+        app:layout_constraintTop_toBottomOf="@+id/onboarding_subTitle">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:importantForAccessibility="no"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_orga_1" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:importantForAccessibility="no"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_orga_2" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:importantForAccessibility="no"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_orga_3" />
+    </LinearLayout>
 
     <Button
         android:id="@+id/onboarding_button"
