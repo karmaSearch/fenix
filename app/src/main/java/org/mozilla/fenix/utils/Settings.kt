@@ -926,7 +926,7 @@ class Settings(private val appContext: Context) : PreferencesHolder {
 
     var userKnowsAboutPwas by booleanPreference(
         appContext.getPreferenceKey(R.string.pref_key_user_knows_about_pwa),
-        default = false,
+        default = true,
     )
 
     var shouldShowOpenInAppBanner by booleanPreference(
