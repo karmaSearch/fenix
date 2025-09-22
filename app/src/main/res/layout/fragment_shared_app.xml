@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:fitsSystemWindows="true"
+    android:background="?attr/scrimBackground"
+    android:layout_height="match_parent">
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="30dp"
+        android:paddingVertical="10dp"
+        android:layout_gravity="bottom"
+        android:background="@drawable/ic_pop_up_black_screen">
+
+        <ImageView
+            android:id="@+id/share_app_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:importantForAccessibility="no"
+            app:srcCompat="@drawable/onboarding_illus_1"
+            android:layout_marginTop="20dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/share_app_title"
+            style="@style/OnboardingTitleTextViewStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/share_app_icon"
+            android:textColor="@color/photonGreen50"
+            android:text="@string/shared_app_dialog_title" />
+
+        <ImageView
+            android:id="@+id/share_app_icons"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:importantForAccessibility="no"
+            app:srcCompat="@drawable/ic_social_media_share"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/share_app_title"/>
+
+        <TextView
+            android:id="@+id/share_app_message"
+            style="@style/OnboardingSubitleTextViewStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/share_app_icons"
+            android:textColor="@color/photonGrey10"
+            android:text="@string/shared_app_dialog_message" />
+
+        <Button
+            android:id="@+id/share_app_button"
+            style="@style/OnboardingButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="40dp"
+            android:layout_marginBottom="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/share_app_later"
+            app:layout_constraintTop_toBottomOf="@id/share_app_message"
+            android:textStyle="bold"
+            android:text="@string/shared_app_dialog_go_button" />
+
+        <Button
+            android:id="@+id/share_app_later"
+            style="@style/NeutralButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/share_app_button"
+            app:layout_constraintStart_toStartOf="parent"
+            android:textColor="@color/photonGreen50"
+            android:text="@string/shared_app_dialog_not_now_button" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>

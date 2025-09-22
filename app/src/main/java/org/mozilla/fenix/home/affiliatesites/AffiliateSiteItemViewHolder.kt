@@ -8,12 +8,16 @@ import android.annotation.SuppressLint
 import android.view.MotionEvent
 import android.view.View
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import karma.service.affiliatesites.AffiliateSite
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.mozilla.fenix.R
 import org.mozilla.fenix.components.AppStore
 import org.mozilla.fenix.databinding.AffiliateSiteItemBinding
+import org.mozilla.fenix.ext.bitmapForUrl
 import org.mozilla.fenix.ext.components
-import org.mozilla.fenix.ext.loadIntoView
 import org.mozilla.fenix.home.sessioncontrol.AffiliateSiteInteractor
 import org.mozilla.fenix.utils.view.ViewHolder
 
@@ -52,11 +56,14 @@ class AffiliateSiteItemViewHolder(
     fun bind(affiliateSite: AffiliateSite, position: Int) {
         this.affiliateSite = affiliateSite
         binding.affiliateSiteTitle.text = affiliateSite.siteName
-        binding.affiliateSiteFavicon.context.components.core.icons.loadIntoView(
-            binding.affiliateSiteFavicon,
-            affiliateSite.imageUrl,
-        )
-
+        
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            binding.affiliateSiteFavicon.context.components.core.client.bitmapForUrl(affiliateSite.imageUrl)?.let { bitmap ->
+                withContext(Dispatchers.Main) {
+                    binding.affiliateSiteFavicon.setImageBitmap(bitmap)
+                }
+            }
+        }
         itemView.setOnClickListener {
             interactor.onSelectAffiliateSite(affiliateSite, position)
         }

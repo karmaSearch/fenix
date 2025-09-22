@@ -76,6 +76,7 @@ class Settings(private val appContext: Context) : PreferencesHolder {
         private const val APP_LAUNCHES_TO_SHOW_DEFAULT_BROWSER_CARD = 3
         private const val APP_LAUNCHES_TO_SHOW_WIDGET_CARD = 10
         private const val INACTIVE_TAB_MINIMUM_TO_SHOW_AUTO_CLOSE_DIALOG = 20
+        private const val DAYS_TO_SHOW_SHARED_APP_DIALOG = 3
         const val HOURS_MS = 60 * 60 * 1000L
         const val FOUR_HOURS_MS = 4 * HOURS_MS
         const val ONE_DAY_MS = 60 * 60 * 24 * 1000L
@@ -1521,6 +1522,15 @@ class Settings(private val appContext: Context) : PreferencesHolder {
     }
 
     /**
+     * Shows if the shared app dialog should be shown on home screen.
+     * Shows after DAYS_TO_SHOW_SHARED_APP_DIALOG days from installation.
+     */
+    fun shouldShowSharedAppDialog(): Boolean {
+        return !userDismissedSharedAppDialog &&
+                (System.currentTimeMillis() - appContext.packageManager.getPackageInfo(appContext.packageName, 0).firstInstallTime) > (DAYS_TO_SHOW_SHARED_APP_DIALOG * ONE_DAY_MS)
+    }
+
+    /**
      * Indicates if the companion in CRF should be shown.
      */
     var shouldShowCompanion by booleanPreference(
@@ -1536,5 +1546,13 @@ class Settings(private val appContext: Context) : PreferencesHolder {
     var shouldShowAffiliateSitesCFR by booleanPreference(
         "pref_key_should_show_affiliate_sites_cfr",
         default = true
+    )
+
+    /**
+     * Indicates if the user has dismissed the shared app dialog.
+     */
+    var userDismissedSharedAppDialog by booleanPreference(
+        "pref_key_user_dismissed_shared_app_dialog",
+        default = false
     )
 }

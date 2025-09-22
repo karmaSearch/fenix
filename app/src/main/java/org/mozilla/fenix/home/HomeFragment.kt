@@ -512,6 +512,13 @@ class HomeFragment : Fragment() {
                 HomeFragmentDirections.actionGlobalHomeAddWidget()
             )
         }
+
+        if (requireContext().settings().shouldShowSharedAppDialog()) {
+            nav(
+                R.id.homeFragment,
+                HomeFragmentDirections.actionGlobalSharedAppDialog()
+            )
+        }
         return binding.root
     }
 

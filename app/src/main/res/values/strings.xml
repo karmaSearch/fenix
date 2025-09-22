@@ -1940,4 +1940,10 @@
     <string name="channel_karma_update">"KARMA updates</string>
     <string name="channel_learnandact">Learn &amp; Act</string>
 
+    <!-- Shared App Dialog -->
+    <string name="shared_app_dialog_title">Share KARMA\nwith your friends</string>
+    <string name="shared_app_dialog_message">Good KARMA is meant to be shared 💚\nMore users = more impact!</string>
+    <string name="shared_app_dialog_go_button">Go</string>
+    <string name="shared_app_dialog_not_now_button">Not now</string>
+
 </resources>
