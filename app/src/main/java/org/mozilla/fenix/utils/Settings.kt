@@ -80,12 +80,16 @@ class Settings(private val appContext: Context) : PreferencesHolder {
         private const val APP_LAUNCHES_TO_SHOW_WRITE_REVIEW_DIALOG = 10
         private const val MONTHS_TO_SHOW_ADD_TO_DOCK_DIALOG = 1
         private const val DAYS_TO_SHOW_DEFAULT_BROWSER_ONBOARDING = 7
-        const val HOURS_MS = 60 * 60 * 1000L
-        const val FOUR_HOURS_MS = 4 * HOURS_MS
-        const val ONE_DAY_MS = 60 * 60 * 24 * 1000L
-        const val THREE_DAYS_MS = 3 * ONE_DAY_MS
-        const val ONE_WEEK_MS = 60 * 60 * 24 * 7 * 1000L
-        const val ONE_MONTH_MS = (60 * 60 * 24 * 365 * 1000L) / 12
+        
+        // Debug time multiplier for faster testing
+        private val DEBUG_TIME_MULTIPLIER = if (BuildConfig.DEBUG) 1000 else 1
+        
+        val HOURS_MS = (60 * 60 * 1000L) / DEBUG_TIME_MULTIPLIER
+        val FOUR_HOURS_MS = 4 * HOURS_MS
+        val ONE_DAY_MS = (60 * 60 * 24 * 1000L) / DEBUG_TIME_MULTIPLIER
+        val THREE_DAYS_MS = 3 * ONE_DAY_MS
+        val ONE_WEEK_MS = (60 * 60 * 24 * 7 * 1000L) / DEBUG_TIME_MULTIPLIER
+        val ONE_MONTH_MS = ((60 * 60 * 24 * 365 * 1000L) / 12) / DEBUG_TIME_MULTIPLIER
 
         /**
          * The minimum number a search groups should contain.

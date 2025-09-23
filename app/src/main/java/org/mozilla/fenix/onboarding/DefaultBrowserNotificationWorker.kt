@@ -113,7 +113,7 @@ class DefaultBrowserNotificationWorker(
         private const val INTENT_DEFAULT_BROWSER_NOTIFICATION = "org.mozilla.fenix.default.browser.intent"
         private const val NOTIFICATION_TAG = "org.mozilla.fenix.default.browser.tag"
         private const val NOTIFICATION_WORK_NAME = "org.mozilla.fenix.default.browser.work"
-        private const val SIX_MONTHS_MS = Settings.ONE_MONTH_MS * 6
+        private val SIX_MONTHS_MS = Settings.ONE_MONTH_MS * 6
         private val NOTIFICATIONS_DELAY = listOf(SIX_MONTHS_MS)
 
         fun isDefaultBrowserNotificationIntent(intent: Intent) =
