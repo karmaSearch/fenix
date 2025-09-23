@@ -188,7 +188,7 @@ class Components(private val context: Context) {
     val reviewPromptController by lazyMonitored {
         ReviewPromptController(
             manager = ReviewManagerFactory.create(context),
-            reviewSettings = FenixReviewSettings(settings),
+            reviewSettings = FenixReviewSettings(settings, context),
         )
     }
 

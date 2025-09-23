@@ -16,8 +16,8 @@ class DockIntentProcessor(
         return if (DockNotificationWorker.isDockNotificationIntent(intent)) {
 
             val url = when(LocaleManager.getSystemDefault().country) {
-                "FR" -> "https://about.karmasearch.org/fr/dock_android"
-                else -> "https://about.karmasearch.org/dock_android"
+                "FR" -> "https://info.karmasearch.org/fr/android-dock?utm_source=push-notif"
+                else -> "https://info.karmasearch.org/android-dock?utm_source=push-notif"
             }
             activity.openToBrowserAndLoad(url,true,BrowserDirection.FromGlobal)
             true

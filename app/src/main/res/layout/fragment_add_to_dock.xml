@@ -14,83 +14,83 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="30dp"
-        android:paddingVertical="10dp"
         android:layout_gravity="bottom"
-        android:background="@drawable/ic_pop_up_black_screen">
+        android:background="@drawable/ic_pop_up_black_screen"
+        android:paddingHorizontal="30dp"
+        android:paddingVertical="10dp">
 
         <ImageView
-            android:id="@+id/imageView4"
+            android:id="@+id/add_to_dock_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:importantForAccessibility="no"
-            app:srcCompat="@drawable/add_karma_illus"
             android:layout_marginTop="20dp"
+            android:importantForAccessibility="no"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/add_karma_illus" />
 
         <TextView
-            android:id="@+id/add_widget_title"
+            android:id="@+id/add_to_dock_title"
             style="@style/OnboardingTitleTextViewStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="16dp"
+            android:text="@string/add_to_dock_dialog_title"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/imageView4"
-            android:text="@string/add_widget_title" />
+            app:layout_constraintTop_toBottomOf="@id/add_to_dock_icon"/>
 
         <ImageView
-            android:id="@+id/add_widget_demo_background"
+            android:id="@+id/add_to_dock_apps"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="8dp"
+            android:importantForAccessibility="no"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/add_widget_title"
-            app:srcCompat="@drawable/karma_search_widget_background"
-            android:importantForAccessibility="no"
-            tools:ignore="ImageContrastCheck" />
-        <ImageView
-            android:id="@+id/add_widget_demo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="36dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/add_widget_demo_background"
-            app:srcCompat="@drawable/karma_search_widget"
-            android:importantForAccessibility="no"
-            tools:ignore="ImageContrastCheck" />
+            app:layout_constraintTop_toBottomOf="@id/add_to_dock_title"
+            app:srcCompat="@drawable/ic_chrome_karma_dock" />
 
+        <TextView
+            android:id="@+id/add_to_dock_message"
+            style="@style/OnboardingSubitleTextViewStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/add_to_dock_dialog_message"
+            android:textColor="@color/photonGrey10"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/add_to_dock_apps" />
         <Button
-            android:id="@+id/add_widget"
+            android:id="@+id/add_to_dock_button"
             style="@style/OnboardingButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:layout_marginTop="40dp"
             android:layout_marginBottom="16dp"
+            android:text="@string/add_to_dock_dialog_go_button"
+            android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/add_widget_later"
-            app:layout_constraintTop_toBottomOf="@id/add_widget_demo_background"
-            android:textStyle="bold"
-            android:text="@string/add_a_widget" />
+            app:layout_constraintStart_toEndOf="@+id/add_to_dock_later"
+            app:layout_constraintTop_toBottomOf="@id/add_to_dock_message" />
 
         <Button
-            android:id="@+id/add_widget_later"
+            android:id="@+id/add_to_dock_later"
             style="@style/NeutralButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="20dp"
             android:layout_marginBottom="16dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/add_widget"
-            app:layout_constraintStart_toStartOf="parent"
+            android:text="@string/add_to_dock_dialog_not_now_button"
             android:textColor="@color/photonGreen50"
-            android:text="@string/add_widget_later" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/add_to_dock_button"
+            app:layout_constraintStart_toStartOf="parent" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

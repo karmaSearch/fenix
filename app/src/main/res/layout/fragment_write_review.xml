@@ -20,7 +20,7 @@
         android:background="@drawable/ic_pop_up_black_screen">
 
         <ImageView
-            android:id="@+id/imageView4"
+            android:id="@+id/write_review_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:importantForAccessibility="no"
@@ -31,66 +31,66 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/add_widget_title"
+            android:id="@+id/write_review_title"
             style="@style/OnboardingTitleTextViewStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/imageView4"
-            android:text="@string/add_widget_title" />
+            app:layout_constraintTop_toBottomOf="@id/write_review_icon"
+            android:text="@string/write_review_dialog_title" />
 
-        <ImageView
-            android:id="@+id/add_widget_demo_background"
+        <TextView
+            android:id="@+id/write_review_stars"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="8dp"
+            android:text="⭐⭐⭐⭐⭐"
+            android:textSize="24sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/add_widget_title"
-            app:srcCompat="@drawable/karma_search_widget_background"
-            android:importantForAccessibility="no"
-            tools:ignore="ImageContrastCheck" />
-        <ImageView
-            android:id="@+id/add_widget_demo"
-            android:layout_width="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/write_review_title" />
+
+        <TextView
+            android:id="@+id/write_review_message"
+            style="@style/OnboardingSubitleTextViewStyle"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="36dp"
+            android:layout_marginTop="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/add_widget_demo_background"
-            app:srcCompat="@drawable/karma_search_widget"
-            android:importantForAccessibility="no"
-            tools:ignore="ImageContrastCheck" />
+            app:layout_constraintTop_toBottomOf="@id/write_review_stars"
+            android:textColor="@color/photonGrey10"
+            android:text="@string/write_review_dialog_message" />
 
         <Button
-            android:id="@+id/add_widget"
+            android:id="@+id/write_review_button"
             style="@style/OnboardingButtonStyle"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:layout_marginTop="40dp"
             android:layout_marginBottom="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/add_widget_later"
-            app:layout_constraintTop_toBottomOf="@id/add_widget_demo_background"
-            android:textStyle="bold"
-            android:text="@string/add_a_widget" />
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toEndOf="@+id/write_review_later"
+            app:layout_constraintTop_toBottomOf="@id/write_review_message"
+            android:text="@string/write_review_dialog_go_button" />
 
         <Button
-            android:id="@+id/add_widget_later"
+            android:id="@+id/write_review_later"
             style="@style/NeutralButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="20dp"
             android:layout_marginBottom="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/add_widget"
+            app:layout_constraintEnd_toStartOf="@+id/write_review_button"
             app:layout_constraintStart_toStartOf="parent"
             android:textColor="@color/photonGreen50"
-            android:text="@string/add_widget_later" />
+            android:text="@string/write_review_dialog_not_now_button" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

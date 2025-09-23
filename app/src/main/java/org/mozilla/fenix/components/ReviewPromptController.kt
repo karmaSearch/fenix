@@ -7,6 +7,7 @@ package org.mozilla.fenix.components
 import android.app.Activity
 import androidx.annotation.VisibleForTesting
 import com.google.android.play.core.review.ReviewManager
+import android.content.Context
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.withContext
 import org.mozilla.fenix.utils.Settings
@@ -18,6 +19,7 @@ interface ReviewSettings {
     var numberOfAppLaunches: Int
     val isDefaultBrowser: Boolean
     var lastReviewPromptTimeInMillis: Long
+    val firstInstallTimeInMillis: Long
 }
 
 /**
@@ -25,6 +27,7 @@ interface ReviewSettings {
  */
 class FenixReviewSettings(
     val settings: Settings,
+    private val context: Context,
 ) : ReviewSettings {
     override var numberOfAppLaunches: Int
         get() = settings.numberOfAppLaunches
@@ -34,6 +37,12 @@ class FenixReviewSettings(
     override var lastReviewPromptTimeInMillis: Long
         get() = settings.lastReviewPromptTimeInMillis
         set(value) { settings.lastReviewPromptTimeInMillis = value }
+    override val firstInstallTimeInMillis: Long
+        get() = try {
+            context.packageManager.getPackageInfo(context.packageName, 0).firstInstallTime
+        } catch (e: Exception) {
+            0L
+        }
 }
 
 /**
@@ -83,18 +92,24 @@ class ReviewPromptController(
 
         if (!reviewSettings.isDefaultBrowser) { return false }
 
-        val hasOpenedFiveTimes = reviewSettings.numberOfAppLaunches >= NUMBER_OF_LAUNCHES_REQUIRED
         val now = timeNowInMillis()
-        val apprxFourMonthsAgo = now - (APPRX_MONTH_IN_MILLIS * NUMBER_OF_MONTHS_TO_PASS)
+        val installTime = reviewSettings.firstInstallTimeInMillis
+        val hasPassedRequiredTimeAfterInstall = if (installTime > 0L) {
+            (now - installTime) >= (APPRX_MONTH_IN_MILLIS * MONTHS_AFTER_INSTALL_TO_SHOW_PROMPT)
+        } else {
+            // Fallback to launch count if install time unavailable
+            reviewSettings.numberOfAppLaunches >= NUMBER_OF_LAUNCHES_REQUIRED
+        }
+        
         val lastPrompt = reviewSettings.lastReviewPromptTimeInMillis
-        val hasNotBeenPromptedLastFourMonths = lastPrompt == 0L || lastPrompt <= apprxFourMonthsAgo
+        val hasNotBeenPromptedBefore = lastPrompt == 0L
 
-        return hasOpenedFiveTimes && hasNotBeenPromptedLastFourMonths
+        return hasPassedRequiredTimeAfterInstall && hasNotBeenPromptedBefore
     }
 
     companion object {
         private const val APPRX_MONTH_IN_MILLIS: Long = 1000L * 60L * 60L * 24L * 30L
         private const val NUMBER_OF_LAUNCHES_REQUIRED = 5
-        private const val NUMBER_OF_MONTHS_TO_PASS = 1
+        private const val MONTHS_AFTER_INSTALL_TO_SHOW_PROMPT = 4
     }
 }

@@ -519,6 +519,20 @@ class HomeFragment : Fragment() {
                 HomeFragmentDirections.actionGlobalSharedAppDialog()
             )
         }
+
+        if (requireContext().settings().shouldShowAddToDockDialog()) {
+            nav(
+                R.id.homeFragment,
+                HomeFragmentDirections.actionGlobalAddToDockDialog()
+            )
+        }
+
+        if (requireContext().settings().shouldShowWriteReviewDialog()) {
+            nav(
+                R.id.homeFragment,
+                HomeFragmentDirections.actionGlobalWriteReviewDialog()
+            )
+        }
         return binding.root
     }
 

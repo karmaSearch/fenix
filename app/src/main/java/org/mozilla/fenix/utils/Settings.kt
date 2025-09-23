@@ -74,9 +74,12 @@ class Settings(private val appContext: Context) : PreferencesHolder {
         private const val CFR_COUNT_CONDITION_FOCUS_INSTALLED = 1
         private const val CFR_COUNT_CONDITION_FOCUS_NOT_INSTALLED = 3
         private const val APP_LAUNCHES_TO_SHOW_DEFAULT_BROWSER_CARD = 3
-        private const val APP_LAUNCHES_TO_SHOW_WIDGET_CARD = 10
+        private const val APP_LAUNCHES_TO_SHOW_WIDGET_CARD = 50
         private const val INACTIVE_TAB_MINIMUM_TO_SHOW_AUTO_CLOSE_DIALOG = 20
-        private const val DAYS_TO_SHOW_SHARED_APP_DIALOG = 3
+        private const val APP_LAUNCHES_TO_SHOW_SHARED_APP_DIALOG = 20
+        private const val APP_LAUNCHES_TO_SHOW_WRITE_REVIEW_DIALOG = 10
+        private const val MONTHS_TO_SHOW_ADD_TO_DOCK_DIALOG = 1
+        private const val DAYS_TO_SHOW_DEFAULT_BROWSER_ONBOARDING = 7
         const val HOURS_MS = 60 * 60 * 1000L
         const val FOUR_HOURS_MS = 4 * HOURS_MS
         const val ONE_DAY_MS = 60 * 60 * 24 * 1000L
@@ -402,8 +405,17 @@ class Settings(private val appContext: Context) : PreferencesHolder {
      */
     fun shouldShowSetAsDefaultBrowserOnBoarding(): Boolean {
         val browsers = BrowsersCache.all(appContext)
+        
+        // Check if enough time has passed since installation
+        val hasWaitedEnoughTime = try {
+            val firstInstallTime = appContext.packageManager.getPackageInfo(appContext.packageName, 0).firstInstallTime
+            (System.currentTimeMillis() - firstInstallTime) >= (DAYS_TO_SHOW_DEFAULT_BROWSER_ONBOARDING * ONE_DAY_MS)
+        } catch (e: Exception) {
+            // If we can't get the install time, default to showing the onboarding
+            true
+        }
 
-        return !browsers.isKARMADefaultBrowser && !hasShownDefaultBrowserDialog
+        return !browsers.isKARMADefaultBrowser && !hasShownDefaultBrowserDialog && hasWaitedEnoughTime
     }
 
     var gridTabView by booleanPreference(
@@ -1125,6 +1137,11 @@ class Settings(private val appContext: Context) : PreferencesHolder {
         default = false
     )
 
+    var shareNotificationDisplayed by booleanPreference(
+        appContext.getPreferenceKey(R.string.pref_key_should_show_share_notification),
+        default = false
+    )
+
     val searchWidgetInstalled: Boolean
         get() = 0 < preferences.getInt(
             appContext.getPreferenceKey(R.string.pref_key_search_widget_installed),
@@ -1523,11 +1540,29 @@ class Settings(private val appContext: Context) : PreferencesHolder {
 
     /**
      * Shows if the shared app dialog should be shown on home screen.
-     * Shows after DAYS_TO_SHOW_SHARED_APP_DIALOG days from installation.
+     * Shows after APP_LAUNCHES_TO_SHOW_SHARED_APP_DIALOG app launches.
      */
     fun shouldShowSharedAppDialog(): Boolean {
         return !userDismissedSharedAppDialog &&
-                (System.currentTimeMillis() - appContext.packageManager.getPackageInfo(appContext.packageName, 0).firstInstallTime) > (DAYS_TO_SHOW_SHARED_APP_DIALOG * ONE_DAY_MS)
+                numberOfAppLaunches >= APP_LAUNCHES_TO_SHOW_SHARED_APP_DIALOG
+    }
+
+    /**
+     * Shows if the write review dialog should be shown on home screen.
+     * Shows after APP_LAUNCHES_TO_SHOW_WRITE_REVIEW_DIALOG app launches.
+     */
+    fun shouldShowWriteReviewDialog(): Boolean {
+        return !userDismissedWriteReviewDialog &&
+                numberOfAppLaunches >= APP_LAUNCHES_TO_SHOW_WRITE_REVIEW_DIALOG
+    }
+
+    /**
+     * Shows if the add to dock dialog should be shown on home screen.
+     * Shows after MONTHS_TO_SHOW_ADD_TO_DOCK_DIALOG months from installation.
+     */
+    fun shouldShowAddToDockDialog(): Boolean {
+        return !userDismissedAddToDockDialog &&
+                (System.currentTimeMillis() - appContext.packageManager.getPackageInfo(appContext.packageName, 0).firstInstallTime) > (MONTHS_TO_SHOW_ADD_TO_DOCK_DIALOG * ONE_MONTH_MS)
     }
 
     /**
@@ -1553,6 +1588,22 @@ class Settings(private val appContext: Context) : PreferencesHolder {
      */
     var userDismissedSharedAppDialog by booleanPreference(
         "pref_key_user_dismissed_shared_app_dialog",
+        default = false
+    )
+
+    /**
+     * Indicates if the user has dismissed the write review dialog.
+     */
+    var userDismissedWriteReviewDialog by booleanPreference(
+        "pref_key_user_dismissed_write_review_dialog",
+        default = false
+    )
+
+    /**
+     * Indicates if the user has dismissed the add to dock dialog.
+     */
+    var userDismissedAddToDockDialog by booleanPreference(
+        "pref_key_user_dismissed_add_to_dock_dialog",
         default = false
     )
 }

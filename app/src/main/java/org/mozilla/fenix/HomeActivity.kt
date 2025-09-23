@@ -105,6 +105,7 @@ import org.mozilla.fenix.library.recentlyclosed.RecentlyClosedFragmentDirections
 import org.mozilla.fenix.onboarding.DefaultBrowserNotificationWorker
 import org.mozilla.fenix.onboarding.DockNotificationWorker
 import org.mozilla.fenix.onboarding.FenixOnboarding
+import org.mozilla.fenix.onboarding.ShareNotificationWorker
 import org.mozilla.fenix.onboarding.WidgetNotificationWorker
 import org.mozilla.fenix.perf.MarkersActivityLifecycleCallbacks
 import org.mozilla.fenix.perf.MarkersFragmentLifecycleCallbacks
@@ -192,6 +193,7 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
             DefaultBrowserIntentProcessor(this),
             WidgetIntentProcessor(this),
             DockIntentProcessor(this),
+            ShareIntentProcessor(this),
             FirebaseIntentProcessor(this)
         )
     }
@@ -1082,6 +1084,7 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
                             DefaultBrowserNotificationWorker.setDefaultBrowserNotificationIfNeeded(applicationContext)
                             WidgetNotificationWorker.setWidgetNotificationIfNeeded(applicationContext)
                             DockNotificationWorker.setDockNotificationIfNeeded(applicationContext)
+                            ShareNotificationWorker.setShareNotificationIfNeeded(applicationContext)
                             FirebaseNotificationWorker.ensureChannelExists(applicationContext)
                         },
                     )

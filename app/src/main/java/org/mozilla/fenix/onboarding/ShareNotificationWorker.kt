@@ -6,7 +6,6 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -21,7 +20,7 @@ import org.mozilla.fenix.utils.IntentUtils
 import org.mozilla.fenix.utils.Settings
 import java.util.concurrent.TimeUnit
 
-class DockNotificationWorker(
+class ShareNotificationWorker(
     val context: Context,
     workerParameters: WorkerParameters
 ) : Worker(context, workerParameters) {
@@ -32,18 +31,18 @@ class DockNotificationWorker(
                 NOTIFICATION_TAG,
                 NOTIFICATION_ID, buildNotification())
 
-        applicationContext.settings().dockNotificationDisplayed = true
+        applicationContext.settings().shareNotificationDisplayed = true
 
         return Result.success()
     }
 
     /**
-     * Build the default browser notification.
+     * Build the share notification.
      */
     private fun buildNotification(): Notification {
         val channelId = ensureChannelExists()
         val intent = Intent(applicationContext, HomeActivity::class.java)
-        intent.putExtra(INTENT_DOCK_NOTIFICATION, true)
+        intent.putExtra(INTENT_SHARE_NOTIFICATION, true)
 
         val pendingIntent = PendingIntent.getActivity(
             applicationContext,
@@ -55,11 +54,11 @@ class DockNotificationWorker(
         )
 
         with(applicationContext) {
-            val message = applicationContext.getString(R.string.karma_notification_dock_text)
+            val message = applicationContext.getString(R.string.shared_app_dialog_message)
             return NotificationCompat.Builder(this, channelId)
                 .setSmallIcon(R.drawable.ic_status_logo)
                 .setContentTitle(
-                    applicationContext.getString(R.string.karma_notification_dock_title)
+                    applicationContext.getString(R.string.shared_app_dialog_title)
                 )
                 .setContentText(
                     message
@@ -76,7 +75,7 @@ class DockNotificationWorker(
     }
 
     /**
-     * Make sure a notification channel for default browser notification exists.
+     * Make sure a notification channel for share notification exists.
      *
      * Returns the channel id to be used for notifications.
      */
@@ -99,38 +98,37 @@ class DockNotificationWorker(
 
     companion object {
         private const val NOTIFICATION_CHANNEL_ID = "com.karmasearch.channel.update"
-        private const val NOTIFICATION_ID = 3
-        private const val NOTIFICATION_PENDING_INTENT_TAG = "org.mozilla.dock.widget"
-        private const val INTENT_DOCK_NOTIFICATION = "org.mozilla.fenix.dock.intent"
-        private const val NOTIFICATION_TAG = "org.mozilla.fenix.dock.tag"
-        private const val NOTIFICATION_WORK_NAME = "org.mozilla.fenix.dock.work"
+        private const val NOTIFICATION_ID = 4
+        private const val NOTIFICATION_PENDING_INTENT_TAG = "org.mozilla.share.widget"
+        private const val INTENT_SHARE_NOTIFICATION = "org.mozilla.fenix.share.intent"
+        private const val NOTIFICATION_TAG = "org.mozilla.fenix.share.tag"
+        private const val NOTIFICATION_WORK_NAME = "org.mozilla.fenix.share.work"
+        private const val SHARE_URL = "https://info.karmasearch.org/share?utm_source=push-notif"
         private val NOTIFICATIONS_DELAY = listOf(
-            Settings.ONE_DAY_MS, // 1 day
+            Settings.ONE_DAY_MS * 3, // 3 days
         )
 
-        fun isDockNotificationIntent(intent: Intent) =
-            intent.extras?.containsKey(INTENT_DOCK_NOTIFICATION) ?: false
+        fun isShareNotificationIntent(intent: Intent) =
+            intent.extras?.containsKey(INTENT_SHARE_NOTIFICATION) ?: false
 
-        fun setDockNotificationIfNeeded(context: Context) {
-
-            if (context.settings().dockNotificationDisplayed) {
+        fun setShareNotificationIfNeeded(context: Context) {
+            if (context.settings().shareNotificationDisplayed) {
                 return
             }
 
             for (notification_delay in NOTIFICATIONS_DELAY) {
                 val instanceWorkManager = WorkManager.getInstance(context)
 
-                val notificationWork = OneTimeWorkRequest.Builder(DockNotificationWorker::class.java)
+                val notificationWork = OneTimeWorkRequest.Builder(ShareNotificationWorker::class.java)
                     .setInitialDelay(notification_delay, TimeUnit.MILLISECONDS)
                     .build()
 
                 instanceWorkManager.beginUniqueWork(
-                    NOTIFICATION_WORK_NAME +notification_delay,
+                    NOTIFICATION_WORK_NAME + notification_delay,
                     ExistingWorkPolicy.KEEP,
                     notificationWork
                 ).enqueue()
             }
-
         }
     }
 }

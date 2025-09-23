@@ -57,6 +57,16 @@
         app:popUpTo="@id/homeFragment" />
 
     <action
+        android:id="@+id/action_global_write_review_dialog"
+        app:destination="@id/writeReviewFragment"
+        app:popUpTo="@id/homeFragment" />
+
+    <action
+        android:id="@+id/action_global_add_to_dock_dialog"
+        app:destination="@id/addToDockFragment"
+        app:popUpTo="@id/homeFragment" />
+
+    <action
         android:id="@+id/action_global_search_dialog"
         app:destination="@id/searchDialogFragment"
         app:popUpTo="@id/searchDialogFragment"
@@ -232,6 +242,16 @@
         android:id="@+id/sharedAppFragment"
         android:name="org.mozilla.fenix.shared.SharedAppFragment"
         tools:layout="@layout/fragment_shared_app"/>
+
+    <dialog
+        android:id="@+id/writeReviewFragment"
+        android:name="org.mozilla.fenix.writereview.WriteReviewFragment"
+        tools:layout="@layout/fragment_write_review"/>
+
+    <dialog
+        android:id="@+id/addToDockFragment"
+        android:name="org.mozilla.fenix.addtodock.AddToDockFragment"
+        tools:layout="@layout/fragment_add_to_dock"/>
 
     <dialog
         android:id="@+id/homeOnboardingDialogFragment"

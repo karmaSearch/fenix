@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package org.mozilla.fenix.shared
+package org.mozilla.fenix.addtodock
 
 import android.content.Intent
 import android.net.Uri
@@ -14,13 +14,13 @@ import androidx.fragment.app.DialogFragment
 import mozilla.components.support.locale.LocaleManager
 import org.mozilla.fenix.HomeActivity
 import org.mozilla.fenix.R
-import org.mozilla.fenix.databinding.FragmentSharedAppBinding
+import org.mozilla.fenix.databinding.FragmentAddToDockBinding
 import org.mozilla.fenix.ext.settings
 import org.mozilla.fenix.settings.advanced.getSelectedLocale
 
-class SharedAppFragment : DialogFragment() {
+class AddToDockFragment : DialogFragment() {
 
-    private var _binding: FragmentSharedAppBinding? = null
+    private var _binding: FragmentAddToDockBinding? = null
     private val binding get() = _binding!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,31 +33,31 @@ class SharedAppFragment : DialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        _binding = FragmentSharedAppBinding.inflate(inflater, container, false)
+        _binding = FragmentAddToDockBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.shareAppButton.setOnClickListener {
-            openShareLink()
+        binding.addToDockButton.setOnClickListener {
+            openDockInstructions()
             dismiss()
         }
 
-        binding.shareAppLater.setOnClickListener {
-            context?.settings()?.userDismissedSharedAppDialog = true
+        binding.addToDockLater.setOnClickListener {
+            context?.settings()?.userDismissedAddToDockDialog = true
             dismiss()
         }
     }
 
-    private fun openShareLink() {
-        val isFr = LocaleManager.getSelectedLocale((activity as HomeActivity)).language =="fr"
+    private fun openDockInstructions() {
+        val isFr = LocaleManager.getSelectedLocale((activity as HomeActivity)).language == "fr"
         val baseURL = "https://info.karmasearch.org/" + (if(isFr) "fr/" else "")
 
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(baseURL+"share?utm_source=in-app-notif"))
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(baseURL+"android-dock?utm_source=in-app-notif"))
         startActivity(intent)
-        context?.settings()?.userDismissedSharedAppDialog = true
+        context?.settings()?.userDismissedAddToDockDialog = true
     }
 
     override fun onDestroyView() {

@@ -1937,7 +1937,7 @@
     <string name="learn_and_act_title">Learn &amp; Act</string>
 
     <string name="learn_and_act_subtitle">Our selection to get involved!</string>
-    <string name="channel_karma_update">"KARMA updates</string>
+    <string name="channel_karma_update">KARMA updates</string>
     <string name="channel_learnandact">Learn &amp; Act</string>
 
     <!-- Shared App Dialog -->
@@ -1945,5 +1945,17 @@
     <string name="shared_app_dialog_message">Good KARMA is meant to be shared 💚\nMore users = more impact!</string>
     <string name="shared_app_dialog_go_button">Go</string>
     <string name="shared_app_dialog_not_now_button">Not now</string>
+
+    <!-- Write Review Dialog -->
+    <string name="write_review_dialog_title">Help us grow our impact!</string>
+    <string name="write_review_dialog_message">Your 5-star ratings and reviews help more people discover KARMA</string>
+    <string name="write_review_dialog_go_button">Rate in the Play Store</string>
+    <string name="write_review_dialog_not_now_button">Later</string>
+
+    <!-- Add To Dock Dialog -->
+    <string name="add_to_dock_dialog_title">Double your impact effortlessly!</string>
+    <string name="add_to_dock_dialog_message">Learn how to put KARMA in your go-to spot on the dock for easy access</string>
+    <string name="add_to_dock_dialog_go_button">Show me how</string>
+    <string name="add_to_dock_dialog_not_now_button">Not now</string>
 
 </resources>
