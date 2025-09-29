@@ -38,11 +38,7 @@ class FenixReviewSettings(
         get() = settings.lastReviewPromptTimeInMillis
         set(value) { settings.lastReviewPromptTimeInMillis = value }
     override val firstInstallTimeInMillis: Long
-        get() = try {
-            context.packageManager.getPackageInfo(context.packageName, 0).firstInstallTime
-        } catch (e: Exception) {
-            0L
-        }
+        get() = settings.inAppFeatureUpdateTimeStamp
 }
 
 /**

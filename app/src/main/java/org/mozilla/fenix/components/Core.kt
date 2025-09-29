@@ -135,8 +135,7 @@ class Core(
                 context,
                 R.color.fx_mobile_layer_color_1,
             ),
-            httpsOnlyMode = context.settings().getHttpsOnlyMode(),
-            userAgentString = getUserAgent(),
+            httpsOnlyMode = context.settings().getHttpsOnlyMode()
         )
 
         GeckoEngine(
@@ -481,7 +480,7 @@ class Core(
      */
     private fun getUserAgent(): String {
         val androidVersion = android.os.Build.VERSION.RELEASE
-        return "Mozilla/5.0 (Android $androidVersion; Mobile; rv:142.0) Gecko/142.0 Firefox/142.0"
+        return "Mozilla/5.0 (Android $androidVersion; Mobile; rv:143.0) Gecko/143.0 Firefox/143.0 Karma"
     }
 
     companion object {

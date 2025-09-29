@@ -66,16 +66,15 @@ class DefaultBrowserNotificationWorker(
         with(applicationContext) {
             val appName = getString(R.string.app_name)
             val message = applicationContext.getString(R.string.karma_notification_default_browser_text, appName)
+            val title = applicationContext.getString(R.string.karma_notification_default_browser_title)
             return NotificationCompat.Builder(this, channelId)
                 .setSmallIcon(R.drawable.ic_status_logo)
                 .setLargeIcon(BitmapFactory.decodeResource(resources, R.drawable.ic_notification_default_browser))
-                .setContentTitle(
-                    applicationContext.getString(R.string.karma_notification_default_browser_title)
-                )
-                .setStyle(NotificationCompat.BigTextStyle().bigText(message))
-                .setContentText(
-                    message
-                )
+                .setContentTitle(title)
+                .setContentText(message)
+                .setStyle(NotificationCompat.BigTextStyle()
+                    .bigText(message)
+                    .setBigContentTitle(title))
                 .setBadgeIconType(NotificationCompat.BADGE_ICON_SMALL)
                 .setColor(ContextCompat.getColor(this, R.color.photonGreen50))
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)

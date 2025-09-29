@@ -29,7 +29,7 @@
         android:id="@+id/affiliate_site_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:maxWidth="84dp"
+        android:maxWidth="90dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="@dimen/top_sites_text_margin_top"
         android:drawablePadding="2dp"

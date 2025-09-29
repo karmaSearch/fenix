@@ -174,6 +174,11 @@ class Settings(private val appContext: Context) : PreferencesHolder {
         default = 0L,
     )
 
+    var inAppFeatureUpdateTimeStamp by longPreference(
+        appContext.getPreferenceKey(R.string.pref_key_in_app_feature_update_timestamp),
+        default = 0L,
+    )
+
     var lastCfrShownTimeInMillis by longPreference(
         appContext.getPreferenceKey(R.string.pref_key_last_cfr_shown_time),
         default = 0L,
@@ -410,16 +415,23 @@ class Settings(private val appContext: Context) : PreferencesHolder {
     fun shouldShowSetAsDefaultBrowserOnBoarding(): Boolean {
         val browsers = BrowsersCache.all(appContext)
         
-        // Check if enough time has passed since installation
-        val hasWaitedEnoughTime = try {
-            val firstInstallTime = appContext.packageManager.getPackageInfo(appContext.packageName, 0).firstInstallTime
-            (System.currentTimeMillis() - firstInstallTime) >= (DAYS_TO_SHOW_DEFAULT_BROWSER_ONBOARDING * ONE_DAY_MS)
-        } catch (e: Exception) {
-            // If we can't get the install time, default to showing the onboarding
-            true
+        // Check if enough time has passed since feature update
+        val hasWaitedEnoughTime = if (inAppFeatureUpdateTimeStamp == 0L) {
+            false
+        } else {
+            val timeSinceFeatureUpdate = System.currentTimeMillis() - inAppFeatureUpdateTimeStamp
+            timeSinceFeatureUpdate >= (DAYS_TO_SHOW_DEFAULT_BROWSER_ONBOARDING * ONE_DAY_MS)
         }
 
         return !browsers.isKARMADefaultBrowser && !hasShownDefaultBrowserDialog && hasWaitedEnoughTime
+    }
+
+    /**
+     * Shows if the default browser dialog should be shown immediately after onboarding.
+     */
+    fun shouldShowSetAsDefaultBrowserAfterOnboarding(): Boolean {
+        val browsers = BrowsersCache.all(appContext)
+        return !browsers.isKARMADefaultBrowser && !hasShownDefaultBrowserDialog
     }
 
     var gridTabView by booleanPreference(
@@ -1127,14 +1139,6 @@ class Settings(private val appContext: Context) : PreferencesHolder {
             .apply()
     }
 
-    fun shouldShowNotificationWidget(): Boolean {
-        return !searchWidgetInstalled && !widgetNotificationDisplayed
-    }
-
-    var widgetNotificationDisplayed by booleanPreference(
-        appContext.getPreferenceKey(R.string.pref_key_should_show_widget_notification),
-        default = false
-    )
 
     var dockNotificationDisplayed by booleanPreference(
         appContext.getPreferenceKey(R.string.pref_key_should_show_dock_notification),
@@ -1565,8 +1569,21 @@ class Settings(private val appContext: Context) : PreferencesHolder {
      * Shows after MONTHS_TO_SHOW_ADD_TO_DOCK_DIALOG months from installation.
      */
     fun shouldShowAddToDockDialog(): Boolean {
-        return !userDismissedAddToDockDialog &&
-                (System.currentTimeMillis() - appContext.packageManager.getPackageInfo(appContext.packageName, 0).firstInstallTime) > (MONTHS_TO_SHOW_ADD_TO_DOCK_DIALOG * ONE_MONTH_MS)
+        if (inAppFeatureUpdateTimeStamp == 0L) return false
+        
+        val timeSinceFeatureUpdate = System.currentTimeMillis() - inAppFeatureUpdateTimeStamp
+        val threshold = MONTHS_TO_SHOW_ADD_TO_DOCK_DIALOG * ONE_MONTH_MS
+        
+        return !userDismissedAddToDockDialog && timeSinceFeatureUpdate > threshold
+    }
+
+    /**
+     * Initialize feature update timestamp on first run after update
+     */
+    fun initializeInAppFeatureUpdateTimestamp() {
+        if (inAppFeatureUpdateTimeStamp == 0L) {
+            inAppFeatureUpdateTimeStamp = System.currentTimeMillis()
+        }
     }
 
     /**

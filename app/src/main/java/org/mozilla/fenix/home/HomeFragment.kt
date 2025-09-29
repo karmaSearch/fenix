@@ -10,6 +10,7 @@ import android.content.res.Configuration
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.StrictMode
 import android.view.Gravity
@@ -121,9 +122,13 @@ import org.mozilla.fenix.home.sessioncontrol.SessionControlView
 import org.mozilla.fenix.home.sessioncontrol.viewholders.CollectionHeaderViewHolder
 import org.mozilla.fenix.home.affiliatesites.AffiliateSitesFeature
 import org.mozilla.fenix.home.affiliatesites.DefaultAffiliateSitesView
+import org.mozilla.fenix.home.intent.FirebaseNotificationWorker
 import org.mozilla.fenix.home.topsites.DefaultTopSitesView
 import org.mozilla.fenix.nimbus.FxNimbus
 import org.mozilla.fenix.notifications.NotificationPermissionDialog
+import org.mozilla.fenix.onboarding.DefaultBrowserNotificationWorker
+import org.mozilla.fenix.onboarding.DockNotificationWorker
+import org.mozilla.fenix.onboarding.ShareNotificationWorker
 import org.mozilla.fenix.onboarding.FenixOnboarding
 import org.mozilla.fenix.perf.MarkersFragmentLifecycleCallbacks
 import org.mozilla.fenix.perf.runBlockingIncrement
@@ -1216,7 +1221,7 @@ class HomeFragment : Fragment() {
             val settings = requireContext().settings()
             val hasCompletedOnboarding = settings.hasShownHomeOnboardingDialog
             val hasCompletedDefaultBrowserFlow = settings.hasShownDefaultBrowserDialog || 
-                                                !settings.shouldShowSetAsDefaultBrowserOnBoarding()
+                                                (!settings.shouldShowSetAsDefaultBrowserAfterOnboarding() && !settings.shouldShowSetAsDefaultBrowserOnBoarding())
             val isPermissionAskedForMarketing = PreferenceManager.getDefaultSharedPreferences(requireContext())
                 .getBoolean("IsPermissionAskedForMarketing", false)
             val shouldShow = hasCompletedOnboarding && 
@@ -1226,14 +1231,21 @@ class HomeFragment : Fragment() {
             
             // Switch back to main thread for UI operations
             withContext(Main) {
-                if (shouldShow && !activity.isNotificationDialogShowing) {
+                if (shouldShow && !activity.isNotificationDialogShowing && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     activity.isNotificationDialogShowing = true
                     val dialog = NotificationPermissionDialog(
                         requireContext(),
                         onContinueClicked = {
                             activity.isNotificationDialogShowing = false
                             settings.hasShownNotificationPermissionDialog = true
-                            activity.components.notificationsDelegate.requestNotificationPermission()
+                            activity.components.notificationsDelegate.requestNotificationPermission(
+                                onPermissionGranted = {
+                                    DefaultBrowserNotificationWorker.setDefaultBrowserNotificationIfNeeded(requireContext())
+                                    DockNotificationWorker.setDockNotificationIfNeeded(requireContext())
+                                    ShareNotificationWorker.setShareNotificationIfNeeded(requireContext())
+                                    FirebaseNotificationWorker.ensureChannelExists(requireContext())
+                                }
+                            )
                         },
                         onDeclineClicked = {
                             activity.isNotificationDialogShowing = false

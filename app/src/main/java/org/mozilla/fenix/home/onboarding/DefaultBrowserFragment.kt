@@ -38,14 +38,5 @@ class DefaultBrowserFragment: Fragment() {
         return view
     }
 
-    override fun onResume() {
-        super.onResume()
-        context?.settings()?.let {
-            if(!it.shouldShowSetAsDefaultBrowserOnBoarding()) {
-                val directions = NavGraphDirections.actionGlobalHome()
-                findNavController().navigate(directions)
-            }
-        }
-    }
 
 }

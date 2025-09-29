@@ -9,6 +9,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_MAIN
 import android.content.Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
@@ -20,11 +22,14 @@ import android.util.Log
 import android.view.*
 import android.view.WindowManager.LayoutParams.FLAG_SECURE
 import android.widget.Toast
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.annotation.CallSuper
 import androidx.annotation.IdRes
+import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.annotation.VisibleForTesting.Companion.PROTECTED
 import androidx.appcompat.app.ActionBar
@@ -91,6 +96,7 @@ import org.mozilla.fenix.browser.browsingmode.BrowsingModeManager
 import org.mozilla.fenix.browser.browsingmode.DefaultBrowsingModeManager
 import org.mozilla.fenix.components.appstate.AppAction
 import org.mozilla.fenix.components.metrics.BreadcrumbsRecorder
+import org.mozilla.fenix.BuildConfig
 import org.mozilla.fenix.databinding.ActivityHomeBinding
 import org.mozilla.fenix.exceptions.trackingprotection.TrackingProtectionExceptionsFragmentDirections
 import org.mozilla.fenix.ext.*
@@ -272,9 +278,12 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
             StartOnHome.enterHomeScreen.record(NoExtras())
         }
 
+        // Initialize feature update timestamp for time-based dialogs
+        settings().initializeInAppFeatureUpdateTimestamp()
+
         if (!settings().hasShownHomeOnboardingDialog) {
             navigateToOnBoarding()
-        }  else if (settings().shouldShowSetAsDefaultBrowserOnBoarding()) {
+        }  else if (settings().shouldShowSetAsDefaultBrowserAfterOnboarding() || settings().shouldShowSetAsDefaultBrowserOnBoarding()) {
             navigateToOnDefaultBrowser()
         }
 
@@ -1049,7 +1058,7 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
         // Show notification dialog if onboarding is done AND default browser flow is done
         // AND not currently showing and not already shown
         val isDefaultBrowserFlowDone = settings().hasShownDefaultBrowserDialog || 
-                                       !settings().shouldShowSetAsDefaultBrowserOnBoarding()
+                                       (!settings().shouldShowSetAsDefaultBrowserAfterOnboarding() && !settings().shouldShowSetAsDefaultBrowserOnBoarding())
         
         return settings().hasShownHomeOnboardingDialog &&
                 isDefaultBrowserFlowDone &&
@@ -1062,6 +1071,7 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
         return isNotificationDialogShowing
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun showNotificationPermissionDialog() {
         if (isNotificationDialogShowing) return
         

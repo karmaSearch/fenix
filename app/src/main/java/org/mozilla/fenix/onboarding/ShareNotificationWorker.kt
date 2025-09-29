@@ -56,16 +56,15 @@ class ShareNotificationWorker(
 
         with(applicationContext) {
             val message = applicationContext.getString(R.string.karma_notification_share_text)
+            val title = applicationContext.getString(R.string.karma_notification_share_title)
             return NotificationCompat.Builder(this, channelId)
                 .setSmallIcon(R.drawable.ic_status_logo)
                 .setLargeIcon(BitmapFactory.decodeResource(resources, R.drawable.ic_notification_share))
-                .setContentTitle(
-                    applicationContext.getString(R.string.karma_notification_share_title)
-                )
-                .setContentText(
-                    message
-                )
-                .setStyle(NotificationCompat.BigTextStyle().bigText(message))
+                .setContentTitle(title)
+                .setContentText(message)
+                .setStyle(NotificationCompat.BigTextStyle()
+                    .bigText(message)
+                    .setBigContentTitle(title))
                 .setBadgeIconType(NotificationCompat.BADGE_ICON_SMALL)
                 .setColor(ContextCompat.getColor(this, R.color.photonGreen50))
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
