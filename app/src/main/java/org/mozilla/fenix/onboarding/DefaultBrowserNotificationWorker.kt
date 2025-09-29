@@ -10,6 +10,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -67,6 +68,7 @@ class DefaultBrowserNotificationWorker(
             val message = applicationContext.getString(R.string.karma_notification_default_browser_text, appName)
             return NotificationCompat.Builder(this, channelId)
                 .setSmallIcon(R.drawable.ic_status_logo)
+                .setLargeIcon(BitmapFactory.decodeResource(resources, R.drawable.ic_notification_default_browser))
                 .setContentTitle(
                     applicationContext.getString(R.string.karma_notification_default_browser_title)
                 )

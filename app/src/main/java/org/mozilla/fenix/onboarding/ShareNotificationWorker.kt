@@ -6,6 +6,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -54,11 +55,12 @@ class ShareNotificationWorker(
         )
 
         with(applicationContext) {
-            val message = applicationContext.getString(R.string.shared_app_dialog_message)
+            val message = applicationContext.getString(R.string.karma_notification_share_text)
             return NotificationCompat.Builder(this, channelId)
                 .setSmallIcon(R.drawable.ic_status_logo)
+                .setLargeIcon(BitmapFactory.decodeResource(resources, R.drawable.ic_notification_share))
                 .setContentTitle(
-                    applicationContext.getString(R.string.shared_app_dialog_title)
+                    applicationContext.getString(R.string.karma_notification_share_title)
                 )
                 .setContentText(
                     message

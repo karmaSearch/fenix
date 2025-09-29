@@ -106,7 +106,6 @@ import org.mozilla.fenix.onboarding.DefaultBrowserNotificationWorker
 import org.mozilla.fenix.onboarding.DockNotificationWorker
 import org.mozilla.fenix.onboarding.FenixOnboarding
 import org.mozilla.fenix.onboarding.ShareNotificationWorker
-import org.mozilla.fenix.onboarding.WidgetNotificationWorker
 import org.mozilla.fenix.perf.MarkersActivityLifecycleCallbacks
 import org.mozilla.fenix.perf.MarkersFragmentLifecycleCallbacks
 import org.mozilla.fenix.perf.Performance
@@ -191,7 +190,6 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
             OpenBrowserIntentProcessor(this, ::getIntentSessionId),
             OpenSpecificTabIntentProcessor(this),
             DefaultBrowserIntentProcessor(this),
-            WidgetIntentProcessor(this),
             DockIntentProcessor(this),
             ShareIntentProcessor(this),
             FirebaseIntentProcessor(this)
@@ -1082,7 +1080,6 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
                     components.notificationsDelegate.requestNotificationPermission(
                         onPermissionGranted = {
                             DefaultBrowserNotificationWorker.setDefaultBrowserNotificationIfNeeded(applicationContext)
-                            WidgetNotificationWorker.setWidgetNotificationIfNeeded(applicationContext)
                             DockNotificationWorker.setDockNotificationIfNeeded(applicationContext)
                             ShareNotificationWorker.setShareNotificationIfNeeded(applicationContext)
                             FirebaseNotificationWorker.ensureChannelExists(applicationContext)
