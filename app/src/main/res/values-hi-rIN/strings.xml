@@ -1555,4 +1555,67 @@
     <!-- Clickable text for opening an external link for more information about Pocket. -->
     <string name="pocket_stories_feature_learn_more">अधिक जानें</string>
 
-    </resources>
+    <string name="learn_and_act_preference">Learn &amp; Act</string>
+    <string name="preferences_category_about_karma">कर्मा के बारे में</string>
+    <string name="preferences_karma_mission">हमारा मिशन</string>
+    <string name="preferences_karma_howitwork">यह कैसे काम करता है</string>
+    <string name="preferences_karma_partners">साझेदार</string>
+    <string name="preferences_karma_privacy">गोपनीयता</string>
+    <string name="preferences_karma_termsofservices">सेवा की शर्तें</string>
+    <string name="preferences_karma_feedback">आपकी प्रतिक्रिया</string>
+    <string name="preferences_feedback_forms">हमें अपनी प्रतिक्रिया दें</string>
+    <string name="preferences_feedback_contact">हमसे संपर्क करें</string>
+
+    <string name="onboarding_next">जारी रखें</string>
+    <string name="onboarding_title_1">प्रत्येक खोज\nएक अंतर लाती है</string>
+    <string name="onboarding_subtitle_1">आपकी खोजें हमारे विश्वसनीय गैर-लाभकारी भागीदारों को निधि देने में मदद करती हैं - पूरी तरह से निःशुल्क!</string>
+    <string name="onboarding_default_browser_title">हर खोज को\nमहत्वपूर्ण बनाएं</string>
+    <string name="onboarding_default_browser_subtitle">अगली स्क्रीन पर, अपनी सभी खोजों को सकारात्मक प्रभाव में बदलने के लिए कर्मा को अपना डिफ़ॉल्ट ब्राउज़र चुनें</string>
+    <string name="onboarding_default_browser_choose">कर्मा चुनें</string>
+    <string name="onboarding_default_browser_notnow">अभी नहीं</string>
+    <string name="onboarding_notifications">अपने सकारात्मक प्रभाव पर अपडेट रहें</string>
+    <string name="onboarding_notifications_subtitle">आपकी खोजों का समर्थन करने वाले कारणों और उपयोगी ब्राउज़र सूचनाओं के बारे में अपडेट प्राप्त करें। <b>कोई स्पैम नहीं, हम वादा करते हैं!</b></string>
+    <string name="onboarding_notifications_enable">सूचनाएं सक्षम करें</string>
+    <string name="onboarding_notifications_no">नहीं, धन्यवाद</string>
+
+    <string name="add_widget_title">अपने होमस्क्रीन पर कर्मा विजेट जोड़ें</string>
+    <string name="add_widget_searchbar">कर्मा के साथ वेब खोजें</string>
+    <string name="add_a_widget">जोड़ें</string>
+    <string name="add_widget_later">बाद में</string>
+
+    <string name="dock_title">आसानी से अपने प्रभाव को दोगुना करें!</string>
+    <string name="dock_subtitle">आसान पहुंच के लिए कर्मा को अपने गो-टू स्पॉट में डॉक पर कैसे रखें, यह जानें</string>
+    <string name="dock">मुझे दिखाओ कैसे</string>
+    <string name="dock_later">बाद में</string>
+
+    <string name="rating_title">हमारे प्रभाव को बढ़ाने में हमारी मदद करें!</string>
+    <string name="rating_subtitle">आपकी 5-सितारा रेटिंग और समीक्षाएं अधिक लोगों को कर्मा खोजने में मदद करती हैं</string>
+    <string name="rating">प्ले स्टोर में रेटिंग दें</string>
+    <string name="rating_later">बाद में</string>
+
+    <string name="share_title">कर्मा को\nअपने दोस्तों के साथ साझा करें</string>
+    <string name="share_subtitle">अच्छा कर्मा साझा करने के लिए है 💚\nअधिक उपयोगकर्ता = अधिक प्रभाव!</string>
+    <string name="share">जाओ</string>
+    <string name="share_later">अभी नहीं</string>
+
+
+    <string name="onboarding_companion_searchbar">🔎जानवरों और जैव विविधता की रक्षा करने में मदद करने के लिए अपनी खोज यहां टाइप करें!</string>
+    <string name="onboarding_companion_affiliate">💰जब भी आप इन सेवाओं का उपयोग करते हैं तो आप हमारे गैर-लाभकारी भागीदारों के लिए भी दान उत्पन्न करते हैं</string>
+
+    <string name="onboarding_companion_learn_and_act">✊आप सीधे प्रभाव डालने के लिए ठोस तरीकों को खोजने के लिए न्यूज़फ़ीड के माध्यम से स्क्रॉल करें</string>
+    <string name="onboarding_companion_settings">⚙️​ आप यहां क्लिक करके अपने कर्मा होमपेज का लेआउट कॉन्फ़िगर कर सकते हैं</string>
+    <string name="home_screen_top_sites_heading">शॉर्टकट</string>
+    <string name="karma_notification_default_browser_title">अपने प्रभाव को अधिकतम करें! 🌎</string>
+    <string name="karma_notification_default_browser_text">कर्मा को अपना डिफ़ॉल्ट ब्राउज़र बनाने के लिए एक टैप।\nअधिक खोजें = अधिक प्रभाव ✊
+</string>
+    <string name="karma_notification_dock_title">KARMA का उपयोग प्रजातियों को बचाने में योगदान देता है 🐘🐋🐢</string>
+    <string name="karma_notification_dock_text">💡अपने पसंदीदा ऐप्स में KARMA डालने का तरीका जानने के लिए यहां क्लिक करें</string>
+    <string name="karma_notification_share_title">आप 100 दिनों से KARMA का उपयोग कर रहे हैं! 🎉</string>
+    <string name="karma_notification_sharek_text">अपने प्रभाव को बढ़ाने के लिए अपने दोस्तों के साथ KARMA साझा करें! 💚</string>
+    <string name="learn_and_act_title">Learn &amp; Act</string>
+
+    <string name="learn_and_act_subtitle">शामिल होने के लिए हमारा चयन!</string>
+    <string name="channel_karma_update">"कर्मा अपडेट</string>
+    <string name="channel_learnandact">Learn &amp; Act</string>
+
+</resources>

@@ -40,7 +40,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/share_app_icon"
             android:textColor="@color/photonGreen50"
-            android:text="@string/shared_app_dialog_title" />
+            android:text="@string/karma_notification_share_title" />
 
         <ImageView
             android:id="@+id/share_app_icons"
@@ -63,7 +63,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/share_app_icons"
             android:textColor="@color/photonGrey10"
-            android:text="@string/shared_app_dialog_message" />
+            android:text="@string/karma_notification_share_text" />
 
         <Button
             android:id="@+id/share_app_button"
@@ -78,7 +78,7 @@
             app:layout_constraintStart_toEndOf="@+id/share_app_later"
             app:layout_constraintTop_toBottomOf="@id/share_app_message"
             android:textStyle="bold"
-            android:text="@string/shared_app_dialog_go_button" />
+            android:text="@string/share" />
 
         <Button
             android:id="@+id/share_app_later"
@@ -91,7 +91,7 @@
             app:layout_constraintEnd_toStartOf="@+id/share_app_button"
             app:layout_constraintStart_toStartOf="parent"
             android:textColor="@color/photonGreen50"
-            android:text="@string/shared_app_dialog_not_now_button" />
+            android:text="@string/share_later" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

@@ -1262,7 +1262,7 @@
     <string name="onboarding_privacy_notice_read_button">Read our privacy notice</string>
     <!-- Text for the conclusion onboarding message -->
     <string name="onboarding_conclusion_header">Ready to open up an amazing internet?</string>
-
+    <string name="onboarding_finish">Start browsing</string>
     <!-- Onboarding theme -->
     <!-- text for the theme picker onboarding card header -->
     <string name="onboarding_theme_picker_header">Choose your theme</string>
@@ -1891,14 +1891,13 @@
 
     <!-- KARMA -->
 
-    <string name="karma_picture_preference">KARMA pictures</string>
     <string name="learn_and_act_preference">Learn &amp; Act</string>
-    <string name="affiliate_sites_preference">Affiliation partners</string>
     <string name="preferences_category_about_karma">About KARMA</string>
     <string name="preferences_karma_mission">Our Mission</string>
     <string name="preferences_karma_howitwork">How it Works</string>
     <string name="preferences_karma_partners">Partners</string>
     <string name="preferences_karma_privacy">Privacy</string>
+    <string name="affiliate_sites_preference">Affiliate partners</string>
     <string name="preferences_karma_termsofservices">Terms of Service</string>
     <string name="preferences_karma_feedback">Your Feedback</string>
     <string name="preferences_feedback_forms">Give us your feedback</string>
@@ -1912,50 +1911,49 @@
     <string name="onboarding_default_browser_choose">Choose KARMA</string>
     <string name="onboarding_default_browser_notnow">Not now</string>
     <string name="onboarding_notifications">Stay updated on your positive impact</string>
-    <string name="onboarding_notifications_subtitle">Get updates about the causes your searches support and helpful browser notifications. No spam, we promise!</string>
-    <string name="onboarding_notifications_enable">Continue</string>
+    <string name="onboarding_notifications_subtitle">Get updates about the causes your searches support and helpful browser notifications. <b>No spam, we promise!</b></string>
+    <string name="onboarding_notifications_enable">Enable notifications</string>
     <string name="onboarding_notifications_no">No, thanks</string>
-    <string name="onboarding_title_4"></string>
-    <string name="onboarding_subtitle_4"></string>
-    <string name="onboarding_skip">Skip</string>
-    <string name="onboarding_finish">Start browsing</string>
+
     <string name="add_widget_title">Add the KARMA widget to your homescreen</string>
+    <string name="add_widget_searchbar">Search the web with KARMA</string>
     <string name="add_a_widget">Add</string>
     <string name="add_widget_later">Later</string>
-    <string name="onboarding_companion_shortcut">Here are your shortcuts and most visited websites. To delete a shortcut, just click on the icon and hold it down for a while.</string>
+
+    <string name="dock_title">Double your impact effortlessly!</string>
+    <string name="dock_subtitle">Learn how to put KARMA in your go-to spot on the dock for easy access</string>
+    <string name="dock">Show me how</string>
+    <string name="dock_later">Later</string>
+
+    <string name="rating_title">Help us grow our impact!</string>
+    <string name="rating_subtitle">Your 5-star ratings and reviews help more people discover KARMA</string>
+    <string name="rating">Rate in the Play Store</string>
+    <string name="rating_later">Later</string>
+
+    <string name="share_title">Share KARMA\nwith your friends</string>
+    <string name="share_subtitle">Good KARMA is meant to be shared 💚\nMore users = more impact!</string>
+    <string name="share">Go</string>
+    <string name="share_later">Not now</string>
+
+
     <string name="onboarding_companion_searchbar">🔎Type your search here to help protect animals and biodiversity!</string>
     <string name="onboarding_companion_affiliate">💰You also generate donations for our nonprofit partners whenever you use these services</string>
+    <string name="onboarding_companion_shortcut">Here are your shortcuts and most visited websites. To delete a shortcut, just click on the icon and hold it down for a while.</string>
     <string name="onboarding_companion_learn_and_act">✊Scroll through the newsfeed to discover concrete ways you can make a direct impact</string>
-    <string name="onboarding_companion_settings">⚙️​ You can configure the layout of your KARMA homepage by clicking here</string>
+    <string name="onboarding_companion_settings">⚙️ You can configure the layout of your KARMA homepage by clicking here</string>
     <string name="home_screen_top_sites_heading">Shortcuts</string>
-    <string name="karma_notification_default_browser_title">Help us to protect the biodiversity ! 🌎</string>
-    <string name="karma_notification_default_browser_text">Set %1$s as your default browser to maximize your impact 💪 🦁</string>
-    <string name="karma_notification_widget_title">Have you tried the KARMA widget? 🤓 📲</string>
-    <string name="karma_notification_widget_text">You can search directly from your homescreen with the KARMA widget 🦊 🌱</string>
-    <string name="karma_notification_dock_title">Make sure to help protect biodiversity and animal welfare everyday 💪</string>
-    <string name="karma_notification_dock_text">Click here to discover how to use KARMA instead of Google Chrome💡</string>
+    <string name="karma_notification_default_browser_title">Maximize your impact! 🌎</string>
+    <string name="karma_notification_default_browser_text">One tap to make KARMA your default browser.\nMore searches = more impact ✊
+</string>
+    <string name="karma_notification_dock_title">Your next search could help save species 🐘🐋🐢🦋</string>
+    <string name="karma_notification_dock_text">Put KARMA in your dock for effortless conservation</string>
+    <string name="karma_notification_share_title">Your searches are making a difference!🌎✊</string>
+    <string name="karma_notification_share_text">Share KARMA with a friend to double your impact</string>
     <string name="learn_and_act_title">Learn &amp; Act</string>
 
     <string name="learn_and_act_subtitle">Our selection to get involved!</string>
     <string name="channel_karma_update">KARMA updates</string>
     <string name="channel_learnandact">Learn &amp; Act</string>
 
-    <!-- Shared App Dialog -->
-    <string name="shared_app_dialog_title">Share KARMA\nwith your friends</string>
-    <string name="shared_app_dialog_message">Good KARMA is meant to be shared 💚\nMore users = more impact!</string>
-    <string name="shared_app_dialog_go_button">Go</string>
-    <string name="shared_app_dialog_not_now_button">Not now</string>
-
-    <!-- Write Review Dialog -->
-    <string name="write_review_dialog_title">Help us grow our impact!</string>
-    <string name="write_review_dialog_message">Your 5-star ratings and reviews help more people discover KARMA</string>
-    <string name="write_review_dialog_go_button">Rate in the Play Store</string>
-    <string name="write_review_dialog_not_now_button">Later</string>
-
-    <!-- Add To Dock Dialog -->
-    <string name="add_to_dock_dialog_title">Double your impact effortlessly!</string>
-    <string name="add_to_dock_dialog_message">Learn how to put KARMA in your go-to spot on the dock for easy access</string>
-    <string name="add_to_dock_dialog_go_button">Show me how</string>
-    <string name="add_to_dock_dialog_not_now_button">Not now</string>
-
 </resources>
+

@@ -1986,9 +1986,67 @@
     <string name="a11y_action_label_wallpaper_collection_learn_more">このコレクションの詳細についてはリンク先をご覧ください</string>
 
     <!-- KARMA -->
-    <string name="onboarding_companion_searchbar">🔎 ここに検索ワードを入力して、動物と生物多様性を守ろう！</string>
-    <string name="onboarding_companion_affiliate">💰 サービスを利用することで、非営利パートナーへの寄付にもつながります。</string>
-    <string name="onboarding_companion_learn_and_act">✊ ニュースフィードをチェックして、あなたが行動できる具体的な方法を見つけましょう。</string>
-    <string name="onboarding_companion_settings">⚙️ ここをクリックすると、KARMAホームページのレイアウトを設定できます</string>
+    <string name="learn_and_act_preference">Learn &amp; Act</string>
+    <string name="preferences_category_about_karma">KARMAについて</string>
+    <string name="preferences_karma_mission">私たちの使命</string>
+    <string name="preferences_karma_howitwork">仕組み</string>
+    <string name="preferences_karma_partners">パートナー</string>
+    <string name="preferences_karma_privacy">プライバシー</string>
+    <string name="preferences_karma_termsofservices">利用規約</string>
+    <string name="preferences_karma_feedback">あなたのフィードバック</string>
+    <string name="preferences_feedback_forms">ご意見をお聞かせください</string>
+    <string name="preferences_feedback_contact">お問い合わせ</string>
+
+    <string name="onboarding_next">次へ</string>
+    <string name="onboarding_title_1">すべての検索が\n違いを生む</string>
+    <string name="onboarding_subtitle_1">あなたの検索は、信頼できる非営利パートナーへの資金提供を支援します — 完全に無料です！</string>
+    <string name="onboarding_default_browser_title">すべての検索を\n有意義に</string>
+    <string name="onboarding_default_browser_subtitle">次の画面でKARMAをデフォルトのブラウザとして選択し、すべての検索をポジティブな影響に変えましょう</string>
+    <string name="onboarding_default_browser_choose">KARMAを選ぶ</string>
+    <string name="onboarding_default_browser_notnow">今はしない</string>
+    <string name="onboarding_notifications">ポジティブな影響について最新情報を入手</string>
+    <string name="onboarding_notifications_subtitle">あなたの検索が支援する目的や、役立つブラウザ通知について最新情報を受け取ります。 <b>スパムはありません、お約束します！</b></string>
+    <string name="onboarding_notifications_enable">通知を有効にする</string>
+    <string name="onboarding_notifications_no">いいえ、結構です</string>
+
+    <string name="add_widget_title">KARMAウィジェットをホーム画面に追加</string>
+    <string name="add_widget_searchbar">KARMAでウェブを検索</string>
+    <string name="add_a_widget">追加</string>
+    <string name="add_widget_later">後で</string>
+
+    <string name="dock_title">手軽にインパクトを2倍に！</string>
+    <string name="dock_subtitle">KARMAをドックのお気に入りの場所に置いて、簡単にアクセスする方法を学びましょう</string>
+    <string name="dock">方法を教えて</string>
+    <string name="dock_later">後で</string>
+
+    <string name="rating_title">インパクトを拡大するのを手伝ってください！</string>
+    <string name="rating_subtitle">あなたの5つ星評価とレビューが、より多くの人々にKARMAを発見するのを助けます</string>
+    <string name="rating">Playストアで評価する</string>
+    <string name="rating_later">後で</string>
+
+    <string name="share_title">KARMAを友達と\n共有する</string>
+    <string name="share_subtitle">良いKARMAは共有されるべきです 💚\nユーザーが増えれば、インパクトも増えます！</string>
+    <string name="share">行く</string>
+    <string name="share_later">今はしない</string>
+
+
+    <string name="onboarding_companion_searchbar">🔎ここに検索内容を入力して、動物と生物多様性を保護するのを手伝ってください！</string>
+    <string name="onboarding_companion_affiliate">💰これらのサービスを利用するたびに、非営利パートナーへの寄付も生み出されます</string>
+
+    <string name="onboarding_companion_learn_and_act">✊ニュースフィードをスクロールして、直接的な影響を与える具体的な方法を発見してください</string>
+    <string name="onboarding_companion_settings">⚙️​ ここをクリックして、KARMAのホームページのレイアウトを設定できます</string>
+    <string name="home_screen_top_sites_heading">ショートカット</string>
+    <string name="karma_notification_default_browser_title">インパクトを最大化！🌎</string>
+    <string name="karma_notification_default_browser_text">ワンタップでKARMAをデフォルトのブラウザに。\n検索が増えれば、インパクトも増えます ✊
+</string>
+    <string name="karma_notification_dock_title">あなたの次の検索が、種の救済を助けるかもしれません 🦋</string>
+    <string name="karma_notification_dock_text">KARMAをドックに入れて、手軽に保全活動を</string>
+    <string name="karma_notification_share_title">あなたの検索が違いを生んでいます！🌎✊</string>
+    <string name="karma_notification_share_text">友達とKARMAを共有して、インパクトを2倍に</string>
+    <string name="learn_and_act_title">Learn &amp; Act</string>
+
+    <string name="learn_and_act_subtitle">参加するための私たちのセレクション！</string>
+    <string name="channel_karma_update">"KARMAの更新</string>
+    <string name="channel_learnandact">Learn &amp; Act</string>
 
 </resources>

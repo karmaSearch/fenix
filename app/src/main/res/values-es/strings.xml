@@ -1995,44 +1995,69 @@
 
 
     <!-- KARMA -->
-    <string name="karma_picture_preference">KARMA fotos</string>
     <string name="learn_and_act_preference">Learn &amp; Act</string>
-    <string name="preferences_category_about_karma">Sobre KARMA</string>
-    <string name="preferences_karma_mission">Nuestra Misión</string>
+    <string name="karma_picture_preference">Imágenes de KARMA</string>
+    <string name="preferences_category_about_karma">Acerca de KARMA</string>
+    <string name="preferences_karma_mission">Nuestra misión</string>
     <string name="preferences_karma_howitwork">Cómo funciona</string>
     <string name="preferences_karma_partners">Socios</string>
     <string name="preferences_karma_privacy">Privacidad</string>
     <string name="preferences_karma_termsofservices">Términos de servicio</string>
-    <string name="preferences_karma_feedback">Feedback</string>
-    <string name="preferences_feedback_forms">Enviar comentarios</string>
+    <string name="preferences_karma_feedback">Tus comentarios</string>
+    <string name="preferences_feedback_forms">Danos tu opinión</string>
     <string name="preferences_feedback_contact">Contáctanos</string>
 
-    <string name="onboarding_next">Seguir</string>
-    <string name="onboarding_title_1">Buscar con un propósito</string>
-    <string name="onboarding_subtitle_1">Tus búsquedas financian organizaciones sin fines de lucro, de forma gratuita</string>
-    <string name="onboarding_title_2">Encuentra lo que buscas</string>
-    <string name="onboarding_subtitle_2">KARMA funciona como tu motor de busqueda habitual</string>
-    <string name="onboarding_title_3">Learn &amp; Act</string>
-    <string name="onboarding_subtitle_3">Participa y manténte actualizado con las noticias de KARMA</string>
-    <string name="onboarding_skip">Saltar</string>
-    <string name="onboarding_finish">Empezar a navegar</string>
-    <string name="onboarding_default_browser_title">¡Configura KARMA como navegador predeterminado!</string>
-    <string name="onboarding_default_browser_subtitle">Se abrirán los sitios web en KARMA para que puedas contribuir a proteger la biodiversidad y el bienestar animal</string>
-    <string name="onboarding_default_browser_choose">Seleccionar KARMA</string>
+    <string name="onboarding_next">Continuar</string>
+    <string name="onboarding_title_1">Cada búsqueda\nhace una diferencia</string>
+    <string name="onboarding_subtitle_1">Tus búsquedas ayudan a financiar a nuestros socios sin fines de lucro de confianza — ¡totalmente gratis!</string>
+    <string name="onboarding_default_browser_title">Haz que cada\nbúsqueda cuente</string>
+    <string name="onboarding_default_browser_subtitle">En la siguiente pantalla, selecciona KARMA como tu navegador predeterminado para convertir todas tus búsquedas en un impacto positivo</string>
+    <string name="onboarding_default_browser_choose">Elegir KARMA</string>
     <string name="onboarding_default_browser_notnow">Ahora no</string>
-    <string name="add_widget_title">¡Instala el widget KARMA para buscar directamente desde la página de inicio!</string>
-    <string name="add_a_widget">OK !</string>
-    <string name="add_widget_later">Ahora no</string>
-    <string name="onboarding_companion_searchbar">🔎 Busca aquí y ayuda a proteger a los animales y la biodiversidad</string>
-    <string name="onboarding_companion_affiliate">💰 Usando estos servicios, también ayudas a generar donaciones para nuestras organizaciones aliadas</string>
-    <string name="onboarding_companion_learn_and_act">✊ Explora nuestro feed de noticias y encuentra maneras reales de generar un impacto directo</string>
-    <string name="onboarding_companion_settings">⚙️ Puedes configurar el diseño de tu página de inicio de KARMA haciendo clic aquí</string>
-    <string name="home_screen_top_sites_heading">Sitios destacados</string>
-    <string name="karma_notification_default_browser_title">¡Ayúdanos a proteger la biodiversidad! 🌎</string>
-    <string name="karma_notification_default_browser_text">Configura %1$s como motor de búsqueda predeterminado para maximizar tu impacto 💪 🦁</string>
-    <string name="karma_notification_widget_title">¿Has instalado el widget KARMA? 🤓 📲</string>
-    <string name="karma_notification_widget_text">El widget te permite buscar directamente desde su pantalla de inicio 🦊 🌱</string>
-    <string name="karma_notification_dock_title">¿Quieres proteger la biodiversidad y el bienestar animal de manera eficaz? 💪</string>
-    <string name="karma_notification_dock_text">Haz clic aquí para descubrir cómo usar KARMA en lugar de Google Chrome 💡</string>
-    <string name="learn_and_act_subtitle">Nuestra selección para informarse y actuar</string>
+    <string name="onboarding_notifications">Mantente actualizado sobre tu impacto positivo</string>
+    <string name="onboarding_notifications_subtitle">Recibe actualizaciones sobre las causas que apoyan tus búsquedas y notificaciones útiles del navegador. <b>¡Sin spam, lo prometemos!</b></string>
+    <string name="onboarding_notifications_enable">Habilitar notificaciones</string>
+    <string name="onboarding_notifications_no">No, gracias</string>
+
+    <string name="add_widget_title">Añade el widget de KARMA a tu pantalla de inicio</string>
+    <string name="add_widget_searchbar">Busca en la web con KARMA</string>
+    <string name="add_a_widget">Añadir</string>
+    <string name="add_widget_later">Más tarde</string>
+
+    <string name="dock_title">¡Duplica tu impacto sin esfuerzo!</string>
+    <string name="dock_subtitle">Aprende cómo poner KARMA en tu lugar preferido en el dock para un fácil acceso</string>
+    <string name="dock">Enséñame cómo</string>
+    <string name="dock_later">Más tarde</string>
+
+    <string name="rating_title">¡Ayúdanos a aumentar nuestro impacto!</string>
+    <string name="rating_subtitle">Tus valoraciones de 5 estrellas y reseñas ayudan a más personas a descubrir KARMA</string>
+    <string name="rating">Valorar en la Play Store</string>
+    <string name="rating_later">Más tarde</string>
+
+    <string name="share_title">Comparte KARMA\ncon tus amigos</string>
+    <string name="share_subtitle">El buen KARMA está hecho para ser compartido 💚\n¡Más usuarios = más impacto!</string>
+    <string name="share">Ir</string>
+    <string name="share_later">Ahora no</string>
+
+
+    <string name="onboarding_companion_searchbar">🔎Escribe tu búsqueda aquí para ayudar a proteger a los animales y la biodiversidad!</string>
+    <string name="onboarding_companion_affiliate">💰También generas donaciones para nuestros socios sin fines de lucro cada vez que usas estos servicios</string>
+
+    <string name="onboarding_companion_learn_and_act">✊Desplázate por el muro de noticias para descubrir formas concretas en las que puedes tener un impacto directo</string>
+    <string name="onboarding_companion_settings">⚙️​ Puedes configurar el diseño de tu página de inicio de KARMA haciendo clic aquí</string>
+    <string name="home_screen_top_sites_heading">Atajos</string>
+    <string name="karma_notification_default_browser_title">¡Maximiza tu impacto! 🌎</string>
+    <string name="karma_notification_default_browser_text">Un toque para convertir KARMA en tu navegador predeterminado. Más búsquedas = más impacto ✊</string>
+    <string name="karma_notification_dock_title">Tus búsquedas en Internet contribuyen a salvar especies 🐘🐋🐢</string>
+    <string name="karma_notification_dock_text">💡Haga clic aquí para descubrir cómo colocar KARMA en sus aplicaciones favoritas.</string>
+    <string name="karma_notification_share_title">¡Ya llevas 100 días utilizando KARMA! 🎉</string>
+    <string name="karma_notification_share_text">Comparte KARMA con un amigo para duplicar tu impacto 💚</string>
+    <string name="learn_and_act_title">Leanr &amp; Act</string>
+
+    <string name="learn_and_act_subtitle">¡Nuestra selección para involucrarse!</string>
+    <string name="channel_karma_update">"Actualizaciones de KARMA</string>
+    <string name="channel_learnandact">Learn &amp; Act</string>
+
+
+
 </resources>

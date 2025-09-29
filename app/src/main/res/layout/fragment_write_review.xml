@@ -39,7 +39,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/write_review_icon"
-            android:text="@string/write_review_dialog_title" />
+            android:text="@string/rating_title" />
 
         <TextView
             android:id="@+id/write_review_stars"
@@ -62,7 +62,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/write_review_stars"
             android:textColor="@color/photonGrey10"
-            android:text="@string/write_review_dialog_message" />
+            android:text="@string/rating_subtitle" />
 
         <Button
             android:id="@+id/write_review_button"
@@ -77,7 +77,7 @@
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toEndOf="@+id/write_review_later"
             app:layout_constraintTop_toBottomOf="@id/write_review_message"
-            android:text="@string/write_review_dialog_go_button" />
+            android:text="@string/rating" />
 
         <Button
             android:id="@+id/write_review_later"
@@ -90,7 +90,7 @@
             app:layout_constraintEnd_toStartOf="@+id/write_review_button"
             app:layout_constraintStart_toStartOf="parent"
             android:textColor="@color/photonGreen50"
-            android:text="@string/write_review_dialog_not_now_button" />
+            android:text="@string/rating_later" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>
