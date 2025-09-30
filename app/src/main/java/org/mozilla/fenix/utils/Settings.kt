@@ -1558,10 +1558,29 @@ class Settings(private val appContext: Context) : PreferencesHolder {
     /**
      * Shows if the write review dialog should be shown on home screen.
      * Shows after APP_LAUNCHES_TO_SHOW_WRITE_REVIEW_DIALOG app launches.
+     * Does not show if user has already rated the app (checked via In-App Review API).
      */
     fun shouldShowWriteReviewDialog(): Boolean {
         return !userDismissedWriteReviewDialog &&
-                numberOfAppLaunches >= APP_LAUNCHES_TO_SHOW_WRITE_REVIEW_DIALOG
+                numberOfAppLaunches >= APP_LAUNCHES_TO_SHOW_WRITE_REVIEW_DIALOG &&
+                !hasUserAlreadyRatedApp()
+    }
+
+    /**
+     * Check if user has already rated the app using Google Play In-App Review API.
+     */
+    private fun hasUserAlreadyRatedApp(): Boolean {
+        try {
+            val manager = com.google.android.play.core.review.ReviewManagerFactory.create(appContext)
+            val request = manager.requestReviewFlow()
+            
+            // If the request fails or is not available, it likely means the user has already rated
+            // or the conditions for showing review are not met by Google Play
+            return request.isComplete && request.result == null
+        } catch (e: Exception) {
+            // If there's an exception, assume no review is needed (user may have already rated)
+            return true
+        }
     }
 
     /**
@@ -1583,6 +1602,7 @@ class Settings(private val appContext: Context) : PreferencesHolder {
     fun initializeInAppFeatureUpdateTimestamp() {
         if (inAppFeatureUpdateTimeStamp == 0L) {
             inAppFeatureUpdateTimeStamp = System.currentTimeMillis()
+            numberOfAppLaunches = 0
         }
     }
 
