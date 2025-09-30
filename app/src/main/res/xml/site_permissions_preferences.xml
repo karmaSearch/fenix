@@ -33,11 +33,17 @@
             android:icon="@drawable/ic_notifications_enabled"
             android:key="@string/pref_key_phone_feature_notification"
             android:title="@string/preference_phone_feature_notification"
+            android:summary="@string/preference_option_phone_feature_ask_to_allow"/>
+
+    <androidx.preference.Preference
+            android:icon="@drawable/ic_file_type_image"
+            android:key="@string/pref_key_phone_feature_media_storage"
+            android:title="@string/preference_phone_feature_media_storage"
             android:summary="@string/preference_option_phone_feature_ask_to_allow"
             app:allowDividerBelow="true"/>
 
     <androidx.preference.Preference
-        android:icon="@drawable/ic_storage"
+        android:icon="@drawable/ic_folder_icon"
         android:key="@string/pref_key_browser_feature_persistent_storage"
         android:title="@string/preference_phone_feature_persistent_storage"
         android:summary="@string/preference_option_phone_feature_ask_to_allow"
