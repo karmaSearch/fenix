@@ -92,6 +92,7 @@
         app:layout_constraintTop_toBottomOf="@+id/onboarding_subTitle">
 
         <ImageView
+            android:id="@+id/orga_image_1"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginStart="16dp"
@@ -101,6 +102,7 @@
             android:src="@drawable/ic_orga_1" />
 
         <ImageView
+            android:id="@+id/orga_image_2"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginStart="16dp"
@@ -110,6 +112,7 @@
             android:src="@drawable/ic_orga_2" />
 
         <ImageView
+            android:id="@+id/orga_image_3"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginStart="16dp"

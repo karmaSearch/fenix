@@ -34,6 +34,7 @@ class OnBoardingFragment: Fragment() {
         }
 
         setupClickListeners()
+        setupLocaleBasedImages()
         
         return binding.root
     }
@@ -43,6 +44,39 @@ class OnBoardingFragment: Fragment() {
         binding.onboardingButton.setOnClickListener {
             val directions = NavGraphDirections.actionStartupDefaultbrowser()
             findNavController().navigate(directions)
+        }
+    }
+
+    private fun setupLocaleBasedImages() {
+        val locale = Locale.getDefault().language
+        
+        when (locale) {
+            "en" -> {
+                // Afficher les versions par défaut (PNG) pour l'anglais
+                binding.orgaImage1.setImageResource(R.drawable.ic_orga_1)
+                binding.orgaImage2.setImageResource(R.drawable.ic_orga_2)
+                binding.orgaImage3.setImageResource(R.drawable.ic_orga_3)
+                
+                binding.orgaImage1.visibility = View.VISIBLE
+                binding.orgaImage2.visibility = View.VISIBLE
+                binding.orgaImage3.visibility = View.VISIBLE
+            }
+            "fr" -> {
+                // Utiliser les versions françaises avec nouveaux noms
+                binding.orgaImage1.setImageResource(R.drawable.ic_orga_1_fr)
+                binding.orgaImage2.setImageResource(R.drawable.ic_orga_2_fr)
+                binding.orgaImage3.setImageResource(R.drawable.ic_orga_3_fr)
+                
+                binding.orgaImage1.visibility = View.VISIBLE
+                binding.orgaImage2.visibility = View.VISIBLE
+                binding.orgaImage3.visibility = View.VISIBLE
+            }
+            else -> {
+                // Cacher les images pour toutes les autres langues
+                binding.orgaImage1.visibility = View.GONE
+                binding.orgaImage2.visibility = View.GONE
+                binding.orgaImage3.visibility = View.GONE
+            }
         }
     }
 
