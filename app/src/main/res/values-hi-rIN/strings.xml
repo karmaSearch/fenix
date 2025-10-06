@@ -1610,8 +1610,8 @@
 </string>
     <string name="karma_notification_dock_title">KARMA का उपयोग प्रजातियों को बचाने में योगदान देता है 🐘🐋🐢</string>
     <string name="karma_notification_dock_text">💡अपने पसंदीदा ऐप्स में KARMA डालने का तरीका जानने के लिए यहां क्लिक करें</string>
-    <string name="karma_notification_share_title">आप 100 दिनों से KARMA का उपयोग कर रहे हैं! 🎉</string>
-    <string name="karma_notification_sharek_text">अपने प्रभाव को बढ़ाने के लिए अपने दोस्तों के साथ KARMA साझा करें! 💚</string>
+    <string name="karma_notification_share_title">आप 100 दिनों से ज़्यादा समय से KARMA का इस्तेमाल कर रहे हैं! 🎉</string>
+    <string name="karma_notification_share_text">अपने प्रभाव को बढ़ाने के लिए अपने दोस्तों के साथ KARMA साझा करें! 💚</string>
     <string name="learn_and_act_title">Learn &amp; Act</string>
 
     <string name="learn_and_act_subtitle">शामिल होने के लिए हमारा चयन!</string>

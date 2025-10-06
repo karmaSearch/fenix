@@ -1999,59 +1999,61 @@
     <string name="learn_and_act_preference">Learn &amp; Act</string>
     <string name="preferences_category_about_karma">Über KARMA</string>
     <string name="preferences_karma_mission">Unsere Mission</string>
-    <string name="preferences_karma_howitwork">Wie es funktioniert</string>
-    <string name="preferences_karma_partners">Partner</string>
+    <string name="preferences_karma_howitwork">So funktioniert’s</string>
+    <string name="preferences_karma_partners">Unsere Partner</string>
     <string name="preferences_karma_privacy">Datenschutz</string>
     <string name="preferences_karma_termsofservices">Nutzungsbedingungen</string>
-    <string name="preferences_karma_feedback">Ihr Feedback</string>
+    <string name="preferences_karma_feedback">Ihre Kommentare</string>
     <string name="preferences_feedback_forms">Geben Sie uns Ihr Feedback</string>
     <string name="preferences_feedback_contact">Kontaktieren Sie uns</string>
 
     <string name="onboarding_next">Weiter</string>
-    <string name="onboarding_title_1">Jede Suche\nmacht einen Unterschied</string>
-    <string name="onboarding_subtitle_1">Ihre Suchen helfen, unsere vertrauenswürdigen gemeinnützigen Partner zu finanzieren — völlig kostenlos!</string>
+    <string name="onboarding_title_1">Ihre Suchanfragen machen einen Unterschied</string>
+    <string name="onboarding_subtitle_1">Ihre Suchanfragen helfen dabei, unsere vertrauenswürdigen gemeinnützigen Partner zu finanzieren – völlig kostenlos!</string>
     <string name="onboarding_default_browser_title">Sorgen Sie dafür, dass jede\nSuche zählt</string>
     <string name="onboarding_default_browser_subtitle">Wählen Sie auf dem nächsten Bildschirm KARMA als Ihren Standardbrowser, um alle Ihre Suchen in positive Wirkung zu verwandeln</string>
     <string name="onboarding_default_browser_choose">KARMA wählen</string>
     <string name="onboarding_default_browser_notnow">Jetzt nicht</string>
-    <string name="onboarding_notifications">Bleiben Sie über Ihre positive Wirkung auf dem Laufenden</string>
-    <string name="onboarding_notifications_subtitle">Erhalten Sie Updates über die Anliegen, die Ihre Suchen unterstützen, und nützliche Browser-Benachrichtigungen. <b>Kein Spam, versprochen!</b></string>
+    <string name="onboarding_notifications">Bleiben Sie über Ihre positiven Auswirkungen  informiert!</string>
+    <string name="onboarding_notifications_subtitle">Erhalten Sie Updates zu den Projekten, die Sie mit Ihren Suchanfragen unterstützen, sowie hilfreiche Browser-Benachrichtigungen. <b>Kein Spam, versprochen!</b></string>
     <string name="onboarding_notifications_enable">Benachrichtigungen aktivieren</string>
     <string name="onboarding_notifications_no">Nein, danke</string>
 
-    <string name="add_widget_title">Fügen Sie das KARMA Widget zu Ihrem Startbildschirm hinzu</string>
-    <string name="add_widget_searchbar">Suchen Sie im Web mit KARMA</string>
+    <string name="add_widget_title">Fügen Sie das KARMA-Widget zu Ihrem Startbildschirm hinzu!</string>
+    <string name="add_widget_searchbar">Suchen Sie im Internet</string>
     <string name="add_a_widget">Hinzufügen</string>
     <string name="add_widget_later">Später</string>
 
-    <string name="dock_title">Verdoppeln Sie Ihre Wirkung mühelos!</string>
-    <string name="dock_subtitle">Erfahren Sie, wie Sie KARMA für einfachen Zugriff in Ihren bevorzugten Bereich im Dock legen</string>
+    <string name="dock_title">Steigern Sie Ihre Auswirkungen  mühelos!</string>
+    <string name="dock_subtitle">Erfahren Sie, wie Sie KARMA in Ihre Favoritenleiste setzen  können, um es leicht zugänglich zu machen.
+</string>
     <string name="dock">Zeigen Sie mir, wie</string>
     <string name="dock_later">Später</string>
 
-    <string name="rating_title">Helfen Sie uns, unsere Wirkung zu steigern!</string>
+    <string name="rating_title">Helfen Sie uns, KARMA bekannt zu machen!</string>
     <string name="rating_subtitle">Ihre 5-Sterne-Bewertungen und Rezensionen helfen mehr Menschen, KARMA zu entdecken</string>
     <string name="rating">Im Play Store bewerten</string>
     <string name="rating_later">Später</string>
 
-    <string name="share_title">Teilen Sie KARMA\nmit Ihren Freunden</string>
-    <string name="share_subtitle">Gutes KARMA ist dazu gedacht, geteilt zu werden 💚\nMehr Benutzer = mehr Wirkung!</string>
+    <string name="share_title">Teilen Sie KARMA mit Ihren Freunden 💚</string>
+    <string name="share_subtitle">Mehr Nutzer = mehr Wirkung!</string>
     <string name="share">Los</string>
     <string name="share_later">Jetzt nicht</string>
 
 
-    <string name="onboarding_companion_searchbar">🔎Geben Sie hier Ihre Suche ein, um den Schutz von Tieren und der Biodiversität zu unterstützen!</string>
-    <string name="onboarding_companion_affiliate">💰Sie generieren auch Spenden für unsere gemeinnützigen Partner, wann immer Sie diese Dienste nutzen</string>
+    <string name="onboarding_companion_searchbar">🔎 Suchen Sie  hier, um Tiere und  Artenvielfalt zu schützen!</string>
+    <string name="onboarding_companion_affiliate">💰 Jedes Mal, wenn Sie diese Dienste nutzen, generieren Sie auch Spenden für unsere gemeinnützigen Partner.</string>
 
-    <string name="onboarding_companion_learn_and_act">✊Scrollen Sie durch den Newsfeed, um konkrete Wege zu entdecken, wie Sie eine direkte Wirkung erzielen können</string>
-    <string name="onboarding_companion_settings">⚙️​ Sie können das Layout Ihrer KARMA-Homepage hier konfigurieren</string>
+    <string name="onboarding_companion_learn_and_act">✊ Scrollen Sie durch unseren Newsfeed! Sie können so endecken, wie Sie konkret handeln können.</string>
+    <string name="onboarding_companion_settings">⚙️​
+Klicken Sie hier,um das Layout Ihrer KARMA Homepage zu konfigurieren.</string>
     <string name="home_screen_top_sites_heading">Verknüpfungen</string>
     <string name="karma_notification_default_browser_title">Maximieren Sie Ihre Wirkung! 🌎</string>
-    <string name="karma_notification_default_browser_text">Mit einem Fingertipp wird KARMA zu Ihrem Standardbrowser. Mehr Suchanfragen = mehr Einfluss ✊</string>
-    <string name="karma_notification_dock_title">Ihre Internetrecherchen tragen zur Rettung von Tierarten bei 🐘🐋🐢</string>
-    <string name="karma_notification_dock_text">💡Klicken Sie hier, um zu erfahren, wie Sie KARMA in Ihren Lieblings-Apps platzieren können</string>
-    <string name="karma_notification_share_title">Sie nutzen KARMA bereits seit 100 Tagen! 🎉</string>
-    <string name="karma_notification_share_text">Teilen Sie KARMA mit einem Freund, um Ihre Wirkung zu verdoppeln 💚</string>
+    <string name="karma_notification_default_browser_text">Mit einem Klick machen Sie KARMA zu Ihrem Standardbrowser. Mehr Suchanfragen = mehr Auswirkungen ✊</string>
+    <string name="karma_notification_dock_title">Ihre nächste Suche könnte helfen, Arten zu retten. 🐘🐋🐢🦋</string>
+    <string name="karma_notification_dock_text">💡Indem Sie KARMA Ihrer Favoritenleiste hinzufügen, tragen Sie zum Naturschutz bei.</string>
+    <string name="karma_notification_share_title">Ihre Suchanfragen haben einen positiven Einfluss!🌎✊</string>
+    <string name="karma_notification_share_text">Teilen Sie KARMA mit einem Freund, um Ihre Auswirkungen zu steigern.</string>
     <string name="learn_and_act_title">Learn &amp; Act</string>
 
     <string name="learn_and_act_subtitle">Unsere Auswahl, um sich zu engagieren!</string>

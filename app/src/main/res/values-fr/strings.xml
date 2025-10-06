@@ -2009,7 +2009,7 @@
     <string name="onboarding_default_browser_choose">Choisir KARMA</string>
     <string name="onboarding_default_browser_notnow">Plus tard</string>
     <string name="onboarding_notifications">Les notifications de KARMA vous simplifient la vie</string>
-    <string name="onboarding_notifications_subtitle">Recevez des notifications utiles pour agir et gérer plus facilement votre navigateur\n<b>Pas de spam, c\'est promis !</b></string>
+    <string name="onboarding_notifications_subtitle">Recevez des notifications utiles pour agir et gérer plus facilement votre navigateur <b>Pas de spam, c\'est promis !</b></string>
     <string name="onboarding_notifications_enable">Activer les notifications</string>
     <string name="onboarding_notifications_no">Non merci</string>
 
@@ -2019,7 +2019,7 @@
     <string name="add_widget_later">Plus tard</string>
 
     <string name="dock_title">Décuplez votre impact !</string>
-    <string name="dock_subtitle">Découvrez comment mettre KARMA dans votre barre de favoris pour un accès simplifié</string>
+    <string name="dock_subtitle">Découvrez comment mettre KARMA dans votre barre de favoris pour y accéder facilement</string>
     <string name="dock">Continuer</string>
     <string name="dock_later">Plus tard</string>
 
@@ -2042,8 +2042,8 @@
     <string name="karma_notification_default_browser_text">Sélectionnez KARMA comme navigateur par défaut pour que chaque recherche compte</string>
     <string name="karma_notification_dock_title">Vos recherches contribuent à sauver des espèces 🐘🐋🐢</string>
     <string name="karma_notification_dock_text">💡Cliquez ici pour découvrir comment placer KARMA dans vos applis favorites</string>
-    <string name="karma_notification_share_title">Déjà 100 jours que vous utilisez KARMA! 🎉</string>
-    <string name="karma_notification_share_text">Partagez KARMA avec vos amis pour démultiplier votre impact! 💚</string>
+    <string name="karma_notification_share_title">Déjà plus de 100 jours que vous utilisez KARMA  🎉</string>
+    <string name="karma_notification_share_text">Partagez KARMA avec vos amis pour démultiplier votre impact ! 💚</string>
     <string name="learn_and_act_title">Learn &amp; Act</string>
     <string name="learn_and_act_subtitle">Notre sélection pour s\'impliquer !</string>
     <string name="channel_karma_update">Mises à jour KARMA</string>
