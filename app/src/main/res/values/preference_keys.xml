@@ -75,6 +75,7 @@
     <string name="pref_key_is_first_run" translatable="false">pref_key_is_first_run</string>
     <string name="pref_key_has_shown_home_onboarding" translatable="false">pref_key_has_shown_home_onboarding</string>
     <string name="pref_key_has_shown_default_browser" translatable="false">pref_key_has_shown_default_browser</string>
+    <string name="pref_key_has_shown_default_browser_after_7_days" translatable="false">pref_key_has_shown_default_browser_after_7_days</string>
 
     <string name="pref_key_feedback" translatable="false">pref_key_feedback</string>
     <string name="pref_key_contact" translatable="false">pref_key_contact</string>

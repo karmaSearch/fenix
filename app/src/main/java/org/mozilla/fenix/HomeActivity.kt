@@ -1058,7 +1058,7 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
         // Show notification dialog if onboarding is done AND default browser flow is done
         // AND not currently showing and not already shown
         val isDefaultBrowserFlowDone = settings().hasShownDefaultBrowserDialog || 
-                                       (!settings().shouldShowSetAsDefaultBrowserAfterOnboarding() && !settings().shouldShowSetAsDefaultBrowserOnBoarding())
+                                       (!settings().shouldShowSetAsDefaultBrowserAfterOnboarding())
         
         return settings().hasShownHomeOnboardingDialog &&
                 isDefaultBrowserFlowDone &&

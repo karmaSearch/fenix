@@ -12,11 +12,13 @@ import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import org.mozilla.fenix.R
 import org.mozilla.fenix.databinding.OnboardingDialogAffiliatesBinding
+import org.mozilla.fenix.databinding.OnboardingDialogCustomHomeBinding
 import org.mozilla.fenix.databinding.OnboardingDialogLearnandactBinding
 import org.mozilla.fenix.databinding.OnboardingDialogSearchbarBinding
 import org.mozilla.fenix.ext.settings
 import org.mozilla.fenix.home.affiliatesites.AffiliateSitesPagerViewHolder
 import org.mozilla.fenix.home.learnandact.viewholders.LearnAndActHeaderViewHolder
+import org.mozilla.fenix.home.sessioncontrol.viewholders.CustomizeHomeButtonViewHolder
 
 class CompanionOnBoardingDialog(private val searchBar: View, private val recyclerView: RecyclerView) {
     /**
@@ -25,10 +27,11 @@ class CompanionOnBoardingDialog(private val searchBar: View, private val recycle
     private var searchBarCrf: Dialog?
     private var learnAndActCrf: Dialog? = null
     private var affiliatesCrf: Dialog? = null
+    private var customHomeCrf: Dialog? = null
     private val context: Context = recyclerView.context
 
     val isShowing: Boolean
-        get() = searchBarCrf?.isShowing == true || learnAndActCrf?.isShowing == true || affiliatesCrf?.isShowing == true
+        get() = searchBarCrf?.isShowing == true || learnAndActCrf?.isShowing == true || affiliatesCrf?.isShowing == true || customHomeCrf?.isShowing == true
 
 
     init {
@@ -55,10 +58,13 @@ class CompanionOnBoardingDialog(private val searchBar: View, private val recycle
                 val learnAndActView = findLearnAndActInView()
                 if (learnAndActView != null) {
                     learnAndActCrf = createLearnAndActCRF(learnAndActView)
+                    learnAndActCrf?.setOnDismissListener(getLearnAndActDismissListener())
                     learnAndActCrf?.show()
                 }
+            } else {
+                // For existing users, show custom home CFR after affiliate sites
+                showCustomHomeCFRIfNeeded()
             }
-            // For existing users, don't show learn&act as they've already seen it
         }
 
         val searchBarOnCancelListener = DialogInterface.OnDismissListener {
@@ -71,6 +77,7 @@ class CompanionOnBoardingDialog(private val searchBar: View, private val recycle
                 val learnAndActView = findLearnAndActInView()
                 if (learnAndActView != null) {
                     learnAndActCrf = createLearnAndActCRF(learnAndActView)
+                    learnAndActCrf?.setOnDismissListener(getLearnAndActDismissListener())
                     learnAndActCrf?.show()
                 }
             }
@@ -89,10 +96,17 @@ class CompanionOnBoardingDialog(private val searchBar: View, private val recycle
             val affiliateSitesView = findAffiliateSitesInView()
             if (affiliateSitesView != null) {
                 val existingUserAffiliateListener = DialogInterface.OnDismissListener {
-                    // Do nothing - existing users don't see learn&act after affiliate
+                    // Show custom home CFR after affiliate for existing users
+                    showCustomHomeCFRIfNeeded()
                 }
                 showAffiliateSitesCFRWithListener(existingUserAffiliateListener)
+            } else {
+                // No affiliate sites to show, show custom home CFR directly
+                showCustomHomeCFRIfNeeded()
             }
+        } else {
+            // No affiliates, no search bar - just show custom home CFR if needed
+            showCustomHomeCFRIfNeeded()
         }
     }
 
@@ -243,4 +257,54 @@ class CompanionOnBoardingDialog(private val searchBar: View, private val recycle
         return popup
     }
 
+    private fun createCustomHomeCRF(x: Int, y: Int): Dialog {
+        val popupBinding = OnboardingDialogCustomHomeBinding.inflate(LayoutInflater.from(context))
+        val popup = Dialog(context)
+
+        popup.apply {
+            setContentView(popupBinding.root)
+            setCancelable(false)
+            // removing title or setting it as an empty string does not prevent a11y services from assigning one
+            setTitle(" ")
+        }
+
+        popup.window?.apply {
+            val attr = attributes
+            setGravity(Gravity.END or Gravity.TOP)
+            attr.x = x
+            attr.y = y
+            attributes = attr
+            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        }
+
+        popup.setCanceledOnTouchOutside(true)
+        return popup
+    }
+
+    private fun getLearnAndActDismissListener(): DialogInterface.OnDismissListener {
+        return DialogInterface.OnDismissListener {
+            // Show custom home CFR after learn and act
+            showCustomHomeCFRIfNeeded()
+        }
+    }
+
+    private fun showCustomHomeCFRIfNeeded() {
+        if (context.settings().shouldShowCustomHomeCFR) {
+            val tv = TypedValue()
+            var y = if (context.theme.resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
+                val actionBarHeight = TypedValue.complexToDimensionPixelSize(
+                    tv.data,
+                    context.getResources()
+                        .getDisplayMetrics()
+                )
+                actionBarHeight / 2
+
+            } else {
+                20
+            }
+            customHomeCrf = createCustomHomeCRF(0, y)
+            customHomeCrf?.show()
+            context.settings().shouldShowCustomHomeCFR = false
+        }
+    }
 }

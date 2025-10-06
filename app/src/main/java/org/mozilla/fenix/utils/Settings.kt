@@ -423,7 +423,7 @@ class Settings(private val appContext: Context) : PreferencesHolder {
             timeSinceFeatureUpdate >= (DAYS_TO_SHOW_DEFAULT_BROWSER_ONBOARDING * ONE_DAY_MS)
         }
 
-        return !browsers.isKARMADefaultBrowser && !hasShownDefaultBrowserDialog && hasWaitedEnoughTime
+        return !browsers.isKARMADefaultBrowser && !hasShownDefaultBrowserDialogAfter7Days && hasWaitedEnoughTime
     }
 
     /**
@@ -921,6 +921,14 @@ class Settings(private val appContext: Context) : PreferencesHolder {
      */
     var hasShownDefaultBrowserDialog by booleanPreference(
         appContext.getPreferenceKey(R.string.pref_key_has_shown_default_browser),
+        default = false
+    )
+
+    /**
+     * Indicates if the default browser dialog has been shown after the 7-day waiting period.
+     */
+    var hasShownDefaultBrowserDialogAfter7Days by booleanPreference(
+        appContext.getPreferenceKey(R.string.pref_key_has_shown_default_browser_after_7_days),
         default = false
     )
 
@@ -1621,6 +1629,11 @@ class Settings(private val appContext: Context) : PreferencesHolder {
 
     var shouldShowAffiliateSitesCFR by booleanPreference(
         "pref_key_should_show_affiliate_sites_cfr",
+        default = true
+    )
+
+    var shouldShowCustomHomeCFR by booleanPreference(
+        "pref_key_should_show_custom_home_cfr",
         default = true
     )
 

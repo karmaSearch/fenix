@@ -104,9 +104,8 @@ class ShareNotificationWorker(
         private const val INTENT_SHARE_NOTIFICATION = "org.mozilla.fenix.share.intent"
         private const val NOTIFICATION_TAG = "org.mozilla.fenix.share.tag"
         private const val NOTIFICATION_WORK_NAME = "org.mozilla.fenix.share.work"
-        private const val SHARE_URL = "https://info.karmasearch.org/share?utm_source=push-notif"
         private val NOTIFICATIONS_DELAY = listOf(
-            Settings.ONE_DAY_MS * 3, // 3 days
+            Settings.ONE_DAY_MS * 100,
         )
 
         fun isShareNotificationIntent(intent: Intent) =
