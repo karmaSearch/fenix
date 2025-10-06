@@ -10,6 +10,7 @@ import android.os.Build
 import android.os.Bundle
 import android.view.*
 import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
 import androidx.fragment.app.DialogFragment
 import org.mozilla.fenix.GleanMetrics.SearchWidget
 import org.mozilla.fenix.R
@@ -20,6 +21,7 @@ import org.mozilla.gecko.search.SearchWidgetProvider
 class AddKarmaWidgetFragment: DialogFragment() {
     private var _binding: FragmentAddWidgetBinding? = null
     private val binding get() = _binding!!
+    private var originalNavigationBarColor: Int? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setStyle(STYLE_NO_TITLE, R.style.HomeOnboardingDialogStyle)
@@ -37,6 +39,15 @@ class AddKarmaWidgetFragment: DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Set navigation bar to black
+        activity?.window?.let { window ->
+            originalNavigationBarColor = window.navigationBarColor
+            window.navigationBarColor = ContextCompat.getColor(requireContext(), android.R.color.black)
+            WindowCompat.getInsetsController(window, view).let { controller ->
+                controller.isAppearanceLightNavigationBars = false
+            }
+        }
+
         binding.addWidget.setOnClickListener {
             handleOpenRequestPinAppWidget()
             context?.settings()?.userDismissedAddWidgetCard = true
@@ -47,6 +58,19 @@ class AddKarmaWidgetFragment: DialogFragment() {
             context?.settings()?.userDismissedAddWidgetCard = true
         }
 
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        
+        // Restore original navigation bar color
+        activity?.window?.let { window ->
+            originalNavigationBarColor?.let { color ->
+                window.navigationBarColor = color
+            }
+        }
+        
+        _binding = null
     }
 
     private fun handleOpenRequestPinAppWidget() {

@@ -195,7 +195,7 @@
 
     <style name="OnboardingTitleTextViewStyle" parent="@android:style/TextAppearance.Medium">
         <item name="fontFamily">@font/kgsecondchangessolid</item>
-        <item name="android:textSize">20sp</item>
+        <item name="android:textSize">24sp</item>
         <item name="android:textColor">@color/photonWhite</item>
         <item name="android:textAlignment">center</item>
     </style>

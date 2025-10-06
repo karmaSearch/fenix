@@ -8,6 +8,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.navigation.fragment.findNavController
 import org.mozilla.fenix.NavGraphDirections
 import org.mozilla.fenix.R
@@ -21,6 +23,8 @@ import java.util.*
 class OnBoardingFragment: Fragment() {
     private var _binding: FragmentOnBoardingBinding? = null
     private val binding get() = _binding!!
+    private var originalNavigationBarColor: Int? = null
+    private var originalStatusBarColor: Int? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -28,20 +32,41 @@ class OnBoardingFragment: Fragment() {
     ): View {
         _binding = FragmentOnBoardingBinding.inflate(inflater, container, false)
         
-        // Mark onboarding as shown
-        context?.settings()?.let { settings ->
-            settings.hasShownHomeOnboardingDialog = true
-        }
-
         setupClickListeners()
         setupLocaleBasedImages()
         
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        
+        // Set status bar and navigation bar to black for onboarding
+        activity?.window?.let { window ->
+            // Save original colors
+            originalStatusBarColor = window.statusBarColor
+            originalNavigationBarColor = window.navigationBarColor
+            
+            // Set both to black
+            window.statusBarColor = ContextCompat.getColor(requireContext(), android.R.color.black)
+            window.navigationBarColor = ContextCompat.getColor(requireContext(), android.R.color.black)
+            
+            // Ensure icons are light (visible on black background)
+            WindowCompat.getInsetsController(window, view).let { controller ->
+                controller.isAppearanceLightStatusBars = false
+                controller.isAppearanceLightNavigationBars = false
+            }
+        }
+    }
+
     private fun setupClickListeners() {
         // Main button - navigate to default browser setup
         binding.onboardingButton.setOnClickListener {
+            // Mark onboarding as completed when user clicks the button
+            context?.settings()?.let { settings ->
+                settings.hasShownHomeOnboardingDialog = true
+            }
+            
             val directions = NavGraphDirections.actionStartupDefaultbrowser()
             findNavController().navigate(directions)
         }
@@ -82,6 +107,17 @@ class OnBoardingFragment: Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        
+        // Restore original colors when leaving onboarding
+        activity?.window?.let { window ->
+            originalStatusBarColor?.let { color ->
+                window.statusBarColor = color
+            }
+            originalNavigationBarColor?.let { color ->
+                window.navigationBarColor = color
+            }
+        }
+        
         _binding = null
     }
 }
