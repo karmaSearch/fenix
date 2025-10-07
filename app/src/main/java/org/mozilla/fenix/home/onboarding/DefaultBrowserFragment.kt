@@ -78,6 +78,14 @@ class DefaultBrowserFragment: Fragment() {
         
         // Ensure system bars are black when fragment resumes
         view?.let { setSystemBarsToBlack(it) }
+        
+        // Check if app became default browser and close fragment if so
+        context?.settings()?.let { settings ->
+            if (settings.isDefaultBrowserBlocking()) {
+                val directions = NavGraphDirections.actionGlobalHome()
+                findNavController().navigate(directions)
+            }
+        }
     }
 
     private fun setSystemBarsToBlack(view: View) {
