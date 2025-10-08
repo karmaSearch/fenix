@@ -2010,13 +2010,13 @@
     <string name="onboarding_next">Weiter</string>
     <string name="onboarding_title_1">Ihre Suchanfragen machen einen Unterschied</string>
     <string name="onboarding_subtitle_1">Ihre Suchanfragen helfen dabei, unsere vertrauenswürdigen gemeinnützigen Partner zu finanzieren – völlig kostenlos!</string>
-    <string name="onboarding_default_browser_title">Sorgen Sie dafür, dass jede\nSuche zählt</string>
-    <string name="onboarding_default_browser_subtitle">Wählen Sie auf dem nächsten Bildschirm KARMA als Ihren Standardbrowser, um alle Ihre Suchen in positive Wirkung zu verwandeln</string>
+    <string name="onboarding_default_browser_title">Jede Suche zählt.</string>
+    <string name="onboarding_default_browser_subtitle">Wählen Sie auf dem nächsten Bildschirm KARMA als Ihren Standardbrowser aus, um all Ihren Suchanfragen eine positive Wirkung zu verleihen.</string>
     <string name="onboarding_default_browser_choose">KARMA wählen</string>
     <string name="onboarding_default_browser_notnow">Jetzt nicht</string>
     <string name="onboarding_notifications">Bleiben Sie über Ihre positiven Auswirkungen  informiert!</string>
     <string name="onboarding_notifications_subtitle">Erhalten Sie Updates zu den Projekten, die Sie mit Ihren Suchanfragen unterstützen, sowie hilfreiche Browser-Benachrichtigungen. <b>Kein Spam, versprochen!</b></string>
-    <string name="onboarding_notifications_enable">Benachrichtigungen aktivieren</string>
+    <string name="onboarding_notifications_enable">Aktivieren</string>
     <string name="onboarding_notifications_no">Nein, danke</string>
 
     <string name="add_widget_title">Fügen Sie das KARMA-Widget zu Ihrem Startbildschirm hinzu!</string>
