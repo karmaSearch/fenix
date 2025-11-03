@@ -2027,6 +2027,9 @@
     <string name="rating_subtitle">Vos notes et avis positifs contribuent à faire découvrir KARMA à d’autres utilisateurs</string>
     <string name="rating">Évaluer dans le Play Store</string>
     <string name="rating_later">Plus tard</string>
+    <string name="pre_rating_title">Vous appréciez KARMA?</string>
+    <string name="pre_rating_yes">Oui 💚</string>
+    <string name="pre_rating_no">Non ❌</string>
 
     <string name="share_title">Partagez KARMA\navec vos amis</string>
     <string name="share_subtitle">Plus d\'utilisateurs, plus d\'impact ! 💚</string>
@@ -2040,9 +2043,9 @@
     <string name="home_screen_top_sites_heading">Raccourcis</string>
     <string name="karma_notification_default_browser_title">Aidez-nous à protéger le Vivant ! 🌎✊</string>
     <string name="karma_notification_default_browser_text">Sélectionnez KARMA comme navigateur par défaut pour que chaque recherche compte</string>
-    <string name="karma_notification_dock_title">Vos recherches contribuent à sauver des espèces 🐘🐋🐢</string>
+    <string name="karma_notification_dock_title">Vos recherches sauvent des espèces🐘🐋🐢</string>
     <string name="karma_notification_dock_text">💡Cliquez ici pour découvrir comment placer KARMA dans vos applis favorites</string>
-    <string name="karma_notification_share_title">Déjà plus de 100 jours que vous utilisez KARMA  🎉</string>
+    <string name="karma_notification_share_title">Déjà plus de 100 jours de KARMA  🎉</string>
     <string name="karma_notification_share_text">Partagez KARMA avec vos amis pour démultiplier votre impact ! 💚</string>
     <string name="learn_and_act_title">Learn &amp; Act</string>
     <string name="learn_and_act_subtitle">Notre sélection pour s\'impliquer !</string>

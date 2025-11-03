@@ -40,7 +40,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/share_app_icon"
             android:textColor="@color/photonGreen50"
-            android:text="@string/karma_notification_share_title" />
+            android:text="@string/share_title" />
 
         <ImageView
             android:id="@+id/share_app_icons"
@@ -63,7 +63,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/share_app_icons"
             android:textColor="@color/photonGrey10"
-            android:text="@string/karma_notification_share_text" />
+            android:text="@string/share_subtitle" />
 
         <Button
             android:id="@+id/share_app_button"

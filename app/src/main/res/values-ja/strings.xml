@@ -2023,6 +2023,9 @@
     <string name="rating_subtitle">あなたの5つ星評価とレビューが、より多くの人々にKARMAを発見するのを助けます</string>
     <string name="rating">Playストアで評価する</string>
     <string name="rating_later">後で</string>
+    <string name="pre_rating_title">KARMA を楽しんでいますか?</string>
+    <string name="pre_rating_yes">はい 💚</string>
+    <string name="pre_rating_no">いいえ ❌</string>
 
     <string name="share_title">KARMAを友達と\n共有する</string>
     <string name="share_subtitle">良いKARMAは共有されるべきです 💚\nユーザーが増えれば、インパクトも増えます！</string>

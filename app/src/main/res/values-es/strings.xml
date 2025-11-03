@@ -2029,6 +2029,10 @@
     <string name="dock">Enséñame cómo</string>
     <string name="dock_later">Más tarde</string>
 
+    <string name="pre_rating_title">¿Te está gustando KARMA?</string>
+    <string name="pre_rating_yes">Si 💚</string>
+    <string name="pre_rating_no">No ❌</string>
+
     <string name="rating_title">¡Ayúdanos a aumentar nuestro impacto!</string>
     <string name="rating_subtitle">Tus valoraciones de 5 estrellas y reseñas ayudan a más personas a descubrir KARMA</string>
     <string name="rating">Valorar en la Play Store</string>

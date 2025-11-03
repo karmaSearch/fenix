@@ -57,6 +57,11 @@
         app:popUpTo="@id/homeFragment" />
 
     <action
+        android:id="@+id/action_global_enjoying_karma_dialog"
+        app:destination="@id/enjoyingKarmaFragment"
+        app:popUpTo="@id/homeFragment" />
+
+    <action
         android:id="@+id/action_global_write_review_dialog"
         app:destination="@id/writeReviewFragment"
         app:popUpTo="@id/homeFragment" />
@@ -242,6 +247,11 @@
         android:id="@+id/sharedAppFragment"
         android:name="org.mozilla.fenix.shared.SharedAppFragment"
         tools:layout="@layout/fragment_shared_app"/>
+
+    <dialog
+        android:id="@+id/enjoyingKarmaFragment"
+        android:name="org.mozilla.fenix.writereview.EnjoyingKarmaFragment"
+        tools:layout="@layout/fragment_enjoying_karma"/>
 
     <dialog
         android:id="@+id/writeReviewFragment"

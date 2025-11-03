@@ -535,7 +535,7 @@ class HomeFragment : Fragment() {
         if (requireContext().settings().shouldShowWriteReviewDialog()) {
             nav(
                 R.id.homeFragment,
-                HomeFragmentDirections.actionGlobalWriteReviewDialog()
+                HomeFragmentDirections.actionGlobalEnjoyingKarmaDialog()
             )
         }
         return binding.root

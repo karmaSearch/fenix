@@ -2034,6 +2034,9 @@
     <string name="rating_subtitle">Ihre 5-Sterne-Bewertungen und Rezensionen helfen mehr Menschen, KARMA zu entdecken</string>
     <string name="rating">Im Play Store bewerten</string>
     <string name="rating_later">Später</string>
+    <string name="pre_rating_title">Sind Sie mit KARMA zufrieden?</string>
+    <string name="pre_rating_yes">Ja 💚</string>
+    <string name="pre_rating_no">Nein ❌</string>
 
     <string name="share_title">Teilen Sie KARMA mit Ihren Freunden 💚</string>
     <string name="share_subtitle">Mehr Nutzer = mehr Wirkung!</string>

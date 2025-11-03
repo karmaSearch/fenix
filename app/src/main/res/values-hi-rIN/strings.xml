@@ -1592,6 +1592,9 @@
     <string name="rating_subtitle">आपकी 5-सितारा रेटिंग और समीक्षाएं अधिक लोगों को कर्मा खोजने में मदद करती हैं</string>
     <string name="rating">प्ले स्टोर में रेटिंग दें</string>
     <string name="rating_later">बाद में</string>
+    <string name="pre_rating_title">क्या आपको KARMA पसंद आ रहा है?</string>
+    <string name="pre_rating_yes">हाँ 💚</string>
+    <string name="pre_rating_no">नहीं ❌</string>
 
     <string name="share_title">कर्मा को\nअपने दोस्तों के साथ साझा करें</string>
     <string name="share_subtitle">अच्छा कर्मा साझा करने के लिए है 💚\nअधिक उपयोगकर्ता = अधिक प्रभाव!</string>
