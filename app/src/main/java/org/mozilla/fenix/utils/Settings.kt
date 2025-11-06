@@ -78,7 +78,7 @@ class Settings(private val appContext: Context) : PreferencesHolder {
         private const val INACTIVE_TAB_MINIMUM_TO_SHOW_AUTO_CLOSE_DIALOG = 20
         private const val APP_LAUNCHES_TO_SHOW_SHARED_APP_DIALOG = 20
         private const val APP_LAUNCHES_TO_SHOW_WRITE_REVIEW_DIALOG = 10
-        private const val MONTHS_TO_SHOW_ADD_TO_DOCK_DIALOG = 1
+        const val MONTHS_TO_SHOW_ADD_TO_DOCK_DIALOG = 1
         private const val DAYS_TO_SHOW_DEFAULT_BROWSER_ONBOARDING = 7
         
         // Debug time multiplier for faster testing
@@ -1599,9 +1599,16 @@ class Settings(private val appContext: Context) : PreferencesHolder {
         if (inAppFeatureUpdateTimeStamp == 0L) return false
         
         val timeSinceFeatureUpdate = System.currentTimeMillis() - inAppFeatureUpdateTimeStamp
-        val threshold = MONTHS_TO_SHOW_ADD_TO_DOCK_DIALOG * ONE_MONTH_MS
+        val oneHourThreshold = HOURS_MS
+        val oneMonthThreshold = MONTHS_TO_SHOW_ADD_TO_DOCK_DIALOG * ONE_MONTH_MS
         
-        return !userDismissedAddToDockDialog && timeSinceFeatureUpdate > threshold
+        // Show at 1 hour if not dismissed yet and before 1 month
+        if (timeSinceFeatureUpdate > oneHourThreshold && timeSinceFeatureUpdate < oneMonthThreshold && !userDismissedAddToDockDialogAtOneHour) {
+            return true
+        }
+        
+        // Show at 1 month if not permanently dismissed
+        return !userDismissedAddToDockDialog && timeSinceFeatureUpdate > oneMonthThreshold
     }
 
     /**
@@ -1658,6 +1665,11 @@ class Settings(private val appContext: Context) : PreferencesHolder {
      */
     var userDismissedAddToDockDialog by booleanPreference(
         "pref_key_user_dismissed_add_to_dock_dialog",
+        default = false
+    )
+
+    var userDismissedAddToDockDialogAtOneHour by booleanPreference(
+        "pref_key_user_dismissed_add_to_dock_dialog_one_hour",
         default = false
     )
 }

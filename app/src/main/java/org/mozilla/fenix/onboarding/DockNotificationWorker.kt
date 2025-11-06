@@ -106,7 +106,7 @@ class DockNotificationWorker(
         private const val NOTIFICATION_TAG = "org.mozilla.fenix.dock.tag"
         private const val NOTIFICATION_WORK_NAME = "org.mozilla.fenix.dock.work"
         private val NOTIFICATIONS_DELAY = listOf(
-            Settings.ONE_DAY_MS, // 1 day
+            Settings.ONE_WEEK_MS, // 7 days
         )
 
         fun isDockNotificationIntent(intent: Intent) =

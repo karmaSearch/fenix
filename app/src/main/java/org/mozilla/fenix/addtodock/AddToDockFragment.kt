@@ -19,6 +19,7 @@ import org.mozilla.fenix.R
 import org.mozilla.fenix.databinding.FragmentAddToDockBinding
 import org.mozilla.fenix.ext.settings
 import org.mozilla.fenix.settings.advanced.getSelectedLocale
+import org.mozilla.fenix.utils.Settings
 
 class AddToDockFragment : DialogFragment() {
 
@@ -54,12 +55,27 @@ class AddToDockFragment : DialogFragment() {
 
         binding.addToDockButton.setOnClickListener {
             openDockInstructions()
+            saveDismiss()
             dismiss()
         }
 
         binding.addToDockLater.setOnClickListener {
-            context?.settings()?.userDismissedAddToDockDialog = true
+            saveDismiss()
             dismiss()
+        }
+    }
+
+    private fun saveDismiss() {
+        val settings = context?.settings()
+        val timeSinceFeatureUpdate = System.currentTimeMillis() - (settings?.inAppFeatureUpdateTimeStamp ?: 0L)
+        val oneMonthThreshold = Settings.MONTHS_TO_SHOW_ADD_TO_DOCK_DIALOG * Settings.ONE_MONTH_MS
+
+        if (timeSinceFeatureUpdate < oneMonthThreshold) {
+            // Dismissing at 1 hour - only dismiss for 1 hour showing
+            settings?.userDismissedAddToDockDialogAtOneHour = true
+        } else {
+            // Dismissing at 1 month - permanently dismiss
+            settings?.userDismissedAddToDockDialog = true
         }
     }
 
